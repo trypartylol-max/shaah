@@ -50,6 +50,64 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
 </div>
 
 <script>
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://llpyxktcfubhmthqujpa.supabase.co";
+const SUPABASE_KEY = "sb_publishable_NY_O_EsZ1Og2rjPn5V4q6A_r0ipDXtI";
+
+async function dbGet(date) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/day_logs?date=eq.${date}&select=*`, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    const rows = await r.json();
+    return rows.length > 0 ? rows[0].data : null;
+  } catch(e) { return null; }
+}
+
+async function dbSet(date, data) {
+  try {
+    // Check if exists first
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/day_logs?date=eq.${date}&select=id`, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    const rows = await r.json();
+    if (rows.length > 0) {
+      await fetch(`${SUPABASE_URL}/rest/v1/day_logs?date=eq.${date}`, {
+        method: "PATCH",
+        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ data })
+      });
+    } else {
+      await fetch(`${SUPABASE_URL}/rest/v1/day_logs`, {
+        method: "POST",
+        headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", "Prefer": "return=minimal" },
+        body: JSON.stringify({ date, data })
+      });
+    }
+  } catch(e) {}
+}
+
+async function dbDelete(date) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/day_logs?date=eq.${date}`, {
+      method: "DELETE",
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+  } catch(e) {}
+}
+
+async function dbGetAll() {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/day_logs?select=date,data&order=date.asc`, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    const rows = await r.json();
+    const h = {};
+    rows.forEach(row => { if(row.data) h[row.date] = row.data; });
+    return h;
+  } catch(e) { return get("shaah_history") || {}; }
+}
+
 // ── DATA ─────────────────────────────────────────────────────────────────────
 const MAX=119, LVL1_MAX=55, LVL2_MAX=34, LVL3_MAX=30;
 
@@ -121,8 +179,20 @@ const getChecked=k=>get(`check_${k}`)||{};
 const setChecked=(k,v)=>{set(`check_${k}`,v);};
 const getSocial=k=>get(`social_${k}`)||{flirt:false,strangers:false,friends:false};
 const setSocial=(k,v)=>set(`social_${k}`,v);
-const getHistory=()=>get("shaah_history")||{};
-const setHistory=v=>set("shaah_history",v);
+// History cache - synced with Supabase
+let _historyCache = get("shaah_history") || {};
+
+const getHistory=()=>_historyCache;
+const setHistory=v=>{ _historyCache=v; set("shaah_history",v); };
+
+async function syncHistory() {
+  const remote = await dbGetAll();
+  if (Object.keys(remote).length > 0) {
+    _historyCache = { ..._historyCache, ...remote };
+    set("shaah_history", _historyCache);
+  }
+  render();
+}
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let currentTab="home";
@@ -145,8 +215,16 @@ function calcScore(key){
 function saveToHistory(key){
   const{score,l1,l2,l3,done}=calcScore(key);
   const h=getHistory();
-  if(score>0){h[key]={score,grade:GRADE(score).l,l1,l2,l3,done};setHistory(h);}
-  else{delete h[key];setHistory(h);}
+  if(score>0){
+    const entry={score,grade:GRADE(score).l,l1,l2,l3,done};
+    h[key]=entry;
+    setHistory(h);
+    dbSet(key, entry); // sync to Supabase
+  } else {
+    delete h[key];
+    setHistory(h);
+    dbDelete(key); // remove from Supabase
+  }
 }
 
 // ── SVG HELPERS ───────────────────────────────────────────────────────────────
@@ -199,8 +277,10 @@ function avgWeek(days){const f=days.filter(d=>d.data);return f.length?Math.round
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render(){
   const el=document.getElementById("scroll");
-  if(routineId){el.innerHTML=renderRoutine();return;}
-  if(editDayKey){el.innerHTML=renderEditDay();return;}
+  const nav=document.getElementById("nav");
+  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";return;}
+  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";return;}
+  nav.style.display="flex";
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
   if(currentTab==="home")el.innerHTML=renderHome();
   else if(currentTab==="today")el.innerHTML=renderToday(todayKey());
@@ -404,11 +484,14 @@ function renderToday(key){
 
 // ── EDIT DAY MODAL ────────────────────────────────────────────────────────────
 function renderEditDay(){
-  return`<div class="fade-up">${renderToday(editDayKey)}</div>
-  <div style="position:fixed;top:0;left:0;right:0;background:#07070f;padding:16px 20px;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;gap:12px;z-index:50">
-    <button onclick="closeEditDay()" style="background:none;border:1px solid #1e1e2e;color:#666;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">←</button>
-    <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:0.2em;color:#e2e2e2">EDITAR DÍA</div>
-    <div style="font-size:9px;color:#444;margin-left:4px">${new Date(editDayKey+"T12:00:00").toLocaleDateString("es-PA",{weekday:"short",day:"numeric",month:"short"}).toUpperCase()}</div>
+  const dateStr=new Date(editDayKey+"T12:00:00").toLocaleDateString("es-PA",{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
+  return`<div style="display:flex;flex-direction:column;min-height:100%">
+    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
+      <button onclick="closeEditDay()" style="background:none;border:1px solid #1e1e2e;color:#aaa;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
+      <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:0.2em;color:#e2e2e2">EDITAR DÍA</div>
+      <div style="font-size:9px;color:#444;margin-left:4px">${dateStr}</div>
+    </div>
+    ${renderToday(editDayKey)}
   </div>`;
 }
 
@@ -859,7 +942,9 @@ function renderRoutineTimer(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+// Show loading then sync
 render();
+syncHistory();
 </script>
 </body>
 </html>

@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',monospace;overflow:hidden;}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
-#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(56px + env(safe-area-inset-bottom));}
+#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 #scroll::-webkit-scrollbar{display:none;}
 #nav{position:fixed;bottom:0;left:0;right:0;background:#07070f;border-top:1px solid #0f0f1e;display:flex;padding-bottom:env(safe-area-inset-bottom);}
 .nav-btn{flex:1;padding:10px 4px 12px;background:none;border:none;font-family:inherit;font-size:8px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border-top:2px solid transparent;color:#2a2a3a;display:flex;flex-direction:column;align-items:center;gap:5px;}
@@ -299,7 +299,7 @@ function renderHome(){
   const h=now.getHours();
   const greet=h<12?"Buenos días":h<18?"Buenas tardes":"Buenas noches";
 
-  return`<div class="fade-up" style="padding:calc(28px + env(safe-area-inset-top)) 20px 32px;display:flex;flex-direction:column;gap:18px">
+  return`<div class="fade-up" style="padding:calc(28px + env(safe-area-inset-top)) 20px calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
     <div>
       <div style="font-size:11px;color:#2a2a3a;letter-spacing:0.12em;margin-bottom:4px">${greet.toUpperCase()}</div>
       <div style="font-family:'Bebas Neue';font-size:36px;color:#e2e2e2;line-height:1">${now.toLocaleDateString("es-PA",{weekday:"long"}).toUpperCase()}</div>
@@ -381,7 +381,7 @@ function renderToday(key, nested=false){
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const isToday=key===todayKey();
 
-  return`<div class="fade-up" style="padding:${nested?"16px":"calc(22px + env(safe-area-inset-top))"} 16px 32px;display:flex;flex-direction:column;align-items:center;gap:18px">
+  return`<div class="fade-up" style="padding:${nested?"16px":"calc(22px + env(safe-area-inset-top))"} 16px ${nested?"32px":"calc(80px + env(safe-area-inset-bottom))"};display:flex;flex-direction:column;align-items:center;gap:18px">
     <div style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:0.5em;color:#1e1e2e">DAY SCORE</div>
       <div style="font-size:9px;color:#181828;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("es-PA",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -507,7 +507,7 @@ function renderStats(){
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+d.score,0)/total):0;
   const streak=getStreak();
 
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px 32px;display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[
         {icon:"🔥",label:"RACHA ACTUAL",  val:`${streak}d`, col:"#FFD700", sub:streak>0?"días ≥ 60%":"sin racha"},
@@ -588,7 +588,7 @@ function renderStats(){
 
 // ── HISTORY ───────────────────────────────────────────────────────────────────
 function renderHistory(){
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px 32px;display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:flex;gap:8px">
       ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DÍAS":t==="month"?"28 DÍAS":"AÑO"}</button>`).join("")}
     </div>

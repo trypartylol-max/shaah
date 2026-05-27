@@ -16,7 +16,7 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
 #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 #scroll::-webkit-scrollbar{display:none;}
-#nav{position:fixed;bottom:0;left:0;right:0;background:#07070f;border-top:1px solid #0f0f1e;display:flex;padding-bottom:env(safe-area-inset-bottom);}
+#nav{position:fixed;bottom:0;left:0;right:0;background:#07070f;border-top:1px solid #0f0f1e;display:flex;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 20px 0 20px #07070f;}
 .nav-btn{flex:1;padding:10px 4px 12px;background:none;border:none;font-family:inherit;font-size:8px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border-top:2px solid transparent;color:#2a2a3a;display:flex;flex-direction:column;align-items:center;gap:5px;}
 .nav-btn.active{color:#e2e2e2;border-top-color:#e2e2e2;}
 .row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;cursor:pointer;user-select:none;transition:all 0.18s;border:1px solid transparent;position:relative;overflow:hidden;}
@@ -52,7 +52,7 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
 <script>
 // ── SUPABASE ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = "https://llpyxktcfubhmthqujpa.supabase.co";
-const SUPABASE_KEY = "sb_publishable_NY_O_EsZ1Og2rjPn5V4q6A_r0ipDXtI";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscHl4a3RjZnViaG10aHF1anBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTQyMzEsImV4cCI6MjA5NTM5MDIzMX0.4dutcaJzjhuR9IQRlpBetGgLalaSZCiEDdl3oSI_f2A";
 
 async function dbGet(date) {
   try {
@@ -299,7 +299,7 @@ function renderHome(){
   const h=now.getHours();
   const greet=h<12?"Buenos días":h<18?"Buenas tardes":"Buenas noches";
 
-  return`<div class="fade-up" style="padding:calc(28px + env(safe-area-inset-top)) 20px calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
+  return`<div class="fade-up" style="padding:calc(28px + env(safe-area-inset-top)) 20px calc(100px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
     <div>
       <div style="font-size:11px;color:#2a2a3a;letter-spacing:0.12em;margin-bottom:4px">${greet.toUpperCase()}</div>
       <div style="font-family:'Bebas Neue';font-size:36px;color:#e2e2e2;line-height:1">${now.toLocaleDateString("es-PA",{weekday:"long"}).toUpperCase()}</div>
@@ -345,7 +345,7 @@ function renderHome(){
             <div style="font-size:10px;color:#333;margin-top:3px">${rt.steps.length} pasos · ${totalMin} min</div>
             ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span style="font-size:9px;color:#333;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${s.icon} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:9px;color:#252535">+${rt.steps.length-4} más</span>`:""}</div>`:""}
           </div>
-          ${done?`<div style="font-size:22px">✅</div>`:`
+          ${done?`<div onclick="toggleHabit('${item.id}','${tk}')" style="font-size:22px;cursor:pointer" title="Desmarcar">✅</div>`:`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
             <button onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:10px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ INICIAR</button>
             <button onclick="quickComplete('${item.id}')" style="background:none;border:1px solid ${rt.col}55;color:${rt.col};font-family:inherit;font-size:9px;letter-spacing:0.08em;padding:6px 14px;border-radius:8px;cursor:pointer;white-space:nowrap">✓ LISTO</button>
@@ -381,7 +381,7 @@ function renderToday(key, nested=false){
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const isToday=key===todayKey();
 
-  return`<div class="fade-up" style="padding:${nested?"16px":"calc(22px + env(safe-area-inset-top))"} 16px ${nested?"32px":"calc(80px + env(safe-area-inset-bottom))"};display:flex;flex-direction:column;align-items:center;gap:18px">
+  return`<div class="fade-up" style="padding:${nested?"16px":"calc(22px + env(safe-area-inset-top))"} 16px ${nested?"32px":"calc(100px + env(safe-area-inset-bottom))"};display:flex;flex-direction:column;align-items:center;gap:18px">
     <div style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:0.5em;color:#1e1e2e">DAY SCORE</div>
       <div style="font-size:9px;color:#181828;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("es-PA",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -423,7 +423,7 @@ function renderToday(key, nested=false){
           </div>
           <span style="font-size:10px;color:${ch[item.id]?"#e2e2e299":"#252535"}">${item.pts}%</span>
         </div>
-        ${item.routine&&!ch[item.id]&&isToday?`
+        ${item.routine&&!ch[item.id]&&isToday&&!nested?`
         <div style="display:flex;gap:5px;margin-left:8px">
           <button onclick="startRoutine('${item.id}')" style="background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:11px;padding:8px 11px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55">▶</button>
           <button onclick="quickComplete('${item.id}')" style="background:none;border:1px solid ${ROUTINES[item.id].col}55;color:${ROUTINES[item.id].col};font-family:inherit;font-size:11px;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700" title="Marcar listo">✓</button>
@@ -507,7 +507,7 @@ function renderStats(){
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+d.score,0)/total):0;
   const streak=getStreak();
 
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(100px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[
         {icon:"🔥",label:"RACHA ACTUAL",  val:`${streak}d`, col:"#FFD700", sub:streak>0?"días ≥ 60%":"sin racha"},
@@ -588,7 +588,7 @@ function renderStats(){
 
 // ── HISTORY ───────────────────────────────────────────────────────────────────
 function renderHistory(){
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(100px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:flex;gap:8px">
       ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DÍAS":t==="month"?"28 DÍAS":"AÑO"}</button>`).join("")}
     </div>

@@ -372,7 +372,7 @@ function renderHome(){
 }
 
 // ── TODAY ─────────────────────────────────────────────────────────────────────
-function renderToday(key){
+function renderToday(key, nested=false){
   const ch=getChecked(key);
   const soc=getSocial(key);
   const{score,l1,l2,l3,done}=calcScore(key);
@@ -382,7 +382,7 @@ function renderToday(key){
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const isToday=key===todayKey();
 
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px 32px;display:flex;flex-direction:column;align-items:center;gap:22px">
+  return`<div class="fade-up" style="padding:${nested?"16px":"calc(22px + env(safe-area-inset-top))"} 16px 32px;display:flex;flex-direction:column;align-items:center;gap:22px">
     <div style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:0.5em;color:#1e1e2e">DAY SCORE</div>
       <div style="font-size:9px;color:#181828;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("es-PA",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -487,12 +487,12 @@ function renderToday(key){
 function renderEditDay(){
   const dateStr=new Date(editDayKey+"T12:00:00").toLocaleDateString("es-PA",{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
   return`<div style="display:flex;flex-direction:column;min-height:100%">
-    <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
+    <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeEditDay()" style="background:none;border:1px solid #1e1e2e;color:#aaa;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:0.2em;color:#e2e2e2">EDITAR DÍA</div>
       <div style="font-size:9px;color:#444;margin-left:4px">${dateStr}</div>
     </div>
-    ${renderToday(editDayKey)}
+    ${renderToday(editDayKey, true)}
   </div>`;
 }
 
@@ -590,7 +590,7 @@ function renderStats(){
 // ── HISTORY ───────────────────────────────────────────────────────────────────
 function renderHistory(){
   return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px 32px;display:flex;flex-direction:column;gap:20px">
-    <div style="display:flex;gap:8px;padding-top:env(safe-area-inset-top)">
+    <div style="display:flex;gap:8px">
       ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DÍAS":t==="month"?"28 DÍAS":"AÑO"}</button>`).join("")}
     </div>
     ${histTab==="week"?renderHistWeek():histTab==="month"?renderHistMonth():renderHistYear()}
@@ -952,13 +952,18 @@ document.addEventListener("touchstart", e => {
 }, { passive: true });
 
 document.addEventListener("touchend", e => {
-  if (routineId || editDayKey) return; // disable swipe in overlays
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
   if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.8) return; // too short or too vertical
+  // Swipe right → back from overlays
+  if (dx > 0) {
+    if (editDayKey) { closeEditDay(); return; }
+    if (routineId) { closeRoutine(); return; }
+  }
+  if (routineId || editDayKey) return; // no tab swipe inside overlays
   const idx = TABS_ORDER.indexOf(currentTab);
-  if (dx < 0 && idx < TABS_ORDER.length - 1) setTab(TABS_ORDER[idx + 1]); // swipe left → next
-  if (dx > 0 && idx > 0) setTab(TABS_ORDER[idx - 1]); // swipe right → prev
+  if (dx < 0 && idx < TABS_ORDER.length - 1) setTab(TABS_ORDER[idx + 1]);
+  if (dx > 0 && idx > 0) setTab(TABS_ORDER[idx - 1]);
 }, { passive: true });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────

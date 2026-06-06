@@ -151,7 +151,7 @@ function saveToHistory(key){
   if(score>0||Object.values(ch).some(Boolean)){
     const entry={score,grade:GRADE(score).l,l1,l2,l3,done};
     if(score>0){h[key]=entry;setHistory(h);}
-    dbSet(key,{...entry,_checks:ch,_social:soc});
+    dbSet(key,{...entry,_checks:ch,_social:soc,_ts:Date.now()});
   } else {
     delete h[key];setHistory(h);dbDelete(key);
   }
@@ -166,9 +166,12 @@ async function syncHistory(){
       if(!data)continue;
       if(data._checks){
         const existing=getChecked(date);
-        if(JSON.stringify(data._checks)!==JSON.stringify(existing)){
+        const localTs=get(`ts_${date}`)||0;
+        const remoteTs=data._ts||0;
+        if(remoteTs>localTs&&JSON.stringify(data._checks)!==JSON.stringify(existing)){
           setChecked(date,data._checks);
           if(data._social)setSocial(date,data._social);
+          set(`ts_${date}`,remoteTs);
         }
       }
       const{_checks,_social,...entry}=data;
@@ -192,9 +195,12 @@ setInterval(async()=>{
       if(!data)continue;
       if(data._checks){
         const existing=getChecked(date);
-        if(JSON.stringify(data._checks)!==JSON.stringify(existing)){
+        const localTs=get(`ts_${date}`)||0;
+        const remoteTs=data._ts||0;
+        if(remoteTs>localTs&&JSON.stringify(data._checks)!==JSON.stringify(existing)){
           setChecked(date,data._checks);
           if(data._social)setSocial(date,data._social);
+          set(`ts_${date}`,remoteTs);
           changed=true;
         }
       }
@@ -585,8 +591,8 @@ function renderRoutine(){
 
 function setTab(t){currentTab=t;render();}
 function setHistTab(t){histTab=t;render();}
-function toggleHabit(id,key){const ch=getChecked(key);ch[id]=!ch[id];setChecked(key,ch);saveToHistory(key);render();}
-function quickComplete(id){const ch=getChecked(todayKey());ch[id]=true;setChecked(todayKey(),ch);saveToHistory(todayKey());render();}
+function toggleHabit(id,key){const ch=getChecked(key);ch[id]=!ch[id];setChecked(key,ch);set(`ts_${key}`,Date.now());saveToHistory(key);render();}
+function quickComplete(id){const ch=getChecked(todayKey());ch[id]=true;setChecked(todayKey(),ch);set(`ts_${todayKey()}`,Date.now());saveToHistory(todayKey());render();}
 function handleSocial(key){if(socialExpanded)return;const ch=getChecked(key),soc=getSocial(key),v=!ch.social;ch.social=v;setChecked(key,ch);setSocial(key,{flirt:v,strangers:v,friends:v});saveToHistory(key);render();}
 function toggleSocialExpand(key){socialExpanded=!socialExpanded;render();}
 function toggleSub(id,key){const soc=getSocial(key);soc[id]=!soc[id];setSocial(key,soc);const ch=getChecked(key);ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);saveToHistory(key);render();}

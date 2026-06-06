@@ -43,7 +43,8 @@ html,body{height:100%;min-height:100dvh;background:#07070f;color:#e2e2e2;font-fa
 <body>
 <div id="app">
   <div id="scroll"></div>
-  <nav id="nav">
+  <div id="sync-status" style="position:fixed;top:env(safe-area-inset-top);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#444;letter-spacing:0.1em">SYNC</div>
+<nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
     <button class="nav-btn" data-tab="today" onclick="setTab('today')"><span style="font-size:17px">◉</span>HOY</button>
     <button class="nav-btn" data-tab="stats" onclick="setTab('stats')"><span style="font-size:17px">◇</span>STATS</button>
@@ -184,6 +185,8 @@ const getHistory=()=>_historyCache;
 const setHistory=v=>{ _historyCache=v; set("shaah_history",v); };
 
 async function syncHistory() {
+  const statusEl = document.getElementById('sync-status');
+  if (statusEl) { statusEl.style.color='#f59e0b'; statusEl.textContent='SYNCING...'; }
   const remote = await dbGetAll();
   if (Object.keys(remote).length > 0) {
     const tk = todayKey();
@@ -235,11 +238,16 @@ function saveToHistory(key){
     const entry={score,grade:GRADE(score).l,l1,l2,l3,done};
     h[key]=entry;
     setHistory(h);
-    dbSet(key, {...entry, _checks:ch, _social:soc}); // sync full state to Supabase
+    dbSet(key, {...entry, _checks:ch, _social:soc});
+  } else if(Object.values(ch).some(Boolean)){
+    // Score 0 but some checks exist - save checks only
+    dbSet(key, {score:0,grade:'F',l1:0,l2:0,l3:0,done:0, _checks:ch, _social:soc});
+    delete h[key];
+    setHistory(h);
   } else {
     delete h[key];
     setHistory(h);
-    dbDelete(key); // remove from Supabase
+    dbDelete(key);
   }
 }
 

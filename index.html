@@ -186,7 +186,23 @@ const setHistory=v=>{ _historyCache=v; set("shaah_history",v); };
 async function syncHistory() {
   const remote = await dbGetAll();
   if (Object.keys(remote).length > 0) {
-    _historyCache = { ..._historyCache, ...remote };
+    const tk = todayKey();
+    for (const [date, data] of Object.entries(remote)) {
+      // Restore checks and social for each date
+      if (data._checks) {
+        const existing = getChecked(date);
+        // Only overwrite if remote is newer (has more checked items)
+        const remoteCount = Object.values(data._checks).filter(Boolean).length;
+        const localCount = Object.values(existing).filter(Boolean).length;
+        if (remoteCount >= localCount) {
+          setChecked(date, data._checks);
+          if (data._social) setSocial(date, data._social);
+        }
+      }
+      // Store history without internal fields
+      const {_checks, _social, ...entry} = data;
+      _historyCache[date] = entry;
+    }
     set("shaah_history", _historyCache);
   }
   render();
@@ -213,11 +229,13 @@ function calcScore(key){
 function saveToHistory(key){
   const{score,l1,l2,l3,done}=calcScore(key);
   const h=getHistory();
+  const ch=getChecked(key);
+  const soc=getSocial(key);
   if(score>0){
     const entry={score,grade:GRADE(score).l,l1,l2,l3,done};
     h[key]=entry;
     setHistory(h);
-    dbSet(key, entry); // sync to Supabase
+    dbSet(key, {...entry, _checks:ch, _social:soc}); // sync full state to Supabase
   } else {
     delete h[key];
     setHistory(h);
@@ -981,15 +999,22 @@ setInterval(async () => {
     }
   }
   if (changed) {
-    _historyCache = { ...local, ...remote };
-    set("shaah_history", _historyCache);
-    // Also sync today's checked state if remote has today's data
     const tk = todayKey();
-    if (remote[tk]) {
-      render();
-    } else {
-      render();
+    for (const [date, data] of Object.entries(remote)) {
+      if (data._checks) {
+        const existing = getChecked(date);
+        const remoteCount = Object.values(data._checks).filter(Boolean).length;
+        const localCount = Object.values(existing).filter(Boolean).length;
+        if (remoteCount >= localCount) {
+          setChecked(date, data._checks);
+          if (data._social) setSocial(date, data._social);
+        }
+      }
+      const {_checks, _social, ...entry} = data;
+      _historyCache[date] = entry;
     }
+    set("shaah_history", _historyCache);
+    render();
   }
 }, 15000);
 

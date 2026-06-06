@@ -45,6 +45,9 @@ html::after{content:"";position:fixed;bottom:0;left:0;right:0;height:env(safe-ar
   </nav>
 </div>
 <script>
+// Unique device ID for this browser/device
+const DEVICE_ID = (()=>{ let id=localStorage.getItem('shaah_device'); if(!id){id=Math.random().toString(36).slice(2);localStorage.setItem('shaah_device',id);} return id; })();
+
 const SUPABASE_URL="https://llpyxktcfubhmthqujpa.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscHl4a3RjZnViaG10aHF1anBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTQyMzEsImV4cCI6MjA5NTM5MDIzMX0.4dutcaJzjhuR9IQRlpBetGgLalaSZCiEDdl3oSI_f2A";
 
@@ -151,7 +154,7 @@ function saveToHistory(key){
   if(score>0||Object.values(ch).some(Boolean)){
     const entry={score,grade:GRADE(score).l,l1,l2,l3,done};
     if(score>0){h[key]=entry;setHistory(h);}
-    dbSet(key,{...entry,_checks:ch,_social:soc,_ts:Date.now()});
+    dbSet(key,{...entry,_checks:ch,_social:soc,_ts:Date.now(),_dev:DEVICE_ID});
   } else {
     delete h[key];setHistory(h);dbDelete(key);
   }
@@ -165,10 +168,10 @@ async function syncHistory(){
     for(const [date,data] of Object.entries(remote)){
       if(!data)continue;
       if(data._checks){
-        const existing=getChecked(date);
-        const localTs=get(`ts_${date}`)||0;
         const remoteTs=data._ts||0;
-        if(remoteTs>localTs&&JSON.stringify(data._checks)!==JSON.stringify(existing)){
+        const remoteDev=data._dev||'';
+        const localTs=get(`ts_${date}`)||0;
+        if(remoteDev!==DEVICE_ID&&remoteTs>localTs){
           setChecked(date,data._checks);
           if(data._social)setSocial(date,data._social);
           set(`ts_${date}`,remoteTs);
@@ -195,9 +198,11 @@ setInterval(async()=>{
       if(!data)continue;
       if(data._checks){
         const existing=getChecked(date);
-        const localTs=get(`ts_${date}`)||0;
         const remoteTs=data._ts||0;
-        if(remoteTs>localTs&&JSON.stringify(data._checks)!==JSON.stringify(existing)){
+        const remoteDev=data._dev||'';
+        const localTs=get(`ts_${date}`)||0;
+        // Apply if from different device and remote is newer
+        if(remoteDev!==DEVICE_ID&&remoteTs>localTs){
           setChecked(date,data._checks);
           if(data._social)setSocial(date,data._social);
           set(`ts_${date}`,remoteTs);

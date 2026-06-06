@@ -185,8 +185,8 @@ const getHistory=()=>_historyCache;
 const setHistory=v=>{ _historyCache=v; set("shaah_history",v); };
 
 async function syncHistory() {
-  const statusEl = document.getElementById('sync-status');
-  if (statusEl) { statusEl.style.color='#f59e0b'; statusEl.textContent='SYNCING...'; }
+  const statusEl = () => document.getElementById('sync-status');
+  if (statusEl()) { statusEl().style.color='#f59e0b'; statusEl().textContent='SYNCING...'; }
   const remote = await dbGetAll();
   if (Object.keys(remote).length > 0) {
     const tk = todayKey();

@@ -195,32 +195,32 @@ const getHistory=()=>_historyCache;
 const setHistory=v=>{ _historyCache=v; set("shaah_history",v); };
 
 async function syncHistory() {
-  const statusEl = () => document.getElementById('sync-status');
-  if (statusEl()) { statusEl().style.color='#f59e0b'; statusEl().textContent='SYNCING...'; }
-  const remote = await dbGetAll();
-  if (Object.keys(remote).length > 0) {
-    const tk = todayKey();
-    for (const [date, data] of Object.entries(remote)) {
-      // Restore checks and social for each date
-      if (data._checks) {
-        const existing = getChecked(date);
-        // Only overwrite if remote is newer (has more checked items)
-        const remoteCount = Object.values(data._checks).filter(Boolean).length;
-        const localCount = Object.values(existing).filter(Boolean).length;
-        if (remoteCount >= localCount) {
-          setChecked(date, data._checks);
-          if (data._social) setSocial(date, data._social);
+  const getStatus = () => document.getElementById('sync-status');
+  const el = getStatus();
+  if (el) { el.style.color='#f59e0b'; el.textContent='SYNC...'; }
+  try {
+    const remote = await dbGetAll();
+    if (Object.keys(remote).length > 0) {
+      for (const [date, data] of Object.entries(remote)) {
+        if (data._checks) {
+          const existing = getChecked(date);
+          const remoteStr = JSON.stringify(data._checks);
+          const localStr = JSON.stringify(existing);
+          if (remoteStr !== localStr) {
+            setChecked(date, data._checks);
+            if (data._social) setSocial(date, data._social);
+          }
         }
+        const {_checks, _social, ...entry} = data;
+        if (entry.score !== undefined) _historyCache[date] = entry;
       }
-      // Store history without internal fields
-      const {_checks, _social, ...entry} = data;
-      _historyCache[date] = entry;
+      set("shaah_history", _historyCache);
     }
-    set("shaah_history", _historyCache);
-  }
+  } catch(e) {}
+  const el2 = getStatus();
+  if (el2) { el2.style.color='#4ade80'; el2.textContent='✓'; setTimeout(()=>{ const e=getStatus(); if(e){e.style.color='#444';e.textContent='SYNC';} },2000); }
   render();
 }
-
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let currentTab="home";
 let routineId=null, routineQueue=[], routineCompleted={}, timerSecs=0, timerRunning=false, timerInterval=null;
@@ -1005,37 +1005,33 @@ syncHistory();
 
 // Poll Supabase every 15 seconds for changes from other devices
 setInterval(async () => {
-  const remote = await dbGetAll();
-  if (Object.keys(remote).length === 0) return;
-  const local = getHistory();
-  let changed = false;
-  // Check if remote has newer data
-  for (const [date, data] of Object.entries(remote)) {
-    if (!local[date] || JSON.stringify(local[date]) !== JSON.stringify(data)) {
-      changed = true;
-      break;
-    }
-  }
-  if (changed) {
-    const tk = todayKey();
+  try {
+    const remote = await dbGetAll();
+    if (Object.keys(remote).length === 0) return;
+    let changed = false;
     for (const [date, data] of Object.entries(remote)) {
       if (data._checks) {
         const existing = getChecked(date);
-        const remoteCount = Object.values(data._checks).filter(Boolean).length;
-        const localCount = Object.values(existing).filter(Boolean).length;
-        if (remoteCount >= localCount) {
+        if (JSON.stringify(data._checks) !== JSON.stringify(existing)) {
           setChecked(date, data._checks);
           if (data._social) setSocial(date, data._social);
+          changed = true;
         }
       }
       const {_checks, _social, ...entry} = data;
-      _historyCache[date] = entry;
+      if (entry.score !== undefined) {
+        const local = _historyCache[date];
+        if (!local || local.score !== entry.score) {
+          _historyCache[date] = entry;
+          changed = true;
+        }
+      }
     }
-    set("shaah_history", _historyCache);
-    render();
-  }
+    if (changed) {
+      set("shaah_history", _historyCache);
+      const el = document.getElementById('sync-status');
+      if (el) { el.style.color='#4ade80'; el.textContent='↑↓'; setTimeout(()=>{ const e=document.getElementById('sync-status'); if(e){e.style.color='#444';e.textContent='SYNC';} },2000); }
+      render();
+    }
+  } catch(e) {}
 }, 15000);
-
-</script>
-</body>
-</html>

@@ -18,12 +18,12 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
 #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
 #scroll::-webkit-scrollbar{display:none;}
 #nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:999;}
-.nav-btn{flex:1;padding:8px 4px 8px;background:none;border:none;font-family:inherit;font-size:7px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border-top:2px solid transparent;color:#444;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.nav-btn{flex:1;padding:8px 4px 8px;background:none;border:none;font-family:inherit;font-size:7px;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border-top:2px solid transparent;color:#666;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .nav-btn.active{color:#e2e2e2;border-top-color:#e2e2e2;}
 .row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;cursor:pointer;user-select:none;transition:all 0.18s;border:1px solid transparent;position:relative;overflow:hidden;}
 .row.on{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.07);}
 .row:active{transform:scale(0.975);}
-.sec{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:#3a3a4a;margin-bottom:12px;padding-left:2px;}
+.sec{font-size:8px;letter-spacing:0.28em;text-transform:uppercase;color:#666;margin-bottom:12px;padding-left:2px;}
 .card{background:#0c0c18;border:1px solid #111120;border-radius:16px;padding:18px;}
 .htab{padding:7px 16px;background:none;border:1px solid #161626;color:#333;font-family:inherit;font-size:9px;letter-spacing:0.15em;border-radius:99px;cursor:pointer;transition:all 0.2s;}
 .htab.active{border-color:#3a3a5a;color:#e2e2e2;background:#161626;}
@@ -35,7 +35,7 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
 </head>
 <body>
 <div id="app">
-  <div id="sync-status" style="position:fixed;top:env(safe-area-inset-top);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#444;letter-spacing:0.1em">SYNC</div>
+  <div id="sync-status" style="position:fixed;top:env(safe-area-inset-top);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666;letter-spacing:0.1em">SYNC</div>
   <div id="scroll"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
@@ -167,18 +167,16 @@ async function syncHistory(){
     const remote=await dbGetAll();
     for(const [date,data] of Object.entries(remote)){
       if(!data)continue;
-      if(data._checks){
-        const remoteTs=data._ts||0;
-        const remoteDev=data._dev||'';
-        const localTs=get(`ts_${date}`)||0;
-        if(remoteDev!==DEVICE_ID&&remoteTs>localTs){
-          setChecked(date,data._checks);
-          if(data._social)setSocial(date,data._social);
-          set(`ts_${date}`,remoteTs);
-        }
+      const remoteTs=data._ts||0;
+      const remoteDev=data._dev||'';
+      const localTs=get(`ts_${date}`)||0;
+      if(data._checks&&remoteDev!==DEVICE_ID&&remoteTs>localTs){
+        setChecked(date,data._checks);
+        if(data._social)setSocial(date,data._social);
+        set(`ts_${date}`,remoteTs);
       }
       const{_checks,_social,...entry}=data;
-      if(typeof entry.score==='number'){_hist[date]=entry;}
+      if(typeof entry.score==='number'&&remoteTs>=localTs){_hist[date]=entry;}
     }
     if(Object.keys(remote).length>0)set("shaah_h",_hist);
     if(el()){el().style.color='#4ade80';el().textContent='✓';}
@@ -196,21 +194,17 @@ setInterval(async()=>{
     let changed=false;
     for(const [date,data] of Object.entries(remote)){
       if(!data)continue;
-      if(data._checks){
-        const existing=getChecked(date);
-        const remoteTs=data._ts||0;
-        const remoteDev=data._dev||'';
-        const localTs=get(`ts_${date}`)||0;
-        // Apply if from different device and remote is newer
-        if(remoteDev!==DEVICE_ID&&remoteTs>localTs){
-          setChecked(date,data._checks);
-          if(data._social)setSocial(date,data._social);
-          set(`ts_${date}`,remoteTs);
-          changed=true;
-        }
+      const remoteTs=data._ts||0;
+      const remoteDev=data._dev||'';
+      const localTs=get(`ts_${date}`)||0;
+      if(data._checks&&remoteDev!==DEVICE_ID&&remoteTs>localTs){
+        setChecked(date,data._checks);
+        if(data._social)setSocial(date,data._social);
+        set(`ts_${date}`,remoteTs);
+        changed=true;
       }
       const{_checks,_social,...entry}=data;
-      if(typeof entry.score==='number'){
+      if(typeof entry.score==='number'&&remoteTs>=localTs){
         if(!_hist[date]||_hist[date].score!==entry.score){_hist[date]=entry;changed=true;}
       }
     }
@@ -225,7 +219,17 @@ function getStreak(){
 }
 function getDays(n){
   const days=[];
-  for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);days.push({key,date:d,data:getHistory()[key]||null});}
+  const tk=todayKey();
+  for(let i=n-1;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    let data=getHistory()[key]||null;
+    if(key===tk){
+      const{score,l1,l2,l3,done}=calcScore(tk);
+      data=score>0?{score,grade:GRADE(score).l,l1,l2,l3,done}:null;
+    }
+    days.push({key,date:d,data});
+  }
   return days;
 }
 function getWeeks(){const d=getDays(28);return[0,1,2,3].map(w=>d.slice(w*7,w*7+7));}
@@ -292,8 +296,8 @@ function renderHome(){
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${rt.icon}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:14px;color:${done?"#555":"#e2e2e2"};font-weight:500;${done?"text-decoration:line-through":""}">${rt.label}</div>
-            <div style="font-size:10px;color:#333;margin-top:3px">${rt.steps.length} pasos · ${totalMin} min</div>
-            ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span style="font-size:9px;color:#333;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${s.icon} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:9px;color:#252535">+${rt.steps.length-4} más</span>`:""}</div>`:""}
+            <div style="font-size:10px;color:#777;margin-top:3px">${rt.steps.length} pasos · ${totalMin} min</div>
+            ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span style="font-size:9px;color:#333;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${s.icon} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:9px;color:#666">+${rt.steps.length-4} más</span>`:""}</div>`:""}
           </div>
           ${done?`<div onclick="toggleHabit('${item.id}','${tk}')" style="font-size:22px;cursor:pointer">✅</div>`:`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
@@ -310,8 +314,8 @@ function renderHome(){
         <div style="background:${ch[item.id]?item.col+"0a":"#0d0d1a"};border:1px solid ${ch[item.id]?item.col+"25":"#111120"};border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
           <span style="font-size:18px;opacity:${ch[item.id]?1:0.4}">${item.icon}</span>
           <div>
-            <div style="font-size:11px;color:${ch[item.id]?"#e2e2e2":"#444"}">${item.label}</div>
-            <div style="font-size:9px;color:${ch[item.id]?item.col+"88":"#252535"};margin-top:2px">${ch[item.id]?"✓ DONE":item.pts+"%"}</div>
+            <div style="font-size:11px;color:${ch[item.id]?"#e2e2e2":"#bbb"}">${item.label}</div>
+            <div style="font-size:9px;color:${ch[item.id]?item.col+"88":"#666"};margin-top:2px">${ch[item.id]?"✓ DONE":item.pts+"%"}</div>
           </div>
         </div>`).join("")}
       </div>
@@ -327,7 +331,7 @@ function renderToday(key,nested=false){
   return`<div class="fade-up" style="padding:${nested?"16px":`calc(22px + env(safe-area-inset-top))`} 16px ${nested?"32px":`calc(72px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     <div style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:0.5em;color:#1e1e2e">DAY SCORE</div>
-      <div style="font-size:9px;color:#444;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("es-PA",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
+      <div style="font-size:9px;color:#888;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("es-PA",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>
     <div style="position:relative;width:168px;height:168px">
       ${ring(score,MAX,168,12,gr.c,gr.g)}
@@ -339,12 +343,12 @@ function renderToday(key,nested=false){
     <div style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
       <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${gr.l}</div>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;font-size:8px;color:#2a2a3a;margin-bottom:9px"><span style="color:#888">${done} HÁBITOS</span><span style="color:#888">/${MAX}%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:8px;color:#2a2a3a;margin-bottom:9px"><span style="color:#aaa">${done} HÁBITOS</span><span style="color:#aaa">/${MAX}%</span></div>
         ${bar((Math.min(score,MAX)/MAX)*100,gr.c,gr.g,5)}
         <div style="display:flex;justify-content:space-between;font-size:8px;color:#1e1e2e;margin-top:8px">
-          <span style="color:#555">CORE <span style="color:${l1>0?"#e2e2e2":"#555"}">${l1}/${LVL1_MAX}</span></span>
-          <span style="color:#555">HABITS <span style="color:${l2>0?"#a78bfa":"#555"}">${l2}/${LVL2_MAX}</span></span>
-          <span style="color:#555">BONUS <span style="color:${l3>0?"#fbbf24":"#555"}">${l3}/${LVL3_MAX}</span></span>
+          <span style="color:#888">CORE <span style="color:${l1>0?"#e2e2e2":"#777"}">${l1}/${LVL1_MAX}</span></span>
+          <span style="color:#888">HABITS <span style="color:${l2>0?"#a78bfa":"#777"}">${l2}/${LVL2_MAX}</span></span>
+          <span style="color:#888">BONUS <span style="color:${l3>0?"#fbbf24":"#777"}">${l3}/${LVL3_MAX}</span></span>
         </div>
       </div>
     </div>
@@ -358,7 +362,7 @@ function renderToday(key,nested=false){
             ${chk(!!ch[item.id],item.col)}
             <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${item.icon} ${item.label}</span>
           </div>
-          <span style="font-size:10px;color:${ch[item.id]?"#e2e2e299":"#555"}">${item.pts}%</span>
+          <span style="font-size:10px;color:${ch[item.id]?"#e2e2e299":"#777"}">${item.pts}%</span>
         </div>
         ${item.routine&&!ch[item.id]&&isToday&&!nested?`
         <div style="display:flex;gap:5px;margin-left:8px">
@@ -375,7 +379,7 @@ function renderToday(key,nested=false){
           ${chk(!!ch[item.id],item.col)}
           <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${item.icon} ${item.label}</span>
         </div>
-        <span style="font-size:10px;color:${ch[item.id]?"#a78bfa99":"#555"}">${item.pts}%</span>
+        <span style="font-size:10px;color:${ch[item.id]?"#a78bfa99":"#777"}">${item.pts}%</span>
       </div>`).join("")}
     </div>
     <div style="width:100%;max-width:390px">
@@ -390,7 +394,7 @@ function renderToday(key,nested=false){
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:9px" onclick="event.stopPropagation()">
-            <span style="font-size:10px;color:${ch.social?"#fbbf2499":"#555"}">${socialPts||18}%</span>
+            <span style="font-size:10px;color:${ch.social?"#fbbf2499":"#777"}">${socialPts||18}%</span>
             <button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${socialExpanded?"✕":"EDITAR"}</button>
           </div>
         </div>
@@ -399,7 +403,7 @@ function renderToday(key,nested=false){
           <div onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:12px;color:${soc[s.id]?"#e2e2e2":"#3a3a4a"};background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"};user-select:none">
             ${chk(!!soc[s.id],"#fbbf24",18)}
             <span>${s.icon} ${s.label}</span>
-            <span style="margin-left:auto;font-size:9px;color:#252535">6%</span>
+            <span style="margin-left:auto;font-size:9px;color:#666">6%</span>
           </div>`).join("")}
         </div>`:""}
       </div>
@@ -409,7 +413,7 @@ function renderToday(key,nested=false){
           ${chk(!!ch[item.id],"#fbbf24")}
           <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${item.icon} ${item.label}</span>
         </div>
-        <span style="font-size:10px;color:${ch[item.id]?"#fbbf2499":"#555"}">${item.pts}%</span>
+        <span style="font-size:10px;color:${ch[item.id]?"#fbbf2499":"#777"}">${item.pts}%</span>
       </div>`).join("")}
     </div>
     ${isToday?`<button onclick="resetDay('${key}')" style="background:none;border:1px solid #111120;color:#1e1e2e;font-family:inherit;font-size:9px;letter-spacing:0.22em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DÍA</button>`:""}
@@ -435,7 +439,7 @@ function renderStats(){
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+d.score,0)/total):0,streak=getStreak();
   return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(72px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${[{icon:"🔥",label:"RACHA ACTUAL",val:`${streak}d`,col:"#FFD700",sub:streak>0?"días ≥ 60%":"sin racha"},{icon:"📊",label:"PROMEDIO",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg).c:"#333",sub:oAvg>0?GRADE(oAvg).n:"—"},{icon:"🏆",label:"MEJOR DÍA",val:`${best}%`,col:best>0?GRADE(best).c:"#333",sub:best>0?GRADE(best).n:"—"},{icon:"📅",label:"DÍAS REGISTRADOS",val:total,col:"#60a5fa",sub:"en total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:20px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:8px;color:#3a3a4a;margin-top:5px;letter-spacing:0.15em">${m.label}</div><div style="font-size:9px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
+      ${[{icon:"🔥",label:"RACHA ACTUAL",val:`${streak}d`,col:"#FFD700",sub:streak>0?"días ≥ 60%":"sin racha"},{icon:"📊",label:"PROMEDIO",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg).c:"#333",sub:oAvg>0?GRADE(oAvg).n:"—"},{icon:"🏆",label:"MEJOR DÍA",val:`${best}%`,col:best>0?GRADE(best).c:"#333",sub:best>0?GRADE(best).n:"—"},{icon:"📅",label:"DÍAS REGISTRADOS",val:total,col:"#60a5fa",sub:"en total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:20px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:8px;color:#888;margin-top:5px;letter-spacing:0.15em">${m.label}</div><div style="font-size:9px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
     <div>
       <div class="sec">HOY — DESGLOSE</div>
@@ -498,11 +502,11 @@ function renderHistMonth(){
           ${week.map(({key,date,data})=>{
             const dg=data?GRADE(data.score):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
             return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-              <div style="font-size:7px;color:#252535">${date.toLocaleDateString("es",{weekday:"narrow"}).toUpperCase()}</div>
+              <div style="font-size:7px;color:#666">${date.toLocaleDateString("es",{weekday:"narrow"}).toUpperCase()}</div>
               <div onclick="openEditDay('${key}')" style="width:100%;aspect-ratio:1;border-radius:9px;background:${data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:tgr.c)+"55":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
                 ${data?`<span style="font-family:'Bebas Neue';font-size:13px;color:${dg.c}">${dg.l}</span>`:`<span style="font-size:10px;color:#2a2a3a">+</span>`}
               </div>
-              ${data?`<div style="font-size:8px;color:#252535">${data.score}</div>`:""}
+              ${data?`<div style="font-size:8px;color:#888">${data.score}</div>`:""}
             </div>`;
           }).join("")}
         </div>
@@ -573,7 +577,7 @@ function renderRoutine(){
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
           <div style="font-size:40px;margin-bottom:4px">${current.icon}</div>
           <div style="font-family:'Bebas Neue';font-size:52px;line-height:1;color:${col};letter-spacing:-0.02em">${fmtTime}</div>
-          <div style="font-size:9px;color:#444;letter-spacing:0.1em">${current.dur} MIN</div>
+          <div style="font-size:9px;color:#666;letter-spacing:0.1em">${current.dur} MIN</div>
         </div>
       </div>
       <div style="text-align:center">

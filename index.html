@@ -35,7 +35,7 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
 </head>
 <body>
 <div id="app">
-  <div id="sync-status" style="position:fixed;top:env(safe-area-inset-top);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666;letter-spacing:0.1em">SYNC</div>
+  <div id="sync-status" onclick="if(USER&&confirm('¿Cerrar sesión?'))signOut()" style="cursor:pointer;position:fixed;top:env(safe-area-inset-top);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666;letter-spacing:0.1em">SYNC</div>
   <div id="scroll"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
@@ -44,98 +44,35 @@ html,body{height:100%;background:#07070f;color:#e2e2e2;font-family:'DM Mono',mon
     <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:17px">◈</span>HISTORIAL</button>
   </nav>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Unique device ID for this browser/device
-const DEVICE_ID = (()=>{ let id=localStorage.getItem('shaah_device'); if(!id){id=Math.random().toString(36).slice(2);localStorage.setItem('shaah_device',id);} return id; })();
-
+// ═══════════════════════════════════════════════════════════
+//  SHAAH — Supabase Auth + Realtime data layer
+//  Single source of truth: Supabase. localStorage = cache only.
+// ═══════════════════════════════════════════════════════════
 const SUPABASE_URL="https://llpyxktcfubhmthqujpa.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscHl4a3RjZnViaG10aHF1anBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTQyMzEsImV4cCI6MjA5NTM5MDIzMX0.4dutcaJzjhuR9IQRlpBetGgLalaSZCiEDdl3oSI_f2A";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function dbSet(date,data){
-  try{
-    const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/day_logs`,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({date,data}),signal:c.signal});
-    clearTimeout(t);
-  }catch(e){}
-}
-async function dbDelete(date){
-  try{
-    const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);
-    await fetch(`${SUPABASE_URL}/rest/v1/day_logs?date=eq.${date}`,{method:"DELETE",headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},signal:c.signal});
-    clearTimeout(t);
-  }catch(e){}
-}
-async function dbGetAll(){
-  try{
-    const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/day_logs?select=date,data&order=date.asc`,{headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},signal:c.signal});
-    clearTimeout(t);
-    const rows=await r.json();
-    const h={};
-    rows.forEach(row=>{if(row.data)h[row.date]=row.data;});
-    return h;
-  }catch(e){return{};}
-}
+let USER = null;
+let _state = {};        // { "YYYY-MM-DD": { checks:{}, social:{} } }
+let _live = false;
 
-const MAX=119,LVL1_MAX=55,LVL2_MAX=34,LVL3_MAX=30;
-const GRADE=s=>{
-  if(s>=100)return{l:"S",c:"#FFD700",g:"#FFD70055",n:"LEGENDARY",bg:"rgba(255,215,0,0.05)"};
-  if(s>=85)return{l:"A",c:"#4ade80",g:"#4ade8055",n:"EXCELENTE",bg:"rgba(74,222,128,0.05)"};
-  if(s>=70)return{l:"B",c:"#60a5fa",g:"#60a5fa55",n:"SÓLIDO",bg:"rgba(96,165,250,0.05)"};
-  if(s>=50)return{l:"C",c:"#f59e0b",g:"#f59e0b55",n:"REGULAR",bg:"rgba(245,158,11,0.05)"};
-  if(s>=25)return{l:"D",c:"#f97316",g:"#f9731655",n:"BAJO",bg:"rgba(249,115,22,0.05)"};
-  return{l:"F",c:"#ef4444",g:"#ef444455",n:"PERDIDO",bg:"rgba(239,68,68,0.05)"};
-};
-const LVL1=[
-  {id:"wod",label:"WOD",pts:15,icon:"⚡",col:"#e2e2e2",routine:true},
-  {id:"work",label:"Work",pts:20,icon:"💼",col:"#e2e2e2",routine:false},
-  {id:"production",label:"Production",pts:20,icon:"🎵",col:"#e2e2e2",routine:true},
-];
-const LVL2=[
-  {id:"nofap",label:"NoFap",pts:10,icon:"🔒",col:"#a78bfa"},
-  {id:"sleep",label:"Sleep Early",pts:8,icon:"🌙",col:"#a78bfa"},
-  {id:"meditation",label:"Meditation",pts:8,icon:"🧘",col:"#a78bfa"},
-  {id:"pray",label:"Pray",pts:8,icon:"🙏",col:"#a78bfa"},
-];
-const SOCIAL_SUBS=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Amigos",icon:"👫"}];
-const ROUTINES={
-  wod:{label:"WOD",icon:"⚡",col:"#e2e2e2",steps:[
-    {id:"pre",label:"Pre-workout & suplementos",dur:5,icon:"💊"},
-    {id:"dress",label:"Vestirse",dur:5,icon:"👟"},
-    {id:"walk",label:"Caminar al spot",dur:10,icon:"🚶"},
-    {id:"warmup",label:"Warm up",dur:10,icon:"🔥"},
-    {id:"workout",label:"Workout",dur:40,icon:"⚡"},
-    {id:"cool",label:"Cool down",dur:10,icon:"🧊"},
-    {id:"back",label:"Caminar de vuelta",dur:10,icon:"🏠"},
-    {id:"protein",label:"Proteína & carbs",dur:10,icon:"🥛"},
-  ]},
-  production:{label:"Production",icon:"🎵",col:"#a78bfa",steps:[
-    {id:"setup",label:"Setup & abrir DAW",dur:5,icon:"💻",ses:1},
-    {id:"refs",label:"Escuchar referencias",dur:10,icon:"🎧",ses:1},
-    {id:"freeplay",label:"Free play / encontrar idea",dur:15,icon:"🎹",ses:1},
-    {id:"loop",label:"Construir el core loop",dur:30,icon:"🔁",ses:1},
-    {id:"drop",label:"Desarrollar drop / hook",dur:20,icon:"🎶",ses:1},
-    {id:"save1",label:"Guardar & exportar draft",dur:10,icon:"💾",ses:1},
-    {id:"break",label:"Break — come, camina",dur:30,icon:"☕",ses:"break",isBreak:true},
-    {id:"listen2",label:"Fresh ears — escuchar",dur:10,icon:"👂",ses:2},
-    {id:"arrange",label:"Arrangement & estructura",dur:25,icon:"📐",ses:2},
-    {id:"layers",label:"Layers & texturas",dur:20,icon:"🎼",ses:2},
-    {id:"mix",label:"Mix pass",dur:20,icon:"🎚",ses:2},
-    {id:"master",label:"Master & bounce",dur:10,icon:"📀",ses:2},
-    {id:"archive",label:"Label & archivar",dur:5,icon:"🗂",ses:2},
-  ]},
-};
-
-const todayKey=()=>new Date().toISOString().slice(0,10);
 const get=k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}};
 const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
-const getChecked=k=>get(`chk_${k}`)||{};
-const setChecked=(k,v)=>set(`chk_${k}`,v);
-const getSocial=k=>get(`soc_${k}`)||{flirt:false,strangers:false,friends:false};
-const setSocial=(k,v)=>set(`soc_${k}`,v);
-let _hist=get("shaah_h")||{};
-const getHistory=()=>_hist;
-const setHistory=v=>{_hist=v;set("shaah_h",v);};
+const todayKey=()=>new Date().toISOString().slice(0,10);
+
+const cacheKey=()=>`shaah_cache_${USER?USER.id:"anon"}`;
+const loadCache=()=>{_state=get(cacheKey())||{};};
+const saveCache=()=>set(cacheKey(),_state);
+
+function statusEl(){return document.getElementById('sync-status');}
+function setStatus(text,color){const e=statusEl();if(e){e.textContent=text;e.style.color=color;}}
+
+// ── Data accessors — all derive from _state ────────────────
+const blankSocial=()=>({flirt:false,strangers:false,friends:false});
+const getChecked=k=>(_state[k]&&_state[k].checks)||{};
+const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
@@ -147,70 +84,139 @@ function calcScore(key){
   return{score:l1+l2+l3,l1,l2,l3,done:Object.values(ch).filter(Boolean).length};
 }
 
-function saveToHistory(key){
-  const{score,l1,l2,l3,done}=calcScore(key);
-  const ch=getChecked(key),soc=getSocial(key);
-  const h=getHistory();
-  if(score>0||Object.values(ch).some(Boolean)){
-    const entry={score,grade:GRADE(score).l,l1,l2,l3,done};
-    if(score>0){h[key]=entry;setHistory(h);}
-    dbSet(key,{...entry,_checks:ch,_social:soc,_ts:Date.now(),_dev:DEVICE_ID});
-  } else {
-    delete h[key];setHistory(h);dbDelete(key);
+// History is DERIVED, never stored separately — cannot drift from checks
+function getHistory(){
+  const h={};
+  for(const date of Object.keys(_state)){
+    const{score,l1,l2,l3,done}=calcScore(date);
+    if(score>0)h[date]={score,grade:GRADE(score).l,l1,l2,l3,done};
   }
+  return h;
 }
 
-async function syncHistory(){
-  const el=()=>document.getElementById('sync-status');
-  try{
-    if(el()){el().style.color='#f59e0b';el().textContent='SYNC...';}
-    const remote=await dbGetAll();
-    for(const [date,data] of Object.entries(remote)){
-      if(!data)continue;
-      const remoteTs=data._ts||0;
-      const remoteDev=data._dev||'';
-      const localTs=get(`ts_${date}`)||0;
-      if(data._checks&&remoteDev!==DEVICE_ID&&remoteTs>localTs){
-        setChecked(date,data._checks);
-        if(data._social)setSocial(date,data._social);
-        set(`ts_${date}`,remoteTs);
+// ── Writes — optimistic local, then push to server ─────────
+const _pending={};
+function persistDay(key){
+  saveCache();
+  if(!USER)return;
+  clearTimeout(_pending[key]);
+  _pending[key]=setTimeout(async()=>{
+    const ch=getChecked(key),soc=getSocial(key);
+    const{score,l1,l2,l3,done}=calcScore(key);
+    const anything=Object.values(ch).some(Boolean);
+    try{
+      if(!anything){
+        await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
+        delete _state[key];saveCache();
+      }else{
+        await sb.from('day_logs').upsert({
+          user_id:USER.id,date:key,
+          data:{score,grade:GRADE(score).l,l1,l2,l3,done,_checks:ch,_social:soc}
+        },{onConflict:'user_id,date'});
       }
-      const{_checks,_social,...entry}=data;
-      if(typeof entry.score==='number'&&remoteTs>=localTs){_hist[date]=entry;}
-    }
-    if(Object.keys(remote).length>0)set("shaah_h",_hist);
-    if(el()){el().style.color='#4ade80';el().textContent='✓';}
+    }catch(e){}
+  },250);
+}
+
+function setChecked(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial()};_state[k].checks=v;}
+function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial()};_state[k].social=v;}
+
+// ── Server load + realtime ─────────────────────────────────
+function rowToState(row){
+  const d=row.data||{};
+  _state[row.date]={checks:d._checks||{},social:d._social||blankSocial()};
+}
+
+async function loadAll(){
+  if(!USER)return;
+  setStatus('SYNC…','#f59e0b');
+  try{
+    const{data,error}=await sb.from('day_logs').select('date,data').eq('user_id',USER.id);
+    if(error)throw error;
+    _state={};
+    (data||[]).forEach(rowToState);
+    saveCache();
+    setStatus(_live?'LIVE':'✓','#4ade80');
   }catch(e){
-    if(el()){el().style.color='#ef4444';el().textContent='ERR';}
-  }finally{
-    setTimeout(()=>{const e=document.getElementById('sync-status');if(e){e.style.color='#444';e.textContent='SYNC';}},2000);
+    setStatus('OFFLINE','#ef4444');
+  }
+  render();
+}
+
+function subscribeRealtime(){
+  if(!USER)return;
+  sb.channel('shaah-'+USER.id)
+    .on('postgres_changes',
+      {event:'*',schema:'public',table:'day_logs',filter:`user_id=eq.${USER.id}`},
+      payload=>{
+        if(payload.eventType==='DELETE'){
+          if(payload.old&&payload.old.date)delete _state[payload.old.date];
+        }else if(payload.new){
+          rowToState(payload.new);
+        }
+        saveCache();
+        render();
+        setStatus('LIVE','#4ade80');
+      })
+    .subscribe(s=>{
+      _live=(s==='SUBSCRIBED');
+      if(_live)setStatus('LIVE','#4ade80');
+    });
+}
+
+// ── Auth ───────────────────────────────────────────────────
+async function signIn(){
+  await sb.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:window.location.href.split('#')[0]}
+  });
+}
+async function signOut(){
+  await sb.auth.signOut();
+  _state={};USER=null;
+  location.reload();
+}
+
+function renderLogin(){
+  return`<div style="height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px">
+    <div style="text-align:center">
+      <div style="font-family:'Bebas Neue';font-size:56px;letter-spacing:0.3em;color:#e2e2e2;line-height:1">SHAAH</div>
+      <div style="font-size:10px;letter-spacing:0.35em;color:#666;margin-top:8px">שעה · LA HORA</div>
+    </div>
+    <div style="font-size:12px;color:#666;text-align:center;max-width:280px;line-height:1.6">
+      Inicia sesión para sincronizar tus hábitos en todos tus dispositivos.
+    </div>
+    <button onclick="signIn()" style="display:flex;align-items:center;gap:12px;background:#fff;color:#1a1a1a;border:none;font-family:inherit;font-size:13px;font-weight:500;padding:14px 26px;border-radius:12px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.600v5.5h7.1c4.1-3.8 6.6-9.4 6.6-16.1z"/><path fill="#34A853" d="M24 46c6 0 11-2 14.6-5.4l-7.1-5.5c-2 1.3-4.5 2.1-7.5 2.1-5.8 0-10.7-3.9-12.4-9.1H4.3v5.7C7.9 41 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.6 28.1c-.4-1.3-.7-2.7-.7-4.1s.2-2.8.7-4.1v-5.7H4.3C2.8 17.1 2 20.4 2 24s.8 6.9 2.3 9.8l7.3-5.7z"/><path fill="#EA4335" d="M24 10.8c3.3 0 6.2 1.1 8.5 3.3l6.3-6.3C35 4.3 30 2 24 2 15.4 2 7.9 7 4.3 14.2l7.3 5.7c1.7-5.2 6.6-9.1 12.4-9.1z"/></svg>
+      Continuar con Google
+    </button>
+  </div>`;
+}
+
+// ── Boot ───────────────────────────────────────────────────
+async function boot(){
+  const{data:{session}}=await sb.auth.getSession();
+  USER=session?session.user:null;
+  if(USER){
+    loadCache();          // instant paint from cache
+    render();
+    await loadAll();      // server is truth
+    subscribeRealtime();
+  }else{
     render();
   }
 }
 
-setInterval(async()=>{
-  try{
-    const remote=await dbGetAll();
-    let changed=false;
-    for(const [date,data] of Object.entries(remote)){
-      if(!data)continue;
-      const remoteTs=data._ts||0;
-      const remoteDev=data._dev||'';
-      const localTs=get(`ts_${date}`)||0;
-      if(data._checks&&remoteDev!==DEVICE_ID&&remoteTs>localTs){
-        setChecked(date,data._checks);
-        if(data._social)setSocial(date,data._social);
-        set(`ts_${date}`,remoteTs);
-        changed=true;
-      }
-      const{_checks,_social,...entry}=data;
-      if(typeof entry.score==='number'&&remoteTs>=localTs){
-        if(!_hist[date]||_hist[date].score!==entry.score){_hist[date]=entry;changed=true;}
-      }
-    }
-    if(changed){set("shaah_h",_hist);render();}
-  }catch(e){}
-},15000);
+sb.auth.onAuthStateChange((event,session)=>{
+  const wasUser=USER?USER.id:null;
+  USER=session?session.user:null;
+  if(USER&&USER.id!==wasUser){
+    loadCache();render();
+    loadAll().then(subscribeRealtime);
+  }else if(!USER){
+    _state={};render();
+  }
+});
 
 function getStreak(){
   const h=getHistory();let s=0;
@@ -218,17 +224,11 @@ function getStreak(){
   return s;
 }
 function getDays(n){
-  const days=[];
-  const tk=todayKey();
+  const days=[],h=getHistory();
   for(let i=n-1;i>=0;i--){
     const d=new Date();d.setDate(d.getDate()-i);
     const key=d.toISOString().slice(0,10);
-    let data=getHistory()[key]||null;
-    if(key===tk){
-      const{score,l1,l2,l3,done}=calcScore(tk);
-      data=score>0?{score,grade:GRADE(score).l,l1,l2,l3,done}:null;
-    }
-    days.push({key,date:d,data});
+    days.push({key,date:d,data:h[key]||null});
   }
   return days;
 }
@@ -251,6 +251,7 @@ let currentTab="home",routineId=null,routineQueue=[],routineCompleted={},timerSe
 
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
+  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";return;}
   if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";return;}
   if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";return;}
   nav.style.display="flex";
@@ -600,12 +601,12 @@ function renderRoutine(){
 
 function setTab(t){currentTab=t;render();}
 function setHistTab(t){histTab=t;render();}
-function toggleHabit(id,key){const ch=getChecked(key);ch[id]=!ch[id];setChecked(key,ch);set(`ts_${key}`,Date.now());saveToHistory(key);render();}
-function quickComplete(id){const ch=getChecked(todayKey());ch[id]=true;setChecked(todayKey(),ch);set(`ts_${todayKey()}`,Date.now());saveToHistory(todayKey());render();}
-function handleSocial(key){if(socialExpanded)return;const ch=getChecked(key),soc=getSocial(key),v=!ch.social;ch.social=v;setChecked(key,ch);setSocial(key,{flirt:v,strangers:v,friends:v});saveToHistory(key);render();}
+function toggleHabit(id,key){const ch={...getChecked(key)};ch[id]=!ch[id];setChecked(key,ch);persistDay(key);render();}
+function quickComplete(id){const k=todayKey(),ch={...getChecked(k)};ch[id]=true;setChecked(k,ch);persistDay(k);render();}
+function handleSocial(key){if(socialExpanded)return;const ch={...getChecked(key)},v=!ch.social;ch.social=v;setChecked(key,ch);setSocial(key,{flirt:v,strangers:v,friends:v});persistDay(key);render();}
 function toggleSocialExpand(key){socialExpanded=!socialExpanded;render();}
-function toggleSub(id,key){const soc=getSocial(key);soc[id]=!soc[id];setSocial(key,soc);const ch=getChecked(key);ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);saveToHistory(key);render();}
-function resetDay(key){setChecked(key,{});setSocial(key,{flirt:false,strangers:false,friends:false});saveToHistory(key);render();}
+function toggleSub(id,key){const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);persistDay(key);render();}
+function resetDay(key){setChecked(key,{});setSocial(key,{flirt:false,strangers:false,friends:false});persistDay(key);render();}
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
@@ -644,8 +645,7 @@ document.addEventListener("touchend",e=>{
   if(dx>0&&idx>0)setTab(TABS_ORDER[idx-1]);
 },{passive:true});
 
-render();
-syncHistory();
+boot();
 </script>
 </body>
 </html>

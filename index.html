@@ -61,6 +61,30 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   font-family:inherit;transition:transform .12s,color .2s,border-color .2s;}
 #gear:active{transform:scale(.9);}
 @media(hover:hover){#gear:hover{color:#e2e2e2;border-color:#3a3a55;}}
+/* ── First-run tour ── */
+#tour{position:fixed;inset:0;z-index:2000;display:none;}
+#tour.on{display:flex;align-items:flex-end;justify-content:center;}
+.tour-scrim{position:absolute;inset:0;background:rgba(4,4,10,.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+.tour-card{position:relative;width:100%;max-width:460px;margin:0 12px calc(env(safe-area-inset-bottom) + 16px);
+  background:linear-gradient(180deg,#12121f 0%,#0c0c16 100%);
+  border:1px solid #24243a;border-radius:20px;padding:22px 20px 18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.65);animation:tourIn .3s cubic-bezier(.2,.9,.3,1);}
+@keyframes tourIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.tour-dots{display:flex;gap:5px;margin-bottom:14px;}
+.tour-dot{height:3px;flex:1;border-radius:99px;background:#24243a;transition:background .3s;}
+.tour-dot.done{background:#4a4a7a;}
+.tour-dot.cur{background:#e2e2e2;}
+.tour-ico{font-size:30px;line-height:1;margin-bottom:12px;}
+.tour-t{font-family:'Bebas Neue';font-size:24px;letter-spacing:.06em;color:#f2f2f2;line-height:1.05;margin-bottom:9px;}
+.tour-b{font-size:12.5px;line-height:1.65;color:#a8a8ba;}
+.tour-b b{color:#e2e2e2;font-weight:500;}
+.tour-row{display:flex;align-items:center;gap:10px;margin-top:18px;}
+.tour-skip{background:none;border:none;color:#5a5a70;font-family:inherit;font-size:11px;
+  letter-spacing:.1em;cursor:pointer;padding:10px 4px;}
+.tour-next{flex:1;background:#e8e8ee;color:#0a0a14;border:none;font-family:inherit;
+  font-size:12px;font-weight:700;letter-spacing:.12em;padding:13px;border-radius:12px;cursor:pointer;
+  transition:transform .12s;}
+.tour-next:active{transform:scale(.97);}
 #sync-status{cursor:pointer;font-size:9px;font-family:monospace;letter-spacing:.1em;
   padding:0 11px;border-radius:99px;background:#0f0f1c;border:1px solid #1e1e2e;color:#666;
   height:34px;display:flex;align-items:center;}
@@ -79,6 +103,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 <body>
 <div id="app">
   <div id="scroll"></div>
+  <div id="tour"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
     <button class="nav-btn" data-tab="today" onclick="setTab('today')"><span style="font-size:17px">◉</span>HOY</button>
@@ -401,6 +426,7 @@ function renderSettings(){
         </div>`}).join("")}
 
       <div class="sec" style="margin-top:22px">DATOS</div>
+      <button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#aaa;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VER TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#aaa;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORTAR JSON</button>
       <button onclick="if(confirm('¿Restaurar toda la configuración por defecto?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTAURAR AJUSTES</button>
       <button onclick="if(confirm('¿Cerrar sesión?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#666;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">CERRAR SESIÓN</button>
@@ -493,6 +519,7 @@ async function boot(){
     loadCfgLocal();
     loadCache();
     restoreRoutine();
+    if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
     render();
     await loadAll();
     subscribeRealtime();
@@ -635,6 +662,49 @@ function restoreRoutine(){
   return true;
 }
 
+// ── First-run tour ────────────────────────────────────────────
+let tourStep=null;
+const TOUR=[
+ {tab:"home",ico:"👋",t:"BIENVENIDO A SHAAH",
+  b:"SHAAH convierte tu día en una <b>calificación</b>, como un curso. Cada hábito vale un porcentaje — y al final del día sabes exactamente cómo te fue.<br><br>Son 30 segundos. Vamos."},
+ {tab:"home",ico:"◎",t:"TU PUNTAJE DEL DÍA",
+  b:"El anillo muestra tu <b>score de hoy</b> y la letra tu nota: de <b>F</b> a <b>S+</b>.<br><br>El máximo es <b>119%</b> — sí, más de 100. Los hábitos bonus te permiten pasarte, así que un día perfecto no es el techo."},
+ {tab:"today",ico:"⬛",t:"TRES NIVELES",
+  b:"<b>LVL 1 · CORE</b> — lo esencial (WOD, Work, Production). Pesan más.<br><br><b>LVL 2 · HABITS</b> — los que sostienen todo.<br><br><b>LVL 3 · BONUS</b> — extras que te empujan sobre 100%."},
+ {tab:"home",ico:"👆",t:"MARCA CON UN TOQUE",
+  b:"En <b>Hábitos rápidos</b> toca una tarjeta para marcarla como hecha. Tócala otra vez para deshacerla.<br><br>El puntaje se actualiza al instante."},
+ {tab:"home",ico:"⚡",t:"RUTINAS CON TIMER",
+  b:"<b>▶ INICIAR</b> abre la rutina paso a paso con temporizador — sigue funcionando con el teléfono bloqueado y suena al terminar cada paso.<br><br><b>✓ LISTO</b> la marca hecha sin timer."},
+ {tab:"history",ico:"◈",t:"TU HISTORIAL",
+  b:"Revisa <b>7 días, 28 días o el año</b>. Toca cualquier día para editarlo o registrar uno que se te pasó.<br><br>En <b>STATS</b> ves rachas, promedios y tendencias."},
+ {tab:"home",ico:"⚙",t:"HAZLO TUYO",
+  b:"El <b>⚙</b> arriba a la izquierda abre Ajustes: cambia los porcentajes, renombra hábitos, activa o desactiva los que no uses, elige tu zona horaria y exporta tus datos.<br><br>Listo — a construir tu racha."},
+];
+const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
+function startTour(){tourStep=0;settingsOpen=false;currentTab=TOUR[0].tab;haptic(10);render();}
+function tourGo(i){
+  if(i>=TOUR.length)return tourDone();
+  tourStep=i;currentTab=TOUR[i].tab;haptic(8);render();
+}
+function tourDone(){tourStep=null;set(tourKey(),1);haptic(12);render();}
+function renderTour(){
+  const t=document.getElementById("tour");if(!t)return;
+  if(tourStep===null||!USER){t.className="";t.innerHTML="";return;}
+  const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
+  t.className="on";
+  t.innerHTML=`<div class="tour-scrim" onclick="tourDone()"></div>
+    <div class="tour-card">
+      <div class="tour-dots">${TOUR.map((_,i)=>`<div class="tour-dot ${i===tourStep?"cur":i<tourStep?"done":""}"></div>`).join("")}</div>
+      <div class="tour-ico">${s.ico}</div>
+      <div class="tour-t">${s.t}</div>
+      <div class="tour-b">${s.b}</div>
+      <div class="tour-row">
+        <button class="tour-skip" onclick="tourDone()">${last?"":"SALTAR"}</button>
+        <button class="tour-next" onclick="tourGo(${tourStep+1})">${last?"EMPEZAR":"SIGUIENTE"}</button>
+      </div>
+    </div>`;
+}
+
 function topbarHTML(){
   return`<div id="topbar">
     <button id="gear" onclick="openSettings()" aria-label="Ajustes">⚙</button>
@@ -643,11 +713,11 @@ function topbarHTML(){
 }
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
-  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";return;}
+  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";renderTour();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
-  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";return;}
-  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";return;}
-  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";return;}
+  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";renderTour();return;}
+  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";renderTour();return;}
+  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";renderTour();return;}
   nav.style.display="flex";
   const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
@@ -655,6 +725,7 @@ function render(){
   else if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
   else if(currentTab==="stats")el.innerHTML=bar+renderStats();
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
+  renderTour();
 }
 
 function renderHome(){

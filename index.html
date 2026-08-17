@@ -41,6 +41,36 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pop{0%{transform:scale(0) rotate(-20deg);opacity:0}55%{transform:scale(1.5) rotate(6deg);opacity:1}100%{transform:scale(0.9) rotate(0);opacity:0}}
 .fade-up{animation:fadeUp 0.35s ease;}
+.qtile{transition:transform .12s ease,background .2s,border-color .2s;}
+.qtile:active{transform:scale(.96);}
+.notecard{position:relative;background:linear-gradient(180deg,#0d0d1a 0%,#0b0b16 100%);
+  border:1px solid #161626;border-radius:14px;overflow:hidden;transition:border-color .25s;}
+.notecard:focus-within{border-color:#2e2e4a;}
+.notecard.filled{border-color:#1d2a22;}
+.notebar{position:absolute;left:0;top:0;bottom:0;width:3px;background:#1e1e33;transition:background .25s;}
+.notecard.filled .notebar{background:linear-gradient(180deg,#4ade80,#4ade8033);}
+.notecard:focus-within .notebar{background:linear-gradient(180deg,#60a5fa,#60a5fa33);}
+.notecard textarea::placeholder{color:#3a3a4a;}
+
+/* ── Fixed top bar: clears the Dynamic Island, stays put on scroll ── */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:calc(env(safe-area-inset-top) + 42px);
+  padding:calc(env(safe-area-inset-top) + 3px) 12px 0;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  background:linear-gradient(180deg,rgba(7,7,15,.97) 60%,rgba(7,7,15,0) 100%);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  pointer-events:none;}
+#topbar>*{pointer-events:auto;}
+#gear{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;line-height:1;cursor:pointer;border-radius:50%;
+  background:#0f0f1c;border:1px solid #1e1e2e;color:#8a8a9a;
+  font-family:inherit;transition:transform .12s,color .2s,border-color .2s;}
+#gear:active{transform:scale(.9);}
+@media(hover:hover){#gear:hover{color:#e2e2e2;border-color:#3a3a55;}}
+#sync-status{cursor:pointer;font-size:9px;font-family:monospace;letter-spacing:.1em;
+  padding:0 11px;border-radius:99px;background:#0f0f1c;border:1px solid #1e1e2e;color:#666;
+  height:34px;display:flex;align-items:center;}
+@media(hover:hover){.qtile:hover{border-color:#2a2a3a;}}
 /* Installed-app mode: no browser chrome, so reclaim the space */
 @media all and (display-mode:standalone){
   #sync-status{top:calc(env(safe-area-inset-top) + 2px);}
@@ -54,8 +84,10 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 </head>
 <body>
 <div id="app">
-  <div id="sync-status" style="cursor:pointer;position:fixed;top:calc(env(safe-area-inset-top) + 6px);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666;letter-spacing:0.1em">SYNC</div>
-  <div id="gear" onclick="openSettings()" style="cursor:pointer;position:fixed;top:calc(env(safe-area-inset-top) + 6px);left:12px;font-size:13px;z-index:1000;padding:3px 9px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666">⚙</div>
+  <div id="topbar">
+    <button id="gear" onclick="openSettings()" aria-label="Ajustes">⚙</button>
+    <div id="sync-status" onclick="if(typeof USER!=='undefined'&&USER&&confirm('¿Cerrar sesión?'))signOut()">SYNC</div>
+  </div>
   <div id="scroll"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
@@ -346,7 +378,7 @@ function renderSettings(){
       <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:0.2em;color:#e2e2e2">AJUSTES</div>
       <div style="margin-left:auto;font-size:10px;color:${tot===119?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
-    <div class="fade-up" style="padding:20px 16px calc(72px + env(safe-area-inset-bottom))">
+    <div class="fade-up" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
 
       <div class="sec">ZONA HORARIA</div>
       <select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:12px;padding:11px 12px;margin-bottom:6px">
@@ -390,6 +422,7 @@ function cfgSet(id,k,v){ if(!CFG.h[id])return; CFG.h[id][k]= k==='p'?Math.max(0,
 function cfgToggle(id){ haptic(10); CFG.h[id].on=CFG.h[id].on===false; saveCfg(); render(); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid].steps[i]; s[k]= k==='dur'?Math.max(1,parseInt(v)||1):v; saveCfg(); render(); }
+function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
 function openSettings(){ settingsOpen=true; haptic(10); render(); }
 function closeSettings(){ settingsOpen=false; render(); }
 function exportData(){
@@ -433,7 +466,7 @@ document.addEventListener('touchend',e=>{
 window.addEventListener('error',e=>{
   const el=document.getElementById('scroll');
   if(el&&!el.innerHTML.trim()){
-    el.innerHTML=`<div style="padding:calc(60px + env(safe-area-inset-top)) 24px;font-size:11px;color:#ef8888;line-height:1.6">
+    el.innerHTML=`<div style="padding:calc(env(safe-area-inset-top) + 50px) 24px;font-size:11px;color:#ef8888;line-height:1.6">
       <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:0.2em;color:#ef4444;margin-bottom:12px">ERROR</div>
       <div style="word-break:break-word">${e.message}</div>
       <div style="color:#555;margin-top:8px;font-size:10px">${(e.filename||'').split('/').pop()}:${e.lineno}</div>
@@ -613,12 +646,14 @@ function restoreRoutine(){
 
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
-  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";return;}
-  const gg=document.getElementById('gear');if(gg)gg.style.display=USER?'block':'none';
-  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";return;}
-  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";return;}
-  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";return;}
-  nav.style.display="flex";
+  const bar=document.getElementById("topbar");
+  const showChrome=v=>{if(bar)bar.style.display=v?"flex":"none";nav.style.display=v?"flex":"none";};
+  if(!USER){el.innerHTML=renderLogin();showChrome(false);return;}
+  // Full-screen modes own the whole viewport — hide app chrome
+  if(settingsOpen){el.innerHTML=renderSettings();showChrome(false);return;}
+  if(routineId){el.innerHTML=renderRoutine();showChrome(false);return;}
+  if(editDayKey){el.innerHTML=renderEditDay();showChrome(false);return;}
+  showChrome(true);
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
   if(currentTab==="home")el.innerHTML=renderHome();
   else if(currentTab==="today")el.innerHTML=renderToday(todayKey());
@@ -629,7 +664,7 @@ function render(){
 function renderHome(){
   const tk=todayKey(),{score,l1,l2,l3}=calcScore(tk),ch=getChecked(tk),gr=GRADE(score),streak=getStreak(),now=new Date(),h=now.getHours();
   const greet=h<12?"Buenos días":h<18?"Buenas tardes":"Buenas noches";
-  return`<div class="fade-up" style="padding:calc(28px + env(safe-area-inset-top)) 20px calc(72px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
+  return`<div class="fade-up" style="padding:calc(env(safe-area-inset-top) + 50px) 20px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
     <div>
       <div style="font-size:11px;color:#2a2a3a;letter-spacing:0.12em;margin-bottom:4px">${greet.toUpperCase()}</div>
       <div style="font-family:'Bebas Neue';font-size:36px;color:#e2e2e2;line-height:1">${now.toLocaleDateString("es-PA",{weekday:"long"}).toUpperCase()}</div>
@@ -676,12 +711,16 @@ function renderHome(){
       <div class="sec">HÁBITOS RÁPIDOS</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         ${[...LVL1.filter(i=>!i.routine),...LVL2].map(item=>`
-        <div style="background:${ch[item.id]?item.col+"0a":"#0d0d1a"};border:1px solid ${ch[item.id]?item.col+"25":"#111120"};border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
-          <span style="font-size:18px;opacity:${ch[item.id]?1:0.4}">${item.icon}</span>
-          <div>
-            <div style="font-size:11px;color:${ch[item.id]?"#e2e2e2":"#bbb"}">${item.label}</div>
-            <div style="font-size:9px;color:${ch[item.id]?item.col+"88":"#666"};margin-top:2px">${ch[item.id]?"✓ DONE":item.pts+"%"}</div>
+        <div class="qtile${ch[item.id]?" on":""}" onclick="toggleHabit('${item.id}','${tk}')"
+          style="background:${ch[item.id]?item.col+"12":"#0d0d1a"};border:1px solid ${ch[item.id]?item.col+"40":"#111120"};border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;position:relative;overflow:hidden">
+          <div style="width:26px;height:26px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;
+            background:${ch[item.id]?item.col+"22":"#141422"};border:1px solid ${ch[item.id]?item.col+"55":"transparent"};opacity:${ch[item.id]?1:.55}">${item.icon}</div>
+          <div style="min-width:0;flex:1">
+            <div style="font-size:11px;font-weight:${ch[item.id]?500:300};color:${ch[item.id]?"#e2e2e2":"#bbb"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.label}</div>
+            <div style="font-size:9px;color:${ch[item.id]?item.col:"#666"};margin-top:2px;letter-spacing:.05em">${ch[item.id]?"✓ HECHO":"+"+item.pts+"%"}</div>
           </div>
+          ${ch[item.id]?`<div style="width:16px;height:16px;border-radius:50%;background:${item.col};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="9" height="9" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#07070f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`:""}
         </div>`).join("")}
       </div>
     </div>
@@ -693,7 +732,7 @@ function renderToday(key,nested=false){
   const activeSubs=Object.values(soc).filter(Boolean).length;
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const isToday=key===todayKey();
-  return`<div class="fade-up" style="padding:${nested?"16px":`calc(22px + env(safe-area-inset-top))`} 16px ${nested?"32px":`calc(72px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
+  return`<div class="fade-up" style="padding:${nested?"16px":`calc(22px + env(safe-area-inset-top))`} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     <div style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:10px;letter-spacing:0.5em;color:#1e1e2e">DAY SCORE</div>
       <div style="font-size:9px;color:#888;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("es-PA",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -784,8 +823,13 @@ function renderToday(key,nested=false){
 
     <div style="width:100%;max-width:390px">
       <div class="sec">✎ NOTA DEL DÍA</div>
-      <textarea placeholder="¿Cómo estuvo el día?" onchange="setNote('${key}',this.value)"
-        style="width:100%;min-height:62px;resize:vertical;background:#0c0c18;border:1px solid #161626;border-radius:12px;color:#ccc;font-family:inherit;font-size:12px;line-height:1.6;padding:12px 14px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+      <div class="notecard${getNote(key)?" filled":""}">
+        <div class="notebar"></div>
+        <textarea id="note-${key}" placeholder="¿Cómo estuvo el día? ¿Qué aprendiste?"
+          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
+          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:12.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:8px;letter-spacing:.15em;color:#4ade8088">GUARDADO</div>`:""}
+      </div>
     </div>
 
     ${isToday?`<button onclick="if(confirm('¿Borrar todos los hábitos de este día?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#555;font-family:inherit;font-size:9px;letter-spacing:0.22em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DÍA</button>`:""}
@@ -818,7 +862,7 @@ function renderStats(){
       <button onclick="setTab('today')" style="margin-top:8px;background:#e2e2e2;color:#07070f;border:none;font-family:inherit;font-size:11px;letter-spacing:0.15em;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer">EMPEZAR →</button>
     </div>`;
   }
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(72px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:calc(env(safe-area-inset-top) + 50px) 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[{icon:"🔥",label:"RACHA ACTUAL",val:`${streak}d`,col:"#FFD700",sub:bestStreak>0?`récord ${bestStreak}d`:"días ≥ 60%"},{icon:"📊",label:"PROMEDIO",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs sem. previa`:(oAvg>0?GRADE(oAvg).n:"—")},{icon:"🏆",label:"MEJOR DÍA",val:`${best}%`,col:best>0?GRADE(best).c:"#333",sub:best>0?GRADE(best).n:"—"},{icon:"📅",label:"DÍAS REGISTRADOS",val:total,col:"#60a5fa",sub:"en total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:20px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:8px;color:#888;margin-top:5px;letter-spacing:0.15em">${m.label}</div><div style="font-size:9px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
@@ -841,7 +885,7 @@ function renderStats(){
 }
 
 function renderHistory(){
-  return`<div class="fade-up" style="padding:calc(22px + env(safe-area-inset-top)) 16px calc(72px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:calc(env(safe-area-inset-top) + 50px) 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:flex;gap:8px">
       ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DÍAS":t==="month"?"28 DÍAS":"AÑO"}</button>`).join("")}
     </div>

@@ -52,15 +52,9 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .notecard:focus-within .notebar{background:linear-gradient(180deg,#60a5fa,#60a5fa33);}
 .notecard textarea::placeholder{color:#3a3a4a;}
 
-/* ── Fixed top bar: clears the Dynamic Island, stays put on scroll ── */
-#topbar{position:fixed;top:0;left:0;right:0;z-index:1000;
-  height:calc(env(safe-area-inset-top) + 42px);
-  padding:calc(env(safe-area-inset-top) + 3px) 12px 0;
-  display:flex;align-items:flex-start;justify-content:space-between;
-  background:linear-gradient(180deg,rgba(7,7,15,.97) 60%,rgba(7,7,15,0) 100%);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  pointer-events:none;}
-#topbar>*{pointer-events:auto;}
+/* ── Top bar: sits in the scroll flow, scrolls away with content ── */
+#topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top) + 8px) 14px 6px;}
 #gear{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
   font-size:15px;line-height:1;cursor:pointer;border-radius:50%;
   background:#0f0f1c;border:1px solid #1e1e2e;color:#8a8a9a;
@@ -84,10 +78,6 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 </head>
 <body>
 <div id="app">
-  <div id="topbar">
-    <button id="gear" onclick="openSettings()" aria-label="Ajustes">⚙</button>
-    <div id="sync-status" onclick="if(typeof USER!=='undefined'&&USER&&confirm('¿Cerrar sesión?'))signOut()">SYNC</div>
-  </div>
   <div id="scroll"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
@@ -224,6 +214,7 @@ function keyMinus(key,days){
 }
 const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
 
+const cfgKey=()=>`shaah_cfg_${USER?USER.id:'anon'}`;
 const cacheKey=()=>`shaah_cache_${USER?USER.id:"anon"}`;
 const loadCache=()=>{_state=get(cacheKey())||{};};
 const saveCache=()=>set(cacheKey(),_state);
@@ -288,16 +279,16 @@ function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),
 
 // ── Server load + realtime ─────────────────────────────────
 function saveCfg(){
-  set('shaah_cfg',CFG); applyCfg();
+  set(cfgKey(),CFG); applyCfg();
   if(USER){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
 }
 function loadCfgLocal(){
-  const c=get('shaah_cfg');
+  const c=get(cfgKey());
   if(c){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);applyCfg();}
 }
 function rowToState(row){
   if(row.date==='settings'){
-    if(row.data&&row.data._cfg){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);set('shaah_cfg',CFG);applyCfg();}
+    if(row.data&&row.data._cfg){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);set(cfgKey(),CFG);applyCfg();}
     return;
   }
   const d=row.data||{};
@@ -466,7 +457,7 @@ document.addEventListener('touchend',e=>{
 window.addEventListener('error',e=>{
   const el=document.getElementById('scroll');
   if(el&&!el.innerHTML.trim()){
-    el.innerHTML=`<div style="padding:calc(env(safe-area-inset-top) + 50px) 24px;font-size:11px;color:#ef8888;line-height:1.6">
+    el.innerHTML=`<div style="padding:2px 24px;font-size:11px;color:#ef8888;line-height:1.6">
       <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:0.2em;color:#ef4444;margin-bottom:12px">ERROR</div>
       <div style="word-break:break-word">${e.message}</div>
       <div style="color:#555;margin-top:8px;font-size:10px">${(e.filename||'').split('/').pop()}:${e.lineno}</div>
@@ -627,13 +618,13 @@ function audioKeepAlive(on){
 }
 
 // ── Routine session persistence (survives refresh) ────────────
-const RKEY='shaah_routine';
+const RKEY=()=>`shaah_routine_${USER?USER.id:'anon'}`;
 function saveRoutine(){
-  if(!routineId){try{localStorage.removeItem(RKEY);}catch(e){} return;}
-  set(RKEY,{routineId,routineQueue,routineCompleted,timerSecs,timerRunning,timerEndAt});
+  if(!routineId){try{localStorage.removeItem(RKEY());}catch(e){} return;}
+  set(RKEY(),{routineId,routineQueue,routineCompleted,timerSecs,timerRunning,timerEndAt});
 }
 function restoreRoutine(){
-  const r=get(RKEY); if(!r||!r.routineId||!ROUTINES[r.routineId])return false;
+  const r=get(RKEY()); if(!r||!r.routineId||!ROUTINES[r.routineId])return false;
   routineId=r.routineId; routineQueue=r.routineQueue||[]; routineCompleted=r.routineCompleted||{};
   timerEndAt=r.timerEndAt||null; timerRunning=!!r.timerRunning; timerSecs=r.timerSecs||0;
   if(timerRunning&&timerEndAt){
@@ -644,27 +635,32 @@ function restoreRoutine(){
   return true;
 }
 
+function topbarHTML(){
+  return`<div id="topbar">
+    <button id="gear" onclick="openSettings()" aria-label="Ajustes">⚙</button>
+    <div id="sync-status" onclick="if(USER&&confirm('¿Cerrar sesión?'))signOut()">${_live?"LIVE":"SYNC"}</div>
+  </div>`;
+}
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
-  const bar=document.getElementById("topbar");
-  const showChrome=v=>{if(bar)bar.style.display=v?"flex":"none";nav.style.display=v?"flex":"none";};
-  if(!USER){el.innerHTML=renderLogin();showChrome(false);return;}
-  // Full-screen modes own the whole viewport — hide app chrome
-  if(settingsOpen){el.innerHTML=renderSettings();showChrome(false);return;}
-  if(routineId){el.innerHTML=renderRoutine();showChrome(false);return;}
-  if(editDayKey){el.innerHTML=renderEditDay();showChrome(false);return;}
-  showChrome(true);
+  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";return;}
+  // Full-screen modes own the whole viewport — no top bar, no nav
+  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";return;}
+  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";return;}
+  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";return;}
+  nav.style.display="flex";
+  const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
-  if(currentTab==="home")el.innerHTML=renderHome();
-  else if(currentTab==="today")el.innerHTML=renderToday(todayKey());
-  else if(currentTab==="stats")el.innerHTML=renderStats();
-  else if(currentTab==="history")el.innerHTML=renderHistory();
+  if(currentTab==="home")el.innerHTML=bar+renderHome();
+  else if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
+  else if(currentTab==="stats")el.innerHTML=bar+renderStats();
+  else if(currentTab==="history")el.innerHTML=bar+renderHistory();
 }
 
 function renderHome(){
   const tk=todayKey(),{score,l1,l2,l3}=calcScore(tk),ch=getChecked(tk),gr=GRADE(score),streak=getStreak(),now=new Date(),h=now.getHours();
   const greet=h<12?"Buenos días":h<18?"Buenas tardes":"Buenas noches";
-  return`<div class="fade-up" style="padding:calc(env(safe-area-inset-top) + 50px) 20px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
+  return`<div class="fade-up" style="padding:2px 20px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:18px">
     <div>
       <div style="font-size:11px;color:#2a2a3a;letter-spacing:0.12em;margin-bottom:4px">${greet.toUpperCase()}</div>
       <div style="font-family:'Bebas Neue';font-size:36px;color:#e2e2e2;line-height:1">${now.toLocaleDateString("es-PA",{weekday:"long"}).toUpperCase()}</div>
@@ -862,7 +858,7 @@ function renderStats(){
       <button onclick="setTab('today')" style="margin-top:8px;background:#e2e2e2;color:#07070f;border:none;font-family:inherit;font-size:11px;letter-spacing:0.15em;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer">EMPEZAR →</button>
     </div>`;
   }
-  return`<div class="fade-up" style="padding:calc(env(safe-area-inset-top) + 50px) 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[{icon:"🔥",label:"RACHA ACTUAL",val:`${streak}d`,col:"#FFD700",sub:bestStreak>0?`récord ${bestStreak}d`:"días ≥ 60%"},{icon:"📊",label:"PROMEDIO",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs sem. previa`:(oAvg>0?GRADE(oAvg).n:"—")},{icon:"🏆",label:"MEJOR DÍA",val:`${best}%`,col:best>0?GRADE(best).c:"#333",sub:best>0?GRADE(best).n:"—"},{icon:"📅",label:"DÍAS REGISTRADOS",val:total,col:"#60a5fa",sub:"en total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:20px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:8px;color:#888;margin-top:5px;letter-spacing:0.15em">${m.label}</div><div style="font-size:9px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
@@ -885,7 +881,7 @@ function renderStats(){
 }
 
 function renderHistory(){
-  return`<div class="fade-up" style="padding:calc(env(safe-area-inset-top) + 50px) 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:flex;gap:8px">
       ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DÍAS":t==="month"?"28 DÍAS":"AÑO"}</button>`).join("")}
     </div>

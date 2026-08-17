@@ -54,7 +54,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 </head>
 <body>
 <div id="app">
-  <div id="sync-status" onclick="if(USER&&confirm('¿Cerrar sesión?'))signOut()" style="cursor:pointer;position:fixed;top:calc(env(safe-area-inset-top) + 6px);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666;letter-spacing:0.1em">SYNC</div>
+  <div id="sync-status" style="cursor:pointer;position:fixed;top:calc(env(safe-area-inset-top) + 6px);right:12px;font-size:9px;font-family:monospace;z-index:1000;padding:3px 8px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666;letter-spacing:0.1em">SYNC</div>
+  <div id="gear" onclick="openSettings()" style="cursor:pointer;position:fixed;top:calc(env(safe-area-inset-top) + 6px);left:12px;font-size:13px;z-index:1000;padding:3px 9px;border-radius:99px;background:#0c0c18;border:1px solid #1e1e2e;color:#666">⚙</div>
   <div id="scroll"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="home" onclick="setTab('home')"><span style="font-size:17px">◎</span>HOME</button>
@@ -82,65 +83,106 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 let AUTH_ERR = null;
 
-const MAX=119,LVL1_MAX=55,LVL2_MAX=34,LVL3_MAX=30;
+// ═══ CONFIG (editable in Settings, synced via Supabase) ═══
+const DEFAULT_CFG={
+  tz:'device',
+  h:{
+    wod:        {l:"WOD",         p:15, i:"⚡", lv:1, on:true, routine:true},
+    work:       {l:"Work",        p:20, i:"💼", lv:1, on:true},
+    production: {l:"Production",  p:20, i:"🎵", lv:1, on:true, routine:true},
+    nofap:      {l:"NoFap",       p:10, i:"🔒", lv:2, on:true},
+    sleep:      {l:"Sleep Early", p:8,  i:"🌙", lv:2, on:true},
+    meditation: {l:"Meditation",  p:8,  i:"🧘", lv:2, on:true},
+    pray:       {l:"Pray",        p:8,  i:"🙏", lv:2, on:true},
+    social:     {l:"Social Combo",p:18, i:"👥", lv:3, on:true, combo:true},
+    nosmoke:    {l:"No Fumar",    p:6,  i:"🚭", lv:3, on:true},
+    pomodoro:   {l:"Pomodoro",    p:6,  i:"🍅", lv:3, on:true},
+  },
+  order:["wod","work","production","nofap","sleep","meditation","pray","social","nosmoke","pomodoro"],
+  routines:{
+    wod:{label:"WOD",icon:"⚡",col:"#e2e2e2",steps:[
+      {id:"pre",label:"Pre-workout & suplementos",dur:5,icon:"💊"},
+      {id:"dress",label:"Vestirse",dur:5,icon:"👟"},
+      {id:"walk",label:"Caminar al spot",dur:10,icon:"🚶"},
+      {id:"warmup",label:"Warm up",dur:10,icon:"🔥"},
+      {id:"workout",label:"Workout",dur:40,icon:"⚡"},
+      {id:"cool",label:"Cool down",dur:10,icon:"🧊"},
+      {id:"back",label:"Caminar de vuelta",dur:10,icon:"🏠"},
+      {id:"protein",label:"Proteína & carbs",dur:10,icon:"🥛"},
+    ]},
+    production:{label:"Production",icon:"🎵",col:"#a78bfa",steps:[
+      {id:"setup",label:"Setup & abrir DAW",dur:5,icon:"💻",ses:1},
+      {id:"refs",label:"Escuchar referencias",dur:10,icon:"🎧",ses:1},
+      {id:"freeplay",label:"Free play / encontrar idea",dur:15,icon:"🎹",ses:1},
+      {id:"loop",label:"Construir el core loop",dur:30,icon:"🔁",ses:1},
+      {id:"drop",label:"Desarrollar drop / hook",dur:20,icon:"🎶",ses:1},
+      {id:"save1",label:"Guardar & exportar draft",dur:10,icon:"💾",ses:1},
+      {id:"break",label:"Break — come, camina",dur:30,icon:"☕",ses:"break",isBreak:true},
+      {id:"listen2",label:"Fresh ears — escuchar",dur:10,icon:"👂",ses:2},
+      {id:"arrange",label:"Arrangement & estructura",dur:25,icon:"📐",ses:2},
+      {id:"layers",label:"Layers & texturas",dur:20,icon:"🎼",ses:2},
+      {id:"mix",label:"Mix pass",dur:20,icon:"🎚",ses:2},
+      {id:"master",label:"Master & bounce",dur:10,icon:"📀",ses:2},
+      {id:"archive",label:"Label & archivar",dur:5,icon:"🗂",ses:2},
+    ]},
+  }
+};
+const TIMEZONES=[
+  {id:"device",  label:"Automático (dispositivo)"},
+  {id:"Asia/Jerusalem",   label:"Israel — Jerusalén"},
+  {id:"America/Panama",   label:"Panamá"},
+  {id:"America/Mexico_City",label:"México"},
+  {id:"America/Bogota",   label:"Colombia"},
+  {id:"America/Argentina/Buenos_Aires",label:"Argentina"},
+  {id:"Europe/Madrid",    label:"España"},
+  {id:"America/New_York", label:"EE.UU. — Este"},
+];
+let CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));
+
+const LVL_COL={1:"#e2e2e2",2:"#a78bfa",3:"#fbbf24"};
+let LVL1=[],LVL2=[],LVL3=[],ROUTINES={},MAX=0,LVL1_MAX=0,LVL2_MAX=0,LVL3_MAX=0;
+
+function buildLevel(n){
+  return CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&CFG.h[id].on!==false)
+    .map(id=>({id,label:CFG.h[id].l,pts:CFG.h[id].p,icon:CFG.h[id].i,
+               col:LVL_COL[n],routine:!!CFG.h[id].routine,combo:!!CFG.h[id].combo}));
+}
+function applyCfg(){
+  LVL1=buildLevel(1);LVL2=buildLevel(2);LVL3=buildLevel(3);
+  ROUTINES=CFG.routines||{};
+  LVL1_MAX=LVL1.reduce((a,i)=>a+i.pts,0);
+  LVL2_MAX=LVL2.reduce((a,i)=>a+i.pts,0);
+  LVL3_MAX=LVL3.reduce((a,i)=>a+i.pts,0);
+  MAX=LVL1_MAX+LVL2_MAX+LVL3_MAX;
+}
+applyCfg();
+
 const GRADE=s=>{
-  if(s>=110)return{l:"S+",c:"#FFF1A8",g:"#FFD70099",n:"IMPARABLE",bg:"rgba(255,241,168,0.07)"};
-  if(s>=100)return{l:"S",c:"#FFD700",g:"#FFD70055",n:"LEGENDARY",bg:"rgba(255,215,0,0.05)"};
-  if(s>=85)return{l:"A",c:"#4ade80",g:"#4ade8055",n:"EXCELENTE",bg:"rgba(74,222,128,0.05)"};
-  if(s>=70)return{l:"B",c:"#60a5fa",g:"#60a5fa55",n:"SÓLIDO",bg:"rgba(96,165,250,0.05)"};
-  if(s>=50)return{l:"C",c:"#f59e0b",g:"#f59e0b55",n:"REGULAR",bg:"rgba(245,158,11,0.05)"};
-  if(s>=25)return{l:"D",c:"#f97316",g:"#f9731655",n:"BAJO",bg:"rgba(249,115,22,0.05)"};
+  const p=MAX>0?(s/MAX)*100:0;
+  if(p>=92)return{l:"S+",c:"#FFF1A8",g:"#FFD70099",n:"IMPARABLE",bg:"rgba(255,241,168,0.07)"};
+  if(p>=84)return{l:"S",c:"#FFD700",g:"#FFD70055",n:"LEGENDARY",bg:"rgba(255,215,0,0.05)"};
+  if(p>=71)return{l:"A",c:"#4ade80",g:"#4ade8055",n:"EXCELENTE",bg:"rgba(74,222,128,0.05)"};
+  if(p>=59)return{l:"B",c:"#60a5fa",g:"#60a5fa55",n:"SÓLIDO",bg:"rgba(96,165,250,0.05)"};
+  if(p>=42)return{l:"C",c:"#f59e0b",g:"#f59e0b55",n:"REGULAR",bg:"rgba(245,158,11,0.05)"};
+  if(p>=21)return{l:"D",c:"#f97316",g:"#f9731655",n:"BAJO",bg:"rgba(249,115,22,0.05)"};
   return{l:"F",c:"#ef4444",g:"#ef444455",n:"PERDIDO",bg:"rgba(239,68,68,0.05)"};
 };
-const LVL1=[
-  {id:"wod",label:"WOD",pts:15,icon:"⚡",col:"#e2e2e2",routine:true},
-  {id:"work",label:"Work",pts:20,icon:"💼",col:"#e2e2e2",routine:false},
-  {id:"production",label:"Production",pts:20,icon:"🎵",col:"#e2e2e2",routine:true},
-];
-const LVL2=[
-  {id:"nofap",label:"NoFap",pts:10,icon:"🔒",col:"#a78bfa"},
-  {id:"sleep",label:"Sleep Early",pts:8,icon:"🌙",col:"#a78bfa"},
-  {id:"meditation",label:"Meditation",pts:8,icon:"🧘",col:"#a78bfa"},
-  {id:"pray",label:"Pray",pts:8,icon:"🙏",col:"#a78bfa"},
-];
 const SOCIAL_SUBS=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Amigos",icon:"👫"}];
-const ROUTINES={
-  wod:{label:"WOD",icon:"⚡",col:"#e2e2e2",steps:[
-    {id:"pre",label:"Pre-workout & suplementos",dur:5,icon:"💊"},
-    {id:"dress",label:"Vestirse",dur:5,icon:"👟"},
-    {id:"walk",label:"Caminar al spot",dur:10,icon:"🚶"},
-    {id:"warmup",label:"Warm up",dur:10,icon:"🔥"},
-    {id:"workout",label:"Workout",dur:40,icon:"⚡"},
-    {id:"cool",label:"Cool down",dur:10,icon:"🧊"},
-    {id:"back",label:"Caminar de vuelta",dur:10,icon:"🏠"},
-    {id:"protein",label:"Proteína & carbs",dur:10,icon:"🥛"},
-  ]},
-  production:{label:"Production",icon:"🎵",col:"#a78bfa",steps:[
-    {id:"setup",label:"Setup & abrir DAW",dur:5,icon:"💻",ses:1},
-    {id:"refs",label:"Escuchar referencias",dur:10,icon:"🎧",ses:1},
-    {id:"freeplay",label:"Free play / encontrar idea",dur:15,icon:"🎹",ses:1},
-    {id:"loop",label:"Construir el core loop",dur:30,icon:"🔁",ses:1},
-    {id:"drop",label:"Desarrollar drop / hook",dur:20,icon:"🎶",ses:1},
-    {id:"save1",label:"Guardar & exportar draft",dur:10,icon:"💾",ses:1},
-    {id:"break",label:"Break — come, camina",dur:30,icon:"☕",ses:"break",isBreak:true},
-    {id:"listen2",label:"Fresh ears — escuchar",dur:10,icon:"👂",ses:2},
-    {id:"arrange",label:"Arrangement & estructura",dur:25,icon:"📐",ses:2},
-    {id:"layers",label:"Layers & texturas",dur:20,icon:"🎼",ses:2},
-    {id:"mix",label:"Mix pass",dur:20,icon:"🎚",ses:2},
-    {id:"master",label:"Master & bounce",dur:10,icon:"📀",ses:2},
-    {id:"archive",label:"Label & archivar",dur:5,icon:"🗂",ses:2},
-  ]},
-};
 
-
-
-let USER = null;
-let _state = {};        // { "YYYY-MM-DD": { checks:{}, social:{} } }
-let _live = false;
-
-const get=k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch{return null;}};
-const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
-const todayKey=()=>new Date().toISOString().slice(0,10);
+function dateKey(d){
+  const tz=CFG.tz&&CFG.tz!=='device'?CFG.tz:undefined;
+  try{ return new Intl.DateTimeFormat('sv-SE',tz?{timeZone:tz}:{}).format(d); }
+  catch(e){ return new Intl.DateTimeFormat('sv-SE').format(d); }
+}
+const todayKey=()=>dateKey(new Date());
+// pure date arithmetic on YYYY-MM-DD (DST-safe)
+function keyMinus(key,days){
+  const[y,m,dd]=key.split('-').map(Number);
+  const t=new Date(Date.UTC(y,m-1,dd));
+  t.setUTCDate(t.getUTCDate()-days);
+  return t.toISOString().slice(0,10);
+}
+const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
 
 const cacheKey=()=>`shaah_cache_${USER?USER.id:"anon"}`;
 const loadCache=()=>{_state=get(cacheKey())||{};};
@@ -157,10 +199,9 @@ const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
   const activeSubs=Object.values(soc).filter(Boolean).length;
-  const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const l1=LVL1.reduce((a,i)=>a+(ch[i.id]?i.pts:0),0);
   const l2=LVL2.reduce((a,i)=>a+(ch[i.id]?i.pts:0),0);
-  const l3=socialPts+(ch.nosmoke?6:0)+(ch.pomodoro?6:0);
+  const l3=LVL3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?Math.round((activeSubs/3)*i.pts):i.pts):0):(ch[i.id]?i.pts:0)),0);
   return{score:l1+l2+l3,l1,l2,l3,done:Object.values(ch).filter(Boolean).length};
 }
 
@@ -168,6 +209,7 @@ function calcScore(key){
 function getHistory(){
   const h={};
   for(const date of Object.keys(_state)){
+    if(!DATE_RE.test(date))continue;
     const{score,l1,l2,l3,done}=calcScore(date);
     if(score>0)h[date]={score,grade:GRADE(score).l,l1,l2,l3,done};
   }
@@ -177,13 +219,14 @@ function getHistory(){
 // ── Writes — optimistic local, then push to server ─────────
 const _pending={};
 function persistDay(key){
+  if(!DATE_RE.test(key))return;
   saveCache();
   if(!USER)return;
   clearTimeout(_pending[key]);
   _pending[key]=setTimeout(async()=>{
     const ch=getChecked(key),soc=getSocial(key);
     const{score,l1,l2,l3,done}=calcScore(key);
-    const anything=Object.values(ch).some(Boolean);
+    const anything=Object.values(ch).some(Boolean)||!!getNote(key);
     try{
       if(!anything){
         await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
@@ -191,20 +234,34 @@ function persistDay(key){
       }else{
         await sb.from('day_logs').upsert({
           user_id:USER.id,date:key,
-          data:{score,grade:GRADE(score).l,l1,l2,l3,done,_checks:ch,_social:soc}
+          data:{score,grade:GRADE(score).l,l1,l2,l3,done,_checks:ch,_social:soc,_note:(_state[key]&&_state[key].note)||''}
         },{onConflict:'user_id,date'});
       }
     }catch(e){}
   },250);
 }
 
-function setChecked(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial()};_state[k].checks=v;}
-function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial()};_state[k].social=v;}
+function setChecked(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].checks=v;}
+function getNote(k){return(_state[k]&&_state[k].note)||'';}
+function setNote(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].note=v;persistDay(k);}
+function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].social=v;}
 
 // ── Server load + realtime ─────────────────────────────────
+function saveCfg(){
+  set('shaah_cfg',CFG); applyCfg();
+  if(USER){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
+}
+function loadCfgLocal(){
+  const c=get('shaah_cfg');
+  if(c){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);applyCfg();}
+}
 function rowToState(row){
+  if(row.date==='settings'){
+    if(row.data&&row.data._cfg){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);set('shaah_cfg',CFG);applyCfg();}
+    return;
+  }
   const d=row.data||{};
-  _state[row.date]={checks:d._checks||{},social:d._social||blankSocial()};
+  _state[row.date]={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||''};
 }
 
 async function loadAll(){
@@ -260,7 +317,84 @@ async function signOut(){
   location.reload();
 }
 
+function renderSettings(){
+  const tot=MAX;
+  const lvlBlock=(n,title,col)=>`
+    <div style="margin-bottom:20px">
+      <div class="sec" style="color:${col}">${title} — ${buildLevel(n).reduce((a,i)=>a+i.pts,0)}%</div>
+      ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n).map(id=>{const x=CFG.h[id];return `
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}">
+          <span style="font-size:16px;width:22px;text-align:center">${x.i}</span>
+          <input value="${(x.l||'').replace(/"/g,'&quot;')}" onchange="cfgSet('${id}','l',this.value)"
+            style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:12px;padding:3px 0"/>
+          <input type="number" min="0" max="60" value="${x.p}" onchange="cfgSet('${id}','p',this.value)"
+            style="width:52px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:12px;padding:5px 6px;text-align:center"/>
+          <button onclick="cfgToggle('${id}')" style="background:none;border:1px solid #222;color:${x.on!==false?col:'#555'};border-radius:6px;font-size:11px;width:30px;height:28px;cursor:pointer">${x.on!==false?'✓':'○'}</button>
+        </div>`}).join("")}
+    </div>`;
+  return`<div style="display:flex;flex-direction:column;min-height:100%">
+    <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
+      <button onclick="closeSettings()" style="background:none;border:1px solid #1e1e2e;color:#aaa;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;flex-shrink:0">←</button>
+      <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:0.2em;color:#e2e2e2">AJUSTES</div>
+      <div style="margin-left:auto;font-size:10px;color:${tot===119?'#666':'#fbbf24'}">MAX ${tot}%</div>
+    </div>
+    <div class="fade-up" style="padding:20px 16px calc(72px + env(safe-area-inset-bottom))">
+
+      <div class="sec">ZONA HORARIA</div>
+      <select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:12px;padding:11px 12px;margin-bottom:6px">
+        ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${t.label}</option>`).join("")}
+      </select>
+      <div style="font-size:10px;color:#666;margin-bottom:22px;line-height:1.5">El día cambia a medianoche en esta zona. Hoy es <b style="color:#aaa">${todayKey()}</b>.</div>
+
+      ${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
+      ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
+      ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
+
+      <div class="sec">RUTINAS</div>
+      ${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
+        <div class="card" style="margin-bottom:10px;padding:14px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:16px">${r.icon}</span>
+            <span style="font-size:13px;color:#e2e2e2">${r.label}</span>
+            <span style="margin-left:auto;font-size:10px;color:#666">${r.steps.length} pasos · ${tm} min</span>
+          </div>
+          ${r.steps.map((s,i)=>`
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:13px;width:20px;text-align:center">${s.icon}</span>
+              <input value="${(s.label||'').replace(/"/g,'&quot;')}" onchange="stepSet('${rid}',${i},'label',this.value)"
+                style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:11px;padding:3px 0"/>
+              <input type="number" min="1" max="180" value="${s.dur}" onchange="stepSet('${rid}',${i},'dur',this.value)"
+                style="width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:11px;padding:4px;text-align:center"/>
+              <span style="font-size:9px;color:#555">m</span>
+            </div>`).join("")}
+        </div>`}).join("")}
+
+      <div class="sec" style="margin-top:22px">DATOS</div>
+      <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#aaa;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORTAR JSON</button>
+      <button onclick="if(confirm('¿Restaurar toda la configuración por defecto?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTAURAR AJUSTES</button>
+      <button onclick="if(confirm('¿Cerrar sesión?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#666;font-family:inherit;font-size:11px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">CERRAR SESIÓN</button>
+      <div style="text-align:center;font-size:9px;color:#333;margin-top:18px;letter-spacing:0.2em">SHAAH · ${USER?USER.email||'':''}</div>
+    </div>
+  </div>`;
+}
+
+function cfgSet(id,k,v){ if(!CFG.h[id])return; CFG.h[id][k]= k==='p'?Math.max(0,parseInt(v)||0):v; saveCfg(); render(); }
+function cfgToggle(id){ haptic(10); CFG.h[id].on=CFG.h[id].on===false; saveCfg(); render(); }
+function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
+function stepSet(rid,i,k,v){ const s=CFG.routines[rid].steps[i]; s[k]= k==='dur'?Math.max(1,parseInt(v)||1):v; saveCfg(); render(); }
+function openSettings(){ settingsOpen=true; haptic(10); render(); }
+function closeSettings(){ settingsOpen=false; render(); }
+function exportData(){
+  const payload={app:"SHAAH",exported:new Date().toISOString(),user:USER?USER.email:null,config:CFG,days:{}};
+  for(const k of Object.keys(_state)){ if(DATE_RE.test(k)) payload.days[k]={..._state[k],score:calcScore(k).score}; }
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=`shaah-${todayKey()}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
 function renderLogin(){
+  const g=document.getElementById('gear');if(g)g.style.display='none';
   return`<div style="height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px">
     <div style="text-align:center">
       <div style="font-family:'Bebas Neue';font-size:56px;letter-spacing:0.3em;color:#e2e2e2;line-height:1">SHAAH</div>
@@ -324,6 +458,7 @@ async function boot(){
   }
 
   if(USER){
+    loadCfgLocal();
     loadCache();
     restoreRoutine();
     render();
@@ -346,12 +481,12 @@ sb.auth.onAuthStateChange((event,session)=>{
 });
 
 function getStreak(){
-  const h=getHistory();let s=0;
-  for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);if(h[k]&&h[k].score>=60)s++;else if(i>0)break;}
+  const hh=getHistory(),tk=todayKey();let s=0;
+  for(let i=0;i<365;i++){const k=keyMinus(tk,i);const need=MAX*0.5;if(hh[k]&&hh[k].score>=need)s++;else if(i>0)break;}
   return s;
 }
 function getBestStreak(){
-  const h=getHistory(),keys=Object.keys(h).filter(k=>h[k].score>=60).sort();
+  const hh=getHistory(),need=MAX*0.5,keys=Object.keys(hh).filter(k=>DATE_RE.test(k)&&hh[k].score>=need).sort();
   let best=0,run=0,prev=null;
   for(const k of keys){
     const d=new Date(k+'T12:00:00');
@@ -367,11 +502,10 @@ function weekTrend(){
   return{cur,prev,diff:cur-prev};
 }
 function getDays(n){
-  const days=[],h=getHistory();
+  const days=[],hh=getHistory(),tk=todayKey();
   for(let i=n-1;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const key=d.toISOString().slice(0,10);
-    days.push({key,date:d,data:h[key]||null});
+    const key=keyMinus(tk,i);
+    days.push({key,date:new Date(key+'T12:00:00'),data:hh[key]||null});
   }
   return days;
 }
@@ -390,6 +524,7 @@ function bar(pct,col,glow,h=6){
   return`<div style="height:${h}px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;border-radius:99px;width:${Math.min(pct,100)}%;background:${col};${pct>0?`box-shadow:0 0 8px ${glow}`:""}"></div></div>`;
 }
 
+let settingsOpen=false;
 let currentTab="home",routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
 
 // ── Feedback: haptics + audible cue ───────────────────────────
@@ -414,7 +549,41 @@ function chime(times){
     }
   }catch(e){}
 }
-function alertStepDone(){ haptic([120,60,120]); chime(2); }
+// ── Keep the audio session alive so the chime fires on a locked screen.
+//    iOS suspends AudioContext when locked unless audio is actively playing.
+let _keepNode=null;
+function audioKeepalive(on){
+  try{
+    unlockAudio(); if(!_actx)return;
+    if(on){
+      if(_keepNode)return;
+      const o=_actx.createOscillator(),g=_actx.createGain();
+      o.frequency.value=20;             // sub-audible
+      g.gain.value=0.0006;              // effectively silent, keeps session hot
+      o.connect(g);g.connect(_actx.destination);o.start();
+      _keepNode={o,g};
+    }else if(_keepNode){
+      try{_keepNode.o.stop();}catch(e){}
+      _keepNode=null;
+    }
+  }catch(e){}
+}
+
+function alertStepDone(){ haptic([120,60,120]); chime(3); }
+
+// Hold the audio session open so the chime still fires with the screen locked.
+let _keepAlive=null;
+function audioKeepAlive(on){
+  try{
+    if(on){
+      unlockAudio(); if(!_actx||_keepAlive)return;
+      const o=_actx.createOscillator(),g=_actx.createGain();
+      o.frequency.value=20; g.gain.value=0.0008;
+      o.connect(g); g.connect(_actx.destination); o.start();
+      _keepAlive={o,g};
+    }else if(_keepAlive){ try{_keepAlive.o.stop();}catch(e){} _keepAlive=null; }
+  }catch(e){}
+}
 
 // ── Routine session persistence (survives refresh) ────────────
 const RKEY='shaah_routine';
@@ -437,6 +606,8 @@ function restoreRoutine(){
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
   if(!USER){el.innerHTML=renderLogin();nav.style.display="none";return;}
+  const gg=document.getElementById('gear');if(gg)gg.style.display=USER?'block':'none';
+  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";return;}
   if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";return;}
   if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";return;}
   nav.style.display="flex";
@@ -580,7 +751,7 @@ function renderToday(key,nested=false){
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:9px" onclick="event.stopPropagation()">
-            <span style="font-size:10px;color:${ch.social?"#fbbf2499":"#777"}">${socialPts||18}%</span>
+            <span style="font-size:10px;color:${ch.social?"#fbbf2499":"#777"}">${socialPts||(LVL3.find(x=>x.combo)||{pts:18}).pts}%</span>
             <button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${socialExpanded?"✕":"EDITAR"}</button>
           </div>
         </div>
@@ -593,7 +764,7 @@ function renderToday(key,nested=false){
           </div>`).join("")}
         </div>`:""}
       </div>
-      ${[{id:"nosmoke",label:"No Fumar",icon:"🚭",pts:6},{id:"pomodoro",label:"Pomodoro",icon:"🍅",pts:6}].map(item=>`
+      ${LVL3.filter(x=>!x.combo).map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${chk(!!ch[item.id],"#fbbf24")}
@@ -602,7 +773,14 @@ function renderToday(key,nested=false){
         <span style="font-size:10px;color:${ch[item.id]?"#fbbf2499":"#777"}">${item.pts}%</span>
       </div>`).join("")}
     </div>
-    ${isToday?`<button onclick="if(confirm('¿Borrar todos los hábitos de este día?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#1e1e2e;font-family:inherit;font-size:9px;letter-spacing:0.22em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DÍA</button>`:""}
+
+    <div style="width:100%;max-width:390px">
+      <div class="sec">✎ NOTA DEL DÍA</div>
+      <textarea placeholder="¿Cómo estuvo el día?" onchange="setNote('${key}',this.value)"
+        style="width:100%;min-height:62px;resize:vertical;background:#0c0c18;border:1px solid #161626;border-radius:12px;color:#ccc;font-family:inherit;font-size:12px;line-height:1.6;padding:12px 14px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+    </div>
+
+    ${isToday?`<button onclick="if(confirm('¿Borrar todos los hábitos de este día?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#555;font-family:inherit;font-size:9px;letter-spacing:0.22em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DÍA</button>`:""}
   </div>`;
 }
 
@@ -612,7 +790,7 @@ function renderEditDay(){
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeEditDay()" style="background:none;border:1px solid #1e1e2e;color:#aaa;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:16px;letter-spacing:0.2em;color:#e2e2e2">EDITAR DÍA</div>
-      <div style="font-size:9px;color:#444;margin-left:4px">${dateStr}</div>
+      <div style="font-size:9px;color:#666;margin-left:4px">${dateStr}</div>
     </div>
     ${renderToday(editDayKey,true)}
   </div>`;
@@ -806,8 +984,8 @@ function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
 function startRoutine(id){unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
-function closeRoutine(){if(timerInterval)clearInterval(timerInterval);timerRunning=false;timerInterval=null;timerEndAt=null;routineId=null;routineQueue=[];routineCompleted={};saveRoutine();render();}
-function finishRoutine(){haptic([40,60,120]);chime(3);const id=routineId;closeRoutine();quickComplete(id);setTab("home");}
+function closeRoutine(){audioKeepAlive(false);if(timerInterval)clearInterval(timerInterval);timerRunning=false;timerInterval=null;timerEndAt=null;routineId=null;routineQueue=[];routineCompleted={};saveRoutine();render();}
+function finishRoutine(){audioKeepAlive(false);haptic([40,60,120]);chime(3);const id=routineId;closeRoutine();quickComplete(id);setTab("home");}
 function startTick(){
   clearInterval(timerInterval);
   timerInterval=setInterval(()=>{
@@ -815,7 +993,7 @@ function startTick(){
     timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));
     if(timerSecs<=0){
       clearInterval(timerInterval);timerRunning=false;timerEndAt=null;
-      alertStepDone(); routineNext(); return;
+      alertStepDone(); routineNext(); audioKeepalive(false); return;
     }
     renderRoutineTimer();
   },250);
@@ -823,8 +1001,8 @@ function startTick(){
 function routineToggle(){
   unlockAudio(); haptic(12);
   timerRunning=!timerRunning;
-  if(timerRunning){ timerEndAt=Date.now()+timerSecs*1000; startTick(); }
-  else{ clearInterval(timerInterval); timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000)); timerEndAt=null; }
+  if(timerRunning){ timerEndAt=Date.now()+timerSecs*1000; startTick(); audioKeepAlive(true); }
+  else{ clearInterval(timerInterval); timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000)); timerEndAt=null; audioKeepAlive(false); }
   saveRoutine(); render();
 }
 // Recompute after backgrounding — iOS freezes timers when locked
@@ -836,7 +1014,7 @@ document.addEventListener('visibilitychange',()=>{
     else{startTick();render();}
   }
 });
-function routineReset(){haptic(12);clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineId&&routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
+function routineReset(){haptic(12);audioKeepalive(false);clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineId&&routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
 function routineNext(){clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineQueue.length===0)return;routineCompleted[routineQueue[0]]=true;routineQueue=routineQueue.slice(1);if(routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
 function routineSendToEnd(){if(routineQueue.length<2)return;haptic(12);routineQueue=[...routineQueue.slice(1),routineQueue[0]];clearInterval(timerInterval);timerRunning=false;timerEndAt=null;timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
 function renderRoutineTimer(){
@@ -858,8 +1036,8 @@ document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touc
 document.addEventListener("touchend",e=>{
   const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
   if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)*0.8)return;
-  if(dx>0){if(editDayKey){closeEditDay();return;}if(routineId){closeRoutine();return;}}
-  if(routineId||editDayKey)return;
+  if(dx>0){if(settingsOpen){closeSettings();return;}if(editDayKey){closeEditDay();return;}if(routineId){closeRoutine();return;}}
+  if(routineId||editDayKey||settingsOpen)return;
   const idx=TABS_ORDER.indexOf(currentTab);
   if(dx<0&&idx<TABS_ORDER.length-1)setTab(TABS_ORDER[idx+1]);
   if(dx>0&&idx>0)setTab(TABS_ORDER[idx-1]);

@@ -197,9 +197,12 @@ let CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));
 const LVL_COL={1:"#e2e2e2",2:"#a78bfa",3:"#fbbf24"};
 let LVL1=[],LVL2=[],LVL3=[],ROUTINES={},MAX=0,LVL1_MAX=0,LVL2_MAX=0,LVL3_MAX=0;
 
+// Points are user-editable, so never trust them: clamp to a sane integer.
+function safePts(v){const n=Math.round(Number(v));return Number.isFinite(n)?Math.max(0,Math.min(999,n)):0;}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function buildLevel(n){
   return CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&CFG.h[id].on!==false)
-    .map(id=>({id,label:CFG.h[id].l,pts:CFG.h[id].p,icon:CFG.h[id].i,
+    .map(id=>({id,label:CFG.h[id].l,pts:safePts(CFG.h[id].p),icon:CFG.h[id].i,
                col:LVL_COL[n],routine:!!CFG.h[id].routine,combo:!!CFG.h[id].combo}));
 }
 function applyCfg(){
@@ -255,8 +258,8 @@ const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
   const activeSubs=Object.values(soc).filter(Boolean).length;
-  const l1=LVL1.reduce((a,i)=>a+(ch[i.id]?i.pts:0),0);
-  const l2=LVL2.reduce((a,i)=>a+(ch[i.id]?i.pts:0),0);
+  const l1=LVL1.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
+  const l2=LVL2.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
   const l3=LVL3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?Math.round((activeSubs/3)*i.pts):i.pts):0):(ch[i.id]?i.pts:0)),0);
   return{score:l1+l2+l3,l1,l2,l3,done:Object.values(ch).filter(Boolean).length};
 }
@@ -380,8 +383,8 @@ function renderSettings(){
       <div class="sec" style="color:${col}">${title} — ${buildLevel(n).reduce((a,i)=>a+i.pts,0)}%</div>
       ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n).map(id=>{const x=CFG.h[id];return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}">
-          <span style="font-size:16px;width:22px;text-align:center">${x.i}</span>
-          <input value="${(x.l||'').replace(/"/g,'&quot;')}" onchange="cfgSet('${id}','l',this.value)"
+          <span style="font-size:16px;width:22px;text-align:center">${esc(x.i)}</span>
+          <input value="${esc(x.l)}" onchange="cfgSet('${id}','l',this.value)"
             style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:12px;padding:3px 0"/>
           <input type="number" min="0" max="60" value="${x.p}" onchange="cfgSet('${id}','p',this.value)"
             style="width:52px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:12px;padding:5px 6px;text-align:center"/>
@@ -416,8 +419,8 @@ function renderSettings(){
           </div>
           ${r.steps.map((s,i)=>`
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-              <span style="font-size:13px;width:20px;text-align:center">${s.icon}</span>
-              <input value="${(s.label||'').replace(/"/g,'&quot;')}" onchange="stepSet('${rid}',${i},'label',this.value)"
+              <span style="font-size:13px;width:20px;text-align:center">${esc(s.icon)}</span>
+              <input value="${esc(s.label)}" onchange="stepSet('${rid}',${i},'label',this.value)"
                 style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:11px;padding:3px 0"/>
               <input type="number" min="1" max="180" value="${s.dur}" onchange="stepSet('${rid}',${i},'dur',this.value)"
                 style="width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:11px;padding:4px;text-align:center"/>
@@ -452,7 +455,6 @@ function exportData(){
 }
 
 function renderLogin(){
-  const g=document.getElementById('gear');if(g)g.style.display='none';
   return`<div style="height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px">
     <div style="text-align:center">
       <div style="font-family:'Bebas Neue';font-size:56px;letter-spacing:0.3em;color:#e2e2e2;line-height:1">SHAAH</div>
@@ -541,7 +543,7 @@ sb.auth.onAuthStateChange((event,session)=>{
 
 function getStreak(){
   const hh=getHistory(),tk=todayKey();let s=0;
-  for(let i=0;i<365;i++){const k=keyMinus(tk,i);const need=MAX*0.5;if(hh[k]&&hh[k].score>=need)s++;else if(i>0)break;}
+  for(let i=0;i<3650;i++){const k=keyMinus(tk,i);const need=MAX*0.5;if(hh[k]&&hh[k].score>=need)s++;else if(i>0)break;}
   return s;
 }
 function getBestStreak(){
@@ -781,9 +783,9 @@ function renderHome(){
         <div class="qtile${ch[item.id]?" on":""}" onclick="toggleHabit('${item.id}','${tk}')"
           style="background:${ch[item.id]?item.col+"12":"#0d0d1a"};border:1px solid ${ch[item.id]?item.col+"40":"#111120"};border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;position:relative;overflow:hidden">
           <div style="width:26px;height:26px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;
-            background:${ch[item.id]?item.col+"22":"#141422"};border:1px solid ${ch[item.id]?item.col+"55":"transparent"};opacity:${ch[item.id]?1:.55}">${item.icon}</div>
+            background:${ch[item.id]?item.col+"22":"#141422"};border:1px solid ${ch[item.id]?item.col+"55":"transparent"};opacity:${ch[item.id]?1:.55}">${esc(item.icon)}</div>
           <div style="min-width:0;flex:1">
-            <div style="font-size:11px;font-weight:${ch[item.id]?500:300};color:${ch[item.id]?"#e2e2e2":"#bbb"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.label}</div>
+            <div style="font-size:11px;font-weight:${ch[item.id]?500:300};color:${ch[item.id]?"#e2e2e2":"#bbb"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(item.label)}</div>
             <div style="font-size:9px;color:${ch[item.id]?item.col:"#666"};margin-top:2px;letter-spacing:.05em">${ch[item.id]?"✓ HECHO":"+"+item.pts+"%"}</div>
           </div>
           ${ch[item.id]?`<div style="width:16px;height:16px;border-radius:50%;background:${item.col};display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -831,7 +833,7 @@ function renderToday(key,nested=false){
         <div class="row${ch[item.id]?" on":""}" style="flex:1" onclick="toggleHabit('${item.id}','${key}')">
           <div style="display:flex;align-items:center;gap:13px">
             ${chk(!!ch[item.id],item.col)}
-            <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${item.icon} ${item.label}</span>
+            <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${esc(item.icon)} ${esc(item.label)}</span>
           </div>
           <span style="font-size:10px;color:${ch[item.id]?"#e2e2e299":"#777"}">${item.pts}%</span>
         </div>
@@ -848,7 +850,7 @@ function renderToday(key,nested=false){
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${chk(!!ch[item.id],item.col)}
-          <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${item.icon} ${item.label}</span>
+          <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${esc(item.icon)} ${esc(item.label)}</span>
         </div>
         <span style="font-size:10px;color:${ch[item.id]?"#a78bfa99":"#777"}">${item.pts}%</span>
       </div>`).join("")}
@@ -882,7 +884,7 @@ function renderToday(key,nested=false){
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${chk(!!ch[item.id],"#fbbf24")}
-          <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${item.icon} ${item.label}</span>
+          <span style="font-size:13px;font-weight:${ch[item.id]?500:300}">${esc(item.icon)} ${esc(item.label)}</span>
         </div>
         <span style="font-size:10px;color:${ch[item.id]?"#fbbf2499":"#777"}">${item.pts}%</span>
       </div>`).join("")}
@@ -1085,7 +1087,7 @@ function renderRoutine(){
       <button onclick="routineSendToEnd()" style="background:none;border:1px solid #161626;color:#333;font-family:inherit;font-size:9px;letter-spacing:0.15em;padding:7px 18px;border-radius:8px;cursor:pointer">MOVER AL FINAL</button>
     </div>
     <div style="border-top:1px solid #0f0f1e;max-height:180px;overflow-y:auto">
-      ${routineQueue.map((idx,qi)=>{const s=rt.steps[idx],isCur=qi===0;return`<div style="display:flex;align-items:center;gap:12px;padding:8px 20px;background:${isCur?rt.col+"08":"transparent"};border-left:2px solid ${isCur?rt.col:"transparent"}"><span style="font-size:16px;opacity:${isCur?1:0.4}">${s.icon}</span><div style="flex:1"><div style="font-size:12px;color:${isCur?"#e2e2e2":"#333"};font-weight:${isCur?500:300}">${s.label}</div></div><div style="font-size:10px;color:${isCur?rt.col:"#252535"}">${s.dur}m</div></div>`;}).join("")}
+      ${routineQueue.map((idx,qi)=>{const s=rt.steps[idx],isCur=qi===0;return`<div style="display:flex;align-items:center;gap:12px;padding:8px 20px;background:${isCur?rt.col+"08":"transparent"};border-left:2px solid ${isCur?rt.col:"transparent"}"><span style="font-size:16px;opacity:${isCur?1:0.4}">${esc(s.icon)}</span><div style="flex:1"><div style="font-size:12px;color:${isCur?"#e2e2e2":"#333"};font-weight:${isCur?500:300}">${s.label}</div></div><div style="font-size:10px;color:${isCur?rt.col:"#252535"}">${s.dur}m</div></div>`;}).join("")}
       ${Object.keys(routineCompleted).length>0?`<div style="padding:8px 20px 0;border-top:1px solid #0f0f1e;margin-top:4px">${Object.keys(routineCompleted).map(idx=>{const s=rt.steps[idx];return`<div style="display:flex;align-items:center;gap:12px;padding:6px 0;opacity:0.3"><span style="font-size:14px">✓</span><div style="font-size:11px;color:#444;text-decoration:line-through">${s.label}</div></div>`;}).join("")}</div>`:""}
     </div>
   </div>`;
@@ -1102,7 +1104,7 @@ function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,{flir
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
-function startRoutine(id){unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
+function startRoutine(id){if(!ROUTINES[id])return;unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
 function closeRoutine(){audioKeepAlive(false);if(timerInterval)clearInterval(timerInterval);timerRunning=false;timerInterval=null;timerEndAt=null;routineId=null;routineQueue=[];routineCompleted={};saveRoutine();render();}
 function finishRoutine(){audioKeepAlive(false);haptic([40,60,120]);chime(3);const id=routineId;closeRoutine();quickComplete(id);setTab("home");}
 function startTick(){

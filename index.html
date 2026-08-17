@@ -63,6 +63,57 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 let AUTH_ERR = null;
 
+const MAX=119,LVL1_MAX=55,LVL2_MAX=34,LVL3_MAX=30;
+const GRADE=s=>{
+  if(s>=100)return{l:"S",c:"#FFD700",g:"#FFD70055",n:"LEGENDARY",bg:"rgba(255,215,0,0.05)"};
+  if(s>=85)return{l:"A",c:"#4ade80",g:"#4ade8055",n:"EXCELENTE",bg:"rgba(74,222,128,0.05)"};
+  if(s>=70)return{l:"B",c:"#60a5fa",g:"#60a5fa55",n:"SÓLIDO",bg:"rgba(96,165,250,0.05)"};
+  if(s>=50)return{l:"C",c:"#f59e0b",g:"#f59e0b55",n:"REGULAR",bg:"rgba(245,158,11,0.05)"};
+  if(s>=25)return{l:"D",c:"#f97316",g:"#f9731655",n:"BAJO",bg:"rgba(249,115,22,0.05)"};
+  return{l:"F",c:"#ef4444",g:"#ef444455",n:"PERDIDO",bg:"rgba(239,68,68,0.05)"};
+};
+const LVL1=[
+  {id:"wod",label:"WOD",pts:15,icon:"⚡",col:"#e2e2e2",routine:true},
+  {id:"work",label:"Work",pts:20,icon:"💼",col:"#e2e2e2",routine:false},
+  {id:"production",label:"Production",pts:20,icon:"🎵",col:"#e2e2e2",routine:true},
+];
+const LVL2=[
+  {id:"nofap",label:"NoFap",pts:10,icon:"🔒",col:"#a78bfa"},
+  {id:"sleep",label:"Sleep Early",pts:8,icon:"🌙",col:"#a78bfa"},
+  {id:"meditation",label:"Meditation",pts:8,icon:"🧘",col:"#a78bfa"},
+  {id:"pray",label:"Pray",pts:8,icon:"🙏",col:"#a78bfa"},
+];
+const SOCIAL_SUBS=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Amigos",icon:"👫"}];
+const ROUTINES={
+  wod:{label:"WOD",icon:"⚡",col:"#e2e2e2",steps:[
+    {id:"pre",label:"Pre-workout & suplementos",dur:5,icon:"💊"},
+    {id:"dress",label:"Vestirse",dur:5,icon:"👟"},
+    {id:"walk",label:"Caminar al spot",dur:10,icon:"🚶"},
+    {id:"warmup",label:"Warm up",dur:10,icon:"🔥"},
+    {id:"workout",label:"Workout",dur:40,icon:"⚡"},
+    {id:"cool",label:"Cool down",dur:10,icon:"🧊"},
+    {id:"back",label:"Caminar de vuelta",dur:10,icon:"🏠"},
+    {id:"protein",label:"Proteína & carbs",dur:10,icon:"🥛"},
+  ]},
+  production:{label:"Production",icon:"🎵",col:"#a78bfa",steps:[
+    {id:"setup",label:"Setup & abrir DAW",dur:5,icon:"💻",ses:1},
+    {id:"refs",label:"Escuchar referencias",dur:10,icon:"🎧",ses:1},
+    {id:"freeplay",label:"Free play / encontrar idea",dur:15,icon:"🎹",ses:1},
+    {id:"loop",label:"Construir el core loop",dur:30,icon:"🔁",ses:1},
+    {id:"drop",label:"Desarrollar drop / hook",dur:20,icon:"🎶",ses:1},
+    {id:"save1",label:"Guardar & exportar draft",dur:10,icon:"💾",ses:1},
+    {id:"break",label:"Break — come, camina",dur:30,icon:"☕",ses:"break",isBreak:true},
+    {id:"listen2",label:"Fresh ears — escuchar",dur:10,icon:"👂",ses:2},
+    {id:"arrange",label:"Arrangement & estructura",dur:25,icon:"📐",ses:2},
+    {id:"layers",label:"Layers & texturas",dur:20,icon:"🎼",ses:2},
+    {id:"mix",label:"Mix pass",dur:20,icon:"🎚",ses:2},
+    {id:"master",label:"Master & bounce",dur:10,icon:"📀",ses:2},
+    {id:"archive",label:"Label & archivar",dur:5,icon:"🗂",ses:2},
+  ]},
+};
+
+
+
 let USER = null;
 let _state = {};        // { "YYYY-MM-DD": { checks:{}, social:{} } }
 let _live = false;
@@ -207,6 +258,17 @@ function renderLogin(){
 }
 
 // ── Boot ───────────────────────────────────────────────────
+window.addEventListener('error',e=>{
+  const el=document.getElementById('scroll');
+  if(el&&!el.innerHTML.trim()){
+    el.innerHTML=`<div style="padding:calc(60px + env(safe-area-inset-top)) 24px;font-size:11px;color:#ef8888;line-height:1.6">
+      <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:0.2em;color:#ef4444;margin-bottom:12px">ERROR</div>
+      <div style="word-break:break-word">${e.message}</div>
+      <div style="color:#555;margin-top:8px;font-size:10px">${(e.filename||'').split('/').pop()}:${e.lineno}</div>
+    </div>`;
+  }
+});
+
 async function boot(){
   // Surface any OAuth error returned in the URL
   const q=new URLSearchParams(location.search), hp=new URLSearchParams(location.hash.slice(1));

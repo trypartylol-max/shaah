@@ -26,9 +26,16 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:smooth;}
 #scroll::-webkit-scrollbar{display:none;}
-#nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:max(calc(env(safe-area-inset-bottom) - 24px),4px);z-index:999;}
+#nav{transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .25s ease;position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:max(calc(env(safe-area-inset-bottom) - 24px),4px);z-index:999;}
 .nav-btn{flex:1;min-height:46px;padding:9px 4px 9px;background:none;border:none;font-family:inherit;font-size:13.5px;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s;border-top:2px solid transparent;color:#adadbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .nav-btn:active{opacity:.6;}
+#nav.tucked{transform:translateY(115%);opacity:0;pointer-events:none;}
+.ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
+  background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
+  font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
+  transition:background .15s,color .15s,transform .1s;}
+.ord:active{transform:scale(.88);background:#20203a;color:#e2e2e2;}
+@media(hover:hover){.ord:hover{background:#1d1d33;color:#d0d0da;}}
 .nav-btn.active{color:#e2e2e2;border-top-color:#e2e2e2;}
 .row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;cursor:pointer;user-select:none;transition:all 0.18s;border:1px solid transparent;position:relative;overflow:hidden;}
 .row.on{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.07);}
@@ -382,6 +389,110 @@ async function signOut(){
   location.reload();
 }
 
+function renderReview(){
+  const days=getDays(7), h7=getHistory();
+  const logged=days.filter(d=>d.data);
+  const avg=avgW(days), tr=weekTrend();
+  const best=logged.reduce((m,d)=>!m||d.data.score>m.data.score?d:m,null);
+  const worst=logged.reduce((m,d)=>!m||d.data.score<m.data.score?d:m,null);
+  const habits=[...LVL1,...LVL2,...LVL3];
+  // completion rate per habit over the 7 days
+  const rate=habits.map(x=>{
+    const n=days.filter(d=>{const c=getChecked(d.key);return c&&c[x.id];}).length;
+    return {...x,n,pct:Math.round(n/7*100)};
+  }).sort((a,b)=>b.n-a.n);
+  const top=rate.filter(r=>r.n>0).slice(0,3);
+  const weak=rate.filter(r=>r.n<7).slice(-3).reverse();
+  const g=GRADE(avg);
+  const dn=k=>keyToDate(k).toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"});
+
+  return`<div style="display:flex;flex-direction:column;min-height:100%">
+    <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
+      <button onclick="closeReview()" style="background:none;border:1px solid #1e1e2e;color:#c0c0cd;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
+      <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:0.16em;color:#e2e2e2">WEEKLY REVIEW</div>
+    </div>
+    <div class="fade-up" style="padding:18px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+
+      ${logged.length===0?`<div style="text-align:center;padding:50px 20px;color:#9a9ab2;font-size:15px;line-height:1.6">No days logged this week yet.<br>Check a habit and come back.</div>`:`
+
+      <div class="card" style="background:${g.bg};border:1px solid ${g.c}22">
+        <div style="font-size:12px;letter-spacing:0.1em;color:#9a9ab2;margin-bottom:10px">LAST 7 DAYS</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="font-family:'Bebas Neue';font-size:56px;color:${g.c};line-height:1;text-shadow:0 0 24px ${g.g}">${g.l}</div>
+          <div style="flex:1">
+            <div style="font-family:'Bebas Neue';font-size:32px;color:${g.c};line-height:1">${avg}%</div>
+            <div style="font-size:13px;color:#adadbf;margin-top:4px">average · ${logged.length}/7 days logged</div>
+            ${tr?`<div style="font-size:13px;margin-top:6px;color:${tr.diff>=0?"#4ade80":"#f97316"}">${tr.diff>=0?"▲":"▼"} ${Math.abs(tr.diff)}% vs previous week</div>`:""}
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="card">
+          <div style="font-size:21px;margin-bottom:6px">🏆</div>
+          <div style="font-family:'Bebas Neue';font-size:26px;color:${best?GRADE(best.data.score).c:"#666"};line-height:1">${best?best.data.score+"%":"—"}</div>
+          <div style="font-size:12px;color:#9a9ab2;margin-top:5px;letter-spacing:0.08em">BEST DAY</div>
+          <div style="font-size:13px;color:#adadbf;margin-top:2px">${best?dn(best.key):""}</div>
+        </div>
+        <div class="card">
+          <div style="font-size:21px;margin-bottom:6px">📉</div>
+          <div style="font-family:'Bebas Neue';font-size:26px;color:${worst?GRADE(worst.data.score).c:"#666"};line-height:1">${worst?worst.data.score+"%":"—"}</div>
+          <div style="font-size:12px;color:#9a9ab2;margin-top:5px;letter-spacing:0.08em">LOWEST DAY</div>
+          <div style="font-size:13px;color:#adadbf;margin-top:2px">${worst?dn(worst.key):""}</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec">MOST CONSISTENT</div>
+        <div class="card">
+          ${top.length?top.map(r=>`
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">
+            <span style="font-size:19px;width:24px;text-align:center">${esc(r.icon)}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;color:#e2e2e2;margin-bottom:5px">${esc(r.label)}</div>
+              ${bar(r.pct,"#4ade80","#4ade8055",5)}
+            </div>
+            <div style="font-size:14px;color:#4ade80;width:44px;text-align:right">${r.n}/7</div>
+          </div>`).join(""):`<div style="font-size:14px;color:#9a9ab2">Nothing checked this week yet.</div>`}
+        </div>
+      </div>
+
+      <div>
+        <div class="sec">NEEDS ATTENTION</div>
+        <div class="card">
+          ${weak.length?weak.map(r=>`
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">
+            <span style="font-size:19px;width:24px;text-align:center;opacity:.6">${esc(r.icon)}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;color:#c0c0cd;margin-bottom:5px">${esc(r.label)}</div>
+              ${bar(r.pct,r.n===0?"#ef4444":"#f59e0b",(r.n===0?"#ef4444":"#f59e0b")+"55",5)}
+            </div>
+            <div style="font-size:14px;color:${r.n===0?"#ef4444":"#f59e0b"};width:44px;text-align:right">${r.n}/7</div>
+          </div>`).join(""):`<div style="font-size:14px;color:#4ade80">Every habit hit all 7 days. 🥂</div>`}
+        </div>
+      </div>
+
+      <div>
+        <div class="sec">DAY BY DAY</div>
+        <div class="card">
+          <div style="display:flex;align-items:flex-end;gap:6px;height:104px;padding-top:8px">
+            ${days.map(d=>{
+              const sc=d.data?d.data.score:0, gg=GRADE(sc);
+              const hh=sc>0?Math.max(Math.round(sc/MAX*76),6):4;
+              return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+                <div style="font-size:11px;color:${sc>0?gg.c:"#76768f"}">${sc||""}</div>
+                <div style="width:100%;height:${hh}px;border-radius:4px 4px 0 0;background:${sc>0?gg.c+"33":"#14142a"};border:1px solid ${sc>0?gg.c+"55":"#1c1c30"};border-bottom:none"></div>
+                <div style="font-size:11px;color:#8888a4">${keyToDate(d.key).toLocaleDateString("en-US",{weekday:"narrow"})}</div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+      </div>
+      `}
+    </div>
+  </div>`;
+}
+
 function renderSettings(){
   const tot=MAX;
   const lvlBlock=(n,title,col)=>`
@@ -464,6 +575,8 @@ function cfgToggle(id){ haptic(10); CFG.h[id].on=CFG.h[id].on===false; saveCfg()
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid].steps[i]; s[k]= k==='dur'?Math.max(1,parseInt(v)||1):v; saveCfg(); render(); }
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
+function openReview(){ reviewOpen=true; haptic(10); render(); }
+function closeReview(){ reviewOpen=false; render(); }
 function openSettings(){ settingsOpen=true; haptic(10); render(); }
 function closeSettings(){ settingsOpen=false; render(); }
 function exportData(){
@@ -583,6 +696,8 @@ function weekTrend(){
   if(!prev||!cur)return null;
   return{cur,prev,diff:cur-prev};
 }
+// key "YYYY-MM-DD" → Date at local noon (DST-safe for display)
+function keyToDate(key){return new Date(key+'T12:00:00');}
 function getDays(n){
   const days=[],hh=getHistory(),tk=todayKey();
   for(let i=n-1;i>=0;i--){
@@ -607,6 +722,7 @@ function bar(pct,col,glow,h=6){
 }
 
 let settingsOpen=false;
+let reviewOpen=false;
 let currentTab="home",routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
 
 // ── Feedback: haptics + audible cue ───────────────────────────
@@ -685,6 +801,27 @@ function restoreRoutine(){
   return true;
 }
 
+// ── Dock auto-hide: content rises, dock tucks away ──────────
+let _lastY=0,_navTucked=false;
+function tuckNav(on){
+  if(on===_navTucked)return;
+  const n=document.getElementById("nav");if(!n)return;
+  _navTucked=on; n.classList.toggle("tucked",on);
+}
+function initScrollHide(){
+  const sc=document.getElementById("scroll");if(!sc||sc._hooked)return;
+  sc._hooked=true;
+  sc.addEventListener("scroll",()=>{
+    if(!USER||routineId||editDayKey||settingsOpen||tourStep!==null)return;
+    const y=sc.scrollTop,dy=y-_lastY;
+    const atBottom=sc.scrollHeight-y-sc.clientHeight<8;
+    if(y<48||atBottom)tuckNav(false);       // near top or bottom → always visible
+    else if(dy>5)tuckNav(true);             // scrolling down → tuck away
+    else if(dy<-5)tuckNav(false);           // scrolling up → bring back
+    _lastY=y;
+  },{passive:true});
+}
+
 // ── First-run tour ────────────────────────────────────────────
 let tourStep=null;
 const TOUR=[
@@ -736,11 +873,11 @@ function topbarHTML(){
 }
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
-  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";renderTour();return;}
+  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";tuckNav(false);renderTour();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
-  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";renderTour();return;}
-  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";renderTour();return;}
-  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";renderTour();return;}
+  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";tuckNav(false);renderTour();return;}
+  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";tuckNav(false);renderTour();return;}
+  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";tuckNav(false);renderTour();return;}
   nav.style.display="flex";
   const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
@@ -749,6 +886,7 @@ function render(){
   else if(currentTab==="stats")el.innerHTML=bar+renderStats();
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
   renderTour();
+  initScrollHide();
 }
 
 function renderHome(){
@@ -938,6 +1076,75 @@ function renderEditDay(){
   </div>`;
 }
 
+// ── Weekly review: turns the log into a decision ──────────────
+function weekReview(){
+  const d=getDays(14),cur=d.slice(7),prev=d.slice(0,7);
+  const logged=cur.filter(x=>x.data);
+  if(!logged.length)return null;
+  const avg=Math.round(logged.reduce((a,x)=>a+x.data.score,0)/logged.length);
+  const pl=prev.filter(x=>x.data);
+  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+x.data.score,0)/pl.length):null;
+  // per-habit hit rate across the week
+  const items=[...LVL1,...LVL2,...LVL3];
+  const tally=items.map(it=>{
+    let done=0;
+    cur.forEach(x=>{const ch=getChecked(x.key);if(ch&&ch[it.id])done++;});
+    return {...it,done,rate:Math.round(done/7*100)};
+  }).filter(t=>t.pts>0);
+  const sorted=[...tally].sort((a,b)=>b.rate-a.rate);
+  const best=sorted[0],worst=sorted[sorted.length-1];
+  const bestDay=logged.reduce((m,x)=>!m||x.data.score>m.data.score?x:m,null);
+  return{avg,pavg,diff:pavg==null?null:avg-pavg,tally:sorted,best,worst,bestDay,days:logged.length,cur};
+}
+function renderWeekReview(){
+  const r=weekReview();
+  if(!r)return "";
+  const g=GRADE(r.avg);
+  const arrow=r.diff==null?"":(r.diff>0?"▲":r.diff<0?"▼":"—");
+  const acol=r.diff==null?"#9a9ab4":(r.diff>0?"#4ade80":r.diff<0?"#ef4444":"#9a9ab4");
+  return`<div>
+    <div class="sec">THIS WEEK</div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+        <div style="position:relative;width:74px;height:74px;flex-shrink:0">
+          ${ring(r.avg,MAX,74,6,g.c,g.g)}
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-family:'Bebas Neue';font-size:19px;color:${g.c};line-height:1">${r.avg}</span>
+            <span style="font-size:9px;color:${g.c};opacity:.65">AVG</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Bebas Neue';font-size:30px;color:${g.c};line-height:1">${g.l} · ${g.n}</div>
+          <div style="font-size:13px;color:${acol};margin-top:5px">
+            ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
+          </div>
+          ${r.bestDay?`<div style="font-size:12px;color:#9a9ab4;margin-top:3px">Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${r.bestDay.data.score}%</div>`:""}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        ${r.cur.map(x=>{const dg=x.data?GRADE(x.data.score):null;const hh=x.data?Math.max(6,(x.data.score/MAX)*44):4;
+          return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div style="width:100%;height:44px;display:flex;align-items:flex-end">
+              <div style="width:100%;height:${hh}px;border-radius:4px 4px 0 0;background:${dg?dg.c+"33":"#14141f"};border:1px solid ${dg?dg.c+"55":"#1a1a28"};border-bottom:none"></div>
+            </div>
+            <div style="font-size:10px;color:#8888a4">${keyToDate(x.key).toLocaleDateString("en-US",{weekday:"narrow"})}</div>
+          </div>`}).join("")}
+      </div>
+      <div style="display:flex;gap:9px">
+        <div style="flex:1;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:11px;padding:11px 12px">
+          <div style="font-size:10px;letter-spacing:.1em;color:#4ade80;margin-bottom:5px">MOST CONSISTENT</div>
+          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.best.icon)} ${esc(r.best.label)}</div>
+          <div style="font-size:12px;color:#4ade80;margin-top:3px">${r.best.done}/7 days</div>
+        </div>
+        <div style="flex:1;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:11px;padding:11px 12px">
+          <div style="font-size:10px;letter-spacing:.1em;color:#ef4444;margin-bottom:5px">NEEDS WORK</div>
+          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.worst.icon)} ${esc(r.worst.label)}</div>
+          <div style="font-size:12px;color:#ef4444;margin-top:3px">${r.worst.done}/7 days</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
 function renderStats(){
   const tk=todayKey(),{score,l1,l2,l3,done}=calcScore(tk),gr=GRADE(score),h=getHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
@@ -953,6 +1160,7 @@ function renderStats(){
     </div>`;
   }
   return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+    ${renderWeekReview()}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:bestStreak>0?`record ${bestStreak}d`:"days ≥ 60%"},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best).c:"#333",sub:best>0?GRADE(best).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${m.label}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
@@ -1114,7 +1322,7 @@ function renderRoutine(){
   </div>`;
 }
 
-function setTab(t){currentTab=t;render();}
+function setTab(t){currentTab=t;_lastY=0;tuckNav(false);render();}
 function setHistTab(t){histTab=t;render();}
 function toggleHabit(id,key){haptic(10);const ch={...getChecked(key)};ch[id]=!ch[id];setChecked(key,ch);persistDay(key);render();}
 function quickComplete(id){haptic(18);const k=todayKey(),ch={...getChecked(k)};ch[id]=true;setChecked(k,ch);persistDay(k);render();}

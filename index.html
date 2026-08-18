@@ -26,7 +26,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:smooth;}
 #scroll::-webkit-scrollbar{display:none;}
-#nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:max(calc(env(safe-area-inset-bottom) - 16px),6px);z-index:999;}
+#nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:max(calc(env(safe-area-inset-bottom) - 24px),4px);z-index:999;}
 .nav-btn{flex:1;min-height:46px;padding:9px 4px 9px;background:none;border:none;font-family:inherit;font-size:13.5px;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s;border-top:2px solid transparent;color:#adadbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .nav-btn:active{opacity:.6;}
 .nav-btn.active{color:#e2e2e2;border-top-color:#e2e2e2;}

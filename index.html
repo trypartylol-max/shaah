@@ -30,6 +30,45 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .nav-btn{flex:1;min-height:46px;padding:9px 4px 9px;background:none;border:none;font-family:inherit;font-size:13.5px;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s;border-top:2px solid transparent;color:#adadbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .nav-btn:active{opacity:.6;}
 #nav.tucked{transform:translateY(115%);opacity:0;pointer-events:none;}
+/* ── TODAY section order — day vs night ────────────────────── */
+.today>*{order:5;}
+.today .t-ring{order:2;}
+.today .t-grade{order:3;}
+.today .t-rout{order:4;}
+.today .t-lvl1{order:6;}
+.today .t-lvl2{order:7;}
+.today .t-lvl3{order:8;}
+.today .t-note{order:9;}
+/* At night: note + checklist first, routines drop to the bottom */
+.today.night .t-note{order:3;}
+.today.night .t-grade{order:4;}
+.today.night .t-lvl1{order:5;}
+.today.night .t-lvl2{order:6;}
+.today.night .t-lvl3{order:7;}
+.today.night .t-rout{order:9;}
+
+/* ── Desktop: two columns instead of one narrow strip ───────── */
+@media(min-width:860px){
+  #scroll .today{
+    display:grid !important;
+    grid-template-columns:minmax(340px,420px) minmax(340px,460px);
+    grid-auto-flow:row dense;
+    align-content:start;justify-content:center;
+    column-gap:34px;row-gap:20px;
+    max-width:940px;margin:0 auto;padding-left:24px;padding-right:24px;
+  }
+  #scroll .today>*{max-width:none !important;width:100% !important;}
+  #scroll .today .t-ring{grid-column:1;justify-self:center;}
+  #scroll .today .t-grade,
+  #scroll .today .t-rout{grid-column:1;}
+  #scroll .today .t-lvl,
+  #scroll .today .t-note{grid-column:2;}
+  #scroll .today>div:first-child{grid-column:1 / -1;}
+  #scroll .today button{justify-self:center;}
+}
+@media(min-width:1180px){
+  #scroll .today{grid-template-columns:minmax(360px,440px) minmax(380px,500px);max-width:1020px;}
+}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
   font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
@@ -147,6 +186,7 @@ const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 // ═══ CONFIG (editable in Settings, synced via Supabase) ═══
 const DEFAULT_CFG={
   tz:'device',
+  nightFrom:20.5, // hour (decimal) after which TODAY leads with note + checklist — 20.5 = 8:30pm
   h:{
     wod:        {l:"WOD",         p:15, i:"⚡", lv:1, on:true, routine:true},
     work:       {l:"Work",        p:20, i:"💼", lv:1, on:true},
@@ -318,9 +358,13 @@ function saveCfg(){
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){
-  if(CFG.v>=2)return;
+  if(CFG.v>=3){return;}
+  if(!(CFG.v>=2)){
   if(CFG.h&&CFG.h.pomodoro&&Number(CFG.h.pomodoro.p)===6)CFG.h.pomodoro.p=5;
-  CFG.v=2; applyCfg();
+    CFG.v=2;
+  }
+  if(Number(CFG.nightFrom)===18)CFG.nightFrom=20.5;   // 6pm → 8:30pm
+  CFG.v=3; applyCfg();
 }
 function loadCfgLocal(){
   const c=get(cfgKey());
@@ -955,6 +999,8 @@ function renderHome(){
   </div>`;
 }
 
+// Option D (partial): after this hour, reflection comes before action
+function isNight(){const d=new Date();return (d.getHours()+d.getMinutes()/60)>=Number(CFG.nightFrom||20.5);}
 function renderToday(key,nested=false){
   const _hr=new Date().getHours();
   const greetTxt=_hr<12?"Good morning":_hr<18?"Good afternoon":"Good evening";
@@ -962,7 +1008,7 @@ function renderToday(key,nested=false){
   const activeSubs=Object.values(soc).filter(Boolean).length;
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const isToday=key===todayKey();
-  return`<div class="fade-up" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
+  return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -973,14 +1019,14 @@ function renderToday(key,nested=false){
     </div>`}
     <div style="display:none">
     </div>
-    <div style="position:relative;width:168px;height:168px">
+    <div class="t-ring" style="position:relative;width:168px;height:168px">
       ${ring(score,MAX,168,12,gr.c,gr.g)}
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
         <div style="font-family:'Bebas Neue';font-size:54px;line-height:1;color:${gr.c};text-shadow:0 0 40px ${gr.g}">${score}%</div>
         <div style="font-size:14px;color:${gr.c};letter-spacing:0.12em;opacity:0.65">${gr.n}</div>
       </div>
     </div>
-    <div style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
+    <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
       <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${gr.l}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS</span><span style="color:#d0d0da">/${MAX}%</span></div>
@@ -993,7 +1039,7 @@ function renderToday(key,nested=false){
       </div>
     </div>
     ${streak>0&&!nested?`<div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.12);border-radius:12px;padding:9px 20px;font-size:15px;color:#FFD700;letter-spacing:0.08em">🔥 ${streak} day${streak!==1?"s":""} streak</div>`:""}
-${(nested||!isToday)?"":`<div style="width:100%;max-width:390px">
+${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec">TODAY'S ROUTINES</div>
       ${LVL1.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],done=!!ch[item.id],totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
@@ -1012,7 +1058,7 @@ ${(nested||!isToday)?"":`<div style="width:100%;max-width:390px">
         </div>`;
       }).join("")}
     </div>`}
-    <div style="width:100%;max-width:390px">
+    <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
       <div class="sec">⬛ LVL 1 — CORE</div>
       ${LVL1.map(item=>`
       <div style="display:flex;align-items:center;margin-bottom:3px">
@@ -1030,7 +1076,7 @@ ${(nested||!isToday)?"":`<div style="width:100%;max-width:390px">
         </div>`:""}
       </div>`).join("")}
     </div>
-    <div style="width:100%;max-width:390px">
+    <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
       <div class="sec">▪ LVL 2 — HABITS</div>
       ${LVL2.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
@@ -1041,7 +1087,7 @@ ${(nested||!isToday)?"":`<div style="width:100%;max-width:390px">
         <span style="font-size:15px;color:${ch[item.id]?"#a78bfa99":"#777"}">${item.pts}%</span>
       </div>`).join("")}
     </div>
-    <div style="width:100%;max-width:390px">
+    <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
       <div class="sec">· LVL 3 — BONUS</div>
       <div style="border-radius:13px;border:1px solid ${ch.social||socialExpanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||socialExpanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
@@ -1076,7 +1122,7 @@ ${(nested||!isToday)?"":`<div style="width:100%;max-width:390px">
       </div>`).join("")}
     </div>
 
-    <div style="width:100%;max-width:390px">
+    <div class="t-note" style="width:100%;max-width:390px">
       <div class="sec">✎ DAY NOTE</div>
       <div class="notecard${getNote(key)?" filled":""}">
         <div class="notebar"></div>

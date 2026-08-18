@@ -151,7 +151,7 @@ const DEFAULT_CFG={
     pray:       {l:"Pray",        p:8,  i:"🙏", lv:2, on:true},
     social:     {l:"Social Combo",p:18, i:"👥", lv:3, on:true, combo:true},
     nosmoke:    {l:"No Smoking",    p:6,  i:"🚭", lv:3, on:true},
-    pomodoro:   {l:"Pomodoro",    p:6,  i:"🍅", lv:3, on:true},
+    pomodoro:   {l:"Pomodoro",    p:5,  i:"🍅", lv:3, on:true},
   },
   order:["wod","work","production","nofap","sleep","meditation","pray","social","nosmoke","pomodoro"],
   routines:{
@@ -310,13 +310,19 @@ function saveCfg(){
   set(cfgKey(),CFG); applyCfg();
   if(USER){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
 }
+// One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
+function migrateCfg(){
+  if(CFG.v>=2)return;
+  if(CFG.h&&CFG.h.pomodoro&&Number(CFG.h.pomodoro.p)===6)CFG.h.pomodoro.p=5;
+  CFG.v=2; applyCfg();
+}
 function loadCfgLocal(){
   const c=get(cfgKey());
-  if(c){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);applyCfg();}
+  if(c){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);applyCfg();migrateCfg();}
 }
 function rowToState(row){
   if(row.date==='settings'){
-    if(row.data&&row.data._cfg){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);set(cfgKey(),CFG);applyCfg();}
+    if(row.data&&row.data._cfg){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);applyCfg();migrateCfg();set(cfgKey(),CFG);}
     return;
   }
   const d=row.data||{};
@@ -383,6 +389,10 @@ function renderSettings(){
       <div class="sec" style="color:${col}">${title} — ${buildLevel(n).reduce((a,i)=>a+i.pts,0)}%</div>
       ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n).map(id=>{const x=CFG.h[id];return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}">
+          <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+            <button onclick="cfgMove('${id}',-1)" class="ord">▲</button>
+            <button onclick="cfgMove('${id}',1)" class="ord">▼</button>
+          </div>
           <span style="font-size:17px;width:22px;text-align:center">${esc(x.i)}</span>
           <input value="${esc(x.l)}" onchange="cfgSet('${id}','l',this.value)"
             style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
@@ -439,6 +449,17 @@ function renderSettings(){
 }
 
 function cfgSet(id,k,v){ if(!CFG.h[id])return; CFG.h[id][k]= k==='p'?Math.max(0,parseInt(v)||0):v; saveCfg(); render(); }
+function cfgMove(id,dir){
+  const lv=CFG.h[id]&&CFG.h[id].lv; if(!lv)return;
+  const peers=CFG.order.filter(x=>CFG.h[x]&&CFG.h[x].lv===lv);
+  const i=peers.indexOf(id), j=i+dir;
+  if(i<0||j<0||j>=peers.length)return;
+  haptic(12);
+  // swap the two ids in the global order array
+  const a=CFG.order.indexOf(peers[i]), b=CFG.order.indexOf(peers[j]);
+  [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]];
+  saveCfg(); render();
+}
 function cfgToggle(id){ haptic(10); CFG.h[id].on=CFG.h[id].on===false; saveCfg(); render(); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid].steps[i]; s[k]= k==='dur'?Math.max(1,parseInt(v)||1):v; saveCfg(); render(); }
@@ -670,7 +691,7 @@ const TOUR=[
  {tab:"home",ico:"👋",t:"WELCOME TO SHAAH",
   b:"SHAAH turns your day into a <b>grade</b>, like a course. Every habit is worth a percentage — and by the end of the day you know exactly how you did.<br><br>Takes 30 seconds. Let's go."},
  {tab:"home",ico:"◎",t:"YOUR DAY SCORE",
-  b:"The ring shows <b>today's score</b> and the letter is your grade: <b>F</b> through <b>S+</b>.<br><br>Max is <b>119%</b> — yes, over 100. Bonus habits let you go past it, so a perfect day isn't the ceiling."},
+  b:"The ring shows <b>today's score</b> and the letter is your grade: <b>F</b> through <b>S+</b>.<br><br>Max is <b>118%</b> — yes, over 100. Bonus habits let you go past it, so a perfect day isn't the ceiling.<br><br><span style='color:#FFD700'>100 + 18.</span> In Hebrew, 18 is <b>חי</b> — <i>chai</i>, life. A full day, plus a little life on top. 🥂"},
  {tab:"today",ico:"⬛",t:"THREE LEVELS",
   b:"<b>LVL 1 · CORE</b> — the essentials (WOD, Work, Production). These weigh most.<br><br><b>LVL 2 · HABITS</b> — the ones that hold everything up.<br><br><b>LVL 3 · BONUS</b> — extras that push you past 100%."},
  {tab:"home",ico:"👆",t:"TAP TO CHECK",

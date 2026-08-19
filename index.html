@@ -69,6 +69,22 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 @media(min-width:1180px){
   #scroll .today{grid-template-columns:minmax(360px,440px) minmax(380px,500px);max-width:1020px;}
 }
+/* ── Running-routine pill (visible when the runner is closed) ── */
+#resume{position:fixed;left:12px;right:12px;z-index:1500;display:none;
+  bottom:calc(58px + max(calc(env(safe-area-inset-bottom) - 24px),4px));}
+#resume.on{display:block;animation:fadeUp .3s ease;}
+.rz{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:15px;
+  background:rgba(16,16,28,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid #26263c;box-shadow:0 10px 30px rgba(0,0,0,.55);cursor:pointer;}
+.rz:active{transform:scale(.985);}
+.rz-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;}
+.rz-t{flex:1;min-width:0;}
+.rz-n{font-size:13px;color:#e2e2e2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rz-s{font-size:11px;letter-spacing:.08em;margin-top:2px;}
+.rz-c{font-family:'Bebas Neue';font-size:24px;line-height:1;flex-shrink:0;}
+.rz-x{width:30px;height:30px;border-radius:50%;background:none;border:1px solid #2a2a40;
+  color:#9a9ab4;font-size:15px;line-height:1;flex-shrink:0;cursor:pointer;font-family:inherit;}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
   font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
@@ -149,6 +165,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 <body>
 <div id="app">
   <div id="scroll"></div>
+  <div id="resume"></div>
   <div id="tour"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="today" onclick="setTab('today')"><span style="font-size:18px">◉</span>TODAY</button>
@@ -766,7 +783,7 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let reviewOpen=false;
-let currentTab="today",routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
+let currentTab="today",routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
 
 // ── Feedback: haptics + audible cue ───────────────────────────
 let _actx=null;
@@ -830,11 +847,12 @@ function audioKeepAlive(on){
 const RKEY=()=>`shaah_routine_${USER?USER.id:'anon'}`;
 function saveRoutine(){
   if(!routineId){try{localStorage.removeItem(RKEY());}catch(e){} return;}
-  set(RKEY(),{routineId,routineQueue,routineCompleted,timerSecs,timerRunning,timerEndAt});
+  set(RKEY(),{routineId,routineQueue,routineCompleted,timerSecs,timerRunning,timerEndAt,routineView,day:todayKey()});
 }
 function restoreRoutine(){
   const r=get(RKEY()); if(!r||!r.routineId||!ROUTINES[r.routineId])return false;
-  routineId=r.routineId; routineQueue=r.routineQueue||[]; routineCompleted=r.routineCompleted||{};
+  if(r.day&&r.day!==todayKey()){del(RKEY());return false;}   // yesterday's session — discard
+  routineId=r.routineId; routineQueue=r.routineQueue||[]; routineCompleted=r.routineCompleted||{}; routineView=!!r.routineView;
   timerEndAt=r.timerEndAt||null; timerRunning=!!r.timerRunning; timerSecs=r.timerSecs||0;
   if(timerRunning&&timerEndAt){
     timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));
@@ -855,7 +873,7 @@ function initScrollHide(){
   const sc=document.getElementById("scroll");if(!sc||sc._hooked)return;
   sc._hooked=true;
   sc.addEventListener("scroll",()=>{
-    if(!USER||routineId||editDayKey||settingsOpen||tourStep!==null)return;
+    if(!USER||(routineId&&routineView)||editDayKey||settingsOpen||tourStep!==null)return;
     const y=sc.scrollTop,dy=y-_lastY;
     const atBottom=sc.scrollHeight-y-sc.clientHeight<8;
     if(y<48||atBottom)tuckNav(false);       // near top or bottom → always visible
@@ -890,6 +908,28 @@ function tourGo(i){
   tourStep=i;currentTab=TOUR[i].tab;haptic(8);render();
 }
 function tourDone(){tourStep=null;set(tourKey(),1);haptic(12);render();}
+function renderResume(){
+  const el=document.getElementById("resume");if(!el)return;
+  const show=USER&&routineId&&!routineView&&!settingsOpen&&!editDayKey&&tourStep===null;
+  if(!show){el.className="";el.innerHTML="";return;}
+  const rt=ROUTINES[routineId];
+  const idx=routineQueue[0];
+  const step=idx!==undefined?rt.steps[idx]:null;
+  if(!step){el.className="";el.innerHTML="";return;}
+  const col=step.isBreak?"#f59e0b":rt.col;
+  const m=Math.floor(timerSecs/60),s=timerSecs%60;
+  const t=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  el.className="on";
+  el.innerHTML=`<div class="rz" onclick="reopenRoutine()">
+    <div class="rz-ic" style="background:${col}22;border:1px solid ${col}55">${esc(step.icon)}</div>
+    <div class="rz-t">
+      <div class="rz-n">${esc(step.label)}</div>
+      <div class="rz-s" style="color:${col}">${timerRunning?"RUNNING":"PAUSED"} · ${esc(rt.label)}</div>
+    </div>
+    <div class="rz-c" id="resume-clock" style="color:${col}">${t}</div>
+    <button class="rz-x" onclick="event.stopPropagation();closeRoutine()" aria-label="Discard">✕</button>
+  </div>`;
+}
 function renderTour(){
   const t=document.getElementById("tour");if(!t)return;
   if(tourStep===null||!USER){t.className="";t.innerHTML="";return;}
@@ -919,7 +959,7 @@ function render(){
   if(!USER){el.innerHTML=renderLogin();nav.style.display="none";tuckNav(false);renderTour();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
   if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";tuckNav(false);renderTour();return;}
-  if(routineId){el.innerHTML=renderRoutine();nav.style.display="none";tuckNav(false);renderTour();return;}
+  if(routineId&&routineView){el.innerHTML=renderRoutine();nav.style.display="none";tuckNav(false);renderTour();return;}
   if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";tuckNav(false);renderTour();return;}
   nav.style.display="flex";
   const bar=topbarHTML();   // scrolls away with the content
@@ -928,6 +968,7 @@ function render(){
   else if(currentTab==="stats")el.innerHTML=bar+renderStats();
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
   renderTour();
+  renderResume();
   initScrollHide();
 }
 
@@ -1354,14 +1395,14 @@ function renderRoutine(){
   const mins=Math.floor(timerSecs/60),secs=timerSecs%60,fmtTime=`${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
   const sl=current.ses!==undefined?sesLabel(current.ses):null;
   return`<div style="height:100dvh;display:flex;flex-direction:column;background:#07070f;font-family:'DM Mono',monospace;overflow:hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #111120">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 20px 14px;border-bottom:1px solid #111120">
       <div style="display:flex;align-items:center;gap:10px">
         <span style="font-size:21px">${rt.icon}</span>
         <div><div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:0.1em;color:${rt.col}">${rt.label}</div><div style="font-size:14.5px;color:#a4a4ba">${done}/${total} STEPS</div></div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:80px">${bar(pct*100,rt.col,rt.col+"44",4)}</div>
-        <button onclick="closeRoutine()" style="background:none;border:1px solid #1e1e2e;color:#b0b0c2;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:17px">✕</button>
+        <button onclick="exitRoutine()" aria-label="Close" style="background:#0f0f1c;border:1px solid #23233a;color:#d0d0da;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
       </div>
     </div>
     ${sl?`<div style="text-align:center;padding:10px 0 0"><span style="font-size:14.5px;letter-spacing:0.12em;color:${sl.col};border:1px solid ${sl.col}44;border-radius:99px;padding:3px 12px">${sl.label}</span></div>`:""}
@@ -1406,8 +1447,13 @@ function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,{flir
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
-function startRoutine(id){if(!ROUTINES[id])return;unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
-function closeRoutine(){audioKeepAlive(false);if(timerInterval)clearInterval(timerInterval);timerRunning=false;timerInterval=null;timerEndAt=null;routineId=null;routineQueue=[];routineCompleted={};saveRoutine();render();}
+function startRoutine(id){if(!ROUTINES[id])return;routineView=true;unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
+// Leave the runner but keep the session (and the clock) alive
+function exitRoutine(){routineView=false;haptic(8);saveRoutine();render();}
+function reopenRoutine(){if(!routineId)return;routineView=true;haptic(10);
+  if(timerRunning&&timerEndAt){timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));startTick();}
+  render();}
+function closeRoutine(){routineView=false;audioKeepAlive(false);if(timerInterval)clearInterval(timerInterval);timerRunning=false;timerInterval=null;timerEndAt=null;routineId=null;routineQueue=[];routineCompleted={};saveRoutine();render();}
 function finishRoutine(){audioKeepAlive(false);haptic([40,60,120]);chime(3);const id=routineId;closeRoutine();quickComplete(id);setTab("today");}
 function startTick(){
   clearInterval(timerInterval);
@@ -1418,7 +1464,7 @@ function startTick(){
       clearInterval(timerInterval);timerRunning=false;timerEndAt=null;
       alertStepDone(); routineNext(); audioKeepalive(false); return;
     }
-    renderRoutineTimer();
+    if(routineView)renderRoutineTimer(); else updateResumeClock();
   },250);
 }
 function routineToggle(){
@@ -1440,6 +1486,11 @@ document.addEventListener('visibilitychange',()=>{
 function routineReset(){haptic(12);audioKeepalive(false);clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineId&&routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
 function routineNext(){clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineQueue.length===0)return;routineCompleted[routineQueue[0]]=true;routineQueue=routineQueue.slice(1);if(routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
 function routineSendToEnd(){if(routineQueue.length<2)return;haptic(12);routineQueue=[...routineQueue.slice(1),routineQueue[0]];clearInterval(timerInterval);timerRunning=false;timerEndAt=null;timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
+function updateResumeClock(){
+  const c=document.getElementById("resume-clock");if(!c)return;
+  const m=Math.floor(timerSecs/60),s=timerSecs%60;
+  c.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
 function renderRoutineTimer(){
   const rt=ROUTINES[routineId],current=routineQueue[0]!==undefined?rt.steps[routineQueue[0]]:null;
   if(!current)return;
@@ -1459,8 +1510,8 @@ document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touc
 document.addEventListener("touchend",e=>{
   const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
   if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)*0.8)return;
-  if(dx>0){if(settingsOpen){closeSettings();return;}if(editDayKey){closeEditDay();return;}if(routineId){closeRoutine();return;}}
-  if(routineId||editDayKey||settingsOpen)return;
+  if(dx>0){if(settingsOpen){closeSettings();return;}if(editDayKey){closeEditDay();return;}if(routineId&&routineView){exitRoutine();return;}}
+  if((routineId&&routineView)||editDayKey||settingsOpen)return;
   const idx=TABS_ORDER.indexOf(currentTab);
   if(dx<0&&idx<TABS_ORDER.length-1)setTab(TABS_ORDER[idx+1]);
   if(dx>0&&idx>0)setTab(TABS_ORDER[idx-1]);

@@ -111,6 +111,28 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .rz-ci{font-size:12px;opacity:.8;margin-top:1px;}
 .rz-cdot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;}
 
+/* ── Collapsible levels ── */
+.lvl-h{user-select:none;}
+.lvl-h:active{opacity:.6;}
+.lvl-ar{display:inline-block;transition:transform .22s cubic-bezier(.4,0,.2,1);font-size:13px;color:#7e7e97;}
+.lvl-ar.cl{transform:rotate(-90deg);}
+.lvl-b{overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .2s;max-height:1600px;opacity:1;}
+.lvl-b.cl{max-height:0;opacity:0;pointer-events:none;}
+/* ── Settings on desktop: columns instead of one long strip ── */
+@media(min-width:860px){
+  #scroll .settings-body{
+    max-width:940px;margin:0 auto;padding-left:24px;padding-right:24px;
+    display:grid;grid-template-columns:minmax(300px,1fr) minmax(320px,1.15fr);
+    column-gap:34px;align-content:start;
+  }
+  #scroll .settings-body>.sec:first-of-type{grid-column:1;}
+  #scroll .settings-body .st-col-a{grid-column:1;}
+  #scroll .settings-body .st-col-b{grid-column:2;}
+  #scroll .settings-body .st-full{grid-column:1 / -1;}
+}
+@media(min-width:1180px){
+  #scroll .settings-body{max-width:1020px;grid-template-columns:minmax(340px,1fr) minmax(360px,1.15fr);}
+}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
   font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
@@ -222,7 +244,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260820-1951·8f3956";
+const BUILD="20260820-2332·863248";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -658,9 +680,9 @@ function renderSettings(){
       <div style="font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2">SETTINGS</div>
       <div style="margin-left:auto;font-size:15px;color:${tot===119?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
-    <div class="fade-up" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
+    <div class="fade-up settings-body" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
 
-      <div class="sec">TIMEZONE</div>
+      <div class="sec st-col-a">TIMEZONE</div>
       <select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px">
         ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${t.label}</option>`).join("")}
       </select>
@@ -670,7 +692,16 @@ function renderSettings(){
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
 
-      <div class="sec">ROUTINES</div>
+      <div class="sec st-col-a" style="margin-top:22px">ACTIVE ROUTINE INDICATOR</div>
+      <div style="display:flex;gap:7px;margin-bottom:16px">
+        ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
+          <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
+            <div style="font-size:13px">${lbl}</div>
+            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
+          </button>`).join("")}
+      </div>
+      
+      <div class="sec st-col-b">ROUTINES</div>
       ${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" style="margin-bottom:10px;padding:14px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
@@ -689,16 +720,8 @@ function renderSettings(){
             </div>`).join("")}
         </div>`}).join("")}
 
-      <div class="sec" style="margin-top:22px">ACTIVE ROUTINE INDICATOR</div>
-      <div style="display:flex;gap:7px;margin-bottom:16px">
-        ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
-          <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
-            <div style="font-size:13px">${lbl}</div>
-            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
-          </button>`).join("")}
-      </div>
-      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260820-1951·8f3956</div>
-      <div class="sec" style="margin-top:22px">DATA</div>
+      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260820-2332·863248</div>
+      <div class="sec st-full" style="margin-top:22px">DATA</div>
       <button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
       <button onclick="if(confirm('Restore all default settings?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTORE DEFAULTS</button>
@@ -812,6 +835,7 @@ async function boot(){
   if(USER){
     loadCfgLocal();
     loadCache();
+    loadLvl();
     restoreRoutine();
     if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
     render();
@@ -880,6 +904,10 @@ function bar(pct,col,glow,h=6){
 }
 
 let settingsOpen=false;
+let lvlOpen={1:true,2:true,3:true};
+function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
+function loadLvl(){const v=get(lvlKey());if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};}
+function toggleLvl(n){lvlOpen[n]=!lvlOpen[n];haptic(9);set(lvlKey(),lvlOpen);render();}
 let reviewOpen=false;
 let currentTab="today",sessions={},routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
 
@@ -1215,7 +1243,8 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       }).join("")}
     </div>`}
     <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
-      <div class="sec">⬛ LVL 1 — CORE</div>
+      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l1}/${LVL1_MAX}</span></div>
+      <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${LVL1.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
@@ -1228,9 +1257,11 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
           <span style="font-size:15px;color:${ch[item.id]?"#e2e2e299":"#777"};min-width:38px;text-align:right">${item.pts}%</span>
         </div>
       </div>`).join("")}
+      </div>
     </div>
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
-      <div class="sec">▪ LVL 2 — HABITS</div>
+      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l2}/${LVL2_MAX}</span></div>
+      <div class="lvl-b${lvlOpen[2]?"":" cl"}">
       ${LVL2.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
@@ -1239,9 +1270,11 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
         </div>
         <span style="font-size:15px;color:${ch[item.id]?"#a78bfa99":"#777"}">${item.pts}%</span>
       </div>`).join("")}
+      </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
-      <div class="sec">· LVL 3 — BONUS</div>
+      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l3}/${LVL3_MAX}</span></div>
+      <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       <div style="border-radius:13px;border:1px solid ${ch.social||socialExpanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||socialExpanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
           <div style="display:flex;align-items:center;gap:13px">
@@ -1273,6 +1306,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
         </div>
         <span style="font-size:15px;color:${ch[item.id]?"#fbbf2499":"#777"}">${item.pts}%</span>
       </div>`).join("")}
+      </div>
     </div>
 
     <div class="t-note" style="width:100%;max-width:390px">

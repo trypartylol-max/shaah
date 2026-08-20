@@ -837,7 +837,7 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let reviewOpen=false;
-let currentTab="today",routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
+let currentTab="today",sessions={},routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
 
 // ── Feedback: haptics + audible cue ───────────────────────────
 let _actx=null;
@@ -864,22 +864,7 @@ function chime(times){
 // ── Keep the audio session alive so the chime fires on a locked screen.
 //    iOS suspends AudioContext when locked unless audio is actively playing.
 let _keepNode=null;
-function audioKeepalive(on){
-  try{
-    unlockAudio(); if(!_actx)return;
-    if(on){
-      if(_keepNode)return;
-      const o=_actx.createOscillator(),g=_actx.createGain();
-      o.frequency.value=20;             // sub-audible
-      g.gain.value=0.0006;              // effectively silent, keeps session hot
-      o.connect(g);g.connect(_actx.destination);o.start();
-      _keepNode={o,g};
-    }else if(_keepNode){
-      try{_keepNode.o.stop();}catch(e){}
-      _keepNode=null;
-    }
-  }catch(e){}
-}
+
 
 function alertStepDone(){ haptic([120,60,120]); chime(3); }
 
@@ -900,19 +885,26 @@ function audioKeepAlive(on){
 // ── Routine session persistence (survives refresh) ────────────
 const RKEY=()=>`shaah_routine_${USER?USER.id:'anon'}`;
 function saveRoutine(){
-  if(!routineId){try{localStorage.removeItem(RKEY());}catch(e){} return;}
-  set(RKEY(),{routineId,routineQueue,routineCompleted,timerSecs,timerRunning,timerEndAt,routineView,day:todayKey()});
+  if(!Object.keys(sessions).length){del(RKEY());return;}
+  set(RKEY(),{sessions,routineId,routineView,day:todayKey()});
 }
 function restoreRoutine(){
-  const r=get(RKEY()); if(!r||!r.routineId||!ROUTINES[r.routineId])return false;
-  if(r.day&&r.day!==todayKey()){del(RKEY());return false;}   // yesterday's session — discard
-  routineId=r.routineId; routineQueue=r.routineQueue||[]; routineCompleted=r.routineCompleted||{}; routineView=!!r.routineView;
-  timerEndAt=r.timerEndAt||null; timerRunning=!!r.timerRunning; timerSecs=r.timerSecs||0;
-  if(timerRunning&&timerEndAt){
-    timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));
-    if(timerSecs<=0){timerRunning=false;timerEndAt=null;}
-    else startTick();
+  const r=get(RKEY()); if(!r)return false;
+  if(r.day&&r.day!==todayKey()){del(RKEY());return false;}   // yesterday's — discard
+  sessions=r.sessions||{};
+  for(const id of Object.keys(sessions)) if(!ROUTINES[id]) delete sessions[id];
+  if(!Object.keys(sessions).length)return false;
+  routineId=(r.routineId&&sessions[r.routineId])?r.routineId:null;
+  routineView=!!r.routineView&&!!routineId;
+  // recompute anything that was running while the app was closed
+  for(const id of Object.keys(sessions)){
+    const s=sessions[id];
+    if(s.running&&s.endAt){
+      s.secs=Math.max(0,Math.round((s.endAt-Date.now())/1000));
+      if(s.secs<=0){s.running=false;s.endAt=null;advanceSession(id);}
+    }
   }
+  syncFromSession(); ensureTick();
   return true;
 }
 
@@ -964,25 +956,26 @@ function tourGo(i){
 function tourDone(){tourStep=null;set(tourKey(),1);haptic(12);render();}
 function renderResume(){
   const el=document.getElementById("resume");if(!el)return;
-  const show=USER&&routineId&&!routineView&&!settingsOpen&&!editDayKey&&tourStep===null;
+  const ids=liveSessions().filter(id=>!(routineView&&id===routineId));
+  const show=USER&&ids.length&&!settingsOpen&&!editDayKey&&tourStep===null;
   if(!show){el.className="";el.innerHTML="";return;}
-  const rt=ROUTINES[routineId];
-  const idx=routineQueue[0];
-  const step=idx!==undefined?rt.steps[idx]:null;
-  if(!step){el.className="";el.innerHTML="";return;}
-  const col=step.isBreak?"#f59e0b":rt.col;
-  const m=Math.floor(timerSecs/60),s=timerSecs%60;
-  const t=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
   el.className="on";
-  el.innerHTML=`<div class="rz" onclick="reopenRoutine()">
-    <div class="rz-ic" style="background:${col}22;border:1px solid ${col}55">${esc(step.icon)}</div>
-    <div class="rz-t">
-      <div class="rz-n">${esc(step.label)}</div>
-      <div class="rz-s" style="color:${col}">${timerRunning?"RUNNING":"PAUSED"} · ${esc(rt.label)}</div>
-    </div>
-    <div class="rz-c" id="resume-clock" style="color:${col}">${t}</div>
-    <button class="rz-x" onclick="event.stopPropagation();if(confirm('Discard this routine session?'))closeRoutine()" aria-label="Discard session">✕</button>
-  </div>`;
+  el.innerHTML=ids.map(id=>{
+    const rt=ROUTINES[id],s=sessions[id],step=s.q.length?rt.steps[s.q[0]]:null;
+    if(!step)return "";
+    const col=step.isBreak?"#f59e0b":rt.col;
+    const m=Math.floor(s.secs/60),x=s.secs%60;
+    const t=`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`;
+    return`<div class="rz" onclick="openRoutine('${id}')" style="margin-top:7px">
+      <div class="rz-ic" style="background:${col}22;border:1px solid ${col}55">${esc(step.icon)}</div>
+      <div class="rz-t">
+        <div class="rz-n">${esc(step.label)}</div>
+        <div class="rz-s" style="color:${col}">${s.running?"RUNNING":"PAUSED"} · ${esc(rt.label)}</div>
+      </div>
+      <div class="rz-c" id="resume-clock-${id}" style="color:${col}">${t}</div>
+      <button class="rz-x" onclick="event.stopPropagation();if(confirm('Discard this session?'))closeRoutine('${id}')" aria-label="Discard">✕</button>
+    </div>`;
+  }).join("");
 }
 function renderTour(){
   const t=document.getElementById("tour");if(!t)return;
@@ -1154,16 +1147,16 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
     <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
       <div class="sec">⬛ LVL 1 — CORE</div>
       ${LVL1.map(item=>`
-      <div style="display:flex;align-items:center;margin-bottom:3px">
-        <div class="row${ch[item.id]?" on":""}" style="flex:1" onclick="toggleHabit('${item.id}','${key}')">
-          <div style="display:flex;align-items:center;gap:13px">
-            ${chk(!!ch[item.id],item.col)}
-            <span style="font-size:16.5px;font-weight:${ch[item.id]?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
-          </div>
-          <span style="font-size:15px;color:${ch[item.id]?"#e2e2e299":"#777"}">${item.pts}%</span>
+      <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+        <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
+          ${chk(!!ch[item.id],item.col)}
+          <span style="font-size:16.5px;font-weight:${ch[item.id]?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}</span>
         </div>
-        ${item.routine&&!ch[item.id]&&isToday&&!nested?`
-        <button onclick="startRoutine('${item.id}')" title="Start routine" style="margin-left:8px;background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:8px 13px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55;flex-shrink:0">▶</button>`:""}
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          ${item.routine&&!ch[item.id]&&isToday&&!nested?`
+          <button onclick="event.stopPropagation();startRoutine('${item.id}')" title="Start routine" style="background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55;flex-shrink:0">▶</button>`:""}
+          <span style="font-size:15px;color:${ch[item.id]?"#e2e2e299":"#777"};min-width:38px;text-align:right">${item.pts}%</span>
+        </div>
       </div>`).join("")}
     </div>
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
@@ -1188,9 +1181,9 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
               ${socialExpanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/3 active · ${socialPts}%</div>`:""}
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:9px" onclick="event.stopPropagation()">
-            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#777"}">${socialPts||(LVL3.find(x=>x.combo)||{pts:18}).pts}%</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
             <button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${socialExpanded?"✕":"EDIT"}</button>
+            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#777"};min-width:38px;text-align:right">${socialPts||(LVL3.find(x=>x.combo)||{pts:18}).pts}%</span>
           </div>
         </div>
         ${socialExpanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
@@ -1452,6 +1445,7 @@ function renderRoutine(){
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:80px">${bar(pct*100,rt.col,rt.col+"44",4)}</div>
         <button onclick="exitRoutine()" title="Back — timer keeps running (Esc)" aria-label="Back, timer keeps running" style="background:#0f0f1c;border:1px solid #23233a;color:#d0d0da;height:40px;padding:0 15px;border-radius:99px;cursor:pointer;font-size:14px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap">← <span style="font-size:12px">BACK</span></button>
+        <button onclick="if(confirm('Discard this routine session?'))closeRoutine()" title="Discard session — timer stops and progress is lost" aria-label="Discard session" style="background:none;border:1px solid #3a1f24;color:#c76;height:40px;padding:0 13px;border-radius:99px;cursor:pointer;font-size:13px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;flex-shrink:0;white-space:nowrap">✕ END</button>
       </div>
     </div>
     ${sl?`<div style="text-align:center;padding:10px 0 0"><span style="font-size:14.5px;letter-spacing:0.12em;color:${sl.col};border:1px solid ${sl.col}44;border-radius:99px;padding:3px 12px">${sl.label}</span></div>`:""}
@@ -1496,53 +1490,113 @@ function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,{flir
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
+// ═══ Routine engine — independent, concurrent sessions ═══════
+// sessions[id] = {q:[stepIdx], done:{}, secs, running, endAt}
+// routineId = which session is currently OPEN on screen (null = none)
+function newSession(id){
+  return {q:ROUTINES[id].steps.map((_,k)=>k),done:{},
+          secs:ROUTINES[id].steps[0].dur*60,running:false,endAt:null};
+}
+function S(id){return sessions[id||routineId]||null;}
+function anyRunning(){return Object.values(sessions).some(s=>s.running);}
+function liveSessions(){return Object.keys(sessions);}
+
+// keep the legacy view-globals in sync so render code stays unchanged
+function syncFromSession(){
+  const s=S(); if(!s)return;
+  routineQueue=s.q; routineCompleted=s.done;
+  timerSecs=s.secs; timerRunning=s.running; timerEndAt=s.endAt;
+}
+function syncToSession(){
+  const s=S(); if(!s)return;
+  s.q=routineQueue; s.done=routineCompleted;
+  s.secs=timerSecs; s.running=timerRunning; s.endAt=timerEndAt;
+}
+
 function startRoutine(id){
   if(!ROUTINES[id])return;
-  // already mid-session on this routine? resume it instead of wiping it
-  if(routineId===id&&routineQueue.length){return reopenRoutine();}
-  routineView=true;unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
-// Leave the runner but keep the session (and the clock) alive
-function exitRoutine(){routineView=false;haptic(8);saveRoutine();render();}
-function reopenRoutine(){if(!routineId)return;routineView=true;haptic(10);
-  if(timerRunning&&timerEndAt){timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));startTick();}
-  render();}
-function closeRoutine(){routineView=false;audioKeepAlive(false);if(timerInterval)clearInterval(timerInterval);timerRunning=false;timerInterval=null;timerEndAt=null;routineId=null;routineQueue=[];routineCompleted={};saveRoutine();render();}
-function finishRoutine(){audioKeepAlive(false);haptic([40,60,120]);chime(3);const id=routineId;closeRoutine();quickComplete(id);setTab("today");}
-function startTick(){
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    if(!timerRunning||!timerEndAt)return;
-    timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));
-    if(timerSecs<=0){
-      clearInterval(timerInterval);timerRunning=false;timerEndAt=null;
-      alertStepDone(); routineNext(); audioKeepalive(false); return;
-    }
-    if(routineView)renderRoutineTimer(); else updateResumeClock();
-  },250);
+  if(!sessions[id])sessions[id]=newSession(id);   // resume if it already exists
+  routineId=id; routineView=true;
+  syncFromSession(); unlockAudio(); haptic(12);
+  ensureTick(); saveRoutine(); render();
 }
-function routineToggle(){
-  unlockAudio(); haptic(12);
-  timerRunning=!timerRunning;
-  if(timerRunning){ timerEndAt=Date.now()+timerSecs*1000; startTick(); audioKeepAlive(true); }
-  else{ clearInterval(timerInterval); timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000)); timerEndAt=null; audioKeepAlive(false); }
+function exitRoutine(){syncToSession();routineView=false;routineId=null;haptic(8);saveRoutine();render();}
+function openRoutine(id){startRoutine(id);}
+function reopenRoutine(id){startRoutine(id||liveSessions()[0]);}
+
+// Discard just this session
+function closeRoutine(id){
+  const target=id||routineId; if(!target)return;
+  delete sessions[target];
+  if(routineId===target){routineId=null;routineView=false;routineQueue=[];routineCompleted={};timerSecs=0;timerRunning=false;timerEndAt=null;}
+  if(!anyRunning())audioKeepAlive(false);
+  if(!liveSessions().length&&timerInterval){clearInterval(timerInterval);timerInterval=null;}
   saveRoutine(); render();
 }
-// Recompute after backgrounding — iOS freezes timers when locked
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState!=='visible'||!routineId)return;
-  if(timerRunning&&timerEndAt){
-    timerSecs=Math.max(0,Math.round((timerEndAt-Date.now())/1000));
-    if(timerSecs<=0){timerRunning=false;timerEndAt=null;alertStepDone();routineNext();}
-    else{startTick();render();}
-  }
-});
-function routineReset(){haptic(12);audioKeepalive(false);clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineId&&routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
-function routineNext(){clearInterval(timerInterval);timerRunning=false;timerEndAt=null;if(routineQueue.length===0)return;routineCompleted[routineQueue[0]]=true;routineQueue=routineQueue.slice(1);if(routineQueue.length>0)timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
-function routineSendToEnd(){if(routineQueue.length<2)return;haptic(12);routineQueue=[...routineQueue.slice(1),routineQueue[0]];clearInterval(timerInterval);timerRunning=false;timerEndAt=null;timerSecs=ROUTINES[routineId].steps[routineQueue[0]].dur*60;saveRoutine();render();}
+function finishRoutine(){
+  const id=routineId; haptic([40,60,120]); chime(3);
+  closeRoutine(id); if(id)quickComplete(id); setTab("today");
+}
+
+// ── One interval drives every running session ──
+function ensureTick(){
+  if(timerInterval)return;
+  timerInterval=setInterval(()=>{
+    let dirty=false;
+    for(const id of liveSessions()){
+      const s=sessions[id];
+      if(!s.running||!s.endAt)continue;
+      s.secs=Math.max(0,Math.round((s.endAt-Date.now())/1000));
+      if(s.secs<=0){s.running=false;s.endAt=null;alertStepDone();advanceSession(id);dirty=true;}
+    }
+    if(!anyRunning())audioKeepAlive(false);
+    syncFromSession();
+    if(dirty){saveRoutine();render();}
+    else if(routineId&&routineView)renderRoutineTimer();
+    else renderResume();
+  },250);
+}
+function advanceSession(id){
+  const s=sessions[id]; if(!s||!s.q.length)return;
+  s.done[s.q[0]]=true; s.q=s.q.slice(1);
+  s.secs=s.q.length?ROUTINES[id].steps[s.q[0]].dur*60:0;
+  s.running=false; s.endAt=null;
+}
+
+function routineToggle(){
+  const s=S(); if(!s)return;
+  unlockAudio(); haptic(12);
+  s.running=!s.running;
+  if(s.running){s.endAt=Date.now()+s.secs*1000;ensureTick();audioKeepAlive(true);}
+  else{s.secs=Math.max(0,Math.round((s.endAt-Date.now())/1000));s.endAt=null;if(!anyRunning())audioKeepAlive(false);}
+  syncFromSession(); saveRoutine(); render();
+}
+function routineReset(){
+  const s=S(); if(!s)return;
+  haptic(12); s.running=false; s.endAt=null;
+  if(s.q.length)s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
+  if(!anyRunning())audioKeepAlive(false);
+  syncFromSession(); saveRoutine(); render();
+}
+function routineNext(){
+  const s=S(); if(!s||!s.q.length)return;
+  advanceSession(routineId); syncFromSession();
+  if(!anyRunning())audioKeepAlive(false);
+  saveRoutine(); render();
+}
+function routineSendToEnd(){
+  const s=S(); if(!s||s.q.length<2)return;
+  haptic(12); s.q=[...s.q.slice(1),s.q[0]];
+  s.running=false; s.endAt=null; s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
+  syncFromSession(); saveRoutine(); render();
+}
 function updateResumeClock(){
-  const c=document.getElementById("resume-clock");if(!c)return;
-  const m=Math.floor(timerSecs/60),s=timerSecs%60;
-  c.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  for(const id of liveSessions()){
+    const c=document.getElementById("resume-clock-"+id),s=sessions[id];
+    if(!c||!s)continue;
+    const m=Math.floor(s.secs/60),x=s.secs%60;
+    c.textContent=`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`;
+  }
 }
 function renderRoutineTimer(){
   const rt=ROUTINES[routineId],current=routineQueue[0]!==undefined?rt.steps[routineQueue[0]]:null;

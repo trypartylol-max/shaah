@@ -86,6 +86,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .rz-c{font-family:'Bebas Neue';font-size:24px;line-height:1;flex-shrink:0;}
 .rz-x{width:30px;height:30px;border-radius:50%;background:none;border:1px solid #2a2a40;
   color:#9a9ab4;font-size:15px;line-height:1;flex-shrink:0;cursor:pointer;font-family:inherit;}
+@media(max-width:520px){.rn-bar{display:none;}}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
   font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
@@ -191,6 +192,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
+const BUILD="20260820-0822·4724be";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -399,8 +401,8 @@ function persistDay(key){
 }
 
 function setChecked(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].checks=v;}
-function getNote(k){return(_state[k]&&_state[k].note)||'';}
-function setNote(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].note=v;persistDay(k);}
+function getNote(k){const n=_state[k]&&_state[k].note;return typeof n==='string'?n:'';}
+function setNote(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].note=String(v==null?'':v).slice(0,5000);persistDay(k);}
 function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].social=v;}
 
 // ── Server load + realtime ─────────────────────────────────
@@ -656,6 +658,7 @@ function renderSettings(){
             </div>`).join("")}
         </div>`}).join("")}
 
+      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260820-0822·4724be</div>
       <div class="sec" style="margin-top:22px">DATA</div>
       <button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
@@ -1091,7 +1094,7 @@ function renderHome(){
 function isNight(){const d=new Date();return (d.getHours()+d.getMinutes()/60)>=Number(CFG.nightFrom||20.5);}
 function renderToday(key,nested=false){
   const _hr=new Date().getHours();
-  const greetTxt=_hr<12?"Good morning":_hr<18?"Good afternoon":"Good evening";
+  const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";
   const ch=getChecked(key),soc=getSocial(key),{score,l1,l2,l3,done}=calcScore(key),gr=GRADE(score),streak=getStreak();
   const activeSubs=Object.values(soc).filter(Boolean).length;
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
@@ -1100,10 +1103,10 @@ function renderToday(key,nested=false){
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
-    </div>`:`<div class="t-head" style="width:100%;max-width:390px">
-      <div style="font-size:15px;color:#9a9ab2;letter-spacing:0.12em;margin-bottom:4px">${greetTxt.toUpperCase()}</div>
-      <div style="font-family:'Bebas Neue';font-size:38px;color:#e2e2e2;line-height:1">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long"}).toUpperCase()}</div>
-      <div style="font-size:15px;color:#9090aa;margin-top:4px">${keyToDate(key).toLocaleDateString("en-US",{day:"numeric",month:"long",year:"numeric"})}</div>
+    </div>`:`<div class="t-head" style="width:100%;max-width:390px;display:flex;align-items:baseline;gap:9px">
+      <div style="font-family:'Bebas Neue';font-size:27px;color:#e2e2e2;line-height:1;letter-spacing:.04em">${keyToDate(key).toLocaleDateString("en-US",{weekday:"short"}).toUpperCase()}</div>
+      <div style="font-size:15px;color:#9090aa;white-space:nowrap">${keyToDate(key).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</div>
+      <div style="margin-left:auto;font-size:13px;color:#9a9ab2;letter-spacing:.12em;white-space:nowrap">${greetShort}</div>
     </div>`}
     <div style="display:none">
     </div>
@@ -1138,7 +1141,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
             <div style="font-size:15px;color:#777;margin-top:3px">${rt.steps.length} steps · ${totalMin} min</div>
             ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span style="font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${s.icon} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:14.5px;color:#adadbf">+${rt.steps.length-4} more</span>`:""}</div>`:""}
           </div>
-          ${done?`<div onclick="toggleHabit('${item.id}','${tk}')" style="font-size:23px;cursor:pointer">✅</div>`:`
+          ${done?`<div onclick="toggleHabit('${item.id}','${key}')" style="font-size:23px;cursor:pointer">✅</div>`:`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
             <button onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ START</button>
           </div>`}
@@ -1439,12 +1442,12 @@ function renderRoutine(){
   const sl=current.ses!==undefined?sesLabel(current.ses):null;
   return`<div style="height:100dvh;display:flex;flex-direction:column;background:#07070f;font-family:'DM Mono',monospace;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 20px 14px;border-bottom:1px solid #111120">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:21px">${rt.icon}</span>
-        <div><div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:0.1em;color:${rt.col}">${rt.label}</div><div style="font-size:14.5px;color:#a4a4ba">${done}/${total} STEPS</div></div>
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+        <span style="font-size:21px;flex-shrink:0">${rt.icon}</span>
+        <div style="min-width:0"><div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:0.1em;color:${rt.col};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${rt.label}</div><div style="font-size:14.5px;color:#a4a4ba;white-space:nowrap">${done}/${total} STEPS</div></div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:80px">${bar(pct*100,rt.col,rt.col+"44",4)}</div>
+      <div style="display:flex;align-items:center;gap:9px;flex-shrink:0">
+        <div class="rn-bar" style="width:80px">${bar(pct*100,rt.col,rt.col+"44",4)}</div>
         <button onclick="exitRoutine()" title="Back — timer keeps running (Esc)" aria-label="Back, timer keeps running" style="background:#0f0f1c;border:1px solid #23233a;color:#d0d0da;height:40px;padding:0 15px;border-radius:99px;cursor:pointer;font-size:14px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap">← <span style="font-size:12px">BACK</span></button>
         <button onclick="if(confirm('Discard this routine session?'))closeRoutine()" title="Discard session — timer stops and progress is lost" aria-label="Discard session" style="background:none;border:1px solid #3a1f24;color:#c76;height:40px;padding:0 13px;border-radius:99px;cursor:pointer;font-size:13px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;flex-shrink:0;white-space:nowrap">✕ END</button>
       </div>

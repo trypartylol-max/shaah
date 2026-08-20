@@ -714,6 +714,14 @@ function renderLogin(){
 // ── Boot ───────────────────────────────────────────────────
 // ── Native-feel gesture guards ──────────────────────────────
 document.addEventListener('gesturestart',e=>e.preventDefault());
+// Desktop: Esc mirrors the swipe-back gesture
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(tourStep!==null){tourDone();return;}
+  if(settingsOpen){closeSettings();return;}
+  if(editDayKey){closeEditDay();return;}
+  if(routineId&&routineView){exitRoutine();return;}   // keeps the clock running
+});
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 let _lastTap=0;
 document.addEventListener('touchend',e=>{
@@ -973,7 +981,7 @@ function renderResume(){
       <div class="rz-s" style="color:${col}">${timerRunning?"RUNNING":"PAUSED"} · ${esc(rt.label)}</div>
     </div>
     <div class="rz-c" id="resume-clock" style="color:${col}">${t}</div>
-    <button class="rz-x" onclick="event.stopPropagation();closeRoutine()" aria-label="Discard">✕</button>
+    <button class="rz-x" onclick="event.stopPropagation();if(confirm('Discard this routine session?'))closeRoutine()" aria-label="Discard session">✕</button>
   </div>`;
 }
 function renderTour(){
@@ -1002,11 +1010,11 @@ function topbarHTML(){
 }
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
-  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";tuckNav(false);renderTour();return;}
+  if(!USER){el.innerHTML=renderLogin();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
-  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";tuckNav(false);renderTour();return;}
-  if(routineId&&routineView){el.innerHTML=renderRoutine();nav.style.display="none";tuckNav(false);renderTour();return;}
-  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";tuckNav(false);renderTour();return;}
+  if(settingsOpen){el.innerHTML=renderSettings();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
+  if(routineId&&routineView){el.innerHTML=renderRoutine();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
+  if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   nav.style.display="flex";
   const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
@@ -1155,10 +1163,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
           <span style="font-size:15px;color:${ch[item.id]?"#e2e2e299":"#777"}">${item.pts}%</span>
         </div>
         ${item.routine&&!ch[item.id]&&isToday&&!nested?`
-        <div style="display:flex;gap:5px;margin-left:8px">
-          <button onclick="startRoutine('${item.id}')" style="background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:8px 11px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55">▶</button>
-          <button onclick="quickComplete('${item.id}')" style="background:${ROUTINES[item.id].col}22;border:1px solid ${ROUTINES[item.id].col}88;color:${ROUTINES[item.id].col};font-family:inherit;font-size:15px;padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:700">✓</button>
-        </div>`:""}
+        <button onclick="startRoutine('${item.id}')" title="Start routine" style="margin-left:8px;background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:8px 13px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55;flex-shrink:0">▶</button>`:""}
       </div>`).join("")}
     </div>
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
@@ -1446,7 +1451,7 @@ function renderRoutine(){
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:80px">${bar(pct*100,rt.col,rt.col+"44",4)}</div>
-        <button onclick="exitRoutine()" aria-label="Close" style="background:#0f0f1c;border:1px solid #23233a;color:#d0d0da;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+        <button onclick="exitRoutine()" title="Back — timer keeps running (Esc)" aria-label="Back, timer keeps running" style="background:#0f0f1c;border:1px solid #23233a;color:#d0d0da;height:40px;padding:0 15px;border-radius:99px;cursor:pointer;font-size:14px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap">← <span style="font-size:12px">BACK</span></button>
       </div>
     </div>
     ${sl?`<div style="text-align:center;padding:10px 0 0"><span style="font-size:14.5px;letter-spacing:0.12em;color:${sl.col};border:1px solid ${sl.col}44;border-radius:99px;padding:3px 12px">${sl.label}</span></div>`:""}

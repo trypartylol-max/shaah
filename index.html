@@ -31,21 +31,20 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .nav-btn:active{opacity:.6;}
 #nav.tucked{transform:translateY(115%);opacity:0;pointer-events:none;}
 /* ── TODAY section order — day vs night ────────────────────── */
-.today>*{order:5;}
-.today .t-ring{order:2;}
-.today .t-grade{order:3;}
-.today .t-rout{order:4;}
-.today .t-lvl1{order:6;}
-.today .t-lvl2{order:7;}
-.today .t-lvl3{order:8;}
-.today .t-note{order:9;}
-/* At night: note + checklist first, routines drop to the bottom */
-.today.night .t-note{order:3;}
-.today.night .t-grade{order:4;}
-.today.night .t-lvl1{order:5;}
-.today.night .t-lvl2{order:6;}
-.today.night .t-lvl3{order:7;}
-.today.night .t-rout{order:9;}
+.today>*{order:6;}
+.today .t-head{order:1;}
+.today .t-streak{order:2;}
+.today .t-ring{order:3;}
+.today .t-grade{order:4;}
+.today .t-rout{order:5;}
+.today .t-lvl1{order:7;}
+.today .t-lvl2{order:8;}
+.today .t-lvl3{order:9;}
+.today .t-note{order:10;}
+.today .t-reset{order:11;}
+/* At night: the note comes first, routines sink to the bottom */
+.today.night .t-note{order:5;}
+.today.night .t-rout{order:10;}
 
 /* ── Desktop: two columns instead of one narrow strip ───────── */
 @media(min-width:860px){
@@ -63,7 +62,9 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today .t-rout{grid-column:1;}
   #scroll .today .t-lvl,
   #scroll .today .t-note{grid-column:2;}
-  #scroll .today>div:first-child{grid-column:1 / -1;}
+  #scroll .today .t-head{grid-column:1 / -1;}
+  #scroll .today .t-streak{grid-column:1;justify-self:start;}
+  #scroll .today .t-reset{grid-column:1 / -1;}
   #scroll .today button{justify-self:center;}
 }
 @media(min-width:1180px){
@@ -1096,10 +1097,10 @@ function renderToday(key,nested=false){
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
   const isToday=key===todayKey();
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
-    ${(nested||!isToday)?`<div style="text-align:center;width:100%">
+    ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
-    </div>`:`<div style="width:100%;max-width:390px">
+    </div>`:`<div class="t-head" style="width:100%;max-width:390px">
       <div style="font-size:15px;color:#9a9ab2;letter-spacing:0.12em;margin-bottom:4px">${greetTxt.toUpperCase()}</div>
       <div style="font-family:'Bebas Neue';font-size:38px;color:#e2e2e2;line-height:1">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long"}).toUpperCase()}</div>
       <div style="font-size:15px;color:#9090aa;margin-top:4px">${keyToDate(key).toLocaleDateString("en-US",{day:"numeric",month:"long",year:"numeric"})}</div>
@@ -1125,7 +1126,7 @@ function renderToday(key,nested=false){
         </div>
       </div>
     </div>
-    ${streak>0&&!nested?`<div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.12);border-radius:12px;padding:9px 20px;font-size:15px;color:#FFD700;letter-spacing:0.08em">🔥 ${streak} day${streak!==1?"s":""} streak</div>`:""}
+    ${streak>0&&!nested?`<div class="t-streak" style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.12);border-radius:12px;padding:9px 20px;font-size:15px;color:#FFD700;letter-spacing:0.08em">🔥 ${streak} day${streak!==1?"s":""} streak</div>`:""}
 ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec">TODAY'S ROUTINES</div>
       ${LVL1.filter(i=>i.routine).map(item=>{
@@ -1216,7 +1217,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
 
-    ${isToday?`<button onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
+    ${isToday?`<button class="t-reset" onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
   </div>`;
 }
 
@@ -1552,8 +1553,11 @@ function ensureTick(){
     if(!anyRunning())audioKeepAlive(false);
     syncFromSession();
     if(dirty){saveRoutine();render();}
-    else if(routineId&&routineView)renderRoutineTimer();
-    else renderResume();
+    else{
+      // the open runner AND any background pills both need refreshing
+      if(routineId&&routineView)renderRoutineTimer();
+      updateResumeClock();
+    }
   },250);
 }
 function advanceSession(id){

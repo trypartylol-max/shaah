@@ -147,7 +147,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   font-size:15px;font-weight:700;letter-spacing:.12em;padding:13px;border-radius:12px;cursor:pointer;
   transition:transform .12s;}
 .tour-next:active{transform:scale(.97);}
-#sync-status{cursor:pointer;font-size:14.5px;font-family:monospace;letter-spacing:.1em;
+#sync-status{cursor:default;font-size:14.5px;font-family:monospace;letter-spacing:.1em;
   padding:0 11px;border-radius:99px;background:#0f0f1c;border:1px solid #1e1e2e;color:#adadbf;
   height:34px;display:flex;align-items:center;}
 @media(hover:hover){.qtile:hover{border-color:#2a2a3a;}}
@@ -202,6 +202,40 @@ const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 
 // ═══ CONFIG (editable in Settings, synced via Supabase) ═══
 const DEFAULT_CFG={
+  tz:'device',
+  nightFrom:20.5, // hour (decimal) after which TODAY leads with note + checklist — 20.5 = 8:30pm
+  h:{
+    wod:        {l:"Exercise",    p:20, i:"⚡", lv:1, on:true, routine:true},
+    work:       {l:"Deep Work",   p:20, i:"💼", lv:1, on:true},
+    production: {l:"Create",      p:15, i:"🎨", lv:1, on:true, routine:true},
+    sleep:      {l:"Sleep Early", p:10, i:"🌙", lv:2, on:true},
+    meditation: {l:"Meditate",    p:10, i:"🧘", lv:2, on:true},
+    pray:       {l:"Read",        p:8,  i:"📖", lv:2, on:true},
+    nofap:      {l:"Self-control",p:6,  i:"🔒", lv:2, on:false},
+    social:     {l:"Social",      p:18, i:"👥", lv:3, on:true, combo:true},
+    nosmoke:    {l:"No Junk Food",p:6,  i:"🥗", lv:3, on:true},
+    pomodoro:   {l:"Focus Block", p:5,  i:"🍅", lv:3, on:true},
+  },
+  order:["wod","work","production","sleep","meditation","pray","nofap","social","nosmoke","pomodoro"],
+  routines:{
+    wod:{label:"Exercise",icon:"⚡",col:"#e2e2e2",steps:[
+      {id:"warmup",label:"Warm up",dur:10,icon:"🔥"},
+      {id:"main",label:"Main set",dur:35,icon:"⚡"},
+      {id:"cool",label:"Cool down",dur:10,icon:"🧊"},
+      {id:"fuel",label:"Refuel",dur:5,icon:"🥛"},
+    ]},
+    production:{label:"Create",icon:"🎨",col:"#a78bfa",steps:[
+      {id:"setup",label:"Set up your space",dur:5,icon:"💻",ses:1},
+      {id:"warm",label:"Warm up / references",dur:10,icon:"🎧",ses:1},
+      {id:"build",label:"Build the core idea",dur:30,icon:"🔁",ses:1},
+      {id:"break",label:"Break — step away",dur:15,icon:"☕",ses:"break",isBreak:true},
+      {id:"refine",label:"Refine & finish",dur:25,icon:"✨",ses:2},
+      {id:"save",label:"Save & archive",dur:5,icon:"💾",ses:2},
+    ]},
+  },
+};
+
+const LEGACY_CFG={
   tz:'device',
   nightFrom:20.5, // hour (decimal) after which TODAY leads with note + checklist — 20.5 = 8:30pm
   h:{
@@ -396,14 +430,26 @@ function rowToState(row){
   _state[row.date]={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||''};
 }
 
+// A user with history but no saved config predates the generic defaults —
+// restore their original habit set instead of overwriting it.
+function adoptLegacyIfVeteran(hadSettingsRow,rowCount){
+  if(hadSettingsRow||rowCount===0)return false;
+  CFG=JSON.parse(JSON.stringify(LEGACY_CFG));
+  CFG.v=3; applyCfg(); set(cfgKey(),CFG); saveCfg();
+  return true;
+}
 async function loadAll(){
   if(!USER)return;
   setStatus('SYNC…','#f59e0b');
   try{
     const{data,error}=await sb.from('day_logs').select('date,data').eq('user_id',USER.id);
     if(error)throw error;
+    const rows=data||[];
+    const hadSettings=rows.some(r=>r.date==='settings');
+    const dayRows=rows.filter(r=>r.date!=='settings').length;
     _state={};
-    (data||[]).forEach(rowToState);
+    rows.forEach(rowToState);
+    adoptLegacyIfVeteran(hadSettings,dayRows);
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');
   }catch(e){
@@ -951,7 +997,7 @@ function renderTour(){
 function topbarHTML(){
   return`<div id="topbar">
     <button id="gear" onclick="openSettings()" aria-label="Settings">⚙</button>
-    <div id="sync-status" onclick="if(USER&&confirm('Sign out?'))signOut()">${_live?"LIVE":"SYNC"}</div>
+    <div id="sync-status" title="Sync status">${_live?"LIVE":"SYNC"}</div>
   </div>`;
 }
 function render(){
@@ -1014,8 +1060,7 @@ function renderHome(){
           </div>
           ${done?`<div onclick="toggleHabit('${item.id}','${tk}')" style="font-size:23px;cursor:pointer">✅</div>`:`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            <button onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ START</button>
-            <button onclick="quickComplete('${item.id}')" style="background:none;border:1px solid ${rt.col}55;color:${rt.col};font-family:inherit;font-size:14.5px;letter-spacing:0.08em;padding:6px 14px;border-radius:8px;cursor:pointer;white-space:nowrap">✓ DONE</button>
+            <button onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">${(routineId===item.id&&routineQueue.length)?"▶ RESUME":"▶ START"}</button>
           </div>`}
         </div>`;
       }).join("")}
@@ -1094,7 +1139,6 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
           ${done?`<div onclick="toggleHabit('${item.id}','${tk}')" style="font-size:23px;cursor:pointer">✅</div>`:`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
             <button onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ START</button>
-            <button onclick="quickComplete('${item.id}')" style="background:none;border:1px solid ${rt.col}55;color:${rt.col};font-family:inherit;font-size:14.5px;letter-spacing:0.08em;padding:6px 14px;border-radius:8px;cursor:pointer;white-space:nowrap">✓ DONE</button>
           </div>`}
         </div>`;
       }).join("")}
@@ -1447,7 +1491,11 @@ function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,{flir
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
-function startRoutine(id){if(!ROUTINES[id])return;routineView=true;unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
+function startRoutine(id){
+  if(!ROUTINES[id])return;
+  // already mid-session on this routine? resume it instead of wiping it
+  if(routineId===id&&routineQueue.length){return reopenRoutine();}
+  routineView=true;unlockAudio();haptic(12);routineId=id;routineQueue=ROUTINES[id].steps.map((_,i)=>i);routineCompleted={};timerSecs=ROUTINES[id].steps[0].dur*60;timerRunning=false;timerEndAt=null;if(timerInterval)clearInterval(timerInterval);saveRoutine();render();}
 // Leave the runner but keep the session (and the clock) alive
 function exitRoutine(){routineView=false;haptic(8);saveRoutine();render();}
 function reopenRoutine(){if(!routineId)return;routineView=true;haptic(10);

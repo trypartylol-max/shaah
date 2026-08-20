@@ -70,23 +70,47 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 @media(min-width:1180px){
   #scroll .today{grid-template-columns:minmax(360px,440px) minmax(380px,500px);max-width:1020px;}
 }
-/* ── Running-routine pill (visible when the runner is closed) ── */
+/* ── Active-routine indicator: chips | slim | circle ────────── */
 #resume{position:fixed;left:12px;right:12px;z-index:1500;display:none;
   bottom:calc(58px + max(calc(env(safe-area-inset-bottom) - 24px),4px));}
 #resume.on{display:block;animation:fadeUp .3s ease;}
-.rz{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:15px;
+.rz-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.rz-dot.live{animation:rzPulse 1.6s ease-in-out infinite;}
+@keyframes rzPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.82)}}
+.rz-ct{font-family:'Bebas Neue';line-height:1;flex-shrink:0;}
+.rz-x{width:26px;height:26px;border-radius:50%;background:none;border:1px solid #2a2a40;
+  color:#9a9ab4;font-size:13px;line-height:1;flex-shrink:0;cursor:pointer;font-family:inherit;padding:0;}
+
+/* 5 · chips — one row regardless of how many run */
+.rz-row{display:flex;gap:7px;}
+.rz-chip{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:13px;
   background:rgba(16,16,28,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border:1px solid #26263c;box-shadow:0 10px 30px rgba(0,0,0,.55);cursor:pointer;}
-.rz:active{transform:scale(.985);}
-.rz-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;
-  font-size:17px;flex-shrink:0;}
-.rz-t{flex:1;min-width:0;}
-.rz-n{font-size:13px;color:#e2e2e2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rz-s{font-size:11px;letter-spacing:.08em;margin-top:2px;}
-.rz-c{font-family:'Bebas Neue';font-size:24px;line-height:1;flex-shrink:0;}
-.rz-x{width:30px;height:30px;border-radius:50%;background:none;border:1px solid #2a2a40;
-  color:#9a9ab4;font-size:15px;line-height:1;flex-shrink:0;cursor:pointer;font-family:inherit;}
-@media(max-width:520px){.rn-bar{display:none;}}
+  border:1px solid #26263c;box-shadow:0 8px 22px rgba(0,0,0,.5);cursor:pointer;
+  transition:transform .12s;}
+.rz-chip:active{transform:scale(.97);}
+.rz-cmid{min-width:0;flex:1;display:flex;flex-direction:column;}
+.rz-chip .rz-ct{font-size:19px;}
+.rz-cn{font-size:11px;color:#9a9ab2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+
+/* 2 · slim bar */
+.rz-slim{display:flex;align-items:center;gap:9px;padding:8px 13px;border-radius:99px;margin-top:7px;
+  background:rgba(16,16,28,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid #26263c;box-shadow:0 8px 22px rgba(0,0,0,.5);cursor:pointer;transition:transform .12s;}
+.rz-slim:active{transform:scale(.985);}
+.rz-lbl{flex:1;min-width:0;font-size:12.5px;color:#c0c0cd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rz-slim .rz-ct{font-size:19px;}
+
+/* 3 · floating circle */
+#resume.pill-circle{left:auto;right:14px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.rz-circle{position:relative;width:62px;height:62px;border-radius:50%;cursor:pointer;
+  background:rgba(16,16,28,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid #26263c;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);transition:transform .12s;}
+.rz-circle:active{transform:scale(.94);}
+.rz-circle .rz-ct{font-size:19px;}
+.rz-ci{font-size:12px;opacity:.8;margin-top:1px;}
+.rz-cdot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;}
+
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
   font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
@@ -149,9 +173,15 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   font-size:15px;font-weight:700;letter-spacing:.12em;padding:13px;border-radius:12px;cursor:pointer;
   transition:transform .12s;}
 .tour-next:active{transform:scale(.97);}
-#sync-status{cursor:default;font-size:14.5px;font-family:monospace;letter-spacing:.1em;
-  padding:0 11px;border-radius:99px;background:#0f0f1c;border:1px solid #1e1e2e;color:#adadbf;
-  height:34px;display:flex;align-items:center;}
+#sync-status{display:flex;align-items:center;justify-content:center;height:34px;width:34px;flex-shrink:0;cursor:default;}
+#sync-status span{width:9px;height:9px;border-radius:50%;display:block;
+  box-shadow:0 0 8px currentColor;transition:background .3s;}
+#sync-status>span{width:9px;height:9px;border-radius:50%;box-shadow:0 0 8px currentColor;transition:background .3s;}
+#tb-date{display:flex;align-items:baseline;gap:8px;min-width:0;flex:1;justify-content:center;}
+.tb-day{font-family:'Bebas Neue';font-size:23px;color:#e2e2e2;line-height:1;letter-spacing:.04em;}
+.tb-dt{font-size:14px;color:#9090aa;white-space:nowrap;}
+.tb-gr{font-size:11px;color:#7e7e97;letter-spacing:.12em;white-space:nowrap;}
+@media(max-width:380px){.tb-gr{display:none;}}
 @media(hover:hover){.qtile:hover{border-color:#2a2a3a;}}
 /* Installed-app mode: no browser chrome, so reclaim the space */
 @media all and (display-mode:standalone){
@@ -192,7 +222,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260820-0822·4724be";
+const BUILD="20260820-1951·8f3956";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -206,6 +236,7 @@ const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 // ═══ CONFIG (editable in Settings, synced via Supabase) ═══
 const DEFAULT_CFG={
   tz:'device',
+  pill:'chips',   // 'chips' | 'slim' | 'circle'
   nightFrom:20.5, // hour (decimal) after which TODAY leads with note + checklist — 20.5 = 8:30pm
   h:{
     wod:        {l:"Exercise",    p:20, i:"⚡", lv:1, on:true, routine:true},
@@ -658,7 +689,15 @@ function renderSettings(){
             </div>`).join("")}
         </div>`}).join("")}
 
-      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260820-0822·4724be</div>
+      <div class="sec" style="margin-top:22px">ACTIVE ROUTINE INDICATOR</div>
+      <div style="display:flex;gap:7px;margin-bottom:16px">
+        ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
+          <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
+            <div style="font-size:13px">${lbl}</div>
+            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
+          </button>`).join("")}
+      </div>
+      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260820-1951·8f3956</div>
       <div class="sec" style="margin-top:22px">DATA</div>
       <button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
@@ -670,6 +709,7 @@ function renderSettings(){
 }
 
 function cfgSet(id,k,v){ if(!CFG.h[id])return; CFG.h[id][k]= k==='p'?Math.max(0,parseInt(v)||0):v; saveCfg(); render(); }
+function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
 function cfgMove(id,dir){
   const lv=CFG.h[id]&&CFG.h[id].lv; if(!lv)return;
   const peers=CFG.order.filter(x=>CFG.h[x]&&CFG.h[x].lv===lv);
@@ -963,23 +1003,47 @@ function renderResume(){
   const ids=liveSessions().filter(id=>!(routineView&&id===routineId));
   const show=USER&&ids.length&&!settingsOpen&&!editDayKey&&tourStep===null;
   if(!show){el.className="";el.innerHTML="";return;}
-  el.className="on";
-  el.innerHTML=ids.map(id=>{
+  const style=CFG.pill||"chips";
+  const info=id=>{
     const rt=ROUTINES[id],s=sessions[id],step=s.q.length?rt.steps[s.q[0]]:null;
-    if(!step)return "";
-    const col=step.isBreak?"#f59e0b":rt.col;
+    if(!step)return null;
     const m=Math.floor(s.secs/60),x=s.secs%60;
-    const t=`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`;
-    return`<div class="rz" onclick="openRoutine('${id}')" style="margin-top:7px">
-      <div class="rz-ic" style="background:${col}22;border:1px solid ${col}55">${esc(step.icon)}</div>
-      <div class="rz-t">
-        <div class="rz-n">${esc(step.label)}</div>
-        <div class="rz-s" style="color:${col}">${s.running?"RUNNING":"PAUSED"} · ${esc(rt.label)}</div>
-      </div>
-      <div class="rz-c" id="resume-clock-${id}" style="color:${col}">${t}</div>
-      <button class="rz-x" onclick="event.stopPropagation();if(confirm('Discard this session?'))closeRoutine('${id}')" aria-label="Discard">✕</button>
-    </div>`;
-  }).join("");
+    return{rt,s,step,col:step.isBreak?"#f59e0b":rt.col,
+           t:`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`};
+  };
+  const items=ids.map(info).filter(Boolean);
+  if(!items.length){el.className="";el.innerHTML="";return;}
+  el.className="on pill-"+style;
+
+  if(style==="circle"){
+    el.innerHTML=items.map(({rt,s,step,col,t},i)=>`
+      <div class="rz-circle" onclick="openRoutine('${rt._id||liveSessions()[i]}')" style="border-color:${col}44">
+        <div class="rz-cdot" style="background:${col};opacity:${s.running?1:.35}"></div>
+        <div class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</div>
+        <div class="rz-ci">${esc(step.icon)}</div>
+      </div>`).join("");
+    return;
+  }
+  if(style==="slim"){
+    el.innerHTML=items.map(({rt,s,step,col,t},i)=>`
+      <div class="rz-slim" onclick="openRoutine('${ids[i]}')">
+        <span class="rz-dot${s.running?" live":""}" style="background:${col}"></span>
+        <span class="rz-lbl">${esc(step.icon)} ${esc(step.label)}</span>
+        <span class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</span>
+        <button class="rz-x" onclick="event.stopPropagation();if(confirm('Discard this session?'))closeRoutine('${ids[i]}')" aria-label="Discard">✕</button>
+      </div>`).join("");
+    return;
+  }
+  // chips (default)
+  el.innerHTML=`<div class="rz-row">${items.map(({rt,s,step,col,t},i)=>`
+    <div class="rz-chip" onclick="openRoutine('${ids[i]}')">
+      <span class="rz-dot${s.running?" live":""}" style="background:${col}"></span>
+      <span class="rz-cmid">
+        <span class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</span>
+        <span class="rz-cn">${esc(step.icon)} ${esc(step.label)}</span>
+      </span>
+      <button class="rz-x" onclick="event.stopPropagation();if(confirm('Discard this session?'))closeRoutine('${ids[i]}')" aria-label="Discard">✕</button>
+    </div>`).join("")}</div>`;
 }
 function renderTour(){
   const t=document.getElementById("tour");if(!t)return;
@@ -1000,9 +1064,17 @@ function renderTour(){
 }
 
 function topbarHTML(){
+  const d=keyToDate(todayKey()),hr=new Date().getHours();
+  const greet=hr<12?"MORNING":hr<18?"AFTERNOON":"EVENING";
+  const dot=_live?"#4ade80":"#f59e0b";
   return`<div id="topbar">
     <button id="gear" onclick="openSettings()" aria-label="Settings">⚙</button>
-    <div id="sync-status" title="Sync status">${_live?"LIVE":"SYNC"}</div>
+    <div id="tb-date">
+      <span class="tb-day">${d.toLocaleDateString("en-US",{weekday:"short"}).toUpperCase()}</span>
+      <span class="tb-dt">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</span>
+      <span class="tb-gr">${greet}</span>
+    </div>
+    <div id="sync-status" title="${_live?"Live — synced":"Connecting…"}"><span style="background:${dot}"></span></div>
   </div>`;
 }
 function render(){
@@ -1102,14 +1174,8 @@ function renderToday(key,nested=false){
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
-      <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${new Date(key+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
-    </div>`:`<div class="t-head" style="width:100%;max-width:390px;display:flex;align-items:baseline;gap:9px">
-      <div style="font-family:'Bebas Neue';font-size:27px;color:#e2e2e2;line-height:1;letter-spacing:.04em">${keyToDate(key).toLocaleDateString("en-US",{weekday:"short"}).toUpperCase()}</div>
-      <div style="font-size:15px;color:#9090aa;white-space:nowrap">${keyToDate(key).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</div>
-      <div style="margin-left:auto;font-size:13px;color:#9a9ab2;letter-spacing:.12em;white-space:nowrap">${greetShort}</div>
-    </div>`}
-    <div style="display:none">
-    </div>
+      <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
+    </div>`:""}
     <div class="t-ring" style="position:relative;width:168px;height:168px">
       ${ring(score,MAX,168,12,gr.c,gr.g)}
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
@@ -1120,7 +1186,7 @@ function renderToday(key,nested=false){
     <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
       <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${gr.l}</div>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS</span><span style="color:#d0d0da">/${MAX}%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${MAX}%</span></div>
         ${bar((Math.min(score,MAX)/MAX)*100,gr.c,gr.g,5)}
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#8888a4;margin-top:8px">
           <span style="color:#c0c0cd">CORE <span style="color:${l1>0?"#e2e2e2":"#777"}">${l1}/${LVL1_MAX}</span></span>
@@ -1129,7 +1195,7 @@ function renderToday(key,nested=false){
         </div>
       </div>
     </div>
-    ${streak>0&&!nested?`<div class="t-streak" style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.12);border-radius:12px;padding:9px 20px;font-size:15px;color:#FFD700;letter-spacing:0.08em">🔥 ${streak} day${streak!==1?"s":""} streak</div>`:""}
+    
 ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec">TODAY'S ROUTINES</div>
       ${LVL1.filter(i=>i.routine).map(item=>{

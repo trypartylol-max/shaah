@@ -104,42 +104,30 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .st-title{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;}
 .st-body{padding:0 16px 16px;}
 /* ══ Desktop: one shared content width for every tab ══════════ */
-.st-foot{text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:18px 0 6px;}
 @media(min-width:880px){
   #scroll>.fade-up{max-width:1120px;margin:0 auto;padding-left:28px;padding-right:28px;}
 
-  /* Settings — cards flow in balanced columns, no empty gaps */
-  #scroll .settings-body{columns:2;column-gap:20px;display:block !important;}
+  /* Settings — two balanced columns, never three */
+  #scroll .settings-body{columns:2;column-gap:22px;display:block !important;}
   #scroll .settings-body .st-card{break-inside:avoid;-webkit-column-break-inside:avoid;
     display:inline-block;width:100%;margin-bottom:16px;}
-  #scroll .settings-body .st-foot{column-span:all;}
-
-  /* Today — ring column + content column */
-  #scroll .today{
-    display:grid !important;
-    grid-template-columns:300px minmax(320px,1fr);
-    align-content:start;align-items:start;column-gap:26px;row-gap:14px;
-  }
-  #scroll .today>*{max-width:none !important;width:100% !important;margin:0 !important;}
-  #scroll .today .t-head{grid-column:1 / -1;}
-  #scroll .today .t-ring{grid-column:1;justify-self:center;width:190px !important;height:190px !important;}
-  #scroll .today .t-streak{grid-column:1;justify-self:center;width:auto !important;}
-  #scroll .today .t-grade,
-  #scroll .today .t-rout{grid-column:1;}
-  #scroll .today .t-lvl,
-  #scroll .today .t-note{grid-column:2;}
-  #scroll .today .t-reset{grid-column:1 / -1;justify-self:center;max-width:280px !important;}
+  /* TODAY — one centred column.
+     A 2-col grid couples row heights and fights `order` (night mode),
+     which is what produced the gaps. A single column is deterministic. */
+  #scroll .today{max-width:600px;padding-left:0;padding-right:0;gap:14px !important;}
+  #scroll .today>*{max-width:none !important;width:100% !important;}
+  #scroll .today .t-ring{width:190px !important;height:190px !important;align-self:center;}
+  #scroll .today .t-streak{width:auto !important;align-self:center;}
+  #scroll .today .t-reset{max-width:280px !important;align-self:center;}
   #scroll .today .t-lvl,
   #scroll .today .t-note,
   #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:14px 16px;}
 }
 @media(min-width:1340px){
-  #scroll>.fade-up{max-width:1340px;}
-  #scroll .settings-body{columns:3;}
-  #scroll .today{grid-template-columns:300px minmax(320px,1fr) minmax(320px,1fr);}
-  #scroll .today .t-rout,#scroll .today .t-note{grid-column:2;}
-  #scroll .today .t-lvl{grid-column:3;}
+  #scroll>.fade-up{max-width:1240px;}
+  #scroll .today{max-width:660px;}
 }
+.st-div{height:1px;background:#16162a;margin:16px 0;}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
   font-size:10px;line-height:1;cursor:pointer;font-family:inherit;padding:0;
@@ -251,7 +239,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0035·268317";
+const BUILD="20260821-0044·c68f7c";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -697,27 +685,13 @@ function renderSettings(){
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeSettings()" style="background:none;border:1px solid #1e1e2e;color:#d0d0da;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2">SETTINGS</div>
-      <div style="margin-left:auto;font-size:15px;color:${tot===119?'#666':'#fbbf24'}">MAX ${tot}%</div>
+      <div style="margin-left:auto;display:flex;align-items:baseline;gap:11px"><span style="font-size:11px;color:#5a5a70;letter-spacing:.08em">${BUILD}</span><span style="font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</span></div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
-      ${stCard("tz","TIMEZONE","#9090aa",`<select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px">
-        ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${t.label}</option>`).join("")}
-      </select>
-      <div style="font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5">The day rolls over at midnight in this zone. Today is <b style="color:#d0d0da">${todayKey()}</b>.</div>`,"st-col-a")}
-      
-      ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
+            ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}`,"st-col-a")}
-      
-      ${stCard("ind","ACTIVE ROUTINE INDICATOR","#9090aa",`<div style="display:flex;gap:7px;margin-bottom:16px">
-        ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
-          <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
-            <div style="font-size:13px">${lbl}</div>
-            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
-          </button>`).join("")}
-      </div>`,"st-col-a")}
-      
-      ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
+            ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" style="margin-bottom:10px;padding:14px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span style="font-size:17px">${r.icon}</span>
@@ -734,15 +708,24 @@ function renderSettings(){
               <span style="font-size:14.5px;color:#a2a2b6">m</span>
             </div>`).join("")}
         </div>`}).join("")}`,"st-col-b")}
-      
-      ${stCard("data","DATA","#9090aa",`<button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
+            ${stCard("data","SETTINGS & DATA","#9090aa",`<select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px">
+        ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${t.label}</option>`).join("")}
+      </select>
+      <div style="font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5">The day rolls over at midnight in this zone. Today is <b style="color:#d0d0da">${todayKey()}</b>.</div>
+<div class="st-div"></div>
+<div style="display:flex;gap:7px;margin-bottom:16px">
+        ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
+          <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
+            <div style="font-size:13px">${lbl}</div>
+            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
+          </button>`).join("")}
+      </div>
+<div class="st-div"></div>
+<button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
       <button onclick="if(confirm('Restore all default settings?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTORE DEFAULTS</button>
       <button onclick="if(confirm('Sign out?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">SIGN OUT</button>
       <div style="text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em">SHAAH · ${USER?USER.email||'':''}</div>`,"st-full")}
-      
-    
-      <div class="st-foot">BUILD 20260821-0035·268317</div>
 </div>
   </div>`;
 }

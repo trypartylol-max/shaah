@@ -40,7 +40,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .today .t-lvl1{order:7;}
 .today .t-lvl2{order:8;}
 .today .t-lvl3{order:9;}
-.today .t-note{order:10;}
+.today .t-note{order:6;}
 .today .t-reset{order:11;}
 /* Night layout is mobile-only by design: on desktop the two-column
    flow always uses day order (CSS columns ignore `order` anyway). */
@@ -270,7 +270,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0129·88b451";
+const BUILD="20260821-0137·e6ebf6";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -1283,6 +1283,17 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
         </div>`;
       }).join("")}
     </div>`}
+
+    <div class="t-note" style="width:100%;max-width:390px">
+      <div class="sec">✎ DAY NOTE</div>
+      <div class="notecard${getNote(key)?" filled":""}">
+        <div class="notebar"></div>
+        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
+          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
+          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
+      </div>
+    </div>
     <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l1}/${LVL1_MAX}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
@@ -1347,17 +1358,6 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
         </div>
         <span style="font-size:15px;color:${ch[item.id]?"#fbbf2499":"#777"}">${item.pts}%</span>
       </div>`).join("")}
-      </div>
-    </div>
-
-    <div class="t-note" style="width:100%;max-width:390px">
-      <div class="sec">✎ DAY NOTE</div>
-      <div class="notecard${getNote(key)?" filled":""}">
-        <div class="notebar"></div>
-        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
-          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
-          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
-        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
       </div>
     </div>
 

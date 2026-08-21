@@ -109,14 +109,27 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* ══ Desktop: use the width that's actually available ═════════ */
 @media(min-width:880px){
   #scroll>.fade-up{max-width:none;padding-left:26px;padding-right:26px;}
-  #scroll .settings-body{columns:3;column-gap:20px;display:block !important;}
-  #scroll .settings-body .st-card{break-inside:avoid;-webkit-column-break-inside:avoid;
-    display:inline-block;width:100%;margin-bottom:16px;}
+
+  /* Settings — explicit 3-column grid.
+     CSS columns balanced by height and left the third column empty,
+     so each card gets its own column deliberately. */
+  #scroll .settings-body{
+    display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:18px;align-items:start;align-content:start;columns:auto;
+  }
+  #scroll .settings-body .st-card{margin:0;width:auto;display:block;}
+
+  /* TODAY — two balanced columns (CSS columns self-balance, no gaps) */
   #scroll .today{columns:2;column-gap:26px;display:block !important;}
   #scroll .today>*{break-inside:avoid;-webkit-column-break-inside:avoid;
     display:block;width:100% !important;max-width:none !important;margin:0 0 14px !important;}
   #scroll .today .t-head{column-span:all;margin-bottom:16px !important;}
-  #scroll .today .t-ring{width:190px !important;height:190px !important;margin:0 auto 14px !important;}
+  /* Ring scaled up so the visual columns end at a similar height */
+  #scroll .today .t-ring{
+    width:168px !important;height:168px !important;
+    transform:scale(1.75);transform-origin:top center;
+    margin:8px auto 148px !important;
+  }
   #scroll .today .t-streak{width:auto !important;margin:0 auto 14px !important;}
   #scroll .today .t-reset{column-span:all;max-width:280px !important;margin:6px auto 0 !important;}
   #scroll .today .t-lvl,
@@ -125,6 +138,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 }
 @media(min-width:1500px){
   #scroll .today{columns:3;}
+  #scroll .today .t-ring{transform:scale(1.55);margin:8px auto 112px !important;}
 }
 .st-div{height:1px;background:#16162a;margin:16px 0;}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
@@ -238,7 +252,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0113·0b75c8";
+const BUILD="20260821-0120·67d91e";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }

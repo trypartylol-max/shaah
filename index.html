@@ -106,19 +106,13 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .st-head:active{opacity:.65;}
 .st-title{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;}
 .st-body{padding:0 16px 16px;}
-/* ══ Desktop: one shared content width for every tab ══════════ */
+/* ══ Desktop: use the width that's actually available ═════════ */
 @media(min-width:880px){
-  #scroll>.fade-up{max-width:1120px;margin:0 auto;padding-left:28px;padding-right:28px;}
-
-  /* Settings — balanced card columns */
-  #scroll .settings-body{columns:2;column-gap:22px;display:block !important;}
+  #scroll>.fade-up{max-width:none;padding-left:26px;padding-right:26px;}
+  #scroll .settings-body{columns:3;column-gap:20px;display:block !important;}
   #scroll .settings-body .st-card{break-inside:avoid;-webkit-column-break-inside:avoid;
     display:inline-block;width:100%;margin-bottom:16px;}
-
-  /* TODAY — two balanced columns.
-     CSS multi-column balances heights on its own, so there is no row
-     coupling and therefore none of the gaps a 2-col grid produced. */
-  #scroll .today{columns:2;column-gap:24px;display:block !important;max-width:none;}
+  #scroll .today{columns:2;column-gap:26px;display:block !important;}
   #scroll .today>*{break-inside:avoid;-webkit-column-break-inside:avoid;
     display:block;width:100% !important;max-width:none !important;margin:0 0 14px !important;}
   #scroll .today .t-head{column-span:all;margin-bottom:16px !important;}
@@ -129,10 +123,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today .t-note,
   #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:14px 16px;}
 }
-@media(min-width:1340px){
-  #scroll>.fade-up{max-width:1280px;}
-  #scroll .settings-body{columns:3;}
-  #scroll .today{column-gap:28px;}
+@media(min-width:1500px){
+  #scroll .today{columns:3;}
 }
 .st-div{height:1px;background:#16162a;margin:16px 0;}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
@@ -246,7 +238,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0100·815ce0";
+const BUILD="20260821-0113·0b75c8";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -692,7 +684,7 @@ function renderSettings(){
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeSettings()" style="background:none;border:1px solid #1e1e2e;color:#d0d0da;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2">SETTINGS</div>
-      <div style="margin-left:auto;display:flex;align-items:baseline;gap:11px"><span style="font-size:11px;color:#5a5a70;letter-spacing:.08em">${BUILD}</span><span style="font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</span></div>
+      <div style="margin-left:auto;font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
@@ -731,8 +723,9 @@ function renderSettings(){
 <button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
       <button onclick="if(confirm('Restore all default settings?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTORE DEFAULTS</button>
-      <button onclick="if(confirm('Sign out?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">SIGN OUT</button>
-      <div style="text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em">SHAAH · ${USER?USER.email||'':''}</div>`,"st-full")}
+      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:14px 0 2px">${BUILD}</div>
+      <div style="text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em">SHAAH · ${USER?USER.email||'':''}</div>
+      <button onclick="if(confirm('Sign out?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">SIGN OUT</button>`,"st-full")}
 </div>
   </div>`;
 }

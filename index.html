@@ -107,25 +107,29 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 @media(min-width:880px){
   #scroll>.fade-up{max-width:1120px;margin:0 auto;padding-left:28px;padding-right:28px;}
 
-  /* Settings — two balanced columns, never three */
+  /* Settings — balanced card columns */
   #scroll .settings-body{columns:2;column-gap:22px;display:block !important;}
   #scroll .settings-body .st-card{break-inside:avoid;-webkit-column-break-inside:avoid;
     display:inline-block;width:100%;margin-bottom:16px;}
-  /* TODAY — one centred column.
-     A 2-col grid couples row heights and fights `order` (night mode),
-     which is what produced the gaps. A single column is deterministic. */
-  #scroll .today{max-width:600px;padding-left:0;padding-right:0;gap:14px !important;}
-  #scroll .today>*{max-width:none !important;width:100% !important;}
-  #scroll .today .t-ring{width:190px !important;height:190px !important;align-self:center;}
-  #scroll .today .t-streak{width:auto !important;align-self:center;}
-  #scroll .today .t-reset{max-width:280px !important;align-self:center;}
+
+  /* TODAY — two balanced columns.
+     CSS multi-column balances heights on its own, so there is no row
+     coupling and therefore none of the gaps a 2-col grid produced. */
+  #scroll .today{columns:2;column-gap:24px;display:block !important;max-width:none;}
+  #scroll .today>*{break-inside:avoid;-webkit-column-break-inside:avoid;
+    display:block;width:100% !important;max-width:none !important;margin:0 0 14px !important;}
+  #scroll .today .t-head{column-span:all;margin-bottom:16px !important;}
+  #scroll .today .t-ring{width:190px !important;height:190px !important;margin:0 auto 14px !important;}
+  #scroll .today .t-streak{width:auto !important;margin:0 auto 14px !important;}
+  #scroll .today .t-reset{column-span:all;max-width:280px !important;margin:6px auto 0 !important;}
   #scroll .today .t-lvl,
   #scroll .today .t-note,
   #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:14px 16px;}
 }
 @media(min-width:1340px){
-  #scroll>.fade-up{max-width:1240px;}
-  #scroll .today{max-width:660px;}
+  #scroll>.fade-up{max-width:1280px;}
+  #scroll .settings-body{columns:3;}
+  #scroll .today{column-gap:28px;}
 }
 .st-div{height:1px;background:#16162a;margin:16px 0;}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
@@ -239,7 +243,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0044·c68f7c";
+const BUILD="20260821-0052·1d50ff";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }

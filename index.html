@@ -124,21 +124,39 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today>*{break-inside:avoid;-webkit-column-break-inside:avoid;
     display:block;width:100% !important;max-width:none !important;margin:0 0 14px !important;}
   #scroll .today .t-head{column-span:all;margin-bottom:16px !important;}
-  /* Ring scaled up so the visual columns end at a similar height */
+  /* Ring scaled up. `zoom` scales the layout box too, so no margin hack
+     is needed and it behaves predictably inside a multi-column flow. */
   #scroll .today .t-ring{
     width:168px !important;height:168px !important;
-    transform:scale(1.75);transform-origin:top center;
-    margin:8px auto 148px !important;
+    zoom:1.75;margin:6px auto 18px !important;
   }
   #scroll .today .t-streak{width:auto !important;margin:0 auto 14px !important;}
   #scroll .today .t-reset{column-span:all;max-width:280px !important;margin:6px auto 0 !important;}
   #scroll .today .t-lvl,
   #scroll .today .t-note,
-  #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:14px 16px;}
+  #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:16px 18px;}
+
+  /* Desktop has room — nudge everything up a step */
+  #scroll .today{font-size:16px;}
+  #scroll .today .sec{font-size:13px;}
+  #scroll .today .row span{font-size:17.5px !important;}
+  #scroll .today .t-note textarea{font-size:14.5px;min-height:88px;}
+
+  /* Settings — larger text and symbols to use the width */
+  #scroll .settings-body{font-size:16px;}
+  #scroll .settings-body .st-title{font-size:14px;letter-spacing:.09em;}
+  #scroll .settings-body .st-head{padding:16px 18px;}
+  #scroll .settings-body .st-body{padding:0 18px 18px;}
+  #scroll .settings-body .sec{font-size:13.5px;}
+  #scroll .settings-body input,
+  #scroll .settings-body select,
+  #scroll .settings-body button{font-size:16px !important;}
+  #scroll .settings-body span[style*="width:22px"]{font-size:20px !important;width:26px !important;}
+  #scroll .settings-body .ord{width:30px;height:19px;font-size:11px;}
 }
 @media(min-width:1500px){
   #scroll .today{columns:3;}
-  #scroll .today .t-ring{transform:scale(1.55);margin:8px auto 112px !important;}
+  #scroll .today .t-ring{zoom:1.5;margin:6px auto 16px !important;}
 }
 .st-div{height:1px;background:#16162a;margin:16px 0;}
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
@@ -252,7 +270,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0120·67d91e";
+const BUILD="20260821-0129·88b451";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }

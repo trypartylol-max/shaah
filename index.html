@@ -47,27 +47,6 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .today.night .t-rout{order:10;}
 
 /* ── Desktop: two columns instead of one narrow strip ───────── */
-@media(min-width:860px){
-  #scroll .today{
-    display:grid !important;
-    grid-template-columns:minmax(320px,400px) minmax(340px,440px);
-    align-content:start;align-items:start;justify-content:center;
-    column-gap:28px;row-gap:16px;
-    max-width:900px;margin:0 auto;padding-left:24px;padding-right:24px;
-  }
-  #scroll .today>*{max-width:none !important;width:100% !important;}
-  #scroll .today .t-head{grid-column:1 / -1;}
-  #scroll .today .t-streak{grid-column:1;justify-self:start;width:auto !important;}
-  #scroll .today .t-ring{grid-column:1;justify-self:center;width:168px !important;}
-  #scroll .today .t-grade{grid-column:1;}
-  #scroll .today .t-rout{grid-column:1;}
-  #scroll .today .t-lvl{grid-column:2;}
-  #scroll .today .t-note{grid-column:2;}
-  #scroll .today .t-reset{grid-column:1 / -1;justify-self:center;max-width:320px !important;}
-}
-@media(min-width:1180px){
-  #scroll .today{grid-template-columns:minmax(340px,420px) minmax(380px,480px);max-width:980px;column-gap:32px;}
-}
 /* ── Active-routine indicator: chips | slim | circle ────────── */
 #resume{position:fixed;left:12px;right:12px;z-index:1500;display:none;
   bottom:calc(58px + max(calc(env(safe-area-inset-bottom) - 24px),4px));}
@@ -116,6 +95,50 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .lvl-ar.cl{transform:rotate(-90deg);}
 .lvl-b{overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .2s;max-height:1600px;opacity:1;}
 .lvl-b.cl{max-height:0;opacity:0;pointer-events:none;}
+/* ── TODAY on desktop — real dashboard, not a stretched column ── */
+@media(min-width:880px){
+  #scroll .today{
+    display:grid !important;
+    grid-template-columns:300px minmax(280px,1fr);
+    align-content:start;align-items:start;justify-content:center;
+    column-gap:26px;row-gap:14px;
+    max-width:860px;margin:0 auto;padding:8px 24px calc(58px + env(safe-area-inset-bottom));
+  }
+  #scroll .today>*{max-width:none !important;width:100% !important;margin:0 !important;}
+  #scroll .today .t-head{grid-column:1 / -1;}
+  #scroll .today .t-ring{grid-column:1;justify-self:center;width:190px !important;height:190px !important;}
+  #scroll .today .t-streak{grid-column:1;justify-self:center;width:auto !important;}
+  #scroll .today .t-grade{grid-column:1;}
+  #scroll .today .t-rout{grid-column:1;}
+  #scroll .today .t-lvl,
+  #scroll .today .t-note{grid-column:2;}
+  #scroll .today .t-reset{grid-column:1 / -1;justify-self:center;max-width:280px !important;}
+}
+  /* blocks become cards on desktop, matching Stats */
+  #scroll .today .t-lvl,
+  #scroll .today .t-note,
+  #scroll .today .t-rout{
+    background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:14px 16px;
+  }
+  #scroll .today .t-lvl .sec,
+  #scroll .today .t-note .sec,
+  #scroll .today .t-rout .sec{margin-bottom:11px;}
+  /* ring + streak grouped in their own card */
+  #scroll .today .t-ring{
+    background:#0b0b14;border:1px solid #16162a;border-radius:16px;
+    padding:18px !important;box-sizing:content-box;
+  }
+/* three columns once there is genuinely room for them */
+@media(min-width:1240px){
+  #scroll .today{
+    grid-template-columns:300px minmax(300px,1fr) minmax(300px,1fr);
+    max-width:1180px;column-gap:28px;
+  }
+  #scroll .today .t-rout{grid-column:2;}
+  #scroll .today .t-note{grid-column:2;}
+  #scroll .today .t-lvl{grid-column:3;}
+}
+
 /* ── Settings: card sections, same language as Stats ────────── */
 .settings-body{display:flex;flex-direction:column;gap:14px;}
 .st-card{background:#0b0b14;border:1px solid #16162a;border-radius:16px;overflow:hidden;}
@@ -123,18 +146,24 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .st-head:active{opacity:.65;}
 .st-title{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;}
 .st-body{padding:0 16px 16px;}
-@media(min-width:860px){
+@media(min-width:880px){
   #scroll .settings-body{
-    display:grid;grid-template-columns:minmax(300px,1fr) minmax(330px,1.1fr);
+    display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.15fr);
     column-gap:22px;row-gap:14px;align-content:start;align-items:start;
-    max-width:940px;margin:0 auto;padding-left:24px;padding-right:24px;
+    max-width:860px;margin:0 auto;padding-left:24px;padding-right:24px;
   }
   #scroll .settings-body .st-col-a{grid-column:1;}
   #scroll .settings-body .st-col-b{grid-column:2;}
   #scroll .settings-body .st-full{grid-column:1 / -1;}
 }
-@media(min-width:1180px){
-  #scroll .settings-body{max-width:1040px;grid-template-columns:minmax(340px,1fr) minmax(370px,1.1fr);column-gap:26px;}
+@media(min-width:1240px){
+  #scroll .settings-body{
+    grid-template-columns:repeat(3,minmax(280px,1fr));
+    max-width:1180px;column-gap:24px;
+  }
+  #scroll .settings-body .st-col-a{grid-column:1;}
+  #scroll .settings-body .st-col-b{grid-column:2 / -1;}
+  #scroll .settings-body .st-full{grid-column:1 / -1;}
 }
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
@@ -247,7 +276,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0012·58fded";
+const BUILD="20260821-0022·427477";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -262,7 +291,8 @@ const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 const DEFAULT_CFG={
   tz:'device',
   pill:'chips',   // 'chips' | 'slim' | 'circle'
-  nightFrom:20.5, // hour (decimal) after which TODAY leads with note + checklist — 20.5 = 8:30pm
+  nightFrom:20.5,
+  nightUntil:7,   // night layout runs 20:30 → 07:00 // hour (decimal) after which TODAY leads with note + checklist — 20.5 = 8:30pm
   h:{
     wod:        {l:"Exercise",    p:20, i:"⚡", lv:1, on:true, routine:true},
     work:       {l:"Deep Work",   p:20, i:"💼", lv:1, on:true},
@@ -474,6 +504,7 @@ function migrateCfg(){
     CFG.v=2;
   }
   if(Number(CFG.nightFrom)===18)CFG.nightFrom=20.5;   // 6pm → 8:30pm
+  if(CFG.nightUntil==null)CFG.nightUntil=7;           // extend night through the small hours
   CFG.v=3; applyCfg();
 }
 function loadCfgLocal(){
@@ -729,7 +760,7 @@ function renderSettings(){
             </div>`).join("")}
         </div>`}).join("")}
 
-      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260821-0012·58fded</div>`,"st-col-b")}
+      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260821-0022·427477</div>`,"st-col-b")}
       
       ${stCard("data","DATA","#9090aa",`<button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
@@ -1206,7 +1237,12 @@ function renderHome(){
 }
 
 // Option D (partial): after this hour, reflection comes before action
-function isNight(){const d=new Date();return (d.getHours()+d.getMinutes()/60)>=Number(CFG.nightFrom||20.5);}
+function isNight(){
+  const d=new Date(), hr=d.getHours()+d.getMinutes()/60;
+  const from=Number(CFG.nightFrom??20.5), till=Number(CFG.nightUntil??7);
+  // window wraps past midnight when `from` is later in the day than `till`
+  return from>till ? (hr>=from||hr<till) : (hr>=from&&hr<till);
+}
 function renderToday(key,nested=false){
   const _hr=new Date().getHours();
   const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";

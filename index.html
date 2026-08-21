@@ -50,25 +50,23 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 @media(min-width:860px){
   #scroll .today{
     display:grid !important;
-    grid-template-columns:minmax(340px,420px) minmax(340px,460px);
-    grid-auto-flow:row dense;
-    align-content:start;justify-content:center;
-    column-gap:34px;row-gap:20px;
-    max-width:940px;margin:0 auto;padding-left:24px;padding-right:24px;
+    grid-template-columns:minmax(320px,400px) minmax(340px,440px);
+    align-content:start;align-items:start;justify-content:center;
+    column-gap:28px;row-gap:16px;
+    max-width:900px;margin:0 auto;padding-left:24px;padding-right:24px;
   }
   #scroll .today>*{max-width:none !important;width:100% !important;}
-  #scroll .today .t-ring{grid-column:1;justify-self:center;}
-  #scroll .today .t-grade,
-  #scroll .today .t-rout{grid-column:1;}
-  #scroll .today .t-lvl,
-  #scroll .today .t-note{grid-column:2;}
   #scroll .today .t-head{grid-column:1 / -1;}
-  #scroll .today .t-streak{grid-column:1;justify-self:start;}
-  #scroll .today .t-reset{grid-column:1 / -1;}
-  #scroll .today button{justify-self:center;}
+  #scroll .today .t-streak{grid-column:1;justify-self:start;width:auto !important;}
+  #scroll .today .t-ring{grid-column:1;justify-self:center;width:168px !important;}
+  #scroll .today .t-grade{grid-column:1;}
+  #scroll .today .t-rout{grid-column:1;}
+  #scroll .today .t-lvl{grid-column:2;}
+  #scroll .today .t-note{grid-column:2;}
+  #scroll .today .t-reset{grid-column:1 / -1;justify-self:center;max-width:320px !important;}
 }
 @media(min-width:1180px){
-  #scroll .today{grid-template-columns:minmax(360px,440px) minmax(380px,500px);max-width:1020px;}
+  #scroll .today{grid-template-columns:minmax(340px,420px) minmax(380px,480px);max-width:980px;column-gap:32px;}
 }
 /* ── Active-routine indicator: chips | slim | circle ────────── */
 #resume{position:fixed;left:12px;right:12px;z-index:1500;display:none;
@@ -118,20 +116,25 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .lvl-ar.cl{transform:rotate(-90deg);}
 .lvl-b{overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .2s;max-height:1600px;opacity:1;}
 .lvl-b.cl{max-height:0;opacity:0;pointer-events:none;}
-/* ── Settings on desktop: columns instead of one long strip ── */
+/* ── Settings: card sections, same language as Stats ────────── */
+.settings-body{display:flex;flex-direction:column;gap:14px;}
+.st-card{background:#0b0b14;border:1px solid #16162a;border-radius:16px;overflow:hidden;}
+.st-head{display:flex;align-items:center;gap:9px;padding:14px 16px;cursor:pointer;user-select:none;}
+.st-head:active{opacity:.65;}
+.st-title{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;}
+.st-body{padding:0 16px 16px;}
 @media(min-width:860px){
   #scroll .settings-body{
+    display:grid;grid-template-columns:minmax(300px,1fr) minmax(330px,1.1fr);
+    column-gap:22px;row-gap:14px;align-content:start;align-items:start;
     max-width:940px;margin:0 auto;padding-left:24px;padding-right:24px;
-    display:grid;grid-template-columns:minmax(300px,1fr) minmax(320px,1.15fr);
-    column-gap:34px;align-content:start;
   }
-  #scroll .settings-body>.sec:first-of-type{grid-column:1;}
   #scroll .settings-body .st-col-a{grid-column:1;}
   #scroll .settings-body .st-col-b{grid-column:2;}
   #scroll .settings-body .st-full{grid-column:1 / -1;}
 }
 @media(min-width:1180px){
-  #scroll .settings-body{max-width:1020px;grid-template-columns:minmax(340px,1fr) minmax(360px,1.15fr);}
+  #scroll .settings-body{max-width:1040px;grid-template-columns:minmax(340px,1fr) minmax(370px,1.1fr);column-gap:26px;}
 }
 .ord{width:26px;height:17px;display:flex;align-items:center;justify-content:center;
   background:#151524;border:1px solid #23233a;color:#9a9ab4;border-radius:6px;
@@ -244,7 +247,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260820-2332·863248";
+const BUILD="20260821-0012·58fded";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -655,6 +658,16 @@ function renderReview(){
   </div>`;
 }
 
+function stCard(key,title,col,body,extra){
+  const open=secOpen[key]!==false;
+  return`<section class="st-card${extra?" "+extra:""}">
+    <div class="st-head" onclick="toggleSec('${key}')">
+      <span class="lvl-ar${open?"":" cl"}">▾</span>
+      <span class="st-title" style="color:${col||"#9090aa"}">${title}</span>
+    </div>
+    <div class="lvl-b${open?"":" cl"}"><div class="st-body">${body}</div></div>
+  </section>`;
+}
 function renderSettings(){
   const tot=MAX;
   const lvlBlock=(n,title,col)=>`
@@ -681,28 +694,24 @@ function renderSettings(){
       <div style="margin-left:auto;font-size:15px;color:${tot===119?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
-
-      <div class="sec st-col-a">TIMEZONE</div>
-      <select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px">
+      ${stCard("tz","TIMEZONE","#9090aa",`<select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px">
         ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${t.label}</option>`).join("")}
       </select>
-      <div style="font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5">The day rolls over at midnight in this zone. Today is <b style="color:#d0d0da">${todayKey()}</b>.</div>
-
-      ${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
+      <div style="font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5">The day rolls over at midnight in this zone. Today is <b style="color:#d0d0da">${todayKey()}</b>.</div>`,"st-col-a")}
+      
+      ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
-      ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
-
-      <div class="sec st-col-a" style="margin-top:22px">ACTIVE ROUTINE INDICATOR</div>
-      <div style="display:flex;gap:7px;margin-bottom:16px">
+      ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}`,"st-col-a")}
+      
+      ${stCard("ind","ACTIVE ROUTINE INDICATOR","#9090aa",`<div style="display:flex;gap:7px;margin-bottom:16px">
         ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
           <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
             <div style="font-size:13px">${lbl}</div>
             <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
           </button>`).join("")}
-      </div>
+      </div>`,"st-col-a")}
       
-      <div class="sec st-col-b">ROUTINES</div>
-      ${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
+      ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" style="margin-bottom:10px;padding:14px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span style="font-size:17px">${r.icon}</span>
@@ -720,13 +729,14 @@ function renderSettings(){
             </div>`).join("")}
         </div>`}).join("")}
 
-      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260820-2332·863248</div>
-      <div class="sec st-full" style="margin-top:22px">DATA</div>
-      <button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
+      <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:6px 0 14px">BUILD 20260821-0012·58fded</div>`,"st-col-b")}
+      
+      ${stCard("data","DATA","#9090aa",`<button onclick="startTour()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">▶  VIEW TUTORIAL</button>
       <button onclick="exportData()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">⬇  EXPORT JSON</button>
       <button onclick="if(confirm('Restore all default settings?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTORE DEFAULTS</button>
       <button onclick="if(confirm('Sign out?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">SIGN OUT</button>
-      <div style="text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em">SHAAH · ${USER?USER.email||'':''}</div>
+      <div style="text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em">SHAAH · ${USER?USER.email||'':''}</div>`,"st-full")}
+      
     </div>
   </div>`;
 }
@@ -836,6 +846,7 @@ async function boot(){
     loadCfgLocal();
     loadCache();
     loadLvl();
+    loadSec();
     restoreRoutine();
     if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
     render();
@@ -905,6 +916,10 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
+let secOpen={tz:true,ind:true,hab:true,rout:false,data:true};
+function secKey(){return `shaah_sec_${USER?USER.id:'anon'}`;}
+function loadSec(){const v=get(secKey());if(v&&typeof v==='object')secOpen={...secOpen,...v};}
+function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);set(secKey(),secOpen);render();}
 function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
 function loadLvl(){const v=get(lvlKey());if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};}
 function toggleLvl(n){lvlOpen[n]=!lvlOpen[n];haptic(9);set(lvlKey(),lvlOpen);render();}

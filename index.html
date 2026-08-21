@@ -42,9 +42,12 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .today .t-lvl3{order:9;}
 .today .t-note{order:10;}
 .today .t-reset{order:11;}
-/* At night: the note comes first, routines sink to the bottom */
-.today.night .t-note{order:5;}
-.today.night .t-rout{order:10;}
+/* Night layout is mobile-only by design: on desktop the two-column
+   flow always uses day order (CSS columns ignore `order` anyway). */
+@media(max-width:879px){
+  .today.night .t-note{order:5;}
+  .today.night .t-rout{order:10;}
+}
 
 /* ── Desktop: two columns instead of one narrow strip ───────── */
 /* ── Active-routine indicator: chips | slim | circle ────────── */
@@ -243,7 +246,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0052·1d50ff";
+const BUILD="20260821-0100·815ce0";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }

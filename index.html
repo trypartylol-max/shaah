@@ -289,7 +289,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1522·35a167";
+const BUILD="20260913-1531·fd2ade";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -756,9 +756,12 @@ function setNote(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),no
 function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:''};_state[k].social=v;}
 
 // ── Server load + realtime ─────────────────────────────────
+var _cfgReady=false;   // ¿ya leímos la config del servidor en esta sesión?
 function saveCfg(){
   set(cfgKey(),CFG); applyCfg();
-  if(USER){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
+  // Guardar antes de haber leído del servidor sobreescribe la config buena con la
+  // que haya en memoria (posiblemente la genérica). Pasó el 13/09 y borró personas.
+  if(USER&&_cfgReady){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){
@@ -781,7 +784,19 @@ function loadCfgLocal(){
 }
 function rowToState(row){
   if(row.date==='settings'){
-    if(row.data&&row.data._cfg){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);applyCfg();migrateCfg();set(cfgKey(),CFG);}
+    if(row.data&&row.data._cfg){
+      const local=get(cfgKey());
+      CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);
+      // Rescate: personas que este dispositivo tiene guardadas y el servidor ya no.
+      // Cubre el borrado del 13/09 sin pedirle nada al usuario.
+      if(local&&Array.isArray(local.people)&&local.people.length){
+        if(!Array.isArray(CFG.people))CFG.people=[];
+        let back=0;
+        for(const q of local.people) if(q&&q.id&&!CFG.people.some(x=>x.id===q.id)){CFG.people.push(q);back++;}
+        if(back&&USER&&_cfgReady){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
+      }
+      applyCfg();migrateCfg();set(cfgKey(),CFG);
+    }
     return;
   }
   const d=row.data||{};
@@ -808,6 +823,7 @@ async function loadAll(){
     _state={};
     rows.forEach(rowToState);
     adoptLegacyIfVeteran(hadSettings,dayRows);
+    _cfgReady=true;                       // a partir de aquí ya es seguro escribir
     ensureBaseline();
     widenBaseline();
     addFamilyOnce();addJunkFoodOnce();
@@ -1227,8 +1243,6 @@ async function boot(){
   if(USER){
     loadCfgLocal();
     loadCache();
-    ensureBaseline();
-    addFamilyOnce();addJunkFoodOnce();
     loadLvl();
     loadSec();
     restoreRoutine();
@@ -1247,7 +1261,7 @@ sb.auth.onAuthStateChange((event,session)=>{
   if(USER&&USER.id!==wasUser){
     // loadCfgLocal() PRIMERO: sin esto se pintaba un frame con la config genérica
     // (p.ej. "No Junk Food") antes de que llegara la del usuario ("No Smoking").
-    loadCfgLocal();loadCache();ensureBaseline();addFamilyOnce();addJunkFoodOnce();render();
+    loadCfgLocal();loadCache();render();
     loadAll().then(subscribeRealtime);
   }else if(!USER){
     _state={};render();

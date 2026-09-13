@@ -289,7 +289,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1604·7998a7";
+const BUILD="20260913-1620·e0e8f6";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -297,7 +297,15 @@ let _live = false;    // realtime channel connected
 
 // ── localStorage helpers (cache only; Supabase is source of truth) ──
 const get=k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}};
-const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+var DIAG={localOk:null,localErr:"",localBytes:0,srvOk:null,srvErr:"",srvAt:"",peopleSaved:null,peopleServer:null};
+const set=(k,v)=>{
+  try{ const str=JSON.stringify(v); localStorage.setItem(k,str);
+       if(k===cfgKey()){DIAG.localOk=true;DIAG.localErr="";DIAG.localBytes=str.length;}
+       return true;
+  }catch(e){
+    if(k===cfgKey()){DIAG.localOk=false;DIAG.localErr=String(e&&e.name||e).slice(0,60);}
+    return false;
+  }};
 const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 
 // ═══ CONFIG (editable in Settings, synced via Supabase) ═══
@@ -784,7 +792,7 @@ var _cfgReady=false;   // ¿ya leímos la config del servidor en esta sesión?
 // servidor a la vez y no queda nada. Esto guarda las últimas versiones buenas en
 // una fila aparte, para poder volver atrás. (Pasó el 13/09 y costó una lista de
 // personas.)
-const BAK_KEEP=12;
+const BAK_KEEP=5;
 var _bak=[], _bakT=null;
 const bakKey=()=>`shaah_bak_${USER?USER.id:'anon'}`;
 function bakLoad(rows){
@@ -842,8 +850,30 @@ function saveCfg(){
   set(cfgKey(),CFG); applyCfg();
   // Guardar antes de haber leído del servidor sobreescribe la config buena con la
   // que haya en memoria (posiblemente la genérica). Pasó el 13/09 y borró personas.
-  if(USER&&_cfgReady){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
+  DIAG.peopleSaved=(CFG.people||[]).length;
+  if(USER&&_cfgReady){
+    Promise.resolve()
+      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
+      .then(r=>{ const e=r&&r.error;
+        DIAG.srvOk=!e; DIAG.srvErr=e?String(e.message||e.code||e).slice(0,90):"";
+        DIAG.srvAt=new Date().toLocaleTimeString();
+        if(e)setStatus('SAVE FAILED','#ef4444');
+      })
+      .catch(e=>{ DIAG.srvOk=false; DIAG.srvErr=String(e&&e.message||e).slice(0,90);
+        DIAG.srvAt=new Date().toLocaleTimeString(); setStatus('SAVE FAILED','#ef4444'); });
+  }
   bakPush(CFG);                       // y también el estado nuevo
+}
+// Lee la fila real del servidor para comparar con lo que la app cree tener.
+async function diagRefresh(){
+  if(!USER)return;
+  try{
+    const{data,error}=await sb.from('day_logs').select('data').eq('user_id',USER.id).eq('date','settings');
+    if(error)throw error;
+    const c=(data&&data[0]&&data[0].data&&data[0].data._cfg)||null;
+    DIAG.peopleServer=c?((c.people||[]).length):-1;
+  }catch(e){ DIAG.peopleServer=-2; DIAG.srvErr=String(e&&e.message||e).slice(0,90); }
+  render();
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){
@@ -1155,6 +1185,19 @@ function renderSettings(){
           <button onclick="personDel('${x.id}')" style="background:none;border:1px solid #222;color:#6a6a80;border-radius:6px;font-size:13px;width:26px;height:28px;cursor:pointer;flex-shrink:0">✕</button>
         </div>`).join("")}
       </div>`:""}`,"st-col-b")}
+            ${stCard("diag","DIAGNOSTICS","#9090aa",`
+      <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">What actually reached storage, last time settings were saved.</div>
+      ${[["Phone storage",DIAG.localOk===null?"— not written yet":(DIAG.localOk?`OK · ${(DIAG.localBytes/1024).toFixed(1)} KB`:`FAILED · ${esc(DIAG.localErr)}`),DIAG.localOk===null?"#7e7e97":(DIAG.localOk?"#4ade80":"#ef4444")],
+        ["Server save",DIAG.srvOk===null?"— not written yet":(DIAG.srvOk?`OK · ${esc(DIAG.srvAt)}`:`FAILED · ${esc(DIAG.srvErr)}`),DIAG.srvOk===null?"#7e7e97":(DIAG.srvOk?"#4ade80":"#ef4444")],
+        ["People in app",String((CFG.people||[]).length),"#c0c0cd"],
+        ["People last saved",DIAG.peopleSaved===null?"—":String(DIAG.peopleSaved),"#c0c0cd"],
+        ["People on server",DIAG.peopleServer===null?"— tap CHECK":(DIAG.peopleServer===-1?"no settings row":(DIAG.peopleServer===-2?"read failed":String(DIAG.peopleServer))),DIAG.peopleServer>0?"#4ade80":(DIAG.peopleServer===null?"#7e7e97":"#ef4444")],
+        ["Sync mode",_cfgReady?"ready":"NOT READY (server not read yet)",_cfgReady?"#4ade80":"#f59e0b"],
+        ["Backups stored",String(bakList().length),"#c0c0cd"]
+       ].map(([k,v,c])=>`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #141424">
+         <div style="flex:1;font-size:14px;color:#9a9ab2">${k}</div>
+         <div style="font-size:14px;color:${c};text-align:right;word-break:break-word;max-width:58%">${v}</div></div>`).join("")}
+      <button onclick="diagRefresh()" style="width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:11px;border-radius:10px;cursor:pointer;margin-top:12px">CHECK SERVER NOW</button>`,"st-col-b")}
             ${stCard("bak","BACKUPS","#9090aa",`
       <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Your settings are saved automatically on every change. Restore any version here — your daily logs are never touched.</div>
       ${bakList().length?bakList().map(b=>`
@@ -1481,7 +1524,7 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
-let secOpen={tz:true,ind:true,hab:true,ppl:true,bak:false,rout:false,data:true};
+let secOpen={tz:true,ind:true,hab:true,ppl:true,diag:true,bak:false,rout:false,data:true};
 function secKey(){return `shaah_sec_${USER?USER.id:'anon'}`;}
 function loadSec(){const v=get(secKey());if(v&&typeof v==='object')secOpen={...secOpen,...v};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);set(secKey(),secOpen);render();}

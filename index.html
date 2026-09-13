@@ -32,22 +32,25 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .nav-btn[hidden]{display:none!important;}   /* display:flex de arriba gana al hidden por defecto */
 #nav.tucked{transform:translateY(115%);opacity:0;pointer-events:none;}
 /* ── TODAY section order — day vs night ────────────────────── */
-.today>*{order:6;}
+.today>*{order:9;}
 .today .t-head{order:1;}
-.today .t-streak{order:2;}
-.today .t-ring{order:3;}
-.today .t-grade{order:4;}
+/* Los habitos van primero: el marcador vive en la tira de 44 px del topbar.
+   Antes habia ~800 px (anillo + nota + rutinas) antes del primer habito y en
+   movil la lista arrancaba fuera de pantalla. */
+.today .t-lvl1{order:2;}
+.today .t-lvl2{order:3;}
+.today .t-lvl3{order:4;}
 .today .t-rout{order:5;}
-.today .t-lvl1{order:7;}
-.today .t-lvl2{order:8;}
-.today .t-lvl3{order:9;}
-.today .t-note{order:6;}
-.today .t-reset{order:11;}
+.today .t-streak{order:6;}
+.today .t-ring{order:7;}
+.today .t-grade{order:8;}
+.today .t-note{order:10;}
+.today .t-reset{order:12;}
 /* Night layout is mobile-only by design: on desktop the two-column
    flow always uses day order (CSS columns ignore `order` anyway). */
 @media(max-width:879px){
-  .today.night .t-note{order:5;}
-  .today.night .t-rout{order:10;}
+  .today.night .t-note{order:5;}    /* de noche la nota sube justo tras los habitos */
+  .today.night .t-rout{order:11;}
 }
 
 /* ── Desktop: two columns instead of one narrow strip ───────── */
@@ -209,6 +212,17 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* ── Top bar: sits in the scroll flow, scrolls away with content ── */
 #topbar{display:flex;align-items:center;justify-content:space-between;
   padding:calc(env(safe-area-inset-top) + 8px) 14px 6px;}
+/* ── Tira de marcador, 44 px, pegada arriba mientras marcas ── */
+#tb-score{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:11px;
+  height:44px;padding:0 15px;background:rgba(7,7,15,.94);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid #14142a;}
+.ts-l{font-family:'Bebas Neue';font-size:26px;line-height:1;flex-shrink:0;}
+.ts-p{font-size:14.5px;color:#d0d0da;flex-shrink:0;min-width:36px;}
+.ts-bar{flex:1;min-width:24px;height:5px;border-radius:99px;background:#14142a;overflow:hidden;}
+.ts-bar>i{display:block;height:100%;border-radius:99px;transition:width .3s cubic-bezier(.4,0,.2,1);}
+.ts-nx{font-size:13.5px;letter-spacing:.04em;white-space:nowrap;flex-shrink:0;}
+@media(min-width:880px){#tb-score{display:none;}}
 #gear{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
   font-size:16px;line-height:1;cursor:pointer;border-radius:50%;
   background:#0f0f1c;border:1px solid #1e1e2e;color:#8a8a9a;
@@ -289,7 +303,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1743·730e7e";
+const BUILD="20260913-2228·2233ff";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -665,6 +679,43 @@ const GRADE=(s,mx)=>{
   return{l:"F",c:"#ef4444",g:"#ef444455",n:"LOST",bg:"rgba(239,68,68,0.05)"};
 };
 
+// ── El siguiente movimiento ───────────────────────────────────
+// La app siempre supo cuanto faltaba para la nota siguiente y nunca lo decia.
+// Devuelve {need, target, next, item, reaches} o null si ya no hay nota por encima.
+// `item` es el hábito sin marcar mas barato que llega solo; si ninguno llega,
+// el mas grande, y `reaches` queda en false.
+function nextMove(key){
+  const C=cfgForDate(key),ch=getChecked(key),soc=getSocial(key);
+  const sc=calcScore(key),score=sc.score,dMax=sc.max;
+  if(!(dMax>0))return null;
+  const cur=GRADE(score,dMax).l;
+  let target=null;
+  for(let s=score+1;s<=dMax;s++){ if(GRADE(s,dMax).l!==cur){target=s;break;} }
+  if(target===null)return null;                      // ya esta en la nota mas alta posible hoy
+  const need=target-score;
+  const items=[];
+  for(const i of [...C.L1,...C.L2,...C.L3])
+    if(!i.combo&&!ch[i.id]&&i.pts>0)items.push({id:i.id,label:i.label,icon:i.icon,pts:i.pts});
+  // Una parte del combo suelta vale su propio `p` (marcarla enciende el combo).
+  for(const x of C.subs)
+    if(!soc[x.id]&&x.p>0)items.push({id:x.id,label:x.label,icon:x.icon,pts:x.p});
+  const llegan=items.filter(i=>i.pts>=need).sort((a,b)=>a.pts-b.pts);
+  const mayor=[...items].sort((a,b)=>b.pts-a.pts);
+  return {need,target,next:GRADE(target,dMax),item:llegan[0]||mayor[0]||null,reaches:!!llegan[0]};
+}
+// La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
+function scoreStripHTML(key){
+  const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
+  const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
+  return`<div id="tb-score">
+    <span class="ts-l" style="color:${gr.c};text-shadow:0 0 18px ${gr.g}">${esc(gr.l)}</span>
+    <span class="ts-p">${score}%</span>
+    <span class="ts-bar"><i style="width:${pct}%;background:${gr.c};box-shadow:0 0 10px ${gr.g}"></i></span>
+    ${nm?`<span class="ts-nx" style="color:${nm.next.c}">+${nm.need}% → ${esc(nm.next.l)}</span>`
+        :`<span class="ts-nx" style="color:${gr.c}">TOPE</span>`}
+  </div>`;
+}
+
 
 function dateKey(d){
   const tz=CFG.tz&&CFG.tz!=='device'?CFG.tz:undefined;
@@ -955,7 +1006,22 @@ function rowToState(row){
     return;
   }
   const d=row.data||{};
-  _state[row.date]={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',people:Array.isArray(d._people)?d._people:[]};
+  const inc={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',
+             people:Array.isArray(d._people)?d._people:[]};
+  // Si esta pestaña tiene un guardado pendiente para ese día, la fila entrante viene
+  // de OTRA pestaña y sustituirla borraría lo que el usuario acaba de marcar aquí.
+  // Se fusiona (unión de lo marcado) y el guardado pendiente sube el resultado.
+  const mine=_state[row.date];
+  if(mine&&_pending[row.date]){
+    const u=(a,b)=>{const o={...(b||{})};for(const k of Object.keys(a||{}))if(a[k])o[k]=true;return o;};
+    _state[row.date]={checks:u(mine.checks,inc.checks),
+                      social:u(mine.social,inc.social),
+                      note:mine.note||inc.note,
+                      people:[...new Set([...(mine.people||[]),...inc.people])]};
+    persistDay(row.date);          // reprograma la subida con lo fusionado
+  }else{
+    _state[row.date]=inc;
+  }
 }
 
 // A user with history but no saved config predates the generic defaults —
@@ -1777,7 +1843,8 @@ function topbarHTML(){
       <span class="tb-gr">${greet}</span>
     </div>
     <div id="sync-status" title="${_live?"Live — synced":"Connecting…"}"><span style="background:${dot}"></span></div>
-  </div>`;
+  </div>
+  ${currentTab==="today"?scoreStripHTML(todayKey()):""}`;
 }
 function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
@@ -1819,7 +1886,7 @@ function comboBlock(key,alwaysOpen){
   return`      <div style="border-radius:13px;border:1px solid ${ch.social||expanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||expanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
           <div style="display:flex;align-items:center;gap:13px">
-            ${chk(!!ch.social,"#fbbf24")}
+            <div style="width:22px;height:22px;flex-shrink:0" aria-hidden="true"></div>
             <div>
               <div style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
               ${expanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
@@ -1878,15 +1945,20 @@ function renderToday(key,nested=false){
       <div style="flex:1;min-width:0">
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${dMax}%</span></div>
         ${bar((Math.min(score,dMax)/dMax)*100,gr.c,gr.g,5)}
-        <div style="display:flex;justify-content:space-between;font-size:14px;color:#8888a4;margin-top:8px">
-          <span style="color:#c0c0cd">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${LVL1_MAX}</span></span>
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:#8888a4;margin-top:8px">
+          <span style="color:#c0c0cd;white-space:nowrap">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${LVL1_MAX}</span></span>
           <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#8a8aa0"}">${l2}/${LVL2_MAX}</span></span>
           <span style="color:#c0c0cd">BONUS <span style="color:${l3>0?"#fbbf24":"#8a8aa0"}">${l3}/${LVL3_MAX}</span></span>
         </div>
+        ${(()=>{const nm=nextMove(key);if(!nm)return"";
+          return`<div style="display:flex;align-items:center;gap:7px;font-size:14px;margin-top:9px;padding-top:9px;border-top:1px solid ${gr.c}1a;min-width:0">
+            <span style="color:${nm.next.c};font-weight:500;flex-shrink:0">+${nm.need}% → ${esc(nm.next.l)}</span>
+            ${nm.item?`<span style="color:#8888a4;flex-shrink:0">·</span><span style="color:#c0c0cd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nm.reaches?"":"empieza por "}${esc(nm.item.icon)} ${esc(nm.item.label)} (${nm.item.pts}%)</span>`:""}
+          </div>`;})()}
       </div>
     </div>
     
-${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
+${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec">TODAY'S ROUTINES</div>
       ${LVL1.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],done=!!ch[item.id],totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
@@ -2079,7 +2151,7 @@ function renderStats(){
   return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:bestStreak>0?`record ${bestStreak}d`:`days ≥ ${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
+      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
     <div>
       <div class="sec">TODAY — BREAKDOWN</div>
@@ -2325,7 +2397,19 @@ function quickComplete(id){haptic(18);const k=todayKey(),ch={...getChecked(k)};c
 // hiciste todo lo social. Ahora el toque abre la lista y cada parte se marca aparte.
 function handleSocial(key){ haptic(10); socialExpanded=!socialExpanded; render(); }
 function toggleSocialExpand(key){socialExpanded=!socialExpanded;render();}
-function toggleSub(id,key){haptic(8);const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);persistDay(key);render();}
+function toggleSub(id,key){
+  haptic(8);
+  const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);
+  // Una sola persona en esta parte = no hay a quien elegir: se marca sola.
+  // Con dos o mas, decide el usuario. Al apagar la parte se sueltan sus personas.
+  const mine=peopleList().filter(x=>x.sub===id);
+  let ppl=getPeople(key);
+  if(soc[id]){ if(mine.length===1&&!ppl.includes(mine[0].id))ppl=ppl.concat([mine[0].id]); }
+  else ppl=ppl.filter(pid=>!mine.some(x=>x.id===pid));
+  setPeople(key,ppl);
+  const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
+  persistDay(key);render();
+}
 function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,blankSocial());persistDay(key);render();}
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}

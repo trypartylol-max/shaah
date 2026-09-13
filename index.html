@@ -287,7 +287,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260912-2234·f2aa35";
+const BUILD="20260913-0514·6c72b7";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -409,28 +409,98 @@ function buildLevel(n){ return levelsFor(CFG.h,CFG.order,n); }
 // habit off (or adding one) changes today forward and can never rewrite the past.
 var CFG_EPOCH="0001-01-01";
 var _dayCfgCache={};
-function cfgSnap(){return{h:JSON.parse(JSON.stringify(CFG.h)),order:CFG.order.slice()};}
+function cfgSnap(){return{h:JSON.parse(JSON.stringify(CFG.h)),order:CFG.order.slice(),subs:JSON.parse(JSON.stringify(subsList()))};}
+// The baseline that covers all history predating the timeline. A habit that was
+// ticked on some past day was plainly active back then, so force it ON here —
+// otherwise a habit switched off BEFORE this build existed (there was no timeline
+// to record it) would silently erase its own history.
+function cfgBaseline(){
+  const b=cfgSnap();
+  for(const k of Object.keys(_state)){
+    if(!DATE_RE.test(k))continue;
+    const ch=(_state[k]&&_state[k].checks)||{};
+    for(const id of Object.keys(ch)){ if(ch[id]&&b.h[id])b.h[id].on=true; }
+  }
+  return b;
+}
+// Seal the baseline as soon as history is in memory — not lazily on the first
+// edit, or the first edit would seal whatever (possibly already-wrong) state it finds.
+// Adds "Family" to the Social Combo once, as its own era from today, so every
+// earlier day keeps the 3-way split it was actually scored with.
+function addFamilyOnce(){
+  if(CFG.subsV>=1)return false;
+  subsEnsure();
+  if(subsList().some(x=>x.id==='family')){CFG.subsV=1;saveCfg();return false;}
+  cfgEdit(()=>{ CFG.subs.push({id:"family",label:"Family",icon:"\u{1F46A}"}); CFG.subsV=1; });
+  return true;
+}
+function widenBaseline(){
+  const lg=cfgLog(); if(!lg.length)return false;
+  const e=lg[0]; if(!e.auto||e.from!==CFG_EPOCH)return false;
+  let changed=false;
+  for(const k of Object.keys(_state)){
+    if(!DATE_RE.test(k))continue;
+    const ch=(_state[k]&&_state[k].checks)||{};
+    for(const id of Object.keys(ch)){
+      if(ch[id]&&e.h[id]&&e.h[id].on===false){e.h[id].on=true;changed=true;}
+    }
+  }
+  if(changed){_dayCfgCache={};saveCfg();}
+  return changed;
+}
+function offEraStart(b,cur){
+  let last="";
+  for(const id of Object.keys(cur.h)){
+    if(cur.h[id].on!==false)continue;             // still on — not what we're dating
+    if(b.h[id]&&b.h[id].on===false)continue;      // off in the past too — nothing changed
+    for(const k of Object.keys(_state)){
+      if(!DATE_RE.test(k))continue;
+      const ch=(_state[k]&&_state[k].checks)||{};
+      if(ch[id]&&k>last)last=k;
+    }
+  }
+  const tk=todayKey();
+  if(!last)return tk;
+  const next=keyMinus(last,-1);                   // the day after it was last done
+  return next>tk?tk:next;
+}
+function ensureBaseline(){
+  const lg=cfgLog();
+  if(lg.length)return false;
+  if(!Object.keys(_state).some(k=>DATE_RE.test(k)))return false;
+  const b=cfgBaseline(), cur=cfgSnap();
+  lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});
+  // If the reconstructed past differs from how the app is set up right now, the
+  // current setup is its own era starting today — the past keeps the old rules,
+  // today forward keeps what the user actually has switched on.
+  const same=JSON.stringify([b.h,b.order])===JSON.stringify([cur.h,cur.order]);
+  if(!same)lg.push({from:offEraStart(b,cur),h:cur.h,order:cur.order,subs:cur.subs});
+  _dayCfgCache={};
+  saveCfg();
+  return true;
+}
 function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
 // Wrap every change that affects scoring. Seals the old config over the past,
 // then stamps the new one as effective from today.
 function cfgEdit(fn){
   const lg=cfgLog();
-  if(!lg.length){const b=cfgSnap();lg.push({from:CFG_EPOCH,h:b.h,order:b.order});}
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
   fn();
   const tk=todayKey(), cur=cfgSnap(), last=lg[lg.length-1];
-  if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;}
-  else lg.push({from:tk,h:cur.h,order:cur.order});
+  if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;last.subs=cur.subs;}
+  else lg.push({from:tk,h:cur.h,order:cur.order,subs:cur.subs});
   if(lg.length>600)lg.splice(1,lg.length-600);   // keep the epoch baseline
   _dayCfgCache={};
   saveCfg(); render();
 }
 function cfgForDate(key){
   const lg=cfgLog();
-  if(!lg.length)return{L1:LVL1,L2:LVL2,L3:LVL3};
+  if(!lg.length)return{L1:LVL1,L2:LVL2,L3:LVL3,subs:subsList()};
   const hit=_dayCfgCache[key]; if(hit)return hit;
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
-  const v={L1:levelsFor(e.h,e.order,1),L2:levelsFor(e.h,e.order,2),L3:levelsFor(e.h,e.order,3)};
+  const v={L1:levelsFor(e.h,e.order,1),L2:levelsFor(e.h,e.order,2),L3:levelsFor(e.h,e.order,3),
+           subs:(Array.isArray(e.subs)&&e.subs.length)?e.subs:SOCIAL_SUBS_BASE};
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
@@ -455,7 +525,11 @@ const GRADE=(s,mx)=>{
   if(p>=21)return{l:"D",c:"#f97316",g:"#f9731655",n:"LOW",bg:"rgba(249,115,22,0.05)"};
   return{l:"F",c:"#ef4444",g:"#ef444455",n:"LOST",bg:"rgba(239,68,68,0.05)"};
 };
-const SOCIAL_SUBS=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Friends",icon:"👫"}];
+const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Friends",icon:"👫"}];
+// The combo divides its points by how many sub-items exist, so the list has to
+// ride the config timeline too — otherwise adding one would turn every past
+// "3 of 3" day into "3 of 4" and quietly dock the score.
+function subsList(){return (Array.isArray(CFG.subs)&&CFG.subs.length)?CFG.subs:SOCIAL_SUBS_BASE;}
 
 function dateKey(d){
   const tz=CFG.tz&&CFG.tz!=='device'?CFG.tz:undefined;
@@ -481,17 +555,18 @@ function statusEl(){return document.getElementById('sync-status');}
 function setStatus(text,color){const e=statusEl();if(e){e.textContent=text;e.style.color=color;}}
 
 // ── Data accessors — all derive from _state ────────────────
-const blankSocial=()=>({flirt:false,strangers:false,friends:false});
+const blankSocial=()=>{const o={};for(const x of subsList())o[x.id]=false;return o;};
 const getChecked=k=>(_state[k]&&_state[k].checks)||{};
 const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
-  const activeSubs=Object.values(soc).filter(Boolean).length;
   const C=cfgForDate(key);
+  const dSubs=C.subs, nSubs=dSubs.length||1;
+  const activeSubs=dSubs.filter(x=>soc[x.id]).length;
   const l1=C.L1.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
   const l2=C.L2.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
-  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?Math.round((activeSubs/3)*i.pts):i.pts):0):(ch[i.id]?i.pts:0)),0);
+  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?Math.round((activeSubs/nSubs)*i.pts):i.pts):0):(ch[i.id]?i.pts:0)),0);
   const m1=C.L1.reduce((a,i)=>a+i.pts,0),m2=C.L2.reduce((a,i)=>a+i.pts,0),m3=C.L3.reduce((a,i)=>a+i.pts,0);
   const max=m1+m2+m3, score=l1+l2+l3;
   return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,
@@ -592,6 +667,9 @@ async function loadAll(){
     _state={};
     rows.forEach(rowToState);
     adoptLegacyIfVeteran(hadSettings,dayRows);
+    ensureBaseline();
+    widenBaseline();
+    addFamilyOnce();
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');
   }catch(e){
@@ -782,7 +860,20 @@ function renderSettings(){
     <div class="fade-up settings-body" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
-      ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}`,"st-col-a")}
+      ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
+      <div style="margin-bottom:4px">
+        <div class="sec" style="color:#fbbf24">👥 SOCIAL COMBO — ${subsList().length} PART${subsList().length===1?"":"S"}</div>
+        <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:8px">The combo splits its points evenly between these. Past days keep the split they were scored with.</div>
+        ${subsList().map((x,i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);margin-bottom:5px">
+          <input value="${esc(x.icon)}" onchange="subSet(${i},'icon',this.value)" aria-label="icon"
+            style="width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0"/>
+          <input value="${esc(x.label)}" onchange="subSet(${i},'label',this.value)"
+            style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
+          ${subsList().length>1?`<button onclick="subDel(${i})" title="Remove" style="background:none;border:1px solid #222;color:#6a6a80;border-radius:6px;font-size:13px;width:26px;height:28px;cursor:pointer;flex-shrink:0">✕</button>`:""}
+        </div>`).join("")}
+        <button onclick="subAdd()" style="width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px">+ ADD TO COMBO</button>
+      </div>`,"st-col-a")}
             ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" style="margin-bottom:10px;padding:14px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
@@ -850,6 +941,14 @@ function cfgMove(id,dir){
 }
 function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
+function subsEnsure(){ if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x})); }
+function subSet(i,k,v){ subsEnsure(); if(!CFG.subs[i])return; cfgEdit(()=>{ CFG.subs[i][k]=String(v==null?'':v).slice(0,k==='icon'?3:28); }); }
+function subAdd(){ subsEnsure(); if(CFG.subs.length>=8)return; haptic(12);
+  let id; do{ id='s'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(CFG.subs.some(x=>x.id===id));
+  cfgEdit(()=>{ CFG.subs.push({id,label:"New",icon:"•"}); }); }
+function subDel(i){ subsEnsure(); if(CFG.subs.length<=1||!CFG.subs[i])return;
+  if(!confirm(`Remove "${CFG.subs[i].label}" from the Social Combo? Past days keep the score they already had.`))return;
+  haptic(12); cfgEdit(()=>{ CFG.subs.splice(i,1); }); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid].steps[i]; s[k]= k==='dur'?Math.max(1,parseInt(v)||1):v; saveCfg(); render(); }
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
 function openReview(){ reviewOpen=true; haptic(10); render(); }
@@ -939,6 +1038,8 @@ async function boot(){
   if(USER){
     loadCfgLocal();
     loadCache();
+    ensureBaseline();
+    addFamilyOnce();
     loadLvl();
     loadSec();
     restoreRoutine();
@@ -955,7 +1056,7 @@ sb.auth.onAuthStateChange((event,session)=>{
   const wasUser=USER?USER.id:null;
   USER=session?session.user:null;
   if(USER&&USER.id!==wasUser){
-    loadCache();render();
+    loadCache();ensureBaseline();render();
     loadAll().then(subscribeRealtime);
   }else if(!USER){
     _state={};render();
@@ -1020,6 +1121,7 @@ function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
 function loadLvl(){const v=get(lvlKey());if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};}
 function toggleLvl(n){lvlOpen[n]=!lvlOpen[n];haptic(9);set(lvlKey(),lvlOpen);render();}
 let reviewOpen=false;
+let histMonth=null;
 let currentTab="today",sessions={},routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
 
 // ── Feedback: haptics + audible cue ───────────────────────────
@@ -1313,9 +1415,13 @@ function renderToday(key,nested=false){
   const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";
   const C=cfgForDate(key);
   const ch=getChecked(key),soc=getSocial(key),{score,l1,l2,l3,done,max:dMax,l1max:dM1,l2max:dM2,l3max:dM3}=calcScore(key),gr=GRADE(score,dMax),streak=getStreak();
-  const activeSubs=Object.values(soc).filter(Boolean).length;
+  const dSubs=C.subs, nSubs=dSubs.length||1;
+  const activeSubs=dSubs.filter(x=>soc[x.id]).length;
   const comboPts=(C.L3.find(x=>x.combo)||{pts:18}).pts;
-  const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*comboPts):comboPts):0;
+  const allBtn=(lv,items)=>{ if(!items.length)return"";
+    const on=items.every(i=>ch[i.id]), col=LVL_COL[lv];
+    return`<button onclick="event.stopPropagation();toggleLevelAll(${lv},'${key}')" title="${on?'Clear this level':'Check this level'}" style="background:${on?col:'none'};border:1.5px solid ${on?col:'#252535'};color:${on?'#080810':'#6a6a80'};border-radius:7px;font-size:12px;line-height:1;width:27px;height:23px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">✓</button>`;};
+  const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/nSubs)*comboPts):comboPts):0;
   const isToday=key===todayKey();
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
@@ -1372,7 +1478,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
     <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l1}/${dM1}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${C.L1.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
@@ -1389,7 +1495,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l2}/${dM2}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
       ${C.L2.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
@@ -1402,7 +1508,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l3}/${dM3}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       <div style="border-radius:13px;border:1px solid ${ch.social||socialExpanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||socialExpanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
@@ -1410,7 +1516,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
             ${chk(!!ch.social,"#fbbf24")}
             <div>
               <div style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
-              ${socialExpanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/3 active · ${socialPts}%</div>`:""}
+              ${socialExpanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
@@ -1419,11 +1525,11 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
           </div>
         </div>
         ${socialExpanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
-          ${SOCIAL_SUBS.map(s=>`
+          ${dSubs.map(s=>`
           <div onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#3a3a4a"};background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"};user-select:none">
             ${chk(!!soc[s.id],"#fbbf24",18)}
             <span>${s.icon} ${s.label}</span>
-            <span style="margin-left:auto;font-size:14.5px;color:#adadbf">6%</span>
+            <span style="margin-left:auto;font-size:14.5px;color:#adadbf">${Math.round(comboPts/nSubs)}%</span>
           </div>`).join("")}
         </div>`:""}
       </div>
@@ -1563,7 +1669,7 @@ function renderStats(){
 function renderHistory(){
   return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:flex;gap:8px">
-      ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DAYS":t==="month"?"28 DAYS":"YEAR"}</button>`).join("")}
+      ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DAYS":t==="month"?"MONTH":"YEAR"}</button>`).join("")}
     </div>
     ${histTab==="week"?renderHistWeek():histTab==="month"?renderHistMonth():renderHistYear()}
   </div>`;
@@ -1591,28 +1697,48 @@ function renderHistWeek(){
 }
 
 function renderHistMonth(){
-  return`<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">LAST 4 WEEKS</div>
-    ${getWeeks().map((week,wi)=>{
-      const a=avgW(week),g=a>0?GRADE(a,100):null;
-      return`<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div style="font-size:15px;color:#9a9ab2;letter-spacing:0.1em">WEEK ${4-wi}</div>
-          ${g?`<div style="font-family:'Bebas Neue';font-size:17px;color:${g.c}">AVG ${a}% · ${g.l}</div>`:`<div style="font-size:14.5px;color:#1a1a2a">no data</div>`}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
-          ${week.map(({key,date,data})=>{
-            const dg=data?GRADE(data.score,data.max):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
-            return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-              <div style="font-size:13.5px;color:#adadbf">${date.toLocaleDateString("en",{weekday:"narrow"}).toUpperCase()}</div>
-              <div onclick="openEditDay('${key}')" style="width:100%;aspect-ratio:1;border-radius:9px;background:${data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:tgr.c)+"55":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
-                ${data?`<span style="font-family:'Bebas Neue';font-size:16.5px;color:${dg.c}">${dg.l}</span>`:`<span style="font-size:15px;color:#9a9ab2">+</span>`}
-              </div>
-              ${data?`<div style="font-size:14px;color:#c0c0cd">${data.score}</div>`:""}
-            </div>`;
-          }).join("")}
-        </div>
-      </div>`;
-    }).join("")}
+  const tk=todayKey(), nowYM=tk.slice(0,7);
+  const ym=histMonth||nowYM, cells=monthGrid(ym);
+  const[yy,mm]=ym.split('-').map(Number);
+  const title=new Date(Date.UTC(yy,mm-1,1)).toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  const logged=cells.filter(c=>c&&c.data);
+  const a=logged.length?Math.round(logged.reduce((t,c)=>t+dPct(c.data),0)/logged.length):0;
+  const g=a>0?GRADE(a,100):null;
+  const best=logged.reduce((m,c)=>!m||dPct(c.data)>dPct(m.data)?c:m,null);
+  const canFwd=ym<nowYM;
+  const nav=(d,lab,on)=>`<button onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"} style="background:none;border:1px solid ${on?"#1e1e2e":"#111120"};color:${on?"#c0c0cd":"#23233a"};width:34px;height:34px;border-radius:9px;cursor:${on?"pointer":"default"};font-size:17px;font-family:inherit;flex-shrink:0">${lab}</button>`;
+  return`<div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:10px">
+      ${nav(-1,"‹",true)}
+      <div style="flex:1;min-width:0;text-align:center">
+        <div style="font-family:'Bebas Neue';font-size:21px;letter-spacing:0.1em;color:#e2e2e2;line-height:1.1">${title.toUpperCase()}</div>
+        <div style="font-size:14px;color:#8888a4;margin-top:3px">${logged.length?`${logged.length} day${logged.length===1?"":"s"} logged`:"no days logged"}${g?` · AVG ${a}% · ${g.l}`:""}</div>
+      </div>
+      ${nav(1,"›",canFwd)}
+    </div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
+        ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#6a6a80;letter-spacing:.06em">${d}</div>`).join("")}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+        ${cells.map(c=>{
+          if(!c)return`<div></div>`;
+          const isT=c.key===tk, future=c.key>tk;
+          const dg=c.data?GRADE(c.data.score,c.data.max):null;
+          if(future)return`<div style="aspect-ratio:1;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
+          return`<div onclick="openEditDay('${c.key}')" title="${c.key}" style="position:relative;aspect-ratio:1;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
+            <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#3a3a4a"}">${c.day}</span>
+            ${c.data?`<span style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${dg.l}</span><span style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+    ${best?`<div class="card" style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14.5px;color:#9a9ab2;letter-spacing:.08em">BEST DAY</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:14.5px;color:#c0c0cd">${new Date(Date.UTC(yy,mm-1,best.day)).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+        <div style="font-family:'Bebas Neue';font-size:19px;color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</div>
+      </div></div>`:""}
   </div>`;
 }
 
@@ -1702,13 +1828,42 @@ function renderRoutine(){
 }
 
 function setTab(t){currentTab=t;_lastY=0;tuckNav(false);render();}
-function setHistTab(t){histTab=t;render();}
+function setHistTab(t){histTab=t;if(t==="month"&&!histMonth)histMonth=todayKey().slice(0,7);render();}
+function monthShift(ym,d){let[y,m]=ym.split('-').map(Number);m+=d;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return`${y}-${String(m).padStart(2,'0')}`;}
+function histMonthShift(d){
+  const now=todayKey().slice(0,7);
+  const next=monthShift(histMonth||now,d);
+  histMonth=next>now?now:next;        // never past the current month
+  haptic(9);render();
+}
+// Real calendar month: leading blanks so weekdays line up, one cell per real day.
+function monthGrid(ym){
+  const[y,m]=ym.split('-').map(Number);
+  const dim=new Date(Date.UTC(y,m,0)).getUTCDate();
+  const lead=new Date(Date.UTC(y,m-1,1)).getUTCDay();
+  const hh=getHistory(),out=[];
+  for(let i=0;i<lead;i++)out.push(null);
+  for(let d=1;d<=dim;d++){const key=`${ym}-${String(d).padStart(2,'0')}`;out.push({key,day:d,data:hh[key]||null});}
+  return out;
+}
 function toggleHabit(id,key){haptic(10);const ch={...getChecked(key)};ch[id]=!ch[id];setChecked(key,ch);persistDay(key);render();}
+// One tap ticks (or clears) every habit in a level, combo sub-items included.
+function toggleLevelAll(lv,key){
+  const C=cfgForDate(key), items=lv===1?C.L1:lv===2?C.L2:C.L3;
+  if(!items.length)return;
+  const ch={...getChecked(key)};
+  const v=!items.every(i=>ch[i.id]);
+  let soc=null;
+  for(const i of items){ ch[i.id]=v; if(i.combo){soc={};for(const x of C.subs)soc[x.id]=v;} }
+  haptic(v?18:10);
+  setChecked(key,ch); if(soc)setSocial(key,soc);
+  persistDay(key); render();
+}
 function quickComplete(id){haptic(18);const k=todayKey(),ch={...getChecked(k)};ch[id]=true;setChecked(k,ch);persistDay(k);render();}
-function handleSocial(key){if(socialExpanded)return;haptic(10);const ch={...getChecked(key)},v=!ch.social;ch.social=v;setChecked(key,ch);setSocial(key,{flirt:v,strangers:v,friends:v});persistDay(key);render();}
+function handleSocial(key){if(socialExpanded)return;haptic(10);const ch={...getChecked(key)},v=!ch.social;ch.social=v;setChecked(key,ch);const o={};for(const x of cfgForDate(key).subs)o[x.id]=v;setSocial(key,o);persistDay(key);render();}
 function toggleSocialExpand(key){socialExpanded=!socialExpanded;render();}
 function toggleSub(id,key){haptic(8);const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);persistDay(key);render();}
-function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,{flirt:false,strangers:false,friends:false});persistDay(key);render();}
+function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,blankSocial());persistDay(key);render();}
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 

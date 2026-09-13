@@ -289,7 +289,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1550·f973b9";
+const BUILD="20260913-1604·7998a7";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -788,24 +788,39 @@ const BAK_KEEP=12;
 var _bak=[], _bakT=null;
 const bakKey=()=>`shaah_bak_${USER?USER.id:'anon'}`;
 function bakLoad(rows){
+  const l=get(bakKey()), local=Array.isArray(l)?l:[];
   const r=(rows||[]).find(x=>x.date==='cfgbak');
-  if(r&&r.data&&Array.isArray(r.data._bak))_bak=r.data._bak;
-  else{const l=get(bakKey());_bak=Array.isArray(l)?l:[];}
+  const remote=(r&&r.data&&Array.isArray(r.data._bak))?r.data._bak:[];
+  // unión de ambas, más recientes primero — nunca se pierde una versión local
+  const seen={}, all=[];
+  for(const b of local.concat(remote)){
+    if(!b||!b.cfg||seen[b.cfg])continue;
+    seen[b.cfg]=1; all.push(b);
+  }
+  all.sort((a,b)=>String(b.t).localeCompare(String(a.t)));
+  _bak=all.slice(0,BAK_KEEP);
+  set(bakKey(),_bak);
 }
-function bakSnapshot(){
+function bakPush(cfgObj){
+  try{
+    if(!cfgObj||typeof cfgObj!=='object')return false;
+    const snap=JSON.stringify(cfgObj);
+    if(_bak.length&&_bak[0].cfg===snap)return false;
+    _bak.unshift({t:new Date().toISOString(),cfg:snap});
+    if(_bak.length>BAK_KEEP)_bak.length=BAK_KEEP;
+    set(bakKey(),_bak);          // SÍNCRONO: sobrevive a un refresco inmediato
+    return true;
+  }catch(e){return false;}
+}
+// Guarda el estado ANTERIOR al cambio: si el cambio es el que rompe algo,
+// la versión buena ya quedó a salvo antes de pisarla.
+function bakBefore(prev){
   if(!_cfgReady)return;
+  if(!bakPush(prev))return;
   clearTimeout(_bakT);
-  _bakT=setTimeout(()=>{
-    try{
-      const snap=JSON.stringify(CFG);
-      if(_bak.length&&_bak[0].cfg===snap)return;              // sin cambios reales
-      _bak.unshift({t:new Date().toISOString(),cfg:snap});
-      if(_bak.length>BAK_KEEP)_bak.length=BAK_KEEP;
-      set(bakKey(),_bak);
-      if(USER)sb.from('day_logs').upsert({user_id:USER.id,date:'cfgbak',data:{_bak}},{onConflict:'user_id,date'});
-    }catch(e){}
-  },3000);
+  _bakT=setTimeout(()=>{ try{ if(USER)sb.from('day_logs').upsert({user_id:USER.id,date:'cfgbak',data:{_bak}},{onConflict:'user_id,date'}); }catch(e){} },2000);
 }
+function bakSnapshot(){ bakBefore(CFG); }
 function bakList(){
   return _bak.map((b,i)=>{
     let c={};try{c=JSON.parse(b.cfg)}catch(e){}
@@ -822,11 +837,13 @@ function bakRestore(i){
   haptic([30,40,30]); applyCfg(); saveCfg(); render();
 }
 function saveCfg(){
+  const prev=get(cfgKey());           // lo que había ANTES de este guardado
+  if(prev)bakBefore(prev);
   set(cfgKey(),CFG); applyCfg();
   // Guardar antes de haber leído del servidor sobreescribe la config buena con la
   // que haya en memoria (posiblemente la genérica). Pasó el 13/09 y borró personas.
   if(USER&&_cfgReady){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
-  bakSnapshot();
+  bakPush(CFG);                       // y también el estado nuevo
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){

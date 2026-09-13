@@ -29,6 +29,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 #nav{transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .25s ease;position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:max(calc(env(safe-area-inset-bottom) - 24px),4px);z-index:999;}
 .nav-btn{flex:1;min-height:46px;padding:9px 4px 9px;background:none;border:none;font-family:inherit;font-size:13.5px;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s;border-top:2px solid transparent;color:#adadbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .nav-btn:active{opacity:.6;}
+.nav-btn[hidden]{display:none!important;}   /* display:flex de arriba gana al hidden por defecto */
 #nav.tucked{transform:translateY(115%);opacity:0;pointer-events:none;}
 /* ── TODAY section order — day vs night ────────────────────── */
 .today>*{order:6;}
@@ -288,7 +289,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1503·00476a";
+const BUILD="20260913-1522·35a167";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -475,6 +476,37 @@ function ensureSubFrom(sub,from){
   }
   if(!CFG.subs.some(x=>x.id===sub.id))CFG.subs.push({...sub});
   syncComboPts(); _dayCfgCache={};
+}
+// Igual que ensureSubFrom pero para un hábito entero: existe desde `from` en adelante,
+// y las épocas anteriores no se tocan (su MAX no se mueve).
+function ensureHabitFrom(id,def,from,after){
+  const lg=cfgLog();
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
+  let i=0;
+  for(let k=0;k<lg.length;k++){ if(lg[k].from<=from)i=k; else break; }
+  if(lg[i].from<from){
+    const e=lg[i];
+    lg.splice(i+1,0,{from,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
+                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]))});
+    i++;
+  }
+  const place=(h,order)=>{
+    if(h[id])return;
+    h[id]={...def};
+    const at=after&&order.indexOf(after)>=0?order.indexOf(after)+1:order.length;
+    order.splice(at,0,id);
+  };
+  for(let k=i;k<lg.length;k++)place(lg[k].h,lg[k].order);
+  place(CFG.h,CFG.order);
+  _dayCfgCache={};
+}
+// junkV 1 = "No Junk Food" añadido aparte de "No Smoking", desde hoy.
+function addJunkFoodOnce(){
+  if(CFG.junkV>=1)return false;
+  ensureHabitFrom("cjunk0",{l:"No Junk Food",p:6,i:"\u{1F957}",lv:3,on:true},todayKey(),"nosmoke");
+  CFG.junkV=1;
+  applyCfg(); saveCfg();
+  return true;
 }
 // subsV 2 = Family colocada desde FAMILY_FROM. Los que ya tenían subsV 1 (Family desde el
 // día del update) pasan por aquí otra vez y se les corrige la fecha de entrada.
@@ -682,10 +714,14 @@ function togglePerson(id,key){
   persistDay(key); render();
 }
 function personAdd(sub,key){
-  const name=(window.prompt("Name")||"").trim().slice(0,40);
+  const name=(window.prompt("Who? (name)")||"").trim().slice(0,40);
   if(!name)return;
+  // Preguntar siempre la frecuencia, con 14 precargado como sugerencia editable.
+  const raw=window.prompt(`How often do you want to see ${name}?\nDays in between — 7 = weekly, 30 = monthly.`,"14");
+  if(raw===null)return;                                     // cancelar aborta el alta entera
+  const every=Math.max(1,Math.min(3650,parseInt(raw,10)||14));
   let id; do{ id='p'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(personById(id));
-  peopleList().push({id,name,sub,every:14});
+  peopleList().push({id,name,sub,every});
   saveCfg();
   if(key)togglePerson(id,key); else render();
 }
@@ -774,7 +810,7 @@ async function loadAll(){
     adoptLegacyIfVeteran(hadSettings,dayRows);
     ensureBaseline();
     widenBaseline();
-    addFamilyOnce();
+    addFamilyOnce();addJunkFoodOnce();
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');
   }catch(e){
@@ -1025,8 +1061,8 @@ function renderSettings(){
 <div class="st-div"></div>
 <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:9px">Where the Social Combo lives. Your score is the same either way — only where you tap it changes.</div>
 <div style="display:flex;gap:7px;margin-bottom:22px">
-        ${[[false,"In TODAY","Inside LVL 3, as now"],[true,"Own tab","SOCIAL in the bottom bar"]].map(([v,lbl,sub])=>`
-          <button onclick="cfgSocialTab(${v})" style="flex:1;background:${!!CFG.socialTab===v?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${!!CFG.socialTab===v?'#3a3a55':'#222'};color:${!!CFG.socialTab===v?'#e2e2e2':'#7e7e97'};font-family:inherit;padding:10px 6px;border-radius:10px;cursor:pointer">
+        ${[[true,"Own tab","SOCIAL in the bottom bar"],[false,"In TODAY","Inside LVL 3, saves a tab"]].map(([v,lbl,sub])=>`
+          <button onclick="cfgSocialTab(${v})" style="flex:1;background:${socialOwnTab()===v?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${socialOwnTab()===v?'#3a3a55':'#222'};color:${socialOwnTab()===v?'#e2e2e2':'#7e7e97'};font-family:inherit;padding:10px 6px;border-radius:10px;cursor:pointer">
             <div style="font-size:13px">${lbl}</div>
             <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
           </button>`).join("")}
@@ -1077,6 +1113,9 @@ function cfgMove(id,dir){
 }
 function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
+// Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
+// Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.
+function socialOwnTab(){ return CFG.socialTab!==false; }
 function cfgSocialTab(v){ CFG.socialTab=!!v; haptic(10); if(!v&&currentTab==="social")currentTab="today"; saveCfg(); render(); }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x}));
@@ -1189,7 +1228,7 @@ async function boot(){
     loadCfgLocal();
     loadCache();
     ensureBaseline();
-    addFamilyOnce();
+    addFamilyOnce();addJunkFoodOnce();
     loadLvl();
     loadSec();
     restoreRoutine();
@@ -1206,7 +1245,9 @@ sb.auth.onAuthStateChange((event,session)=>{
   const wasUser=USER?USER.id:null;
   USER=session?session.user:null;
   if(USER&&USER.id!==wasUser){
-    loadCache();ensureBaseline();render();
+    // loadCfgLocal() PRIMERO: sin esto se pintaba un frame con la config genérica
+    // (p.ej. "No Junk Food") antes de que llegara la del usuario ("No Smoking").
+    loadCfgLocal();loadCache();ensureBaseline();addFamilyOnce();addJunkFoodOnce();render();
     loadAll().then(subscribeRealtime);
   }else if(!USER){
     _state={};render();
@@ -1477,8 +1518,8 @@ function render(){
   if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   nav.style.display="flex";
   const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
-  if(sbtn)sbtn.hidden=!CFG.socialTab;
-  if(currentTab==="social"&&!CFG.socialTab)currentTab="today";   // el ajuste se apagó estando ahí
+  if(sbtn)sbtn.hidden=!socialOwnTab();
+  if(currentTab==="social"&&!socialOwnTab())currentTab="today";   // el ajuste se apagó estando ahí
   const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
   if(currentTab==="social")el.innerHTML=bar+renderSocial();
@@ -1705,7 +1746,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
-      ${CFG.socialTab?"":comboBlock(key)}
+      ${socialOwnTab()?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
@@ -1852,7 +1893,7 @@ function renderStats(){
     </div>
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S",100],["A",87],["B",77],["C",57],["D",35],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
     ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
-    ${CFG.socialTab?"":renderWhoToSee()}
+    ${socialOwnTab()?"":renderWhoToSee()}
   </div>`;
 }
 
@@ -2208,7 +2249,7 @@ function renderRoutineTimer(){
   }
 }
 
-function tabsOrder(){ return CFG.socialTab?["today","social","stats","history"]:["today","stats","history"]; }
+function tabsOrder(){ return socialOwnTab()?["today","social","stats","history"]:["today","stats","history"]; }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{

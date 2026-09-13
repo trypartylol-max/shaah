@@ -266,6 +266,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   <div id="tour"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="today" onclick="setTab('today')"><span style="font-size:18px">◉</span>TODAY</button>
+    <button class="nav-btn" data-tab="social" onclick="setTab('social')" hidden><span style="font-size:18px">◍</span>SOCIAL</button>
     <button class="nav-btn" data-tab="stats" onclick="setTab('stats')"><span style="font-size:18px">◇</span>STATS</button>
     <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
   </nav>
@@ -287,7 +288,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1437·f53988";
+const BUILD="20260913-1451·d21a42";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -992,6 +993,15 @@ function renderSettings(){
       </select>
       <div style="font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5">The day rolls over at midnight in this zone. Today is <b style="color:#d0d0da">${todayKey()}</b>.</div>
 <div class="st-div"></div>
+<div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:9px">Where the Social Combo lives. Your score is the same either way — only where you tap it changes.</div>
+<div style="display:flex;gap:7px;margin-bottom:22px">
+        ${[[false,"In TODAY","Inside LVL 3, as now"],[true,"Own tab","SOCIAL in the bottom bar"]].map(([v,lbl,sub])=>`
+          <button onclick="cfgSocialTab(${v})" style="flex:1;background:${!!CFG.socialTab===v?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${!!CFG.socialTab===v?'#3a3a55':'#222'};color:${!!CFG.socialTab===v?'#e2e2e2':'#7e7e97'};font-family:inherit;padding:10px 6px;border-radius:10px;cursor:pointer">
+            <div style="font-size:13px">${lbl}</div>
+            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
+          </button>`).join("")}
+      </div>
+<div class="st-div"></div>
 <div style="display:flex;gap:7px;margin-bottom:16px">
         ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
           <button onclick="cfgPill('${id}')" style="flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
@@ -1037,6 +1047,7 @@ function cfgMove(id,dir){
 }
 function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
+function cfgSocialTab(v){ CFG.socialTab=!!v; haptic(10); if(!v&&currentTab==="social")currentTab="today"; saveCfg(); render(); }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x}));
   const cid=comboIdIn(CFG.h), cp=cid&&CFG.h[cid]?safePts(CFG.h[cid].p):18, n=CFG.subs.length||1;
@@ -1435,9 +1446,13 @@ function render(){
   if(routineId&&routineView){el.innerHTML=renderRoutine();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   if(editDayKey){el.innerHTML=renderEditDay();nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   nav.style.display="flex";
+  const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
+  if(sbtn)sbtn.hidden=!CFG.socialTab;
+  if(currentTab==="social"&&!CFG.socialTab)currentTab="today";   // el ajuste se apagó estando ahí
   const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
-  if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
+  if(currentTab==="social")el.innerHTML=bar+renderSocial();
+  else if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
   else if(currentTab==="stats")el.innerHTML=bar+renderStats();
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
   renderTour();
@@ -1519,6 +1534,47 @@ function isNight(){
   // window wraps past midnight when `from` is later in the day than `till`
   return from>till ? (hr>=from||hr<till) : (hr>=from&&hr<till);
 }
+// El bloque del Social Combo vive en TODAY o en su propio tab, según CFG.socialTab.
+// Se extrae aquí para que las dos vistas rendericen exactamente lo mismo.
+function comboBlock(key,alwaysOpen){
+  const C=cfgForDate(key), ch=getChecked(key), soc=getSocial(key);
+  const dSubs=C.subs, nSubs=dSubs.length||1;
+  const activeSubs=dSubs.filter(x=>soc[x.id]).length;
+  const comboPts=(C.L3.find(x=>x.combo)||{pts:18}).pts;
+  const socialPts=ch.social?(dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0)||comboPts):0;
+  const expanded=alwaysOpen?true:socialExpanded;   // let de nivel superior, no window
+  return`      <div style="border-radius:13px;border:1px solid ${ch.social||expanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||expanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
+          <div style="display:flex;align-items:center;gap:13px">
+            ${chk(!!ch.social,"#fbbf24")}
+            <div>
+              <div style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
+              ${expanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
+            ${alwaysOpen?"":`<button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${expanded?"✕":"EDIT"}</button>`}
+            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#777"};min-width:38px;text-align:right">${socialPts||comboPts}%</span>
+          </div>
+        </div>
+        ${expanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
+          ${dSubs.map(s=>{
+            const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key);
+            return`<div style="border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}">
+            <div onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#3a3a4a"};user-select:none">
+              ${chk(!!soc[s.id],"#fbbf24",18)}
+              <span>${s.icon} ${s.label}</span>
+              <span style="margin-left:auto;font-size:14.5px;color:#adadbf">${s.p}%</span>
+            </div>
+            ${soc[s.id]?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 11px 41px">
+              ${mine.map(x=>{const on=tag.includes(x.id);return`<button onclick="event.stopPropagation();togglePerson('${x.id}','${key}')" style="background:${on?"rgba(251,191,36,0.16)":"transparent"};border:1px solid ${on?"#fbbf2466":"#22223a"};color:${on?"#fbbf24":"#7e7e97"};font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</button>`;}).join("")}
+              <button onclick="event.stopPropagation();personAdd('${s.id}','${key}')" title="Add someone" style="background:none;border:1px dashed #242436;color:#6a6a80;font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer">+ who?</button>
+            </div>`:""}
+          </div>`;}).join("")}
+        </div>`:""}
+      </div>`;
+}
+
 function renderToday(key,nested=false){
   const _hr=new Date().getHours();
   const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";
@@ -1619,36 +1675,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
-      <div style="border-radius:13px;border:1px solid ${ch.social||socialExpanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||socialExpanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
-          <div style="display:flex;align-items:center;gap:13px">
-            ${chk(!!ch.social,"#fbbf24")}
-            <div>
-              <div style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
-              ${socialExpanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
-            <button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${socialExpanded?"✕":"EDIT"}</button>
-            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#777"};min-width:38px;text-align:right">${socialPts||comboPts}%</span>
-          </div>
-        </div>
-        ${socialExpanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
-          ${dSubs.map(s=>{
-            const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key);
-            return`<div style="border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}">
-            <div onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#3a3a4a"};user-select:none">
-              ${chk(!!soc[s.id],"#fbbf24",18)}
-              <span>${s.icon} ${s.label}</span>
-              <span style="margin-left:auto;font-size:14.5px;color:#adadbf">${s.p}%</span>
-            </div>
-            ${soc[s.id]?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 11px 41px">
-              ${mine.map(x=>{const on=tag.includes(x.id);return`<button onclick="event.stopPropagation();togglePerson('${x.id}','${key}')" style="background:${on?"rgba(251,191,36,0.16)":"transparent"};border:1px solid ${on?"#fbbf2466":"#22223a"};color:${on?"#fbbf24":"#7e7e97"};font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</button>`;}).join("")}
-              <button onclick="event.stopPropagation();personAdd('${s.id}','${key}')" title="Add someone" style="background:none;border:1px dashed #242436;color:#6a6a80;font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer">+ who?</button>
-            </div>`:""}
-          </div>`;}).join("")}
-        </div>`:""}
-      </div>
+      ${CFG.socialTab?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
@@ -1745,6 +1772,22 @@ function renderWeekReview(){
     </div>
   </div>`;
 }
+// Tab SOCIAL: el mismo combo que en TODAY (siempre desplegado, es el motivo del tab),
+// más el registro de personas. El scoring no cambia — el combo sigue contando en LVL 3.
+function renderSocial(){
+  const tk=todayKey(), c=calcScore(tk);
+  const cb=(cfgForDate(tk).L3.find(x=>x.combo)||{pts:0}).pts;
+  const got=getChecked(tk).social?(cfgForDate(tk).subs.reduce((a,x)=>a+(getSocial(tk)[x.id]?x.p:0),0)||cb):0;
+  return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div class="sec" style="display:flex;align-items:center;gap:8px">TODAY
+        <span style="margin-left:auto;font-size:11px;color:${got>0?"#fbbf24":"#7e7e97"}">${got}/${cb}%</span></div>
+      ${comboBlock(tk,true)}
+    </div>
+    ${renderWhoToSee()}
+  </div>`;
+}
+
 function renderStats(){
   const tk=todayKey(),{score,l1,l2,l3,done}=calcScore(tk),gr=GRADE(score),h=getHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
@@ -1779,7 +1822,7 @@ function renderStats(){
     </div>
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S",100],["A",87],["B",77],["C",57],["D",35],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
     ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
-    ${renderWhoToSee()}
+    ${CFG.socialTab?"":renderWhoToSee()}
   </div>`;
 }
 
@@ -2135,7 +2178,7 @@ function renderRoutineTimer(){
   }
 }
 
-const TABS_ORDER=["today","stats","history"];
+function tabsOrder(){ return CFG.socialTab?["today","social","stats","history"]:["today","stats","history"]; }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{
@@ -2143,9 +2186,9 @@ document.addEventListener("touchend",e=>{
   if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)*0.8)return;
   if(dx>0){if(settingsOpen){closeSettings();return;}if(editDayKey){closeEditDay();return;}if(routineId&&routineView){exitRoutine();return;}}
   if((routineId&&routineView)||editDayKey||settingsOpen)return;
-  const idx=TABS_ORDER.indexOf(currentTab);
-  if(dx<0&&idx<TABS_ORDER.length-1)setTab(TABS_ORDER[idx+1]);
-  if(dx>0&&idx>0)setTab(TABS_ORDER[idx-1]);
+  const T=tabsOrder(), idx=T.indexOf(currentTab);
+  if(dx<0&&idx<T.length-1)setTab(T[idx+1]);
+  if(dx>0&&idx>0)setTab(T[idx-1]);
 },{passive:true});
 
 boot();

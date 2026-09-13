@@ -288,7 +288,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-1451·d21a42";
+const BUILD="20260913-1503·00476a";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -448,11 +448,41 @@ function cfgBaseline(){
 // edit, or the first edit would seal whatever (possibly already-wrong) state it finds.
 // Adds "Family" to the Social Combo once, as its own era from today, so every
 // earlier day keeps the 3-way split it was actually scored with.
-function addFamilyOnce(){
-  if(CFG.subsV>=1)return false;
+const FAMILY_FROM="2026-09-09";   // David pidió Family desde el miércoles, no desde el día del update
+// Garantiza que una parte del combo exista en todas las épocas desde `from` en adelante,
+// partiendo la época vigente en esa fecha si hace falta. No reordena ni reescribe el resto
+// de la config de ninguna época: solo añade la parte.
+function ensureSubFrom(sub,from){
   subsEnsure();
-  if(subsList().some(x=>x.id==='family')){CFG.subsV=1;saveCfg();return false;}
-  cfgEdit(()=>{ CFG.subs.push({id:"family",label:"Family",icon:"\u{1F46A}",p:6}); CFG.subsV=1; syncComboPts(); });
+  const lg=cfgLog();
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
+  let i=0;
+  for(let k=0;k<lg.length;k++){ if(lg[k].from<=from)i=k; else break; }
+  if(lg[i].from<from){                       // corta una época nueva justo en esa fecha
+    const e=lg[i];
+    lg.splice(i+1,0,{from,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
+                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]))});
+    i++;
+  }
+  for(let k=i;k<lg.length;k++){
+    if(!Array.isArray(lg[k].subs))lg[k].subs=[];
+    // Congelar los puntos que esa época ya tenía ANTES de meter nada: si sus partes no
+    // llevan `p` explícito, el reparto se calcula con su número de partes, y añadir una
+    // cambiaría el divisor y le movería el score a días pasados.
+    const cid=comboIdIn(lg[k].h), cp=cid&&lg[k].h[cid]?safePts(lg[k].h[cid].p):18, n0=lg[k].subs.length||1;
+    for(const x of lg[k].subs) if(x.p==null) x.p=Math.round(cp/n0);
+    if(!lg[k].subs.some(x=>x.id===sub.id))lg[k].subs.push({...sub});
+  }
+  if(!CFG.subs.some(x=>x.id===sub.id))CFG.subs.push({...sub});
+  syncComboPts(); _dayCfgCache={};
+}
+// subsV 2 = Family colocada desde FAMILY_FROM. Los que ya tenían subsV 1 (Family desde el
+// día del update) pasan por aquí otra vez y se les corrige la fecha de entrada.
+function addFamilyOnce(){
+  if(CFG.subsV>=2)return false;
+  ensureSubFrom({id:"family",label:"Family",icon:"\u{1F46A}",p:6},FAMILY_FROM);
+  CFG.subsV=2;
+  saveCfg();
   return true;
 }
 function widenBaseline(){

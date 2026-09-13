@@ -287,7 +287,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260821-0203·065ffd";
+const BUILD="20260912-2234·f2aa35";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -397,10 +397,41 @@ let LVL1=[],LVL2=[],LVL3=[],ROUTINES={},MAX=0,LVL1_MAX=0,LVL2_MAX=0,LVL3_MAX=0;
 // Points are user-editable, so never trust them: clamp to a sane integer.
 function safePts(v){const n=Math.round(Number(v));return Number.isFinite(n)?Math.max(0,Math.min(999,n)):0;}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function buildLevel(n){
-  return CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&CFG.h[id].on!==false)
-    .map(id=>({id,label:CFG.h[id].l,pts:safePts(CFG.h[id].p),icon:CFG.h[id].i,
-               col:LVL_COL[n],routine:!!CFG.h[id].routine,combo:!!CFG.h[id].combo}));
+function levelsFor(h,order,n){
+  return order.filter(id=>h[id]&&h[id].lv===n&&h[id].on!==false)
+    .map(id=>({id,label:h[id].l,pts:safePts(h[id].p),icon:h[id].i,
+               col:LVL_COL[n],routine:!!h[id].routine,combo:!!h[id].combo}));
+}
+function buildLevel(n){ return levelsFor(CFG.h,CFG.order,n); }
+
+// ── Config timeline ────────────────────────────────────────
+// Every day is scored with the config that was in effect THAT day. Turning a
+// habit off (or adding one) changes today forward and can never rewrite the past.
+var CFG_EPOCH="0001-01-01";
+var _dayCfgCache={};
+function cfgSnap(){return{h:JSON.parse(JSON.stringify(CFG.h)),order:CFG.order.slice()};}
+function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
+// Wrap every change that affects scoring. Seals the old config over the past,
+// then stamps the new one as effective from today.
+function cfgEdit(fn){
+  const lg=cfgLog();
+  if(!lg.length){const b=cfgSnap();lg.push({from:CFG_EPOCH,h:b.h,order:b.order});}
+  fn();
+  const tk=todayKey(), cur=cfgSnap(), last=lg[lg.length-1];
+  if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;}
+  else lg.push({from:tk,h:cur.h,order:cur.order});
+  if(lg.length>600)lg.splice(1,lg.length-600);   // keep the epoch baseline
+  _dayCfgCache={};
+  saveCfg(); render();
+}
+function cfgForDate(key){
+  const lg=cfgLog();
+  if(!lg.length)return{L1:LVL1,L2:LVL2,L3:LVL3};
+  const hit=_dayCfgCache[key]; if(hit)return hit;
+  let e=lg[0];
+  for(const x of lg){ if(x.from<=key)e=x; else break; }
+  const v={L1:levelsFor(e.h,e.order,1),L2:levelsFor(e.h,e.order,2),L3:levelsFor(e.h,e.order,3)};
+  _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
   LVL1=buildLevel(1);LVL2=buildLevel(2);LVL3=buildLevel(3);
@@ -409,11 +440,13 @@ function applyCfg(){
   LVL2_MAX=LVL2.reduce((a,i)=>a+i.pts,0);
   LVL3_MAX=LVL3.reduce((a,i)=>a+i.pts,0);
   MAX=LVL1_MAX+LVL2_MAX+LVL3_MAX;
+  _dayCfgCache={};
 }
 applyCfg();
 
-const GRADE=s=>{
-  const p=MAX>0?(s/MAX)*100:0;
+const GRADE=(s,mx)=>{
+  const M=(mx==null?MAX:mx);
+  const p=M>0?(s/M)*100:0;
   if(p>=92)return{l:"S+",c:"#FFF1A8",g:"#FFD70099",n:"UNSTOPPABLE",bg:"rgba(255,241,168,0.07)"};
   if(p>=84)return{l:"S",c:"#FFD700",g:"#FFD70055",n:"LEGENDARY",bg:"rgba(255,215,0,0.05)"};
   if(p>=71)return{l:"A",c:"#4ade80",g:"#4ade8055",n:"EXCELLENT",bg:"rgba(74,222,128,0.05)"};
@@ -455,10 +488,15 @@ const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
   const activeSubs=Object.values(soc).filter(Boolean).length;
-  const l1=LVL1.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
-  const l2=LVL2.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
-  const l3=LVL3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?Math.round((activeSubs/3)*i.pts):i.pts):0):(ch[i.id]?i.pts:0)),0);
-  return{score:l1+l2+l3,l1,l2,l3,done:Object.values(ch).filter(Boolean).length};
+  const C=cfgForDate(key);
+  const l1=C.L1.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
+  const l2=C.L2.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
+  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?Math.round((activeSubs/3)*i.pts):i.pts):0):(ch[i.id]?i.pts:0)),0);
+  const m1=C.L1.reduce((a,i)=>a+i.pts,0),m2=C.L2.reduce((a,i)=>a+i.pts,0),m3=C.L3.reduce((a,i)=>a+i.pts,0);
+  const max=m1+m2+m3, score=l1+l2+l3;
+  return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,
+         pct:max>0?Math.round((score/max)*100):0,
+         done:Object.values(ch).filter(Boolean).length};
 }
 
 // History is DERIVED, never stored separately — cannot drift from checks
@@ -466,8 +504,8 @@ function getHistory(){
   const h={};
   for(const date of Object.keys(_state)){
     if(!DATE_RE.test(date))continue;
-    const{score,l1,l2,l3,done}=calcScore(date);
-    if(score>0)h[date]={score,grade:GRADE(score).l,l1,l2,l3,done};
+    const{score,l1,l2,l3,done,max,pct,l1max,l2max,l3max}=calcScore(date);
+    if(score>0)h[date]={score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,l1max,l2max,l3max};
   }
   return h;
 }
@@ -481,7 +519,7 @@ function persistDay(key){
   clearTimeout(_pending[key]);
   _pending[key]=setTimeout(async()=>{
     const ch=getChecked(key),soc=getSocial(key);
-    const{score,l1,l2,l3,done}=calcScore(key);
+    const{score,l1,l2,l3,done,max,pct}=calcScore(key);
     const anything=Object.values(ch).some(Boolean)||!!getNote(key);
     try{
       if(!anything){
@@ -490,7 +528,7 @@ function persistDay(key){
       }else{
         await sb.from('day_logs').upsert({
           user_id:USER.id,date:key,
-          data:{score,grade:GRADE(score).l,l1,l2,l3,done,_checks:ch,_social:soc,_note:(_state[key]&&_state[key].note)||''}
+          data:{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,_checks:ch,_social:soc,_note:(_state[key]&&_state[key].note)||''}
         },{onConflict:'user_id,date'});
       }
     }catch(e){}
@@ -509,14 +547,17 @@ function saveCfg(){
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){
-  if(CFG.v>=3){return;}
+  if(!Array.isArray(CFG.log))CFG.log=[];   // empty timeline = "never edited", scores as before
+  if(CFG.v>=4){applyCfg();return;}
   if(!(CFG.v>=2)){
   if(CFG.h&&CFG.h.pomodoro&&Number(CFG.h.pomodoro.p)===6)CFG.h.pomodoro.p=5;
     CFG.v=2;
   }
-  if(Number(CFG.nightFrom)===18)CFG.nightFrom=20.5;   // 6pm → 8:30pm
-  if(CFG.nightUntil==null)CFG.nightUntil=7;           // extend night through the small hours
-  CFG.v=3; applyCfg();
+  if(CFG.v<3){
+    if(Number(CFG.nightFrom)===18)CFG.nightFrom=20.5;   // 6pm → 8:30pm
+    if(CFG.nightUntil==null)CFG.nightUntil=7;           // extend night through the small hours
+  }
+  CFG.v=4; applyCfg();
 }
 function loadCfgLocal(){
   const c=get(cfgKey());
@@ -610,7 +651,7 @@ function renderReview(){
   }).sort((a,b)=>b.n-a.n);
   const top=rate.filter(r=>r.n>0).slice(0,3);
   const weak=rate.filter(r=>r.n<7).slice(-3).reverse();
-  const g=GRADE(avg);
+  const g=GRADE(avg,100);
   const dn=k=>keyToDate(k).toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"});
 
   return`<div style="display:flex;flex-direction:column;min-height:100%">
@@ -637,13 +678,13 @@ function renderReview(){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div class="card">
           <div style="font-size:21px;margin-bottom:6px">🏆</div>
-          <div style="font-family:'Bebas Neue';font-size:26px;color:${best?GRADE(best.data.score).c:"#666"};line-height:1">${best?best.data.score+"%":"—"}</div>
+          <div style="font-family:'Bebas Neue';font-size:26px;color:${best?GRADE(best.data.score,best.data.max).c:"#666"};line-height:1">${best?best.data.score+"%":"—"}</div>
           <div style="font-size:12px;color:#9a9ab2;margin-top:5px;letter-spacing:0.08em">BEST DAY</div>
           <div style="font-size:13px;color:#adadbf;margin-top:2px">${best?dn(best.key):""}</div>
         </div>
         <div class="card">
           <div style="font-size:21px;margin-bottom:6px">📉</div>
-          <div style="font-family:'Bebas Neue';font-size:26px;color:${worst?GRADE(worst.data.score).c:"#666"};line-height:1">${worst?worst.data.score+"%":"—"}</div>
+          <div style="font-family:'Bebas Neue';font-size:26px;color:${worst?GRADE(worst.data.score,worst.data.max).c:"#666"};line-height:1">${worst?worst.data.score+"%":"—"}</div>
           <div style="font-size:12px;color:#9a9ab2;margin-top:5px;letter-spacing:0.08em">LOWEST DAY</div>
           <div style="font-size:13px;color:#adadbf;margin-top:2px">${worst?dn(worst.key):""}</div>
         </div>
@@ -684,8 +725,8 @@ function renderReview(){
         <div class="card">
           <div style="display:flex;align-items:flex-end;gap:6px;height:104px;padding-top:8px">
             ${days.map(d=>{
-              const sc=d.data?d.data.score:0, gg=GRADE(sc);
-              const hh=sc>0?Math.max(Math.round(sc/MAX*76),6):4;
+              const sc=d.data?d.data.score:0, gg=GRADE(sc,d.data?d.data.max:null);
+              const hh=sc>0?Math.max(Math.round(dPct(d.data)/100*76),6):4;
               return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
                 <div style="font-size:11px;color:${sc>0?gg.c:"#76768f"}">${sc||""}</div>
                 <div style="width:100%;height:${hh}px;border-radius:4px 4px 0 0;background:${sc>0?gg.c+"33":"#14142a"};border:1px solid ${sc>0?gg.c+"55":"#1c1c30"};border-bottom:none"></div>
@@ -721,13 +762,16 @@ function renderSettings(){
             <button onclick="cfgMove('${id}',-1)" class="ord">▲</button>
             <button onclick="cfgMove('${id}',1)" class="ord">▼</button>
           </div>
-          <span style="font-size:17px;width:22px;text-align:center">${esc(x.i)}</span>
+          <input value="${esc(x.i)}" onchange="cfgSet('${id}','i',this.value.slice(0,3))" aria-label="icon"
+            style="width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0"/>
           <input value="${esc(x.l)}" onchange="cfgSet('${id}','l',this.value)"
             style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
           <input type="number" min="0" max="60" value="${esc(x.p)}" onchange="cfgSet('${id}','p',this.value)"
             style="width:52px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:15px;padding:5px 6px;text-align:center"/>
-          <button onclick="cfgToggle('${id}')" style="background:none;border:1px solid #222;color:${x.on!==false?col:'#555'};border-radius:6px;font-size:15px;width:30px;height:28px;cursor:pointer">${x.on!==false?'✓':'○'}</button>
+          <button onclick="cfgToggle('${id}')" title="${x.on!==false?'Pause this habit':'Resume this habit'}" style="background:none;border:1px solid #222;color:${x.on!==false?col:'#555'};border-radius:6px;font-size:15px;width:30px;height:28px;cursor:pointer">${x.on!==false?'✓':'○'}</button>
+          ${isCustom(id)?`<button onclick="cfgDel('${id}')" title="Delete habit" style="background:none;border:1px solid #222;color:#6a6a80;border-radius:6px;font-size:13px;width:26px;height:28px;cursor:pointer;flex-shrink:0">✕</button>`:""}
         </div>`}).join("")}
+      <button onclick="cfgAdd(${n})" style="width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px">+ ADD HABIT</button>
     </div>`;
   return`<div style="display:flex;flex-direction:column;min-height:100%">
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
@@ -779,7 +823,20 @@ function renderSettings(){
   </div>`;
 }
 
-function cfgSet(id,k,v){ if(!CFG.h[id])return; CFG.h[id][k]= k==='p'?Math.max(0,parseInt(v)||0):v; saveCfg(); render(); }
+function cfgSet(id,k,v){ if(!CFG.h[id])return; cfgEdit(()=>{ CFG.h[id][k]= k==='p'?Math.max(0,parseInt(v)||0):v; }); }
+const isCustom=id=>/^c[a-z0-9]{5}$/.test(id);
+function cfgAdd(lv){
+  if(Object.keys(CFG.h).length>=40)return;
+  let id; do{ id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(CFG.h[id]);
+  haptic(12);
+  cfgEdit(()=>{ CFG.h[id]={l:"New habit",p:5,i:"⭐",lv:Number(lv)||1,on:true}; CFG.order.push(id); });
+}
+function cfgDel(id){
+  if(!CFG.h[id]||!isCustom(id))return;
+  if(!confirm(`Remove "${CFG.h[id].l}"? Past days keep the score they already had.`))return;
+  haptic(12);
+  cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); });
+}
 function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
 function cfgMove(id,dir){
   const lv=CFG.h[id]&&CFG.h[id].lv; if(!lv)return;
@@ -789,10 +846,9 @@ function cfgMove(id,dir){
   haptic(12);
   // swap the two ids in the global order array
   const a=CFG.order.indexOf(peers[i]), b=CFG.order.indexOf(peers[j]);
-  [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]];
-  saveCfg(); render();
+  cfgEdit(()=>{ [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]]; });
 }
-function cfgToggle(id){ haptic(10); CFG.h[id].on=CFG.h[id].on===false; saveCfg(); render(); }
+function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid].steps[i]; s[k]= k==='dur'?Math.max(1,parseInt(v)||1):v; saveCfg(); render(); }
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
@@ -908,11 +964,11 @@ sb.auth.onAuthStateChange((event,session)=>{
 
 function getStreak(){
   const hh=getHistory(),tk=todayKey();let s=0;
-  for(let i=0;i<3650;i++){const k=keyMinus(tk,i);const need=MAX*0.5;if(hh[k]&&hh[k].score>=need)s++;else if(i>0)break;}
+  for(let i=0;i<3650;i++){const k=keyMinus(tk,i);const d=hh[k];if(d&&d.score>=(d.max||MAX)*0.5)s++;else if(i>0)break;}
   return s;
 }
 function getBestStreak(){
-  const hh=getHistory(),need=MAX*0.5,keys=Object.keys(hh).filter(k=>DATE_RE.test(k)&&hh[k].score>=need).sort();
+  const hh=getHistory(),keys=Object.keys(hh).filter(k=>DATE_RE.test(k)&&hh[k].score>=(hh[k].max||MAX)*0.5).sort();
   let best=0,run=0,prev=null;
   for(const k of keys){
     const d=new Date(k+'T12:00:00');
@@ -938,7 +994,9 @@ function getDays(n){
   return days;
 }
 function getWeeks(){const d=getDays(28);return[0,1,2,3].map(w=>d.slice(w*7,w*7+7));}
-function avgW(days){const f=days.filter(d=>d.data);return f.length?Math.round(f.reduce((a,d)=>a+d.data.score,0)/f.length):0;}
+// Days can have different maxes now, so averages run on normalised percentages.
+const dPct=d=>d&&(d.pct!=null?d.pct:(d.max?Math.round(d.score/d.max*100):d.score));
+function avgW(days){const f=days.filter(d=>d.data);return f.length?Math.round(f.reduce((a,d)=>a+dPct(d.data),0)/f.length):0;}
 
 function ring(score,max,size,thick,col,glow){
   const r=(size-thick)/2-2,c=2*Math.PI*r,off=c-(Math.min(score,max)/max)*c,cx=size/2;
@@ -1253,9 +1311,11 @@ function isNight(){
 function renderToday(key,nested=false){
   const _hr=new Date().getHours();
   const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";
-  const ch=getChecked(key),soc=getSocial(key),{score,l1,l2,l3,done}=calcScore(key),gr=GRADE(score),streak=getStreak();
+  const C=cfgForDate(key);
+  const ch=getChecked(key),soc=getSocial(key),{score,l1,l2,l3,done,max:dMax,l1max:dM1,l2max:dM2,l3max:dM3}=calcScore(key),gr=GRADE(score,dMax),streak=getStreak();
   const activeSubs=Object.values(soc).filter(Boolean).length;
-  const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*18):18):0;
+  const comboPts=(C.L3.find(x=>x.combo)||{pts:18}).pts;
+  const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/3)*comboPts):comboPts):0;
   const isToday=key===todayKey();
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
@@ -1263,7 +1323,7 @@ function renderToday(key,nested=false){
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}
     <div class="t-ring" style="position:relative;width:168px;height:168px">
-      ${ring(score,MAX,168,12,gr.c,gr.g)}
+      ${ring(score,dMax,168,12,gr.c,gr.g)}
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
         <div style="font-family:'Bebas Neue';font-size:54px;line-height:1;color:${gr.c};text-shadow:0 0 40px ${gr.g}">${score}%</div>
         <div style="font-size:14px;color:${gr.c};letter-spacing:0.12em;opacity:0.65">${gr.n}</div>
@@ -1272,8 +1332,8 @@ function renderToday(key,nested=false){
     <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
       <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${gr.l}</div>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${MAX}%</span></div>
-        ${bar((Math.min(score,MAX)/MAX)*100,gr.c,gr.g,5)}
+        <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${dMax}%</span></div>
+        ${bar((Math.min(score,dMax)/dMax)*100,gr.c,gr.g,5)}
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#8888a4;margin-top:8px">
           <span style="color:#c0c0cd">CORE <span style="color:${l1>0?"#e2e2e2":"#777"}">${l1}/${LVL1_MAX}</span></span>
           <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#777"}">${l2}/${LVL2_MAX}</span></span>
@@ -1312,9 +1372,9 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
     <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l1}/${LVL1_MAX}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l1}/${dM1}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
-      ${LVL1.map(item=>`
+      ${C.L1.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
           ${chk(!!ch[item.id],item.col)}
@@ -1329,9 +1389,9 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l2}/${LVL2_MAX}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l2}/${dM2}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
-      ${LVL2.map(item=>`
+      ${C.L2.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${chk(!!ch[item.id],item.col)}
@@ -1342,7 +1402,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l3}/${LVL3_MAX}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;font-size:11px;color:#7e7e97">${l3}/${dM3}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       <div style="border-radius:13px;border:1px solid ${ch.social||socialExpanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||socialExpanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
@@ -1355,7 +1415,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
             <button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${socialExpanded?"✕":"EDIT"}</button>
-            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#777"};min-width:38px;text-align:right">${socialPts||(LVL3.find(x=>x.combo)||{pts:18}).pts}%</span>
+            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#777"};min-width:38px;text-align:right">${socialPts||comboPts}%</span>
           </div>
         </div>
         ${socialExpanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
@@ -1367,7 +1427,7 @@ ${(nested||!isToday)?"":`<div class="t-rout" style="width:100%;max-width:390px">
           </div>`).join("")}
         </div>`:""}
       </div>
-      ${LVL3.filter(x=>!x.combo).map(item=>`
+      ${C.L3.filter(x=>!x.combo).map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${chk(!!ch[item.id],"#fbbf24")}
@@ -1417,7 +1477,7 @@ function weekReview(){
 function renderWeekReview(){
   const r=weekReview();
   if(!r)return "";
-  const g=GRADE(r.avg);
+  const g=GRADE(r.avg,100);
   const arrow=r.diff==null?"":(r.diff>0?"▲":r.diff<0?"▼":"—");
   const acol=r.diff==null?"#9a9ab4":(r.diff>0?"#4ade80":r.diff<0?"#ef4444":"#9a9ab4");
   return`<div>
@@ -1425,7 +1485,7 @@ function renderWeekReview(){
     <div class="card">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
         <div style="position:relative;width:74px;height:74px;flex-shrink:0">
-          ${ring(r.avg,MAX,74,6,g.c,g.g)}
+          ${ring(r.avg,100,74,6,g.c,g.g)}
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
             <span style="font-family:'Bebas Neue';font-size:19px;color:${g.c};line-height:1">${r.avg}</span>
             <span style="font-size:9px;color:${g.c};opacity:.65">AVG</span>
@@ -1440,7 +1500,7 @@ function renderWeekReview(){
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        ${r.cur.map(x=>{const dg=x.data?GRADE(x.data.score):null;const hh=x.data?Math.max(6,(x.data.score/MAX)*44):4;
+        ${r.cur.map(x=>{const dg=x.data?GRADE(x.data.score,x.data.max):null;const hh=x.data?Math.max(6,(dPct(x.data)/100)*44):4;
           return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
             <div style="width:100%;height:44px;display:flex;align-items:flex-end">
               <div style="width:100%;height:${hh}px;border-radius:4px 4px 0 0;background:${dg?dg.c+"33":"#14141f"};border:1px solid ${dg?dg.c+"55":"#1a1a28"};border-bottom:none"></div>
@@ -1466,8 +1526,8 @@ function renderWeekReview(){
 function renderStats(){
   const tk=todayKey(),{score,l1,l2,l3,done}=calcScore(tk),gr=GRADE(score),h=getHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
-  const total=allDays.length,best=allDays.reduce((m,[,d])=>Math.max(m,d.score),0);
-  const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+d.score,0)/total):0,streak=getStreak();
+  const total=allDays.length,best=allDays.reduce((m,[,d])=>Math.max(m,dPct(d)),0);
+  const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+dPct(d),0)/total):0,streak=getStreak();
   const bestStreak=getBestStreak(),trend=weekTrend();
   if(total===0&&score===0){
     return`<div class="fade-up" style="height:calc(100dvh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center">
@@ -1480,7 +1540,7 @@ function renderStats(){
   return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:bestStreak>0?`record ${bestStreak}d`:"days ≥ 60%"},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best).c:"#333",sub:best>0?GRADE(best).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${m.label}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
+      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:bestStreak>0?`record ${bestStreak}d`:"days ≥ 60%"},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${m.icon}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${m.label}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
     <div>
       <div class="sec">TODAY — BREAKDOWN</div>
@@ -1495,8 +1555,8 @@ function renderStats(){
         ${[["⬛ CORE",l1,LVL1_MAX,"#e2e2e2"],["▪ HABITS",l2,LVL2_MAX,"#a78bfa"],["· BONUS",l3,LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:14.5px;color:#9a9ab2;margin-bottom:7px"><span>${lb}</span><span style="color:${v>0?c:"#252535"}">${v}<span style="opacity:0.4">/${mx}%</span></span></div>${bar((v/mx)*100,c,c+"55",5)}</div>`).join("")}
       </div>
     </div>
-    ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S",100],["A",87],["B",77],["C",57],["D",35],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
-    ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a):null,bh=a>0?Math.max((a/MAX)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
+    ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S",100],["A",87],["B",77],["C",57],["D",35],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
+    ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
   </div>`;
 }
 
@@ -1513,7 +1573,7 @@ function renderHistWeek(){
   const days=getDays(7).reverse(),tk=todayKey();
   return`<div style="display:flex;flex-direction:column;gap:8px"><div class="sec">LAST 7 DAYS</div>
     ${days.map(({key,date,data})=>{
-      const g=data?GRADE(data.score):null,isT=key===tk,tgr=GRADE(calcScore(tk).score);
+      const g=data?GRADE(data.score,data.max):null,isT=key===tk,tgr=GRADE(calcScore(tk).score);
       return`<div class="card" style="border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${data?14:0}px">
           <div>
@@ -1521,10 +1581,10 @@ function renderHistWeek(){
             ${isT?`<div style="font-size:14px;color:${tgr.c};letter-spacing:0.1em;margin-top:2px">TODAY</div>`:""}
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            ${data?`<div style="position:relative;width:42px;height:42px">${ring(data.score,MAX,42,3,g.c,g.g)}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span style="font-family:'Bebas Neue';font-size:16.5px;color:${g.c}">${data.score}</span></div></div><div style="font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1">${g.l}</div><button onclick="openEditDay('${key}')" style="background:none;border:1px solid #1e1e2e;color:#a2a2b6;font-family:inherit;font-size:14.5px;padding:5px 10px;border-radius:7px;cursor:pointer">EDIT</button>`:`<button onclick="openEditDay('${key}')" style="background:#161626;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;font-size:14.5px;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500">+ LOG</button>`}
+            ${data?`<div style="position:relative;width:42px;height:42px">${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span style="font-family:'Bebas Neue';font-size:16.5px;color:${g.c}">${data.score}</span></div></div><div style="font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1">${g.l}</div><button onclick="openEditDay('${key}')" style="background:none;border:1px solid #1e1e2e;color:#a2a2b6;font-family:inherit;font-size:14.5px;padding:5px 10px;border-radius:7px;cursor:pointer">EDIT</button>`:`<button onclick="openEditDay('${key}')" style="background:#161626;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;font-size:14.5px;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500">+ LOG</button>`}
           </div>
         </div>
-        ${data?`<div style="display:flex;gap:8px">${[["CORE",data.l1,LVL1_MAX,"#e2e2e2"],["HABITS",data.l2,LVL2_MAX,"#a78bfa"],["BONUS",data.l3,LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px"><span>${lb}</span><span style="color:${v>0?c+"aa":"#252535"}">${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
+        ${data?`<div style="display:flex;gap:8px">${[["CORE",data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],["HABITS",data.l2,data.l2max||LVL2_MAX,"#a78bfa"],["BONUS",data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px"><span>${lb}</span><span style="color:${v>0?c+"aa":"#252535"}">${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
       </div>`;
     }).join("")}
   </div>`;
@@ -1533,7 +1593,7 @@ function renderHistWeek(){
 function renderHistMonth(){
   return`<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">LAST 4 WEEKS</div>
     ${getWeeks().map((week,wi)=>{
-      const a=avgW(week),g=a>0?GRADE(a):null;
+      const a=avgW(week),g=a>0?GRADE(a,100):null;
       return`<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
           <div style="font-size:15px;color:#9a9ab2;letter-spacing:0.1em">WEEK ${4-wi}</div>
@@ -1541,7 +1601,7 @@ function renderHistMonth(){
         </div>
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
           ${week.map(({key,date,data})=>{
-            const dg=data?GRADE(data.score):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
+            const dg=data?GRADE(data.score,data.max):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
             return`<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
               <div style="font-size:13.5px;color:#adadbf">${date.toLocaleDateString("en",{weekday:"narrow"}).toUpperCase()}</div>
               <div onclick="openEditDay('${key}')" style="width:100%;aspect-ratio:1;border-radius:9px;background:${data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:tgr.c)+"55":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
@@ -1563,7 +1623,7 @@ function renderHistYear(){
   if(!filled.length)return`<div style="text-align:center;padding:48px 24px;color:#a2a2b6;font-size:15px;line-height:1.6">No days logged this year yet.</div>`;
   return`<div style="display:flex;flex-direction:column;gap:14px"><div class="sec">YEAR CALENDAR</div>
     ${filled.reverse().map(([month,mdays])=>{
-      const ma=avgW(mdays),mg=ma>0?GRADE(ma):null;
+      const ma=avgW(mdays),mg=ma>0?GRADE(ma,100):null;
       return`<div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
           <div style="font-size:15px;color:#aaaabe;text-transform:uppercase;letter-spacing:0.12em">${month}</div>
@@ -1571,7 +1631,7 @@ function renderHistYear(){
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
           ${mdays.map(({key,data})=>{
-            const dg=data?GRADE(data.score):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
+            const dg=data?GRADE(data.score,data.max):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
             return`<div onclick="openEditDay('${key}')" title="${data?`${key}: ${data.score}%`:key}" style="width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
               ${data?`<span style="font-family:'Bebas Neue';font-size:15px;color:${dg.c}">${dg.l}</span>`:`<span style="font-size:14px;color:#9a9ab2">·</span>`}
             </div>`;

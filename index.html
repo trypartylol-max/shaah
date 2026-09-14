@@ -160,6 +160,17 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 
   #scroll .today .t-reset {grid-row:5;grid-column:1 / -1;justify-self:center;max-width:280px;}
 
+  /* HISTORY — el texto de dentro estaba diminuto en una pantalla ancha.
+     Sube el contenido, NO el alto de la caja: el ring y los paddings no se tocan,
+     y `h-day`/`h-lvl` caben de sobra en el alto que ya tenian. */
+  #scroll .htab   {font-size:16px !important;padding:9px 20px !important;}
+  #scroll .h-day  {font-size:19px !important;letter-spacing:.05em !important;}
+  #scroll .h-today{font-size:15px !important;}
+  #scroll .h-lvl  {font-size:17px !important;}
+  #scroll .h-num  {font-size:19px !important;}
+  #scroll .h-grade{font-size:38px !important;}
+  #scroll .h-edit {font-size:16px !important;padding:7px 15px !important;}
+
   #scroll .today .t-lvl,
   #scroll .today .t-note,
   #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:11px 16px;}
@@ -315,7 +326,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260914-0038·d41df6";
+const BUILD="20260914-0059·4899f7";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -1898,8 +1909,47 @@ function render(){
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
   renderTour();
   renderResume();
+  fitDesktop();
   initScrollHide();
 }
+
+// ── Escritorio: usar toda la pantalla ─────────────────────────────────────
+// En movil no cambia nada. En escritorio la ventana es mucho mas alta que el
+// contenido y quedaban ~250 px muertos sobre el dock: en vez de eso se escala
+// TODO — letra, cajas e iconos — hasta llenarla. `zoom` escala el layout entero,
+// que es exactamente "agrandalo todo un poco" sin reescribir 300 estilos en linea.
+// `slack` deja holgura donde el contenido va a crecer (SOCIAL: mas personas).
+// Nunca encoge: si algun dia no cabe, se queda a 1 y hace scroll.
+const FIT={today:{max:1.8,slack:0},social:{max:1.7,slack:0.15}};
+function fitDesktop(){
+  const sc=document.getElementById("scroll");if(!sc)return;
+  const el=sc.querySelector(".fade-up");if(!el)return;
+  el.style.zoom="";el.style.paddingBottom="";          // medir siempre sin escalar
+  const f=FIT[currentTab];
+  if(!f||!window.matchMedia("(min-width:880px)").matches)return;
+  const bar=document.getElementById("topbar"),nav=document.getElementById("nav");
+  const barH=bar?bar.getBoundingClientRect().height:0;
+  const navH=nav?nav.getBoundingClientRect().height:58;
+  // El hueco para el dock se reserva UNA vez y sin escalar: el padding-bottom de
+  // 58px se multiplicaba por el zoom y dejaba una franja muerta sobre la barra.
+  el.style.paddingBottom="10px";
+  const libre=sc.clientHeight-barH-navH;
+  const alto=el.scrollHeight;
+  if(!(alto>0)||!(libre>0)){el.style.paddingBottom="";return;}
+  // El primer calculo es solo una estimacion: al escalar, el ancho util baja
+  // (2000px a 1.7x son 1176px de layout), el texto envuelve distinto y el alto
+  // NO crece lineal — se pasaba y volvia a salir scroll. Asi que se aplica, se
+  // MIDE lo renderizado y se corrige. Converge en una o dos vueltas.
+  let z=Math.min(f.max,(libre/alto)*(1-f.slack));
+  for(let i=0;i<4&&z>1.02;i++){
+    el.style.zoom=z.toFixed(3);
+    const real=el.getBoundingClientRect().height;
+    if(!(real>libre+1))break;
+    z*=(libre/real)*0.995;
+  }
+  if(z>1.02)el.style.zoom=z.toFixed(3); else {el.style.zoom="";el.style.paddingBottom="";}
+}
+window.addEventListener("resize",()=>{try{fitDesktop();}catch(e){}});
 
 function isNight(){
   const d=new Date(), hr=d.getHours()+d.getMinutes()/60;
@@ -2253,14 +2303,14 @@ function renderHistWeek(){
       return`<div class="card" style="border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${data?14:0}px">
           <div>
-            <div style="font-size:15px;color:${isT?"#e2e2e2":"#8a8aa0"};letter-spacing:0.06em">${date.toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
-            ${isT?`<div style="font-size:14px;color:${tgr.c};letter-spacing:0.1em;margin-top:2px">TODAY</div>`:""}
+            <div class="h-day" style="font-size:15px;color:${isT?"#e2e2e2":"#8a8aa0"};letter-spacing:0.06em">${date.toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
+            ${isT?`<div class="h-today" style="font-size:14px;color:${tgr.c};letter-spacing:0.1em;margin-top:2px">TODAY</div>`:""}
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            ${data?`<div style="position:relative;width:42px;height:42px">${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span style="font-family:'Bebas Neue';font-size:16.5px;color:${g.c}">${data.score}</span></div></div><div style="font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1">${esc(g.l)}</div><button onclick="openEditDay('${key}')" style="background:none;border:1px solid #1e1e2e;color:#a2a2b6;font-family:inherit;font-size:14.5px;padding:5px 10px;border-radius:7px;cursor:pointer">EDIT</button>`:`<button onclick="openEditDay('${key}')" style="background:#161626;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;font-size:14.5px;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500">+ LOG</button>`}
+            ${data?`<div style="position:relative;width:42px;height:42px">${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span class="h-num" style="font-family:'Bebas Neue';font-size:16.5px;color:${g.c}">${data.score}</span></div></div><div class="h-grade" style="font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1">${esc(g.l)}</div><button class="h-edit" onclick="openEditDay('${key}')" style="background:none;border:1px solid #1e1e2e;color:#a2a2b6;font-family:inherit;font-size:14.5px;padding:5px 10px;border-radius:7px;cursor:pointer">EDIT</button>`:`<button onclick="openEditDay('${key}')" style="background:#161626;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;font-size:14.5px;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500">+ LOG</button>`}
           </div>
         </div>
-        ${data?`<div style="display:flex;gap:8px">${[["CORE",data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],["HABITS",data.l2,data.l2max||LVL2_MAX,"#a78bfa"],["BONUS",data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px"><span>${lb}</span><span style="color:${v>0?c+"aa":"#252535"}">${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
+        ${data?`<div style="display:flex;gap:8px">${[["CORE",data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],["HABITS",data.l2,data.l2max||LVL2_MAX,"#a78bfa"],["BONUS",data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div style="flex:1"><div class="h-lvl" style="display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px"><span>${lb}</span><span style="color:${v>0?c+"aa":"#252535"}">${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
       </div>`;
     }).join("")}
   </div>`;

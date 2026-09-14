@@ -305,7 +305,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-2253·3755a8";
+const BUILD="20260914-0023·0c06bb";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -1004,6 +1004,7 @@ function rowToState(row){
         if(back&&USER&&_cfgReady){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
       }
       applyCfg();migrateCfg();set(cfgKey(),CFG);
+      loadLvl();   // el plegado viene dentro de la config: boot() la leyo antes que esta
     }
     return;
   }
@@ -1647,8 +1648,28 @@ function secKey(){return `shaah_sec_${USER?USER.id:'anon'}`;}
 function loadSec(){const v=get(secKey());if(v&&typeof v==='object')secOpen={...secOpen,...v};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);set(secKey(),secOpen);render();}
 function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
-function loadLvl(){const v=get(lvlKey());if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};}
-function toggleLvl(n){lvlOpen[n]=!lvlOpen[n];haptic(9);set(lvlKey(),lvlOpen);render();}
+// Preferencia de interfaz: se guarda sin pasar por saveCfg() para no tocar el
+// anillo de respaldos (5 huecos; una copia buena vale mas que un plegado).
+function saveCfgPref(){
+  set(cfgKey(),CFG);
+  if(USER&&_cfgReady){
+    Promise.resolve()
+      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
+      .catch(()=>{});
+  }
+}
+// La config manda; localStorage es solo el eco local (y la migracion de quien ya
+// tenia niveles plegados antes de que esto viajara al servidor).
+function loadLvl(){
+  const v=(CFG&&CFG.lvlOpen&&typeof CFG.lvlOpen==='object')?CFG.lvlOpen:get(lvlKey());
+  if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
+}
+function toggleLvl(n){
+  lvlOpen[n]=!lvlOpen[n];haptic(9);
+  set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
+  CFG.lvlOpen={...lvlOpen};saveCfgPref();    // y alcanza al otro dispositivo
+  render();
+}
 let reviewOpen=false;
 let histMonth=null;
 let currentTab="today",sessions={},routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;

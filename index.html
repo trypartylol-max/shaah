@@ -420,7 +420,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260914-0224·8438f3";
+const BUILD="20260914-0530·001cc2";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -898,6 +898,7 @@ function persistDay(key){
   if(!USER)return;
   clearTimeout(_pending[key]);
   _pending[key]=setTimeout(async()=>{
+    delete _pending[key];          // ya no hay guardado pendiente: el próximo eco de Realtime no debe re-fusionar-y-reprogramar
     const ch=getChecked(key),soc=getSocial(key);
     const{score,l1,l2,l3,done,max,pct}=calcScore(key);
     const ppl=getPeople(key);

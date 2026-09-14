@@ -129,7 +129,12 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today{
     display:grid !important;
     grid-template-columns:repeat(12,minmax(0,1fr));
-    column-gap:16px;row-gap:14px;align-items:start;grid-auto-rows:min-content;
+    /* !important: el contenedor lleva `gap:18px` en linea y ganaba al grid,
+       asi que este row-gap llevaba tiempo sin aplicarse. */
+    column-gap:16px !important;row-gap:11px !important;
+    /* idem: `align-items:center` en linea centraba cada tarjeta en su fila, y las
+       cortas quedaban descolgadas respecto a las largas. */
+    align-items:start !important;grid-auto-rows:min-content;
   }
   #scroll .today>*{width:auto !important;max-width:none !important;margin:0 !important;}
 
@@ -143,22 +148,27 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today .t-grade {grid-row:2;grid-column:3 / span 8;align-self:center;}
   #scroll .today .t-streak{grid-row:2;grid-column:11 / span 2;justify-self:center;align-self:center;}
 
-  #scroll .today .t-rout  {grid-row:3;grid-column:1 / -1;}
-  #scroll .today .t-note  {grid-row:4;grid-column:1 / -1;}
+  #scroll .today .t-rout  {grid-row:3;grid-column:span 8;}
+  #scroll .today .t-note  {grid-row:3;grid-column:span 4;}
 
   /* the three levels side by side — the whole day visible at once */
   /* span en vez de columna fija: si LVL 1 no se pinta, los otros dos se corren
      solos en vez de dejar un hueco a la izquierda. */
   #scroll .today .t-lvl1,
   #scroll .today .t-lvl2,
-  #scroll .today .t-lvl3  {grid-row:5;grid-column:span 4;}
+  #scroll .today .t-lvl3  {grid-row:4;grid-column:span 4;}
 
-  #scroll .today .t-reset {grid-row:6;grid-column:1 / -1;justify-self:center;max-width:280px;}
+  #scroll .today .t-reset {grid-row:5;grid-column:1 / -1;justify-self:center;max-width:280px;}
 
   #scroll .today .t-lvl,
   #scroll .today .t-note,
-  #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:16px 18px;}
-  #scroll .today .t-note textarea{min-height:74px;}
+  #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:11px 16px;}
+  #scroll .today .t-note textarea{min-height:58px;padding:9px 12px 9px 16px;}
+  /* El aire de dentro de las tarjetas, no el tamaño de letra */
+  #scroll .today .t-lvl .row{padding-top:7px;padding-bottom:7px;}
+  #scroll .today .sec{margin-bottom:7px;}
+  #scroll .today .t-grade{padding:11px 16px;}
+  #scroll .today .t-reset{padding-top:7px;padding-bottom:7px;}
   /* two routines side by side instead of stacked */
   #scroll .today .t-rout{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
   #scroll .today .t-rout>.sec{grid-column:1 / -1;margin-bottom:0;}
@@ -305,7 +315,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260914-0023·0c06bb";
+const BUILD="20260914-0038·d41df6";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -1951,9 +1961,10 @@ function renderToday(key,nested=false){
     return`<button onclick="event.stopPropagation();toggleLevelAll(${lv},'${key}')" title="${on?'Clear this level':'Check this level'}" style="background:${on?col:'none'};border:1.5px solid ${on?col:'#252535'};color:${on?'#080810':'#9a9ab2'};border-radius:8px;font-size:13px;line-height:1;width:36px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">✓</button>`;};
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/nSubs)*comboPts):comboPts):0;
   const isToday=key===todayKey();
-  // ¿se esta pintando el bloque de rutinas? Solo entonces se filtran del nivel.
-  const routBlock=!nested&&isToday&&LVL1.some(i=>i.routine);
-  const L1vis=routBlock?C.L1.filter(i=>!i.routine):C.L1;
+  // LVL 1 se lista entero, rutinas incluidas: esconderlas dejaba el nivel a medias
+  // y `work` (que no es rutina) descolgado. Para no verlas dos veces se plega el
+  // nivel — la preferencia vive en CFG.lvlOpen y viaja entre dispositivos.
+  const L1vis=C.L1;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
@@ -2209,7 +2220,7 @@ function renderWhoToSee(){
   const due=p=>p.days==null?`every ${p.every}d`:p.overdue>0?`${p.overdue}d over`:p.overdue===0?"due today":`${-p.overdue}d left`;
   return`<div><div class="sec" style="display:flex;align-items:center;gap:8px">WHO TO SEE
       <span style="margin-left:auto;font-size:11px;color:${late?"#f59e0b":"#4ade80"}">${late?`${late} OVERDUE`:"ALL CURRENT"}</span></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:9px">
+    <div class="card" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px 20px">
       ${st.map(p=>{const c=col(p),sb=subsList().find(x=>x.id===p.sub);
       return`<div style="display:flex;align-items:center;gap:11px">
         <span style="font-size:15px;width:20px;text-align:center;flex-shrink:0">${esc(sb?sb.icon:"·")}</span>

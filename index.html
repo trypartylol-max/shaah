@@ -26,6 +26,10 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:smooth;}
 #scroll::-webkit-scrollbar{display:none;}
+/* El hueco que cada vista reserva abajo es calc(68px + safe-area): el dock mide
+   66 px reales (46 de boton + 18 de padding + borde), no 58. Con 58 el boton
+   RESET DAY quedaba 8 px por debajo de la barra. Si cambia el alto del dock,
+   cambiar tambien ese 68. */
 #nav{transition:transform .3s cubic-bezier(.32,.72,0,1),opacity .25s ease;position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #111120;display:flex;padding-bottom:max(calc(env(safe-area-inset-bottom) - 24px),4px);z-index:999;}
 .nav-btn{flex:1;min-height:46px;padding:9px 4px 9px;background:none;border:none;font-family:inherit;font-size:13.5px;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s;border-top:2px solid transparent;color:#adadbf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .nav-btn:active{opacity:.6;}
@@ -40,9 +44,9 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .today .t-streak{order:5;}
 .today .t-ring{order:10;}
 .today .t-grade{order:20;}
-.today .t-lvl1{order:30;}
+.today .t-lvl3{order:30;}
 .today .t-lvl2{order:40;}
-.today .t-lvl3{order:50;}
+.today .t-lvl1{order:50;}
 .today .t-rout{order:60;}
 .today .t-note{order:80;}
 .today .t-reset{order:90;}
@@ -126,15 +130,24 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   /* ── TODAY — Option 4: summary strip on top, full-width checklist ──
      Every block gets an explicit grid row + column, so placement is
      deterministic and `order` (night mode) can't shift anything here. */
+  /* El sobrante vertical lo reparten los HUECOS entre filas, no el tamano de
+     nada: escalar (zoom) inflaba cajas y bordes; esto solo separa los bloques.
+     #scroll pasa a columna flexible para que .today pueda ocupar el alto libre. */
+  #scroll{display:flex;flex-direction:column;}
+  #scroll>*{flex-shrink:0;}
+  #scroll>.today{flex:1 0 auto;align-content:space-between;}
   #scroll .today{
     display:grid !important;
     grid-template-columns:repeat(12,minmax(0,1fr));
     /* !important: el contenedor lleva `gap:18px` en linea y ganaba al grid,
        asi que este row-gap llevaba tiempo sin aplicarse. */
-    column-gap:16px !important;row-gap:11px !important;
+    column-gap:18px !important;row-gap:14px !important;
     /* idem: `align-items:center` en linea centraba cada tarjeta en su fila, y las
        cortas quedaban descolgadas respecto a las largas. */
-    align-items:start !important;grid-auto-rows:min-content;
+    /* stretch: dentro de una fila todas las tarjetas miden lo mismo — es lo que
+       hace que DAY NOTE y los niveles se vean como un juego. El anillo y la
+       tarjeta de nota llevan `align-self:center` propio y no se ven afectados. */
+    align-items:stretch !important;grid-auto-rows:min-content;
   }
   #scroll .today>*{width:auto !important;max-width:none !important;margin:0 !important;}
 
@@ -144,25 +157,54 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 
   /* summary strip: ring · grade · streak on one line */
   #scroll .today .t-ring  {grid-row:2;grid-column:1 / span 2;justify-self:center;align-self:center;
-                           zoom:.66;margin:0 !important;}
+                           zoom:.95;margin:0 !important;}
   #scroll .today .t-grade {grid-row:2;grid-column:3 / span 8;align-self:center;}
   #scroll .today .t-streak{grid-row:2;grid-column:11 / span 2;justify-self:center;align-self:center;}
 
-  #scroll .today .t-rout  {grid-row:3;grid-column:span 8;}
-  #scroll .today .t-note  {grid-row:3;grid-column:span 4;}
+  /* La nota se queda en su fila, junto a las rutinas. Lo que se iguala son las
+     DIMENSIONES: misma altura que la caja vecina gracias a `stretch`. */
+  #scroll .today .t-rout  {grid-row:3;grid-column:1 / span 8;}
+  #scroll .today .t-note  {grid-row:3;grid-column:9 / span 4;}
 
   /* the three levels side by side — the whole day visible at once */
-  /* span en vez de columna fija: si LVL 1 no se pinta, los otros dos se corren
-     solos en vez de dejar un hueco a la izquierda. */
-  #scroll .today .t-lvl1,
-  #scroll .today .t-lvl2,
-  #scroll .today .t-lvl3  {grid-row:4;grid-column:span 4;}
+  /* Fila de niveles al reves (3·2·1) y DAY NOTE como una caja mas: misma
+     anchura y, con `stretch`, mismo alto. Columnas explicitas para que el orden
+     no dependa del DOM. */
+  #scroll .today .t-lvl3  {grid-row:4;grid-column:1 / span 4;}
+  #scroll .today .t-lvl2  {grid-row:4;grid-column:5 / span 4;}
+  #scroll .today .t-lvl1  {grid-row:4;grid-column:9 / span 4;}
 
-  #scroll .today .t-reset {grid-row:5;grid-column:1 / -1;justify-self:center;max-width:280px;}
+  #scroll .today .t-reset {grid-row:5;grid-column:1 / -1;justify-self:center;align-self:center;max-width:280px;}
+  #scroll .today .t-note{display:flex;flex-direction:column;}
+  #scroll .today .t-note .notecard{flex:1;display:flex;}
+  #scroll .today .t-note textarea{flex:1;}
 
   /* HISTORY — el texto de dentro estaba diminuto en una pantalla ancha.
      Sube el contenido, NO el alto de la caja: el ring y los paddings no se tocan,
      y `h-day`/`h-lvl` caben de sobra en el alto que ya tenian. */
+  /* TODAY y SOCIAL: MISMO criterio que HISTORY — sube lo que se lee, no la caja.
+     El zoom que escalaba todo por igual quedaba inflado; esto solo toca texto.
+     Los estilos en linea ganan a la hoja, de ahi el !important en cada regla. */
+  #scroll .today .sec,
+  #scroll .soc .sec        {font-size:16px !important;}
+  #scroll .today .row span {font-size:19px !important;}
+  #scroll .today .lvl-n    {font-size:14px !important;}
+  #scroll .today .t-grade span{font-size:16.5px !important;}
+  #scroll .today .t-note textarea{font-size:17px !important;}
+  #scroll .today .r-lab    {font-size:19px !important;}
+  #scroll .today .r-sub    {font-size:16px !important;}
+  #scroll .today .r-step   {font-size:16px !important;}
+  #scroll .today .r-btn    {font-size:16px !important;}
+  #scroll .cb-tit          {font-size:21px !important;}
+  #scroll .cb-sub          {font-size:17px !important;}
+  #scroll .cb-row          {font-size:19px !important;}
+  #scroll .cb-pill         {font-size:17px !important;padding:8px 16px !important;}
+  #scroll .w-name          {font-size:19px !important;}
+  #scroll .w-when          {font-size:16.5px !important;}
+  #scroll .w-due           {font-size:16px !important;}
+  #scroll .sd-day          {font-size:19px !important;}
+  #scroll .sd-pts          {font-size:16px !important;}
+
   #scroll .htab   {font-size:16px !important;padding:9px 20px !important;}
   #scroll .h-day  {font-size:19px !important;letter-spacing:.05em !important;}
   #scroll .h-today{font-size:15px !important;}
@@ -173,12 +215,12 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 
   #scroll .today .t-lvl,
   #scroll .today .t-note,
-  #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:11px 16px;}
-  #scroll .today .t-note textarea{min-height:58px;padding:9px 12px 9px 16px;}
+  #scroll .today .t-rout{background:#0b0b14;border:1px solid #16162a;border-radius:16px;padding:15px 20px;}
+  #scroll .today .t-note textarea{min-height:96px;padding:13px 16px 13px 18px;}
   /* El aire de dentro de las tarjetas, no el tamaño de letra */
-  #scroll .today .t-lvl .row{padding-top:7px;padding-bottom:7px;}
-  #scroll .today .sec{margin-bottom:7px;}
-  #scroll .today .t-grade{padding:11px 16px;}
+  #scroll .today .t-lvl .row{padding-top:13px;padding-bottom:13px;}
+  #scroll .today .sec{margin-bottom:11px;}
+  #scroll .today .t-grade{padding:15px 20px;}
   #scroll .today .t-reset{padding-top:7px;padding-bottom:7px;}
   /* two routines side by side instead of stacked */
   #scroll .today .t-rout{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
@@ -235,6 +277,29 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* ── Top bar: sits in the scroll flow, scrolls away with content ── */
 #topbar{display:flex;align-items:center;justify-content:space-between;
   padding:calc(env(safe-area-inset-top) + 8px) 14px 6px;}
+/* ── STATS: rejilla habito x dia ── */
+.cg-row{display:grid;grid-template-columns:minmax(104px,170px) 1fr 46px 42px;align-items:center;gap:10px;}
+.cg-lab{font-size:14.5px;color:#c0c0cd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cg-strip{display:flex;gap:2px;min-width:0;}
+.cg-strip>i{flex:1;height:19px;border-radius:2px;min-width:1px;}
+.cg-st{font-size:13.5px;text-align:right;white-space:nowrap;}
+.cg-rate{font-size:14px;text-align:right;}
+@media(min-width:880px){
+  .cg-row{grid-template-columns:minmax(150px,238px) 1fr 58px 52px;gap:14px;}
+  #scroll .cg-lab{font-size:16.5px;}
+  #scroll .cg-strip>i{height:24px;border-radius:3px;}
+  #scroll .cg-st{font-size:15px;}
+  #scroll .cg-rate{font-size:16px;}
+}
+/* ── SOCIAL: barra de dia ── */
+.sd-bar{display:flex;align-items:center;gap:9px;}
+.sd-nav{background:none;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;
+  width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:15px;line-height:1;padding:0;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sd-nav:disabled{color:#23233a;border-color:#111120;cursor:default;}
+.sd-day{letter-spacing:.1em;color:#e2e2e2;}
+.sd-hoy{background:none;border:1px solid #1e1e2e;color:#8a8aa0;font-family:inherit;
+  font-size:12px;letter-spacing:.1em;padding:5px 10px;border-radius:8px;cursor:pointer;}
 /* ── Tira de marcador, 44 px, pegada arriba mientras marcas ── */
 #tb-score{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:11px;
   height:44px;padding:0 15px;background:rgba(7,7,15,.94);
@@ -326,7 +391,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260914-0059·4899f7";
+const BUILD="20260914-0204·59e7a2";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -832,6 +897,26 @@ function setChecked(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial()
 // config timeline entirely.
 function peopleList(){ return Array.isArray(CFG.people)?CFG.people:(CFG.people=[]); }
 function personById(id){ return peopleList().find(x=>x.id===id)||null; }
+// Las pastillas del combo se leen de un vistazo; el nombre completo vive en
+// WHO TO SEE. "uri {bajur}" -> "uri". Si dos del mismo grupo colisionan, las dos
+// vuelven al nombre entero: mejor largo que ambiguo.
+function shortName(n){
+  const raw=String(n==null?"":n);
+  // Corta en el primer parentesis, corchete o llave y se queda con la primera
+  // palabra. La llave se compara por codigo: `lint_toplevel` cuenta llaves por
+  // linea y una expresion regular con ellas le descuadra la profundidad.
+  let t=raw;
+  const cortes=["(","[",String.fromCharCode(123)];
+  for(const c of cortes){ const i=t.indexOf(c); if(i>=0)t=t.slice(0,i); }
+  t=t.replace(/\s+/g," ").trim();
+  return (t.split(" ")[0]||raw).slice(0,18);
+}
+function shortLabels(list){
+  const cuenta={},out={};
+  for(const x of list){const c=shortName(x.name);cuenta[c]=(cuenta[c]||0)+1;}
+  for(const x of list){const c=shortName(x.name);out[x.id]=(cuenta[c]>1||!c)?x.name:c;}
+  return out;
+}
 const getPeople=k=>{const v=_state[k]&&_state[k].people;return Array.isArray(v)?v:[];};
 function setPeople(k,arr){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:'',people:[]};_state[k].people=arr;}
 function togglePerson(id,key){
@@ -1141,7 +1226,7 @@ function renderReview(){
       <button onclick="closeReview()" style="background:none;border:1px solid #1e1e2e;color:#c0c0cd;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:0.16em;color:#e2e2e2">WEEKLY REVIEW</div>
     </div>
-    <div class="fade-up" style="padding:18px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+    <div class="fade-up" style="padding:18px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
 
       ${logged.length===0?`<div style="text-align:center;padding:50px 20px;color:#9a9ab2;font-size:15px;line-height:1.6">No days logged this week yet.<br>Check a habit and come back.</div>`:`
 
@@ -1263,7 +1348,7 @@ function renderSettings(){
       <div style="font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2">SETTINGS</div>
       <div style="margin-left:auto;font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
-    <div class="fade-up settings-body" style="padding:20px 16px calc(58px + env(safe-area-inset-bottom))">
+    <div class="fade-up settings-body" style="padding:20px 16px calc(68px + env(safe-area-inset-bottom))">
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
@@ -1654,7 +1739,8 @@ function ring(score,max,size,thick,col,glow){
   const r=(size-thick)/2-2,c=2*Math.PI*r,off=c-(Math.min(score,max)/max)*c,cx=size/2;
   return`<svg width="${size}" height="${size}" style="transform:rotate(-90deg);filter:drop-shadow(0 0 ${size*.1}px ${glow});overflow:visible"><circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="#0f0f1e" stroke-width="${thick}"/><circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="${col}" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset 0.6s cubic-bezier(0.34,1.56,0.64,1),stroke 0.4s"/></svg>`;
 }
-function chk(on,col,size=22){
+function chk(on,col,size){
+  if(size==null)size=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?26:22;
   const br=Math.round(size*.32);
   return`<div style="width:${size}px;height:${size}px;border-radius:${br}px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;${on?`background:${col};box-shadow:0 0 10px ${col}66;border:none`:`border:1.5px solid #252535;background:transparent`}">${on?`<svg width="${size*.55}" height="${size*.55}" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#080810" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}</div>`;
 }
@@ -1691,6 +1777,16 @@ function toggleLvl(n){
   CFG.lvlOpen={...lvlOpen};saveCfgPref();    // y alcanza al otro dispositivo
   render();
 }
+// SOCIAL mira un dia concreto: null = hoy. Antes solo sabia de hoy y para tocar
+// el pasado habia que ir a HISTORY -> EDIT, que son cuatro pasos para un toque.
+let socialDay=null;
+function socialKey(){ const t=todayKey(); return (socialDay&&socialDay<=t)?socialDay:t; }
+function socialShift(d){
+  const t=todayKey(), n=keyMinus(socialKey(),-d);
+  if(n>t)return;                                  // el futuro no se registra
+  socialDay=(n===t)?null:n; socialExpanded=true; render();
+}
+function socialToday(){ socialDay=null; render(); }
 let reviewOpen=false;
 let histMonth=null;
 let currentTab="today",sessions={},routineView=false,routineId=null,routineQueue=[],routineCompleted={},timerSecs=0,timerRunning=false,timerInterval=null,timerEndAt=null,socialExpanded=false,histTab="week",editDayKey=null;
@@ -1909,47 +2005,8 @@ function render(){
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
   renderTour();
   renderResume();
-  fitDesktop();
   initScrollHide();
 }
-
-// ── Escritorio: usar toda la pantalla ─────────────────────────────────────
-// En movil no cambia nada. En escritorio la ventana es mucho mas alta que el
-// contenido y quedaban ~250 px muertos sobre el dock: en vez de eso se escala
-// TODO — letra, cajas e iconos — hasta llenarla. `zoom` escala el layout entero,
-// que es exactamente "agrandalo todo un poco" sin reescribir 300 estilos en linea.
-// `slack` deja holgura donde el contenido va a crecer (SOCIAL: mas personas).
-// Nunca encoge: si algun dia no cabe, se queda a 1 y hace scroll.
-const FIT={today:{max:1.8,slack:0},social:{max:1.7,slack:0.15}};
-function fitDesktop(){
-  const sc=document.getElementById("scroll");if(!sc)return;
-  const el=sc.querySelector(".fade-up");if(!el)return;
-  el.style.zoom="";el.style.paddingBottom="";          // medir siempre sin escalar
-  const f=FIT[currentTab];
-  if(!f||!window.matchMedia("(min-width:880px)").matches)return;
-  const bar=document.getElementById("topbar"),nav=document.getElementById("nav");
-  const barH=bar?bar.getBoundingClientRect().height:0;
-  const navH=nav?nav.getBoundingClientRect().height:58;
-  // El hueco para el dock se reserva UNA vez y sin escalar: el padding-bottom de
-  // 58px se multiplicaba por el zoom y dejaba una franja muerta sobre la barra.
-  el.style.paddingBottom="10px";
-  const libre=sc.clientHeight-barH-navH;
-  const alto=el.scrollHeight;
-  if(!(alto>0)||!(libre>0)){el.style.paddingBottom="";return;}
-  // El primer calculo es solo una estimacion: al escalar, el ancho util baja
-  // (2000px a 1.7x son 1176px de layout), el texto envuelve distinto y el alto
-  // NO crece lineal — se pasaba y volvia a salir scroll. Asi que se aplica, se
-  // MIDE lo renderizado y se corrige. Converge en una o dos vueltas.
-  let z=Math.min(f.max,(libre/alto)*(1-f.slack));
-  for(let i=0;i<4&&z>1.02;i++){
-    el.style.zoom=z.toFixed(3);
-    const real=el.getBoundingClientRect().height;
-    if(!(real>libre+1))break;
-    z*=(libre/real)*0.995;
-  }
-  if(z>1.02)el.style.zoom=z.toFixed(3); else {el.style.zoom="";el.style.paddingBottom="";}
-}
-window.addEventListener("resize",()=>{try{fitDesktop();}catch(e){}});
 
 function isNight(){
   const d=new Date(), hr=d.getHours()+d.getMinutes()/60;
@@ -1971,8 +2028,8 @@ function comboBlock(key,alwaysOpen){
           <div style="display:flex;align-items:center;gap:13px">
             <div style="width:22px;height:22px;flex-shrink:0" aria-hidden="true"></div>
             <div>
-              <div style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
-              ${expanded?`<div style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
+              <div class="cb-tit" style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
+              ${expanded?`<div class="cb-sub" style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
@@ -1982,16 +2039,16 @@ function comboBlock(key,alwaysOpen){
         </div>
         ${expanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
           ${dSubs.map(s=>{
-            const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key);
+            const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key), corto=shortLabels(mine);
             return`<div style="border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}">
-            <div onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
+            <div class="cb-row" onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
               ${chk(!!soc[s.id],"#fbbf24",18)}
               <span>${esc(s.icon)} ${esc(s.label)}</span>
               <span style="margin-left:auto;font-size:14.5px;color:#adadbf">${s.p}%</span>
             </div>
             ${soc[s.id]?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 11px 41px">
-              ${mine.map(x=>{const on=tag.includes(x.id);return`<button onclick="event.stopPropagation();togglePerson('${x.id}','${key}')" style="background:${on?"rgba(251,191,36,0.16)":"transparent"};border:1px solid ${on?"#fbbf2466":"#22223a"};color:${on?"#fbbf24":"#7e7e97"};font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</button>`;}).join("")}
-              <button onclick="event.stopPropagation();personAdd('${s.id}','${key}')" title="Add someone" style="background:none;border:1px dashed #242436;color:#9a9ab2;font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer">+ who?</button>
+              ${mine.map(x=>{const on=tag.includes(x.id);return`<button class="cb-pill" onclick="event.stopPropagation();togglePerson('${x.id}','${key}')" style="background:${on?"rgba(251,191,36,0.16)":"transparent"};border:1px solid ${on?"#fbbf2466":"#22223a"};color:${on?"#fbbf24":"#7e7e97"};font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(x.name)}">${esc(corto[x.id]||x.name)}</button>`;}).join("")}
+              <button class="cb-pill" onclick="event.stopPropagation();personAdd('${s.id}','${key}')" title="Add someone" style="background:none;border:1px dashed #242436;color:#9a9ab2;font-family:inherit;font-size:13.5px;padding:5px 11px;border-radius:99px;cursor:pointer">+ who?</button>
             </div>`:""}
           </div>`;}).join("")}
         </div>`:""}
@@ -2015,7 +2072,7 @@ function renderToday(key,nested=false){
   // y `work` (que no es rutina) descolgado. Para no verlas dos veces se plega el
   // nivel — la preferencia vive en CFG.lvlOpen y viaja entre dispositivos.
   const L1vis=C.L1;
-  return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
+  return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(68px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -2052,14 +2109,14 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${esc(rt.icon)}</div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:17px;color:${done?"#555":"#e2e2e2"};font-weight:500;${done?"text-decoration:line-through":""}">${esc(rt.label)}</div>
-            <div style="font-size:15px;color:#777;margin-top:3px">${rt.steps.length} steps · ${totalMin} min</div>
-            ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span style="font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:14.5px;color:#adadbf">+${rt.steps.length-4} more</span>`:""}</div>`:""}
+            <div class="r-lab" style="font-size:17px;color:${done?"#555":"#e2e2e2"};font-weight:500;${done?"text-decoration:line-through":""}">${esc(rt.label)}</div>
+            <div class="r-sub" style="font-size:15px;color:#777;margin-top:3px">${rt.steps.length} steps · ${totalMin} min</div>
+            ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span class="r-step" style="font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:14.5px;color:#adadbf">+${rt.steps.length-4} more</span>`:""}</div>`:""}
           </div>
           ${done?`<div onclick="toggleHabit('${item.id}','${key}')" style="font-size:23px;cursor:pointer">✅</div>`:`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            <button onclick="toggleHabit('${item.id}','${key}')" title="Mark done without the timer" style="background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px">✓ DONE</button>
-            <button onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ START</button>
+            <button class="r-btn" onclick="toggleHabit('${item.id}','${key}')" title="Mark done without the timer" style="background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px">✓ DONE</button>
+            <button class="r-btn" onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ START</button>
           </div>`}
         </div>`;
       }).join("")}
@@ -2076,7 +2133,7 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>
     </div>
     ${!L1vis.length?"":`<div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${L1vis.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
@@ -2093,7 +2150,7 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>
     </div>`}
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
       ${C.L2.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
@@ -2106,7 +2163,7 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
+      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       ${(socialOwnTab()&&!nested)?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>`
@@ -2208,17 +2265,85 @@ function renderWeekReview(){
 // Tab SOCIAL: el mismo combo que en TODAY (siempre desplegado, es el motivo del tab),
 // más el registro de personas. El scoring no cambia — el combo sigue contando en LVL 3.
 function renderSocial(){
-  const tk=todayKey(), c=calcScore(tk);
+  const tk=socialKey(), hoy=todayKey(), esHoy=tk===hoy;
   const cb=(cfgForDate(tk).L3.find(x=>x.combo)||{pts:0}).pts;
   const got=getChecked(tk).social?(cfgForDate(tk).subs.reduce((a,x)=>a+(getSocial(tk)[x.id]?x.p:0),0)||cb):0;
-  return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  const d=keyToDate(tk);
+  const etiqueta=esHoy?"TODAY":d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
+  const nav=(paso,txt,on)=>`<button class="sd-nav" onclick="${on?`socialShift(${paso})`:""}" ${on?"":"disabled"}>${txt}</button>`;
+  return`<div class="fade-up soc" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div>
-      <div class="sec" style="display:flex;align-items:center;gap:8px">TODAY
-        <span style="margin-left:auto;font-size:11px;color:${got>0?"#fbbf24":"#7e7e97"}">${got}/${cb}%</span></div>
+      <div class="sec sd-bar">
+        ${nav(-1,"‹",true)}
+        <span class="sd-day">${esc(etiqueta)}</span>
+        ${nav(1,"›",!esHoy)}
+        ${esHoy?"":`<button class="sd-hoy" onclick="socialToday()">TODAY</button>`}
+        <span class="sd-pts" style="margin-left:auto;color:${got>0?"#fbbf24":"#7e7e97"}">${got}/${cb}%</span></div>
       ${comboBlock(tk,true)}
     </div>
     ${renderWhoToSee()}
   </div>`;
+}
+
+// ── Consistencia: una fila por habito, un punto por dia ──────────────────
+// Es el unico sitio donde se ve QUE habito te esta hundiendo sin deducirlo.
+// -1 = dia sin registrar (no cuenta), 0 = registrado y sin marcar, 1 = hecho.
+function habitGrid(dias){
+  const tk=todayKey(), C=cfgForDate(tk), keys=[];
+  for(let i=dias-1;i>=0;i--)keys.push(keyMinus(tk,i));
+  return [...C.L1,...C.L2,...C.L3].map(it=>{
+    const cells=keys.map(k=>_state[k]===undefined?-1:(getChecked(k)[it.id]?1:0));
+    const con=cells.filter(v=>v>=0).length, hechos=cells.filter(v=>v===1).length;
+    return {id:it.id,label:it.label,icon:it.icon,col:it.col,cells,hechos,con,
+            rate:con?Math.round(hechos/con*100):0,streak:habitStreak(it.id)};
+  });
+}
+function habitStreak(id){
+  const tk=todayKey(); let s=0;
+  for(let i=0;i<400;i++){ if(getChecked(keyMinus(tk,i))[id])s++; else if(i>0)break; else break; }
+  return s;
+}
+function weekdayAvg(){
+  const h=getHistory(), acc=[[],[],[],[],[],[],[]];
+  for(const k of Object.keys(h)){ if(!DATE_RE.test(k))continue;
+    acc[keyToDate(k).getDay()].push(dPct(h[k])); }
+  return acc.map((xs,i)=>({dia:i,n:xs.length,
+    avg:xs.length?Math.round(xs.reduce((a,b)=>a+b,0)/xs.length):0}));
+}
+function renderConsistency(){
+  const rows=habitGrid(60).filter(r=>r.con>0);
+  if(!rows.length)return"";
+  return`<div><div class="sec" style="display:flex;align-items:center;gap:8px">CONSISTENCY — 60 DAYS
+      <span style="margin-left:auto;font-size:11px;color:#7e7e97">STREAK · HIT RATE</span></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      ${rows.map(r=>`<div class="cg-row">
+        <span class="cg-lab">${esc(r.icon)} ${esc(r.label)}</span>
+        <span class="cg-strip">${r.cells.map(v=>`<i style="background:${v===1?(r.col||"#8a8aa0"):v===0?"#1e1e38":"#101020"}"></i>`).join("")}</span>
+        <span class="cg-st" style="color:${r.streak>0?"#FFD700":"#2a2a40"}">${r.streak>0?"\ud83d\udd25 "+r.streak:"—"}</span>
+        <span class="cg-rate" style="color:${r.rate>=70?"#4ade80":r.rate>=40?"#f59e0b":"#ef4444"}">${r.rate}%</span>
+      </div>`).join("")}
+    </div></div>`;
+}
+function renderWeekday(){
+  const w=weekdayAvg(); if(!w.some(x=>x.n))return"";
+  const N=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  // Escala ABSOLUTA sobre 100, no sobre el maximo: con 22-28% todas las barras
+  // salian casi llenas y parecia una semana estupenda. La altura dice el nivel,
+  // no solo quien gana.
+  const con=w.filter(x=>x.n);
+  const mejor=con.reduce((m,x)=>!m||x.avg>m.avg?x:m,null);
+  const peor=con.reduce((m,x)=>!m||x.avg<m.avg?x:m,null);
+  return`<div><div class="sec">BY WEEKDAY</div><div class="card">
+    <div style="display:flex;align-items:flex-end;gap:8px;height:118px">
+      ${w.map(x=>{const g=x.n?GRADE(x.avg,100):null, h=x.n?Math.max(7,Math.round(x.avg/100*82)):3;
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;min-width:0">
+        <span style="font-size:13px;color:${x.n?g.c:"#2a2a40"}">${x.n?x.avg+"%":"—"}</span>
+        <div style="width:100%;height:${h}px;border-radius:5px;background:${x.n?g.c:"#14142a"};opacity:${x.n?.9:1}"></div>
+        <span style="font-size:12.5px;color:#8888a4;letter-spacing:.08em">${N[x.dia]}</span>
+      </div>`;}).join("")}
+    </div>
+    ${mejor&&peor&&mejor.dia!==peor.dia?`<div style="margin-top:13px;font-size:14.5px;color:#9a9ab2;line-height:1.5">Your best day is <b style="color:${GRADE(mejor.avg,100).c}">${N[mejor.dia]}</b> (${mejor.avg}%) · weakest is <b style="color:${GRADE(peor.avg,100).c}">${N[peor.dia]}</b> (${peor.avg}%)</div>`:""}
+  </div></div>`;
 }
 
 function renderStats(){
@@ -2235,24 +2360,13 @@ function renderStats(){
       <button onclick="setTab('today')" style="margin-top:8px;background:#e2e2e2;color:#07070f;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer">START →</button>
     </div>`;
   }
-  return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
-    <div>
-      <div class="sec">TODAY — BREAKDOWN</div>
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-          <div style="position:relative;width:80px;height:80px;flex-shrink:0">
-            ${ring(score,MAX,80,6,gr.c,gr.g)}
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:'Bebas Neue';font-size:21px;color:${gr.c};line-height:1">${score}</span><span style="font-size:13.5px;color:${gr.c};opacity:0.6">%</span></div>
-          </div>
-          <div><div style="font-family:'Bebas Neue';font-size:48px;color:${gr.c};line-height:1;text-shadow:0 0 24px ${gr.g}">${esc(gr.l)}</div><div style="font-size:14.5px;color:#9a9ab2;letter-spacing:0.12em;margin-top:4px">${gr.n}</div></div>
-        </div>
-        ${[["⬛ CORE",l1,LVL1_MAX,"#e2e2e2"],["▪ HABITS",l2,LVL2_MAX,"#a78bfa"],["· BONUS",l3,LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:14.5px;color:#9a9ab2;margin-bottom:7px"><span>${lb}</span><span style="color:${v>0?c:"#252535"}">${v}<span style="opacity:0.4">/${mx}%</span></span></div>${bar((v/mx)*100,c,c+"55",5)}</div>`).join("")}
-      </div>
-    </div>
+    ${renderConsistency()}
+    ${renderWeekday()}
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
     ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
     ${socialOwnTab()?"":renderWhoToSee()}
@@ -2270,24 +2384,24 @@ function renderWhoToSee(){
   const due=p=>p.days==null?`every ${p.every}d`:p.overdue>0?`${p.overdue}d over`:p.overdue===0?"due today":`${-p.overdue}d left`;
   return`<div><div class="sec" style="display:flex;align-items:center;gap:8px">WHO TO SEE
       <span style="margin-left:auto;font-size:11px;color:${late?"#f59e0b":"#4ade80"}">${late?`${late} OVERDUE`:"ALL CURRENT"}</span></div>
-    <div class="card" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px 20px">
+    <div class="card" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px 22px">
       ${st.map(p=>{const c=col(p),sb=subsList().find(x=>x.id===p.sub);
       return`<div style="display:flex;align-items:center;gap:11px">
         <span style="font-size:15px;width:20px;text-align:center;flex-shrink:0">${esc(sb?sb.icon:"·")}</span>
         <div style="min-width:0;flex:1">
-          <div style="font-size:15px;color:#e2e2e2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div>
-          <div style="font-size:13.5px;color:#8888a4;margin-top:2px">${when(p)}</div>
+          <div class="w-name" style="font-size:15px;color:#e2e2e2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div>
+          <div class="w-when" style="font-size:13.5px;color:#8888a4;margin-top:2px">${when(p)}</div>
         </div>
         <div style="width:72px;flex-shrink:0">
           ${bar(p.ratio===Infinity?100:Math.min(p.ratio*100,100),c,c+"55",4)}
-          <div style="font-size:13px;color:${c};text-align:right;margin-top:4px">${due(p)}</div>
+          <div class="w-due" style="font-size:13px;color:${c};text-align:right;margin-top:4px">${due(p)}</div>
         </div>
       </div>`;}).join("")}
     </div></div>`;
 }
 
 function renderHistory(){
-  return`<div class="fade-up" style="padding:2px 16px calc(58px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     <div style="display:flex;gap:8px">
       ${["week","month","year"].map(t=>`<button class="htab${histTab===t?" active":""}" onclick="setHistTab('${t}')">${t==="week"?"7 DAYS":t==="month"?"MONTH":"YEAR"}</button>`).join("")}
     </div>

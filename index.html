@@ -32,25 +32,25 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .nav-btn[hidden]{display:none!important;}   /* display:flex de arriba gana al hidden por defecto */
 #nav.tucked{transform:translateY(115%);opacity:0;pointer-events:none;}
 /* ── TODAY section order — day vs night ────────────────────── */
-.today>*{order:9;}
+.today>*{order:70;}
 .today .t-head{order:1;}
-/* Los habitos van primero: el marcador vive en la tira de 44 px del topbar.
-   Antes habia ~800 px (anillo + nota + rutinas) antes del primer habito y en
-   movil la lista arrancaba fuera de pantalla. */
-.today .t-lvl1{order:2;}
-.today .t-lvl2{order:3;}
-.today .t-lvl3{order:4;}
-.today .t-rout{order:5;}
-.today .t-streak{order:6;}
-.today .t-ring{order:7;}
-.today .t-grade{order:8;}
-.today .t-note{order:10;}
-.today .t-reset{order:12;}
+/* Jerarquia: primero el marcador (anillo + nota), luego lo que se marca a mano,
+   luego las rutinas — que ya se invocan solas desde su tarjeta — y al final
+   la nota del dia. Cabe porque LVL 1 ya no repite los habitos con rutina. */
+.today .t-streak{order:5;}
+.today .t-ring{order:10;}
+.today .t-grade{order:20;}
+.today .t-lvl1{order:30;}
+.today .t-lvl2{order:40;}
+.today .t-lvl3{order:50;}
+.today .t-rout{order:60;}
+.today .t-note{order:80;}
+.today .t-reset{order:90;}
 /* Night layout is mobile-only by design: on desktop the two-column
    flow always uses day order (CSS columns ignore `order` anyway). */
 @media(max-width:879px){
-  .today.night .t-note{order:5;}    /* de noche la nota sube justo tras los habitos */
-  .today.night .t-rout{order:11;}
+  .today.night .t-note{order:25;}   /* de noche la nota sube justo tras el marcador */
+  .today.night .t-rout{order:85;}
 }
 
 /* ── Desktop: two columns instead of one narrow strip ───────── */
@@ -147,9 +147,11 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today .t-note  {grid-row:4;grid-column:1 / -1;}
 
   /* the three levels side by side — the whole day visible at once */
-  #scroll .today .t-lvl1  {grid-row:5;grid-column:1 / span 4;}
-  #scroll .today .t-lvl2  {grid-row:5;grid-column:5 / span 4;}
-  #scroll .today .t-lvl3  {grid-row:5;grid-column:9 / span 4;}
+  /* span en vez de columna fija: si LVL 1 no se pinta, los otros dos se corren
+     solos en vez de dejar un hueco a la izquierda. */
+  #scroll .today .t-lvl1,
+  #scroll .today .t-lvl2,
+  #scroll .today .t-lvl3  {grid-row:5;grid-column:span 4;}
 
   #scroll .today .t-reset {grid-row:6;grid-column:1 / -1;justify-self:center;max-width:280px;}
 
@@ -303,7 +305,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260913-2228·2233ff";
+const BUILD="20260913-2253·3755a8";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -1928,6 +1930,9 @@ function renderToday(key,nested=false){
     return`<button onclick="event.stopPropagation();toggleLevelAll(${lv},'${key}')" title="${on?'Clear this level':'Check this level'}" style="background:${on?col:'none'};border:1.5px solid ${on?col:'#252535'};color:${on?'#080810':'#9a9ab2'};border-radius:8px;font-size:13px;line-height:1;width:36px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">✓</button>`;};
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/nSubs)*comboPts):comboPts):0;
   const isToday=key===todayKey();
+  // ¿se esta pintando el bloque de rutinas? Solo entonces se filtran del nivel.
+  const routBlock=!nested&&isToday&&LVL1.some(i=>i.routine);
+  const L1vis=routBlock?C.L1.filter(i=>!i.routine):C.L1;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(58px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
@@ -1988,10 +1993,10 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
         ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
       </div>
     </div>
-    <div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
+    ${!L1vis.length?"":`<div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
-      ${C.L1.map(item=>`
+      ${L1vis.map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
           ${chk(!!ch[item.id],item.col)}
@@ -2004,7 +2009,7 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
         </div>
       </div>`).join("")}
       </div>
-    </div>
+    </div>`}
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
@@ -2021,7 +2026,7 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
-      ${socialOwnTab()?"":comboBlock(key)}
+      ${(socialOwnTab()&&!nested)?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">

@@ -53,13 +53,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* Night layout is mobile-only by design: on desktop the two-column
    flow always uses day order (CSS columns ignore `order` anyway). */
 @media(max-width:879px){
-  /* Mobile: routines come before the levels. Desktop keeps its explicit grid order. */
-  .today .t-rout{order:30;}
-  .today .t-lvl1{order:40;}
-  .today .t-lvl2{order:50;}
-  .today .t-lvl3{order:60;}
-
   .today.night .t-note{order:25;}   /* de noche la nota sube justo tras el marcador */
+  .today.night .t-rout{order:85;}
 
   /* ── Densidad en movil ──────────────────────────────────────────────
      La tira sticky (#tb-score) ya repite letra, %, barra y siguiente
@@ -394,6 +389,24 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #nav{padding-bottom:max(env(safe-area-inset-bottom),4px);}
   .nav-btn{min-height:40px;padding:6px 4px;}
 }
+
+/* Day Log */
+.daylog-card{margin-top:14px;padding:14px;border-radius:16px;background:var(--card,#fff);border:1px solid rgba(0,0,0,.08)}
+.daylog-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.daylog-title{font-weight:800;font-size:16px}
+#dayLogSummary{font-size:11px;opacity:.6;margin-top:3px}
+.daylog-controls{display:flex;gap:7px;margin-top:10px}
+#dayLogInput{min-width:0;flex:1;border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:9px 10px;background:transparent}
+#dayLogStartBtn,.dl-add{border:0;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
+.daylog-list{margin-top:12px}
+.dl-event{display:grid;grid-template-columns:74px 1fr 24px;gap:8px;align-items:center;padding:9px 0;border-top:1px solid rgba(0,0,0,.07)}
+.dl-time{font-variant-numeric:tabular-nums;font-size:12px;opacity:.7}
+.dl-title{font-weight:750;font-size:13px}
+.dl-meta{font-size:10px;opacity:.55;margin-top:2px}
+.dl-del{border:0;background:none;font-size:18px;opacity:.45;cursor:pointer}
+.dl-gap{margin:4px 0;padding:6px 9px;border-radius:9px;background:rgba(255,180,0,.10);font-size:11px;display:flex;gap:6px;align-items:center}
+.dl-empty{opacity:.5;font-size:12px;padding:14px 0}
+
 </style>
 </head>
 <body>
@@ -425,7 +438,165 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260916-1132·mobile-routines-vacation-fix";
+
+/* =========================
+   DAY LOG v1
+   ========================= */
+const DAYLOG_KEY = 'dayLogV1';
+
+function dayLogStore(){
+  try{
+    const raw=localStorage.getItem(DAYLOG_KEY);
+    const obj=raw?JSON.parse(raw):{};
+    return obj&&typeof obj==='object'?obj:{};
+  }catch(e){ return {}; }
+}
+function dayLogSave(store){
+  try{ localStorage.setItem(DAYLOG_KEY,JSON.stringify(store)); }catch(e){}
+}
+function dayLogToday(){
+  const k=todayKey();
+  const s=dayLogStore();
+  if(!Array.isArray(s[k])) s[k]=[];
+  return {key:k,store:s,events:s[k]};
+}
+function dayLogId(){
+  return 'evt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+}
+function dayLogFmt(mins){
+  if(mins==null||isNaN(mins)) return '';
+  mins=Math.max(0,Math.round(mins));
+  const h=Math.floor(mins/60), m=mins%60;
+  return h?`${h}h${m?` ${m}m`:''}`:`${m}m`;
+}
+function dayLogMinutes(iso){
+  if(!iso)return null;
+  const d=new Date(iso);
+  return d.getHours()*60+d.getMinutes();
+}
+function dayLogNowISO(){
+  const d=new Date();
+  d.setSeconds(0,0);
+  return d.toISOString();
+}
+function dayLogAdd(title, startISO, endISO, type='manual', sourceId=null){
+  if(!title)return null;
+  const x=dayLogToday();
+  const ev={id:dayLogId(),title:String(title).trim(),start:startISO||dayLogNowISO(),end:endISO||null,type,sourceId};
+  x.events.push(ev); dayLogSave(x.store); return ev;
+}
+function dayLogUpdate(id,patch){
+  const x=dayLogToday(), ev=x.events.find(e=>e.id===id);
+  if(!ev)return;
+  Object.assign(ev,patch); dayLogSave(x.store);
+}
+function dayLogDelete(id){
+  const x=dayLogToday();
+  x.store[x.key]=x.events.filter(e=>e.id!==id);
+  dayLogSave(x.store);
+}
+function dayLogEsc(s){
+  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function dayLogTypeLabel(t){
+  return t==='habit'?'Habit':t==='routine'?'Routine':'Manual';
+}
+function dayLogRender(){
+  const box=document.querySelector('#dayLogList');
+  const summary=document.querySelector('#dayLogSummary');
+  if(!box)return;
+  const x=dayLogToday();
+  const evs=[...x.events].sort((a,b)=>new Date(a.start)-new Date(b.start));
+  let html='';
+  let prevEnd=null, untracked=0;
+  evs.forEach((e,i)=>{
+    const start=dayLogMinutes(e.start);
+    const end=dayLogMinutes(e.end);
+    if(prevEnd!=null && start!=null && start>prevEnd){
+      const gap=start-prevEnd; untracked+=gap;
+      html+=`<div class="dl-gap"><span>⚠️</span><b>${dayLogFmt(gap)} untracked</b></div>`;
+    }
+    const dur=end!=null&&start!=null&&end>=start?end-start:null;
+    html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
+      <div class="dl-time">${start!=null?new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):''}${end!=null?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:''}</div>
+      <div class="dl-main">
+        <div class="dl-title">${dayLogEsc(e.title)}</div>
+        <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}</div>
+      </div>
+      <button class="dl-del" type="button" aria-label="Delete activity" onclick="dayLogDelete('${dayLogEsc(e.id)}');dayLogRender()">×</button>
+    </div>`;
+    if(end!=null) prevEnd=Math.max(prevEnd??0,end);
+    else prevEnd=Math.max(prevEnd??0,start??0);
+  });
+  if(!html) html='<div class="dl-empty">No activities logged yet.</div>';
+  box.innerHTML=html;
+  if(summary){
+    const tracked=evs.reduce((n,e)=>{
+      const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);
+      return n+(a!=null&&b!=null&&b>=a?b-a:0);
+    },0);
+    summary.textContent=`Tracked ${dayLogFmt(tracked)} · Untracked gaps ${dayLogFmt(untracked)}`;
+  }
+}
+function dayLogStart(){
+  const input=document.querySelector('#dayLogInput');
+  const title=(input?.value||'').trim();
+  if(!title)return;
+  const ev=dayLogAdd(title,dayLogNowISO(),null,'manual');
+  if(window.__dayLogActive) dayLogStop();
+  window.__dayLogActive=ev.id;
+  if(input)input.value='';
+  const btn=document.querySelector('#dayLogStartBtn');
+  if(btn)btn.textContent='Stop';
+  haptic?.(10);
+  dayLogRender();
+}
+function dayLogStop(){
+  const x=dayLogToday();
+  const id=window.__dayLogActive || [...x.events].reverse().find(e=>!e.end)?.id;
+  if(!id)return;
+  dayLogUpdate(id,{end:dayLogNowISO()});
+  window.__dayLogActive=null;
+  const btn=document.querySelector('#dayLogStartBtn');
+  if(btn)btn.textContent='Start';
+  haptic?.(10);
+  dayLogRender();
+}
+function dayLogToggle(){
+  if(window.__dayLogActive) dayLogStop(); else dayLogStart();
+}
+function dayLogAddManual(){
+  const input=document.querySelector('#dayLogInput');
+  const title=(input?.value||'').trim();
+  if(!title)return;
+  dayLogAdd(title,dayLogNowISO(),dayLogNowISO(),'manual');
+  if(input)input.value='';
+  dayLogRender();
+}
+function dayLogLinkCompletion(title,type,sourceId){
+  // Avoid duplicate automatic events for the same source on the same day.
+  const x=dayLogToday();
+  const exists=x.events.some(e=>e.type===type && e.sourceId===sourceId);
+  if(!exists){
+    dayLogAdd(title,dayLogNowISO(),dayLogNowISO(),type,sourceId);
+    dayLogRender();
+  }
+}
+function dayLogHookHabitCompletion(id){
+  try{
+    const h=CFG.h?.[id];
+    if(h && h.on!==false) dayLogLinkCompletion(h.name||h.title||id,'habit',id);
+  }catch(e){}
+}
+function dayLogHookRoutineCompletion(id,name){
+  dayLogLinkCompletion(name||id,'routine',id);
+}
+function dayLogInit(){
+  window.__dayLogActive=null;
+  dayLogRender();
+}
+
+const BUILD="20260916-daylog-v1";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -859,8 +1030,6 @@ function cfgForDate(key){
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
-  travelEnsure();
-  if(travelMode()==='vacation'&&CFG.h&&CFG.h.work) CFG.h.work.on=false;
   Object.values(CFG.h||{}).forEach(ensureModePts);
   (CFG.subs||[]).forEach(ensureModePts);
   LVL1=buildLevel(1);LVL2=buildLevel(2);LVL3=buildLevel(3);
@@ -1631,18 +1800,8 @@ function cfgMove(id,dir){
   const a=CFG.order.indexOf(peers[i]), b=CFG.order.indexOf(peers[j]);
   cfgEdit(()=>{ [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]]; });
 }
-function cfgToggle(id){
-  if(!CFG.h[id])return;
-  /* Work is structurally paused in Vacation Mode; it cannot be re-enabled
-     from Settings while Vacation is active. */
-  if(id==='work'&&travelMode()==='vacation'){
-    haptic(8);
-    cfgEdit(()=>{ CFG.h[id].on=false; });
-    return;
-  }
-  haptic(10);
-  cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; });
-}
+function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; });
+      if(CFG.h[id].on===true) dayLogHookHabitCompletion(id); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 // Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
 // Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.
@@ -2943,5 +3102,24 @@ document.addEventListener("touchend",e=>{
 
 boot();
 </script>
+
+<section class="daylog-card" id="dayLogCard">
+  <div class="daylog-head">
+    <div>
+      <div class="daylog-title">Day Log</div>
+      <div id="dayLogSummary">Tracked 0m · Untracked gaps 0m</div>
+    </div>
+  </div>
+  <div class="daylog-controls">
+    <input id="dayLogInput" type="text" placeholder="What are you doing?" autocomplete="off">
+    <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">Start</button>
+  </div>
+  <div class="daylog-list" id="dayLogList"></div>
+</section>
+
 </body>
 </html>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{ try{dayLogInit();}catch(e){console.warn('Day Log init',e);} });
+</script>

@@ -3619,3 +3619,71 @@ boot();
 
 </body>
 </html>
+
+<style>
+/* FINAL DESKTOP POLISH — Today hero */
+@media (min-width:880px){
+  #scroll .today{
+    max-width:1500px !important;
+    padding-left:18px !important;
+    padding-right:18px !important;
+    column-gap:16px !important;
+    row-gap:7px !important;
+  }
+  #scroll .today .t-score-hero{
+    height:192px !important;
+    gap:20px !important;
+    justify-content:flex-start !important;
+  }
+  #scroll .today .t-score-stack{
+    flex:0 0 172px !important;
+    width:172px !important;
+    min-width:172px !important;
+    gap:5px !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+  /* Explicit order: ring FIRST, LOG BELOW it. */
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    width:152px !important;
+    height:152px !important;
+    flex:0 0 152px !important;
+    transform:none !important;
+    margin:0 !important;
+  }
+  #scroll .today .t-score-stack > .today-log-start{
+    order:2 !important;
+    margin:0 !important;
+    align-self:center !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    width:auto !important;
+    padding:14px 20px !important;
+    gap:20px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{
+    font-size:58px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:first-child,
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(2),
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3){
+    font-size:14.5px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3){
+    flex-wrap:nowrap !important;
+    white-space:nowrap !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
+    font-size:14.5px !important;
+  }
+  #scroll .today .t-lvl .row{
+    padding-top:7px !important;
+    padding-bottom:7px !important;
+  }
+}
+</style>

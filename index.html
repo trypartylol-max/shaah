@@ -407,6 +407,44 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .dl-gap{margin:4px 0;padding:6px 9px;border-radius:9px;background:rgba(255,180,0,.10);font-size:11px;display:flex;gap:6px;align-items:center}
 .dl-empty{opacity:.5;font-size:12px;padding:14px 0}
 
+
+/* Day Log v2 */
+.daylog-card{margin-top:2px;padding:15px;border-radius:16px;background:#0b0b16;border:1px solid #17172a}
+.daylog-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.daylog-title{font-family:'Bebas Neue';font-size:17px;letter-spacing:.12em;color:#d0d0da}
+#dayLogSummary{font-size:11px;color:#77778f;margin-top:3px}
+.daylog-status{font-size:10px;color:#fbbf24;letter-spacing:.08em}
+.daylog-controls{display:flex;gap:8px;margin-top:11px}
+#dayLogInput{min-width:0;flex:1;border:1px solid #202033;border-radius:10px;padding:10px 11px;background:#0f0f1d;color:#e2e2e2;font:inherit;outline:none}
+#dayLogStartBtn,.dl-stop{border:1px solid #303047;border-radius:10px;padding:9px 13px;background:#e2e2e2;color:#080810;font-weight:800;cursor:pointer}
+.daylog-list{margin-top:10px}
+.dl-event{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px 0;border-top:1px solid #111120}
+.dl-time{font-variant-numeric:tabular-nums;font-size:11px;color:#77778f}
+.dl-main{min-width:0;cursor:pointer}
+.dl-title{font-size:13.5px;font-weight:650;color:#d9d9e2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl-meta{font-size:10px;color:#66667d;margin-top:2px;letter-spacing:.04em}
+.dl-light{color:#f59e0b}
+.dl-actions{display:flex;align-items:center;gap:4px}
+.dl-stop{padding:5px 8px;font-size:10px}
+.dl-del{border:0;background:none;color:#66667d;font-size:18px;cursor:pointer;padding:2px 5px}
+.dl-empty{opacity:.5;font-size:12px;padding:12px 0}
+.dl-recap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.dl-recap-grid>div{padding:10px;border:1px solid #161626;border-radius:10px;background:#0d0d1a}
+.dl-recap-grid b{display:block;font-family:'Bebas Neue';font-size:24px;color:#e2e2e2}
+.dl-recap-grid span{font-size:9px;letter-spacing:.1em;color:#70708a}
+.dl-recap-row{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #111120;font-size:11px;color:#77778f}
+.dl-recap-row b{color:#c0c0cd}
+.dl-longest{margin-top:10px;padding-top:9px;border-top:1px solid #161626}
+.dl-recap-label{font-size:9px;letter-spacing:.1em;color:#77778f;margin-bottom:6px}
+.dl-longest>div:not(.dl-recap-label){display:flex;justify-content:space-between;padding:4px 0;font-size:11px;color:#b0b0c0}
+.dl-longest b{color:#e2e2e2}
+@media(max-width:879px){
+  .t-daylog{order:90}
+  .dl-event{grid-template-columns:74px minmax(0,1fr) auto}
+  .daylog-card{padding:13px}
+  .dl-recap-grid b{font-size:21px}
+}
+
 </style>
 </head>
 <body>
@@ -452,34 +490,33 @@ function persistTravelMode(){
 }
 
 /* =========================
-   DAY LOG v1
+   DAY LOG — phases 1 + 2 + 3
    ========================= */
-const DAYLOG_KEY = 'dayLogV1';
+const DAYLOG_KEY='dayLogV2';
 
-function dayLogStore(){
+function dayLogLegacyStore(){
   try{
-    const raw=localStorage.getItem(DAYLOG_KEY);
+    const raw=localStorage.getItem('dayLogV1');
     const obj=raw?JSON.parse(raw):{};
     return obj&&typeof obj==='object'?obj:{};
-  }catch(e){ return {}; }
+  }catch(e){return {};}
 }
-function dayLogSave(store){
-  try{ localStorage.setItem(DAYLOG_KEY,JSON.stringify(store)); }catch(e){}
+function dayLogEvents(key){
+  if(!_state[key])_state[key]={checks:{},social:blankSocial(),note:'',people:[]};
+  if(!Array.isArray(_state[key]._daylog))_state[key]._daylog=[];
+  return _state[key]._daylog;
 }
-function dayLogToday(){
-  const k=todayKey();
-  const s=dayLogStore();
-  if(!Array.isArray(s[k])) s[k]=[];
-  return {key:k,store:s,events:s[k]};
-}
-function dayLogId(){
-  return 'evt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
-}
+function dayLogId(){return 'evt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
 function dayLogFmt(mins){
-  if(mins==null||isNaN(mins)) return '';
+  if(mins==null||isNaN(mins))return '—';
   mins=Math.max(0,Math.round(mins));
-  const h=Math.floor(mins/60), m=mins%60;
+  const h=Math.floor(mins/60),m=mins%60;
   return h?`${h}h${m?` ${m}m`:''}`:`${m}m`;
+}
+function dayLogDateTime(key,minutes){
+  const d=new Date(`${key}T00:00:00`);
+  d.setMinutes(Math.max(0,Math.min(1439,minutes)));
+  return d;
 }
 function dayLogMinutes(iso){
   if(!iso)return null;
@@ -487,153 +524,209 @@ function dayLogMinutes(iso){
   return d.getHours()*60+d.getMinutes();
 }
 function dayLogNowISO(){
-  const d=new Date();
-  d.setSeconds(0,0);
-  return d.toISOString();
+  const d=new Date();d.setSeconds(0,0);return d.toISOString();
 }
-function dayLogAdd(title, startISO, endISO, type='manual', sourceId=null){
-  if(!title)return null;
-  const x=dayLogToday();
-  const ev={id:dayLogId(),title:String(title).trim(),start:startISO||dayLogNowISO(),end:endISO||null,type,sourceId};
-  x.events.push(ev); dayLogSave(x.store); return ev;
+function dayLogSort(evs){return [...evs].sort((a,b)=>new Date(a.start)-new Date(b.start));}
+function dayLogEsc(s){return esc(s);}
+function dayLogTypeLabel(t){return t==='habit'?'HABIT':t==='routine'?'ROUTINE':'MANUAL';}
+function dayLogDuration(e){
+  const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);
+  return a!=null&&b!=null&&b>=a?b-a:null;
 }
-function dayLogUpdate(id,patch){
-  const x=dayLogToday(), ev=x.events.find(e=>e.id===id);
-  if(!ev)return;
-  Object.assign(ev,patch); dayLogSave(x.store);
+function dayLogSaveLocal(key){
+  try{
+    const s={};
+    Object.keys(_state).forEach(k=>{if(DATE_RE.test(k)&&Array.isArray(_state[k]?._daylog)&&_state[k]._daylog.length)s[k]=_state[k]._daylog;});
+    localStorage.setItem(DAYLOG_KEY,JSON.stringify(s));
+    return true;
+  }catch(e){return false;}
 }
-function dayLogDelete(id){
-  const x=dayLogToday();
-  x.store[x.key]=x.events.filter(e=>e.id!==id);
-  dayLogSave(x.store);
-}
-function dayLogEsc(s){
-  return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-function dayLogTypeLabel(t){
-  return t==='habit'?'Habit':t==='routine'?'Routine':'Manual';
-}
-function dayLogRender(){
-  const box=document.querySelector('#dayLogList');
-  const summary=document.querySelector('#dayLogSummary');
-  if(!box)return;
-  const x=dayLogToday();
-  const evs=[...x.events].sort((a,b)=>new Date(a.start)-new Date(b.start));
-  let html='';
-  let prevEnd=null, untracked=0;
-  evs.forEach((e,i)=>{
-    const start=dayLogMinutes(e.start);
-    const end=dayLogMinutes(e.end);
-    if(prevEnd!=null && start!=null && start>prevEnd){
-      const gap=start-prevEnd; untracked+=gap;
-      html+=`<div class="dl-gap"><span>⚠️</span><b>${dayLogFmt(gap)} untracked</b></div>`;
-    }
-    const dur=end!=null&&start!=null&&end>=start?end-start:null;
-    html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
-      <div class="dl-time">${start!=null?new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):''}${end!=null?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:''}</div>
-      <div class="dl-main">
-        <div class="dl-title">${dayLogEsc(e.title)}</div>
-        <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}</div>
-      </div>
-      <button class="dl-del" type="button" aria-label="Delete activity" onclick="dayLogDelete('${dayLogEsc(e.id)}');dayLogRender()">×</button>
-    </div>`;
-    if(end!=null) prevEnd=Math.max(prevEnd??0,end);
-    else prevEnd=Math.max(prevEnd??0,start??0);
-  });
-  if(!html) html='<div class="dl-empty">No activities logged yet.</div>';
-  box.innerHTML=html;
-  if(summary){
-    const tracked=evs.reduce((n,e)=>{
-      const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);
-      return n+(a!=null&&b!=null&&b>=a?b-a:0);
-    },0);
-    summary.textContent=`Tracked ${dayLogFmt(tracked)} · Untracked gaps ${dayLogFmt(untracked)}`;
+function dayLogMigrateLocal(){
+  const legacy=dayLogLegacyStore();
+  if(!legacy||typeof legacy!=='object')return;
+  for(const k of Object.keys(legacy)){
+    if(!DATE_RE.test(k)||!Array.isArray(legacy[k])||legacy[k].length===0)continue;
+    const evs=dayLogEvents(k);
+    if(!evs.length)_state[k]._daylog=legacy[k];
   }
+}
+function dayLogPersist(key){
+  dayLogSaveLocal(key);
+  persistDay(key);
+}
+function dayLogAdd(title,startISO,endISO,type='manual',sourceId=null,meta={}){
+  const key=dateKey(new Date(startISO||Date.now()));
+  const ev={id:dayLogId(),title:String(title||'').trim(),start:startISO||dayLogNowISO(),end:endISO||null,type,sourceId,...meta};
+  if(!ev.title)return null;
+  dayLogEvents(key).push(ev);
+  dayLogPersist(key);
+  return ev;
+}
+function dayLogUpdate(id,patch,key=todayKey()){
+  const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
+  Object.assign(ev,patch);dayLogPersist(key);
+}
+function dayLogDelete(id,key=todayKey()){
+  const arr=dayLogEvents(key),i=arr.findIndex(e=>e.id===id);if(i<0)return;
+  arr.splice(i,1);dayLogPersist(key);
+}
+function dayLogFindLinked(type,sourceId,key=todayKey()){
+  return dayLogEvents(key).find(e=>e.type===type&&e.sourceId===sourceId);
+}
+function dayLogSyncCompletion(id,key,state){
+  const C=cfgForDate(key);
+  const all=[...C.L1,...C.L2,...C.L3];
+  const item=all.find(x=>x.id===id);
+  if(!item)return;
+  const type=item.routine?'routine':'habit';
+  const title=item.routine?(ROUTINES[id]?.label||item.label):item.label;
+  const existing=dayLogFindLinked(type,id,key);
+  if(state===true){
+    if(existing){
+      existing.title=title;existing.end=existing.end||existing.start;existing.meta={...(existing.meta||{}),completed:true};
+      dayLogPersist(key);
+    }else{
+      const now=dayLogNowISO();
+      dayLogAdd(title,now,now,type,id,{completed:true});
+    }
+  }else if(state===0.5){
+    if(existing){
+      existing.title=title;existing.meta={...(existing.meta||{}),light:true,completed:false};dayLogPersist(key);
+    }else{
+      const now=dayLogNowISO();dayLogAdd(title,now,now,type,id,{light:true,completed:false});
+    }
+  }else if(existing){
+    const arr=dayLogEvents(key),i=arr.indexOf(existing);if(i>=0)arr.splice(i,1);dayLogPersist(key);
+  }
+}
+function dayLogSyncAllCompleted(key){
+  const ch=getChecked(key),C=cfgForDate(key);
+  for(const i of [...C.L1,...C.L2,...C.L3]){
+    if(i.combo)continue;
+    if(ch[i.id]===true||ch[i.id]===0.5)dayLogSyncCompletion(i.id,key,ch[i.id]);
+  }
+  if(ch.social===true){
+    const ex=dayLogFindLinked('habit','social',key);
+    if(!ex){const now=dayLogNowISO();dayLogAdd('Social Combo',now,now,'habit','social',{completed:true});}
+  }
+}
+function dayLogActiveId(){
+  const evs=dayLogEvents(todayKey());
+  const open=dayLogSort(evs).reverse().find(e=>!e.end);
+  return open?.id||null;
 }
 function dayLogStart(){
-  const input=document.querySelector('#dayLogInput');
-  const title=(input?.value||'').trim();
+  const input=document.querySelector('#dayLogInput'),title=(input?.value||'').trim();
   if(!title)return;
-  const ev=dayLogAdd(title,dayLogNowISO(),null,'manual');
-  if(window.__dayLogActive) dayLogStop();
-  window.__dayLogActive=ev.id;
+  const now=dayLogNowISO();
+  const existing=dayLogActiveId();
+  if(existing)dayLogStop(existing);
+  const ev=dayLogAdd(title,now,null,'manual',null,{running:true});
+  window.__dayLogActive=ev?.id||null;
   if(input)input.value='';
-  const btn=document.querySelector('#dayLogStartBtn');
-  if(btn)btn.textContent='Stop';
-  haptic?.(10);
-  dayLogRender();
-  syncSocialComboChecked();
+  haptic(10);render();
 }
-function dayLogStop(){
-  const x=dayLogToday();
-  const id=window.__dayLogActive || [...x.events].reverse().find(e=>!e.end)?.id;
+function dayLogStop(id=window.__dayLogActive){
+  if(!id)id=dayLogActiveId();
   if(!id)return;
-  dayLogUpdate(id,{end:dayLogNowISO()});
-  window.__dayLogActive=null;
-  const btn=document.querySelector('#dayLogStartBtn');
-  if(btn)btn.textContent='Start';
-  haptic?.(10);
-  dayLogRender();
+  const ev=dayLogEvents(todayKey()).find(e=>e.id===id);
+  if(!ev)return;
+  ev.end=dayLogNowISO();ev.meta={...(ev.meta||{}),running:false};
+  dayLogPersist(todayKey());window.__dayLogActive=null;haptic(10);render();
 }
-function dayLogToggle(){
-  if(window.__dayLogActive) dayLogStop(); else dayLogStart();
-}
+function dayLogToggle(){if(dayLogActiveId())dayLogStop();else dayLogStart();}
 function dayLogAddManual(){
-  const input=document.querySelector('#dayLogInput');
-  const title=(input?.value||'').trim();
+  const input=document.querySelector('#dayLogInput'),title=(input?.value||'').trim();
   if(!title)return;
-  dayLogAdd(title,dayLogNowISO(),dayLogNowISO(),'manual');
-  if(input)input.value='';
-  dayLogRender();
+  const now=dayLogNowISO();dayLogAdd(title,now,now,'manual');
+  if(input)input.value='';haptic(8);render();
 }
-function dayLogLinkCompletion(title,type,sourceId){
-  // Avoid duplicate automatic events for the same source on the same day.
-  const x=dayLogToday();
-  const exists=x.events.some(e=>e.type===type && e.sourceId===sourceId);
-  if(!exists){
-    dayLogAdd(title,dayLogNowISO(),dayLogNowISO(),type,sourceId);
-    dayLogRender();
+function dayLogEdit(id,key=todayKey()){
+  const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
+  const title=prompt('Activity',ev.title);if(title==null)return;
+  const sm=prompt('Start time (HH:MM)',new Date(ev.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}));
+  if(sm==null)return;
+  const em=ev.end?prompt('End time (HH:MM)',new Date(ev.end).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false})):null;
+  const valid=/^\d{1,2}:\d{2}$/.test(sm)&&(em==null||/^\d{1,2}:\d{2}$/.test(em));
+  if(!valid){alert('Use HH:MM.');return;}
+  const parse=s=>{const [h,m]=s.split(':').map(Number);return h*60+m;};
+  const a=parse(sm),b=em==null?null:parse(em);
+  if(a>1439||(b!=null&&b>1439)||(b!=null&&b<a)){alert('End must be after start.');return;}
+  const start=dayLogDateTime(key,a).toISOString(),end=b==null?null:dayLogDateTime(key,b).toISOString();
+  Object.assign(ev,{title:title.trim()||ev.title,start,end});
+  dayLogPersist(key);render();
+}
+function dayLogGapEvents(key){
+  const evs=dayLogSort(dayLogEvents(key));let prev=null,gaps=[];
+  for(const e of evs){
+    const s=dayLogMinutes(e.start),en=dayLogMinutes(e.end);
+    if(s==null)continue;
+    if(prev!=null&&s>prev)gaps.push({start:prev,end:s,duration:s-prev});
+    if(en!=null)prev=Math.max(prev??0,en);else prev=Math.max(prev??0,s);
   }
+  return gaps;
 }
-function dayLogHookHabitCompletion(id){
-  try{
-    const h=CFG.h?.[id];
-    if(h && h.on!==false) dayLogLinkCompletion(h.name||h.title||id,'habit',id);
-  }catch(e){}
+function dayLogSummary(key){
+  const evs=dayLogSort(dayLogEvents(key)),gaps=dayLogGapEvents(key);
+  const tracked=evs.reduce((n,e)=>n+(dayLogDuration(e)||0),0);
+  return {tracked,gap:gaps.reduce((n,g)=>n+g.duration,0),events:evs.length,gaps};
 }
-function dayLogHookRoutineCompletion(id,name){
-  dayLogLinkCompletion(name||id,'routine',id);
+function dayLogRender(key=todayKey()){
+  const box=document.querySelector('#dayLogList'),summary=document.querySelector('#dayLogSummary'),status=document.querySelector('#dayLogStatus');
+  if(!box)return;
+  const evs=dayLogSort(dayLogEvents(key));let html='';
+  evs.forEach(e=>{
+    const dur=dayLogDuration(e), running=!e.end;
+    html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
+      <div class="dl-time">${new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:' · NOW'}</div>
+      <div class="dl-main" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">
+        <div class="dl-title">${dayLogEsc(e.title)} ${e.meta?.light?'<span class="dl-light">½</span>':''}</div>
+        <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}${running?' · RUNNING':''}</div>
+      </div>
+      <div class="dl-actions">
+        ${running?`<button class="dl-stop" type="button" onclick="event.stopPropagation();dayLogStop('${dayLogEsc(e.id)}')">STOP</button>`:''}
+        <button class="dl-del" type="button" aria-label="Delete activity" onclick="event.stopPropagation();dayLogDelete('${dayLogEsc(e.id)}','${key}');render()">×</button>
+      </div>
+    </div>`;
+  });
+  const gaps=dayLogGapEvents(key);
+  gaps.forEach((g,i)=>{
+    // Inserted separately below; the compact list still shows a summary banner.
+  });
+  if(!html)html='<div class="dl-empty">No activities logged yet. Start something and shaah will build the timeline.</div>';
+  box.innerHTML=html;
+  const s=dayLogSummary(key);
+  if(summary)summary.textContent=`${dayLogFmt(s.tracked)} tracked · ${dayLogFmt(s.gap)} untracked · ${s.events} events`;
+  if(status)status.textContent=s.gaps.length?`${s.gaps.length} gap${s.gaps.length===1?'':'s'} to review`:'No gaps';
+  const btn=document.querySelector('#dayLogStartBtn');
+  if(btn)btn.textContent=dayLogActiveId()?'STOP':'START';
 }
-
-/* Social Combo visual sync: completed combos must render checked. */
-function syncSocialComboChecked(){
-  try{
-    const candidates=[...document.querySelectorAll('input[type="checkbox"],button,.habit,.task,.combo,.row,.item,.card')];
-    candidates.forEach(el=>{
-      const txt=(el.textContent||'').trim().toLowerCase();
-      if(!txt.includes('social combo')) return;
-      const done = el.classList.contains('done') ||
-                   el.classList.contains('checked') ||
-                   el.getAttribute('aria-checked')==='true' ||
-                   el.dataset?.done==='true' ||
-                   el.querySelector?.('.done,.checked,[aria-checked="true"]');
-      if(el.matches('input[type="checkbox"]')) el.checked=!!done || el.checked;
-      const cb=el.querySelector?.('input[type="checkbox"]');
-      if(cb && done) cb.checked=true;
-      if(done){
-        el.setAttribute('aria-checked','true');
-        el.classList.add('checked');
-      }
-    });
-  }catch(e){}
+function dayLogRenderRecap(key=todayKey()){
+  const el=document.querySelector('#dayLogRecap');if(!el)return;
+  const s=dayLogSummary(key),evs=s.events?dayLogSort(dayLogEvents(key)):[];
+  const by={manual:0,habit:0,routine:0};
+  evs.forEach(e=>{by[e.type]=(by[e.type]||0)+(dayLogDuration(e)||0);});
+  const top=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  const longest=[...evs].filter(e=>dayLogDuration(e)!=null).sort((a,b)=>dayLogDuration(b)-dayLogDuration(a)).slice(0,3);
+  el.innerHTML=`
+    <div class="dl-recap-grid">
+      <div><b>${dayLogFmt(s.tracked)}</b><span>TRACKED</span></div>
+      <div><b>${dayLogFmt(s.gap)}</b><span>UNTRACKED</span></div>
+      <div><b>${s.events}</b><span>EVENTS</span></div>
+    </div>
+    <div class="dl-recap-row"><span>MANUAL</span><b>${dayLogFmt(by.manual)}</b></div>
+    <div class="dl-recap-row"><span>HABITS</span><b>${dayLogFmt(by.habit)}</b></div>
+    <div class="dl-recap-row"><span>ROUTINES</span><b>${dayLogFmt(by.routine)}</b></div>
+    ${longest.length?`<div class="dl-longest"><div class="dl-recap-label">LONGEST BLOCKS</div>${longest.map(e=>`<div><span>${dayLogEsc(e.title)}</span><b>${dayLogFmt(dayLogDuration(e))}</b></div>`).join('')}</div>`:''}
+  `;
 }
-
 function dayLogInit(){
-  window.__dayLogActive=null;
+  dayLogMigrateLocal();
+  window.__dayLogActive=dayLogActiveId();
   dayLogRender();
 }
 
-const BUILD="20260916-daylog-v1-total-mode-social-fix";
+const BUILD="20260916-daylog-phases-1-2-3";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -1212,8 +1305,9 @@ function persistDay(key){
     const{score,l1,l2,l3,done,max,pct}=calcScore(key);
     const ppl=getPeople(key);
     // `_social` cuenta: un día importado con solo partes del combo se autoborraba.
+    const dl=Array.isArray(_state[key]?._daylog)?_state[key]._daylog:[];
     const anything=Object.values(ch).some(Boolean)||Object.values(soc).some(Boolean)
-                   ||!!getNote(key)||ppl.length>0;
+                   ||!!getNote(key)||ppl.length>0||dl.length>0;
     try{
       if(!anything){
         await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
@@ -1221,7 +1315,7 @@ function persistDay(key){
       }else{
         const r=await sb.from('day_logs').upsert({
           user_id:USER.id,date:key,
-          data:{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,_checks:ch,_social:soc,_people:ppl,_note:(_state[key]&&_state[key].note)||''}
+          data:{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,_checks:ch,_social:soc,_people:ppl,_note:(_state[key]&&_state[key].note)||'',_daylog:dl}
         },{onConflict:'user_id,date'});
         if(r&&r.error)throw r.error;
       }
@@ -1443,7 +1537,7 @@ function rowToState(row){
   }
   const d=row.data||{};
   const inc={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',
-             people:Array.isArray(d._people)?d._people:[]};
+             people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]};
   // Si esta pestaña tiene un guardado pendiente para ese día, la fila entrante viene
   // de OTRA pestaña y sustituirla borraría lo que el usuario acaba de marcar aquí.
   // Se fusiona (unión de lo marcado) y el guardado pendiente sube el resultado.
@@ -1453,7 +1547,8 @@ function rowToState(row){
     _state[row.date]={checks:u(mine.checks,inc.checks),
                       social:u(mine.social,inc.social),
                       note:mine.note||inc.note,
-                      people:[...new Set([...(mine.people||[]),...inc.people])]};
+                      people:[...new Set([...(mine.people||[]),...inc.people])],
+                      _daylog:[...(mine._daylog||[]),...inc._daylog.filter(e=>!(mine._daylog||[]).some(m=>m.id===e.id))]};
     persistDay(row.date);          // reprograma la subida con lo fusionado
   }else{
     _state[row.date]=inc;
@@ -2564,6 +2659,23 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>
     </div>
 
+
+    ${isToday&&!nested?`<div class="t-daylog" id="todayDayLog" style="width:100%;max-width:760px">
+      <div class="daylog-card" id="dayLogCard">
+        <div class="daylog-head">
+          <div>
+            <div class="daylog-title">DAY LOG</div>
+            <div id="dayLogSummary">—</div>
+          </div>
+          <div id="dayLogStatus" class="daylog-status">No gaps</div>
+        </div>
+        <div class="daylog-controls">
+          <input id="dayLogInput" type="text" placeholder="What are you doing?" autocomplete="off" onkeydown="if(event.key==='Enter')dayLogToggle()">
+          <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">START</button>
+        </div>
+        <div class="daylog-list" id="dayLogList"></div>
+      </div>
+    </div>`:""}
     ${isToday?`<button class="t-reset" onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
   </div>`;
 }
@@ -2753,6 +2865,7 @@ function renderStats(){
       ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
     ${renderConsistency()}
+    <div><div class="sec">DAY LOG RECAP — TODAY</div><div class="card" id="dayLogRecap"></div></div>
     ${renderWeekday()}
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
     ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
@@ -2974,10 +3087,12 @@ function toggleHabit(id,key){
   haptic(10);const ch={...getChecked(key)};
   if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
   else ch[id]=!ch[id];
-  setChecked(key,ch);persistDay(key);render();
+  setChecked(key,ch);persistDay(key);
+  if(key===todayKey())dayLogSyncCompletion(id,key,ch[id]);
+  render();
 }
 // Explicit set (used by the LIGHT/FULL/CLEAR buttons on routine cards).
-function setHabitState(id,key,v){haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);render();}
+function setHabitState(id,key,v){haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);if(key===todayKey())dayLogSyncCompletion(id,key,v);render();}
 // One tap ticks (or clears) every habit in a level, combo sub-items included.
 function toggleLevelAll(lv,key){
   const C=cfgForDate(key), items=lv===1?C.L1:lv===2?C.L2:C.L3;
@@ -2990,7 +3105,7 @@ function toggleLevelAll(lv,key){
   setChecked(key,ch); if(soc)setSocial(key,soc);
   persistDay(key); render();
 }
-function quickComplete(id){haptic(18);const k=todayKey(),ch={...getChecked(k)};ch[id]=true;setChecked(k,ch);persistDay(k);render();}
+function quickComplete(id){haptic(18);const k=todayKey(),ch={...getChecked(k)};ch[id]=true;setChecked(k,ch);persistDay(k);dayLogSyncCompletion(id,k,true);render();}
 // Antes un toque marcaba las cuatro partes a la vez — 24 puntos por decir que hoy
 // hiciste todo lo social. Ahora el toque abre la lista y cada parte se marca aparte.
 function handleSocial(key){ haptic(10); socialExpanded=!socialExpanded; render(); }
@@ -3017,7 +3132,7 @@ function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 // routineId = which session is currently OPEN on screen (null = none)
 function newSession(id){
   return {q:ROUTINES[id].steps.map((_,k)=>k),done:{},
-          secs:ROUTINES[id].steps[0].dur*60,running:false,endAt:null};
+          secs:ROUTINES[id].steps[0].dur*60,running:false,endAt:null,startedAt:null};
 }
 function S(id){return sessions[id||routineId]||null;}
 function anyRunning(){return Object.values(sessions).some(s=>s.running);}
@@ -3039,6 +3154,7 @@ function startRoutine(id){
   if(!ROUTINES[id])return;
   if(!sessions[id])sessions[id]=newSession(id);   // resume if it already exists
   routineId=id; routineView=true;
+  if(!sessions[id].startedAt)sessions[id].startedAt=dayLogNowISO();
   syncFromSession(); unlockAudio(); haptic(12);
   ensureTick(); saveRoutine(); render();
 }
@@ -3057,7 +3173,15 @@ function closeRoutine(id){
 }
 function finishRoutine(){
   const id=routineId; haptic([40,60,120]); chime(3);
-  closeRoutine(id); if(id)quickComplete(id); setTab("today");
+  const s=S(id),end=dayLogNowISO(),start=s?.startedAt||end;
+  closeRoutine(id);
+  if(id){
+    quickComplete(id);
+    const key=todayKey(),old=dayLogFindLinked('routine',id,key);
+    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true};dayLogPersist(key);}
+    else dayLogAdd(ROUTINES[id]?.label||id,start,end,'routine',id,{completed:true});
+  }
+  setTab('today');
 }
 
 // ── One interval drives every running session ──
@@ -3086,6 +3210,15 @@ function advanceSession(id){
   s.done[s.q[0]]=true; s.q=s.q.slice(1);
   s.secs=s.q.length?ROUTINES[id].steps[s.q[0]].dur*60:0;
   s.running=false; s.endAt=null;
+  if(!s.q.length){
+    const end=dayLogNowISO(),start=s.startedAt||end,key=todayKey();
+    quickComplete(id);
+    const old=dayLogFindLinked('routine',id,key);
+    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true};dayLogPersist(key);}
+    else dayLogAdd(ROUTINES[id]?.label||id,start,end,'routine',id,{completed:true});
+    delete sessions[id];
+    if(routineId===id){routineId=null;routineView=false;routineQueue=[];routineCompleted={};timerSecs=0;timerRunning=false;timerEndAt=null;}
+  }
 }
 
 function routineToggle(){
@@ -3150,25 +3283,9 @@ document.addEventListener("touchend",e=>{
 },{passive:true});
 
 boot();
+  try{dayLogInit();}catch(e){console.warn('Day Log init',e);}
 </script>
 
-<section class="daylog-card" id="dayLogCard">
-  <div class="daylog-head">
-    <div>
-      <div class="daylog-title">Day Log</div>
-      <div id="dayLogSummary">Tracked 0m · Untracked gaps 0m</div>
-    </div>
-  </div>
-  <div class="daylog-controls">
-    <input id="dayLogInput" type="text" placeholder="What are you doing?" autocomplete="off">
-    <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">Start</button>
-  </div>
-  <div class="daylog-list" id="dayLogList"></div>
-</section>
 
 </body>
 </html>
-
-<script>
-document.addEventListener('DOMContentLoaded',()=>{ try{persistTravelMode();dayLogInit();syncSocialComboChecked();}catch(e){console.warn('Day Log init',e);} });
-</script>

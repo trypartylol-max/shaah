@@ -4155,6 +4155,85 @@ boot();
 }
 
 </style>
+
+<style>
+/* DESKTOP FINAL — balanced top hero
+   Keep the scorebox mathematically centered in the viewport and give the
+   ring / scorebox / LOG equal visual spacing on both sides. Mobile untouched. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) !important;
+    grid-template-rows:1fr !important;
+    align-items:center !important;
+    justify-items:stretch !important;
+    justify-content:center !important;
+    column-gap:28px !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:214px !important;
+    min-height:214px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* The old stack is flattened on desktop so these become the three
+     intentional columns of the hero. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+
+  /* Ring: right-aligned inside the left column. */
+  #scroll .today .t-score-hero .t-ring{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    width:184px !important;
+    height:184px !important;
+    flex:none !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+
+  /* Scorebox: its own auto-sized center column = exact viewport center. */
+  #scroll .today .t-score-hero .t-grade{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    width:min(720px, calc(100vw - 520px)) !important;
+    max-width:720px !important;
+    min-width:560px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* LOG: left-aligned inside the right column, mirroring the ring. */
+  #scroll .today .t-score-hero .today-log-start{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:start !important;
+    align-self:center !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+    transform:none !important;
+  }
+}
+
+/* For medium desktop widths, reduce the side gap before shrinking the
+   center scorebox. */
+@media (min-width:880px) and (max-width:1250px){
+  #scroll .today .t-score-hero{
+    column-gap:18px !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    min-width:500px !important;
+    width:min(650px, calc(100vw - 430px)) !important;
+  }
+}
+</style>
+
 </html>
 
 <style>

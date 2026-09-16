@@ -3733,8 +3733,18 @@ boot();
 /* MOBILE TODAY — compact Day Log field, between habits and Day Note. */
 @media(max-width:879px){
   .today .t-score-stack .t-ring{width:104px !important;height:104px !important;}
-  .today .today-log-start{display:none !important;}
-  .today .t-daylog{order:55 !important;}
+  /* Mobile: the desktop quick-log button must not render under the ring. */
+  .today .t-score-stack > .today-log-start,
+  .today .today-log-start{display:none !important;visibility:hidden !important;}
+  /* Mobile Today order: routines → core → habits → bonus → day log → day note. */
+  .today .t-score-hero{order:1;}
+  .today .t-rout{order:2;}
+  .today .t-lvl1{order:3;}
+  .today .t-lvl2{order:4;}
+  .today .t-lvl3{order:5;}
+  .today .t-daylog{order:6 !important;}
+  .today .t-note{order:7;}
+  .today .t-reset{order:8;}
   .today .t-daylog-card{background:#0b0b16;border:1px solid #17172a;border-radius:14px;padding:10px 11px;}
   .today .t-daylog-row{display:flex;align-items:center;gap:7px;}
   .today .t-daylog-row #dayLogInput{min-width:0;flex:1;border:1px solid #202033;border-radius:9px;padding:9px 10px;background:#0f0f1d;color:#e2e2e2;font:inherit;font-size:13px;outline:none;}

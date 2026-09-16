@@ -445,6 +445,69 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .dl-recap-grid b{font-size:21px}
 }
 
+
+/* Day Log — dedicated dock tab */
+.today-log-start{display:flex;align-items:center;gap:9px;background:#e2e2e2;color:#080810;border:0;border-radius:12px;padding:12px 15px;font-family:inherit;font-size:12px;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 22px rgba(255,255,255,.08);white-space:nowrap}
+.today-log-start span{font-size:12px}
+.today-log-start b{font-weight:800}
+.t-score-hero{margin-bottom:-2px}
+.daylog-page{min-height:100%}
+.log-page-head{display:flex;justify-content:space-between;align-items:flex-end;padding:12px 0 18px;border-bottom:1px solid #141424}
+.log-kicker{font-family:'Bebas Neue';font-size:25px;letter-spacing:.14em;color:#e2e2e2}
+.log-date{font-size:12px;letter-spacing:.12em;color:#73738c;margin-top:3px}
+.log-live{font-size:10px;letter-spacing:.1em;color:#68687e;display:flex;align-items:center;gap:6px}
+.log-live span{width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b66}
+.log-live.on{color:#4ade80}.log-live.on span{background:#4ade80;box-shadow:0 0 10px #4ade8066}
+.log-start-card{margin-top:16px;padding:18px;border:1px solid #1a1a2c;border-radius:16px;background:#0c0c18}
+.log-start-card.running{border-color:#4ade8030}
+.log-start-title{font-size:13px;letter-spacing:.1em;color:#d0d0da;font-weight:700}
+.log-start-sub{font-size:11px;color:#6f6f87;margin-top:5px}
+.log-start-row{display:flex;gap:8px;margin-top:13px}
+.log-start-row input,.log-quick input{flex:1;min-width:0;background:#10101e;border:1px solid #202036;border-radius:10px;color:#e2e2e2;padding:11px 12px;font:inherit;outline:none}
+.log-start-row button,.log-quick button{background:#e2e2e2;color:#080810;border:0;border-radius:10px;padding:0 18px;font-family:inherit;font-weight:800;letter-spacing:.08em;cursor:pointer}
+.log-start-card.running .log-start-row button{background:#f87171}
+.log-summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 22px}
+.log-summary-strip>div{padding:10px 12px;border:1px solid #141426;border-radius:11px;background:#0b0b16}
+.log-summary-strip b{display:block;font-family:'Bebas Neue';font-size:21px;color:#e0e0e8}
+.log-summary-strip span{font-size:8px;letter-spacing:.1em;color:#66667d}
+.log-section{margin-top:20px}
+.log-section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:11px;letter-spacing:.12em;color:#8c8ca3}
+.log-section-head small{font-size:9px;letter-spacing:.03em;color:#4f4f66;text-transform:none}
+.log-timeline{border-top:1px solid #141424}
+.log-event{display:grid;grid-template-columns:70px 18px minmax(0,1fr) 22px;gap:0;min-height:62px;position:relative;cursor:pointer}
+.log-event-time{padding-top:14px;font-size:11px;color:#77778f;font-variant-numeric:tabular-nums}
+.log-line{width:1px;background:#222239;position:relative}
+.log-line:before{content:"";position:absolute;top:16px;left:-3px;width:7px;height:7px;border-radius:50%;background:#57576e}
+.log-event.running .log-line:before{background:#4ade80;box-shadow:0 0 9px #4ade8066}
+.log-event-body{padding:12px 8px 12px 10px}
+.log-event-title{font-size:14px;color:#d8d8e1;font-weight:600}
+.log-event-meta{font-size:9px;color:#65657d;letter-spacing:.06em;margin-top:3px}
+.log-event-delete{background:none;border:0;color:#45455b;font-size:17px;cursor:pointer;padding:12px 0}
+.log-gap{display:grid;grid-template-columns:70px 18px minmax(0,1fr) auto;gap:0;align-items:center;min-height:40px;background:rgba(245,158,11,.035);border-top:1px dashed #29200f;border-bottom:1px dashed #29200f}
+.log-gap>span{grid-column:1;color:#f59e0b;text-align:right;padding-right:10px}
+.log-gap>b{grid-column:3;color:#d69e2e;font-size:11px}
+.log-gap small{grid-column:3;color:#6e5a29;font-size:8px;letter-spacing:.1em;margin-left:6px}
+.log-gap button{grid-column:4;background:none;border:1px solid #2c2615;color:#b58d31;border-radius:7px;padding:5px 7px;font-size:8px;letter-spacing:.08em;cursor:pointer;margin-right:4px}
+.log-empty{padding:28px 10px;text-align:center;color:#77778f;font-size:12px;line-height:1.7}
+.log-empty span{font-size:10px;color:#4f4f66}
+.log-quick{display:flex;gap:8px}
+.log-quick button{padding:0 14px}
+.log-recap{border:1px solid #141426;border-radius:14px;background:#0b0b16;padding:13px}
+.log-recap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.log-recap-grid>div{padding:10px;border-radius:9px;background:#0f0f1d;border:1px solid #16162a}
+.log-recap-grid b{display:block;font-family:'Bebas Neue';font-size:22px;color:#e2e2e2}
+.log-recap-grid span{font-size:8px;letter-spacing:.1em;color:#68687f}
+.log-recap-note{margin-top:11px;font-size:10px;line-height:1.5;color:#5f5f77}
+@media(max-width:879px){
+  .today-log-start{display:none}
+  .t-score-hero{gap:0}
+  .log-page-head{padding-top:6px}
+  .log-summary-strip{grid-template-columns:repeat(2,1fr)}
+  .daylog-page{padding-left:13px;padding-right:13px}
+  .log-event{grid-template-columns:58px 14px minmax(0,1fr) 20px}
+  .log-gap{grid-template-columns:58px 14px minmax(0,1fr) auto}
+}
+
 </style>
 </head>
 <body>
@@ -454,6 +517,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   <div id="tour"></div>
   <nav id="nav">
     <button class="nav-btn active" data-tab="today" onclick="setTab('today')"><span style="font-size:18px">◉</span>TODAY</button>
+    <button class="nav-btn" data-tab="log" onclick="setTab('log')"><span style="font-size:18px">◷</span>LOG</button>
     <button class="nav-btn" data-tab="social" onclick="setTab('social')" hidden><span style="font-size:18px">◍</span>SOCIAL</button>
     <button class="nav-btn" data-tab="stats" onclick="setTab('stats')"><span style="font-size:18px">◇</span>STATS</button>
     <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
@@ -726,7 +790,7 @@ function dayLogInit(){
   dayLogRender();
 }
 
-const BUILD="20260916-daylog-phases-1-2-3";
+const BUILD="20260916-daylog-logtab-ui";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -2473,6 +2537,7 @@ function render(){
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
   if(currentTab==="social")el.innerHTML=bar+renderSocial();
   else if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
+  else if(currentTab==="log")el.innerHTML=bar+renderDayLogTab();
   else if(currentTab==="stats")el.innerHTML=bar+renderStats();
   else if(currentTab==="history")el.innerHTML=bar+renderHistory();
   renderTour();
@@ -2552,11 +2617,16 @@ function renderToday(key,nested=false){
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}
-    <div class="t-ring" style="position:relative;width:${RSZ}px;height:${RSZ}px">
+    <div class="t-score-hero" style="display:flex;align-items:center;justify-content:center;gap:28px;width:100%;max-width:760px">
+      <button class="today-log-start" type="button" onclick="openDayLogStart()" aria-label="Start Day Log">
+        <span>▶</span><b>START LOG</b>
+      </button>
+      <div class="t-ring" style="position:relative;width:${RSZ}px;height:${RSZ}px">
       ${ring(score,dMax,RSZ,RSZ>140?12:9,gr.c,gr.g)}
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
         <div style="font-family:'Bebas Neue';font-size:${RSZ>140?54:38}px;line-height:1;color:${gr.c};text-shadow:0 0 40px ${gr.g}">${score}%</div>
         <div style="font-size:${RSZ>140?14:11.5}px;color:${gr.c};letter-spacing:0.12em;opacity:0.65">${gr.n}</div>
+      </div>
       </div>
     </div>
     <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
@@ -2658,26 +2728,102 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>`).join("")}
       </div>
     </div>
-
-
-    ${isToday&&!nested?`<div class="t-daylog" id="todayDayLog" style="width:100%;max-width:760px">
-      <div class="daylog-card" id="dayLogCard">
-        <div class="daylog-head">
-          <div>
-            <div class="daylog-title">DAY LOG</div>
-            <div id="dayLogSummary">—</div>
-          </div>
-          <div id="dayLogStatus" class="daylog-status">No gaps</div>
-        </div>
-        <div class="daylog-controls">
-          <input id="dayLogInput" type="text" placeholder="What are you doing?" autocomplete="off" onkeydown="if(event.key==='Enter')dayLogToggle()">
-          <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">START</button>
-        </div>
-        <div class="daylog-list" id="dayLogList"></div>
-      </div>
-    </div>`:""}
     ${isToday?`<button class="t-reset" onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
   </div>`;
+}
+
+
+function openDayLogStart(){
+  setTab('log');
+  setTimeout(()=>{
+    const input=document.querySelector('#dayLogInput');
+    if(input){input.focus();input.scrollIntoView({behavior:'smooth',block:'center'});}
+  },40);
+}
+function renderDayLogTab(){
+  const key=todayKey(), s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));
+  const active=!!dayLogActiveId();
+  const gaps=s.gaps;
+  const byHour=Array.from({length:24},()=>0);
+  evs.forEach(e=>{
+    const a=dayLogMinutes(e.start),d=dayLogDuration(e);
+    if(a!=null&&d>0)byHour[Math.floor(a/60)]+=d;
+  });
+  return `<div class="fade-up daylog-page" style="padding:4px 20px calc(88px + env(safe-area-inset-bottom));max-width:900px;margin:0 auto">
+    <div class="log-page-head">
+      <div>
+        <div class="log-kicker">DAY LOG</div>
+        <div class="log-date">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}).toUpperCase()}</div>
+      </div>
+      <div class="log-live ${active?"on":""}"><span></span>${active?"LOGGING":"READY"}</div>
+    </div>
+
+    <div class="log-start-card ${active?"running":""}">
+      <div class="log-start-copy">
+        <div class="log-start-title">${active?"CURRENT ACTIVITY":"WHAT ARE YOU DOING?"}</div>
+        <div class="log-start-sub">${active?"Press STOP when you finish.":"Start a block and shaah will build your timeline automatically."}</div>
+      </div>
+      <div class="log-start-row">
+        <input id="dayLogInput" type="text" placeholder="${active?"":"e.g. Deep Work, Lunch, Drive…"}" autocomplete="off"
+          onkeydown="if(event.key==='Enter')dayLogToggle()">
+        <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">${active?"STOP":"START"}</button>
+      </div>
+    </div>
+
+    <div class="log-summary-strip">
+      <div><b>${dayLogFmt(s.tracked)}</b><span>TRACKED</span></div>
+      <div><b>${dayLogFmt(s.gap)}</b><span>UNTRACKED</span></div>
+      <div><b>${s.events}</b><span>EVENTS</span></div>
+      <div><b>${gaps.length}</b><span>GAPS</span></div>
+    </div>
+
+    <div class="log-section">
+      <div class="log-section-head"><span>TODAY'S TIMELINE</span><small>tap an event to edit</small></div>
+      <div class="log-timeline">
+        ${evs.length?evs.map((e,i)=>{
+          const dur=dayLogDuration(e), running=!e.end;
+          let gapHtml="";
+          if(i>0){
+            const prev=evs[i-1],a=dayLogMinutes(prev.end),b=dayLogMinutes(e.start);
+            if(a!=null&&b!=null&&b>a)gapHtml=`<div class="log-gap"><span>⚠</span><b>${dayLogFmt(b-a)}</b><small>UNTRACKED</small><button onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">CLASSIFY</button></div>`;
+          }
+          return `${gapHtml}<div class="log-event ${running?"running":""}" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">
+            <div class="log-event-time">${new Date(e.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+            <div class="log-line"></div>
+            <div class="log-event-body">
+              <div class="log-event-title">${dayLogEsc(e.title)}</div>
+              <div class="log-event-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:""}${running?" · RUNNING":""}</div>
+            </div>
+            <button class="log-event-delete" onclick="event.stopPropagation();dayLogDelete('${dayLogEsc(e.id)}','${key}');render()">×</button>
+          </div>`;
+        }).join(""):`<div class="log-empty">Your timeline is empty.<br><span>Start logging above, or complete a habit/routine and it will appear here automatically.</span></div>`}
+      </div>
+    </div>
+
+    <div class="log-section">
+      <div class="log-section-head"><span>QUICK ADD</span><small>for something that already happened</small></div>
+      <div class="log-quick">
+        <input id="dayLogQuickInput" type="text" placeholder="Activity name…">
+        <button onclick="dayLogQuickAdd()">+ ADD</button>
+      </div>
+    </div>
+
+    <div class="log-section">
+      <div class="log-section-head"><span>DAY RECAP</span><small>generated from your timeline</small></div>
+      <div class="log-recap">
+        <div class="log-recap-grid">
+          <div><b>${dayLogFmt(s.tracked)}</b><span>TRACKED</span></div>
+          <div><b>${dayLogFmt(s.gap)}</b><span>UNTRACKED</span></div>
+          <div><b>${dayLogFmt(byHour.reduce((a,b)=>a+b,0))}</b><span>LOGGED TIME</span></div>
+        </div>
+        <div class="log-recap-note">Habits and routines are inserted automatically when completed. Manual activities are the only things you need to type.</div>
+      </div>
+    </div>
+  </div>`;
+}
+function dayLogQuickAdd(){
+  const i=document.querySelector('#dayLogQuickInput'),title=(i?.value||'').trim();if(!title)return;
+  const now=dayLogNowISO();dayLogAdd(title,now,now,'manual');i.value='';haptic(8);render();
 }
 
 function renderEditDay(){
@@ -2865,7 +3011,6 @@ function renderStats(){
       ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
     ${renderConsistency()}
-    <div><div class="sec">DAY LOG RECAP — TODAY</div><div class="card" id="dayLogRecap"></div></div>
     ${renderWeekday()}
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px"><div style="font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center">${l}</div><div style="flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;width:${pct}%;background:${gc.c};border-radius:99px"></div></div><div style="font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right">${count}</div><div style="font-size:14.5px;color:#8888a4;width:32px;text-align:right">${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
     ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px">${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">${a>0?`<div style="font-size:14.5px;color:${g.c}">${a}</div>`:"<div style='font-size:14.5px'>&nbsp;</div>"}<div style="width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none"></div><div style="font-size:14px;color:#9090aa">S${4-wi}</div></div>`;}).join("")}</div><div style="height:1px;background:#111120"></div></div></div>`:""}
@@ -3269,7 +3414,7 @@ function renderRoutineTimer(){
   }
 }
 
-function tabsOrder(){ return socialOwnTab()?["today","social","stats","history"]:["today","stats","history"]; }
+function tabsOrder(){ return socialOwnTab()?["today","log","social","stats","history"]:["today","log","stats","history"]; }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{

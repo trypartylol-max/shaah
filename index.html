@@ -3913,6 +3913,49 @@ boot();
   }
 }
 </style>
+
+<style>
+/* FINAL DESKTOP HERO: centered scorebox with ring and log symmetrically at its sides. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:214px !important;
+    min-height:214px !important;
+    display:grid !important;
+    grid-template-columns:1fr auto 1fr !important;
+    align-items:center !important;
+    justify-items:center !important;
+    gap:18px !important;
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-stack{display:contents !important;}
+  #scroll .today .t-score-hero .t-ring{
+    grid-column:1 !important;
+    justify-self:end !important;
+    width:196px !important;
+    height:196px !important;
+    flex:none !important;
+    margin:0 !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    grid-column:2 !important;
+    justify-self:center !important;
+    width:520px !important;
+    max-width:520px !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:16px 20px !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-hero .today-log-start{
+    grid-column:3 !important;
+    justify-self:start !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
 </body>
 
 <style>

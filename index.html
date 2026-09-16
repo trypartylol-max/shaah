@@ -53,8 +53,13 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* Night layout is mobile-only by design: on desktop the two-column
    flow always uses day order (CSS columns ignore `order` anyway). */
 @media(max-width:879px){
+  /* Mobile: routines come before the levels. Desktop keeps its explicit grid order. */
+  .today .t-rout{order:30;}
+  .today .t-lvl1{order:40;}
+  .today .t-lvl2{order:50;}
+  .today .t-lvl3{order:60;}
+
   .today.night .t-note{order:25;}   /* de noche la nota sube justo tras el marcador */
-  .today.night .t-rout{order:85;}
 
   /* ── Densidad en movil ──────────────────────────────────────────────
      La tira sticky (#tb-score) ya repite letra, %, barra y siguiente
@@ -420,7 +425,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260915-2130·7a0534";
+const BUILD="20260916-1132·mobile-routines-vacation-fix";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -854,6 +859,8 @@ function cfgForDate(key){
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
+  travelEnsure();
+  if(travelMode()==='vacation'&&CFG.h&&CFG.h.work) CFG.h.work.on=false;
   Object.values(CFG.h||{}).forEach(ensureModePts);
   (CFG.subs||[]).forEach(ensureModePts);
   LVL1=buildLevel(1);LVL2=buildLevel(2);LVL3=buildLevel(3);
@@ -1624,7 +1631,18 @@ function cfgMove(id,dir){
   const a=CFG.order.indexOf(peers[i]), b=CFG.order.indexOf(peers[j]);
   cfgEdit(()=>{ [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]]; });
 }
-function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
+function cfgToggle(id){
+  if(!CFG.h[id])return;
+  /* Work is structurally paused in Vacation Mode; it cannot be re-enabled
+     from Settings while Vacation is active. */
+  if(id==='work'&&travelMode()==='vacation'){
+    haptic(8);
+    cfgEdit(()=>{ CFG.h[id].on=false; });
+    return;
+  }
+  haptic(10);
+  cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; });
+}
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 // Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
 // Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.

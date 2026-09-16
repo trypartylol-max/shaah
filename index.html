@@ -4207,3 +4207,57 @@ boot();
 }
 
 </style>
+
+<style>
+/* FINAL TODAY DESKTOP — 2a: RING → INFO BAR → LOG ACTIVITY
+   Keep the lower layout untouched. The score hero uses the full width so the
+   information bar can breathe, while the ring and Log button stay on one line. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    grid-row:2 !important;
+    grid-column:1 / -1 !important;
+    width:100% !important;
+    max-width:none !important;
+    height:190px !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:20px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Flatten the old vertical stack: ring and button become flex items of the hero. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+
+  #scroll .today .t-score-hero .t-ring{
+    order:1 !important;
+    flex:0 0 180px !important;
+    width:180px !important;
+    height:180px !important;
+    margin:0 !important;
+    zoom:1 !important;
+  }
+
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:17px 22px !important;
+    box-sizing:border-box !important;
+  }
+
+  #scroll .today .t-score-hero .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+  }
+}
+</style>

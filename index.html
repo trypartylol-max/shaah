@@ -4320,3 +4320,51 @@ boot();
   }
 }
 </style>
+
+<style>
+/* FINAL TOP-BAR TUNE — desktop
+   Use the bottom edge of the tallest LVL card as the common baseline, so LVL1/2/3
+   share one clean row. This frees the top band to breathe without changing the
+   overall desktop arrangement. */
+@media (min-width:880px){
+  /* LVL3 establishes the row's natural height; the other two stretch to it. */
+  #scroll .today .t-lvl1,
+  #scroll .today .t-lvl2,
+  #scroll .today .t-lvl3{
+    align-self:stretch !important;
+    height:auto !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Give the top band a little more vertical room for the ring. */
+  #scroll .today .t-score-hero{
+    height:204px !important;
+    min-height:204px !important;
+    gap:18px !important;
+    align-items:center !important;
+  }
+
+  /* Slightly larger ring, still inside the same top-band position. */
+  #scroll .today .t-score-stack > .t-ring{
+    width:176px !important;
+    height:176px !important;
+    flex-basis:176px !important;
+  }
+  #scroll .today .t-score-stack{
+    flex:0 0 188px !important;
+    width:188px !important;
+    min-width:188px !important;
+    gap:3px !important;
+  }
+
+  /* Trim the info box a little horizontally so the larger ring has room. */
+  #scroll .today .t-score-hero .t-grade{
+    flex:0 1 760px !important;
+    width:auto !important;
+    max-width:760px !important;
+    min-width:0 !important;
+    padding:13px 18px !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>

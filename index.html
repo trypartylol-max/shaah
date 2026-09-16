@@ -38,23 +38,20 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 /* ── TODAY section order — day vs night ────────────────────── */
 .today>*{order:70;}
 .today .t-head{order:1;}
-/* Jerarquia: primero el marcador (anillo + nota), luego lo que se marca a mano,
-   luego las rutinas — que ya se invocan solas desde su tarjeta — y al final
-   la nota del dia. Cabe porque LVL 1 ya no repite los habitos con rutina. */
+/* Mobile Today order: score first, routines before habits, day log/note after habits. */
 .today .t-streak{order:5;}
-.today .t-ring{order:10;}
-.today .t-grade{order:20;}
+.today .t-score-hero{order:10;}
+.today .t-rout{order:20;}
 .today .t-lvl1{order:30;}
 .today .t-lvl2{order:40;}
 .today .t-lvl3{order:50;}
-.today .t-rout{order:60;}
-.today .t-note{order:80;}
-.today .t-reset{order:90;}
+.today .t-note{order:60;}
+.today .t-reset{order:70;}
 /* Night layout is mobile-only by design: on desktop the two-column
    flow always uses day order (CSS columns ignore `order` anyway). */
 @media(max-width:879px){
-  .today.night .t-note{order:25;}   /* de noche la nota sube justo tras el marcador */
-  .today.night .t-rout{order:85;}
+  .today.night .t-rout{order:20;}
+  .today.night .t-note{order:60;}
 
   /* ── Densidad en movil ──────────────────────────────────────────────
      La tira sticky (#tb-score) ya repite letra, %, barra y siguiente
@@ -2021,21 +2018,6 @@ function renderSettings(){
       <div style="margin-left:auto;font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(68px + env(safe-area-inset-bottom))">
-            ${stCard("trav","MODE","#9090aa",`
-      <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Work and Vacation have independent point values for every habit. Switching mode changes which values are used; Vacation also pauses <b style="color:#d0d0da">Work</b> from today.</div>
-      <div style="display:flex;gap:7px;margin-bottom:16px">
-        ${[["work","💼 Work","Work active"],["vacation","🏖 Vacation","Work paused"]].map(([id,lbl,sub])=>`
-          <button onclick="setTravelMode('${id}')" style="flex:1;background:${travelMode()===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${travelMode()===id?'#3a3a55':'#222'};color:${travelMode()===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
-            <div style="font-size:14px">${lbl}</div>
-            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
-          </button>`).join("")}
-      </div>
-      <div class="st-div"></div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <span style="font-size:14px;color:#c0c0cd;flex:1">Auto-switch to Work on</span>
-        <input type="date" value="${esc(CFG.travel.resumeOn||'')}" onchange="setTravelResume(this.value)" style="background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px"/>
-      </div>
-      <button onclick="setTravelAuto(${!CFG.travel.auto})" style="width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer">${CFG.travel.auto?'✓':'○'} AUTOMATIC${CFG.travel.auto&&CFG.travel.resumeOn?` — switches to Work on ${esc(CFG.travel.resumeOn)}`:''}</button>`,"st-col-b")}
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
@@ -2059,6 +2041,23 @@ function renderSettings(){
         </div>`).join("")}
         <button onclick="subAdd()" style="width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px">+ ADD TO COMBO</button>
       </div>`,"st-col-a")}
+            ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
+        <div class="card" style="margin-bottom:10px;padding:14px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <span style="font-size:17px">${esc(r.icon)}</span>
+            <span style="font-size:16.5px;color:#e2e2e2">${esc(r.label)}</span>
+            <span style="margin-left:auto;font-size:15px;color:#adadbf">${r.steps.length} steps · ${tm} min</span>
+          </div>
+          ${r.steps.map((s,i)=>`
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:16.5px;width:20px;text-align:center">${esc(s.icon)}</span>
+              <input value="${esc(s.label)}" onchange="stepSet('${rid}',${i},'label',this.value)"
+                style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:15px;padding:3px 0"/>
+              <input type="number" min="1" max="180" value="${esc(s.dur)}" onchange="stepSet('${rid}',${i},'dur',this.value)"
+                style="width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:15px;padding:4px;text-align:center"/>
+              <span style="font-size:14.5px;color:#a2a2b6">m</span>
+            </div>`).join("")}
+        </div>`}).join("")}`,"st-col-b")}
             ${stCard("ppl","PEOPLE","#9090aa",`
       <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Who you spend time with, and how often you want to. Never affects your score — it only drives WHO TO SEE in Stats.</div>
       ${subsOn(subsList()).map(sb=>`
@@ -2093,6 +2092,21 @@ function renderSettings(){
           <button onclick="personDel('${x.id}')" style="background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0">✕</button>
         </div>`).join("")}
       </div>`:""}`,"st-col-b")}
+            ${stCard("trav","MODE","#9090aa",`
+      <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Work and Vacation have independent point values for every habit. Switching mode changes which values are used; Vacation also pauses <b style="color:#d0d0da">Work</b> from today.</div>
+      <div style="display:flex;gap:7px;margin-bottom:16px">
+        ${[["work","💼 Work","Work active"],["vacation","🏖 Vacation","Work paused"]].map(([id,lbl,sub])=>`
+          <button onclick="setTravelMode('${id}')" style="flex:1;background:${travelMode()===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${travelMode()===id?'#3a3a55':'#222'};color:${travelMode()===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
+            <div style="font-size:14px">${lbl}</div>
+            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
+          </button>`).join("")}
+      </div>
+      <div class="st-div"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:14px;color:#c0c0cd;flex:1">Auto-switch to Work on</span>
+        <input type="date" value="${esc(CFG.travel.resumeOn||'')}" onchange="setTravelResume(this.value)" style="background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px"/>
+      </div>
+      <button onclick="setTravelAuto(${!CFG.travel.auto})" style="width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer">${CFG.travel.auto?'✓':'○'} AUTOMATIC${CFG.travel.auto&&CFG.travel.resumeOn?` — switches to Work on ${esc(CFG.travel.resumeOn)}`:''}</button>`,"st-col-b")}
             ${stCard("bak","BACKUPS","#9090aa",`
       <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Your settings are saved automatically on every change. Restore any version here — your daily logs are never touched.</div>
       ${bakList().length?bakList().map(b=>`
@@ -2103,23 +2117,6 @@ function renderSettings(){
           </div>
           <button onclick="bakRestore(${esc(b.i)})" style="flex-shrink:0;background:none;border:1px solid #222;color:#c0c0cd;font-family:inherit;font-size:13px;letter-spacing:.08em;padding:7px 12px;border-radius:8px;cursor:pointer">RESTORE</button>
         </div>`).join(""):`<div style="font-size:14px;color:#9a9ab2;padding:6px 0">No versions saved yet — the first one appears after your next settings change.</div>`}`,"st-col-b")}
-            ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
-        <div class="card" style="margin-bottom:10px;padding:14px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="font-size:17px">${esc(r.icon)}</span>
-            <span style="font-size:16.5px;color:#e2e2e2">${esc(r.label)}</span>
-            <span style="margin-left:auto;font-size:15px;color:#adadbf">${r.steps.length} steps · ${tm} min</span>
-          </div>
-          ${r.steps.map((s,i)=>`
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-              <span style="font-size:16.5px;width:20px;text-align:center">${esc(s.icon)}</span>
-              <input value="${esc(s.label)}" onchange="stepSet('${rid}',${i},'label',this.value)"
-                style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:15px;padding:3px 0"/>
-              <input type="number" min="1" max="180" value="${esc(s.dur)}" onchange="stepSet('${rid}',${i},'dur',this.value)"
-                style="width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:15px;padding:4px;text-align:center"/>
-              <span style="font-size:14.5px;color:#a2a2b6">m</span>
-            </div>`).join("")}
-        </div>`}).join("")}`,"st-col-b")}
             ${stCard("data","SETTINGS & DATA","#9090aa",`<select onchange="cfgTz(this.value)" style="width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px">
         ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${esc(t.label)}</option>`).join("")}
       </select>
@@ -2148,8 +2145,7 @@ function renderSettings(){
       <button onclick="if(confirm('Restore all default settings?')){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}" style="width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px">↺  RESTORE DEFAULTS</button>
       <div style="text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:14px 0 2px">${BUILD}</div>
       <div style="text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em">SHAAH · ${USER?USER.email||'':''}</div>
-      <button onclick="if(confirm('Sign out?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">SIGN OUT</button>`,"st-full")}
-</div>
+      <button onclick="if(confirm('Sign out?'))signOut()" style="width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer">SIGN OUT</button>`,"st-full")}</div>
   </div>`;
 }
 

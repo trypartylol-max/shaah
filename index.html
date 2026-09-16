@@ -633,7 +633,7 @@ function dayLogInit(){
   dayLogRender();
 }
 
-const BUILD="20260916-daylog-v1-bugfix";
+const BUILD="20260916-daylog-v1-total-mode-social-fix";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -790,7 +790,7 @@ function subsFor(h,list,mode){
   return subsOn(resolveSubs(base,cp,mode));
 }
 function levelsFor(h,order,n,subs,mode){
-  return order.filter(id=>h[id]&&h[id].lv===n&&h[id].on!==false)
+  return order.filter(id=>h[id]&&h[id].lv===n&&h[id].on!==false&&!(modeKey(mode)==='vacation'&&id==='work'))
     .map(id=>({id,label:h[id].l,
                pts:(h[id].combo&&subs)?subs.reduce((a,x)=>a+x.p,0):modePts(h[id],mode),
                icon:h[id].i,col:LVL_COL[n],routine:!!h[id].routine,combo:!!h[id].combo}));
@@ -935,6 +935,13 @@ function applyTravelMode(mode){
   mode=mode==='vacation'?'vacation':'work';
   CFG.travel.mode=mode;
   editFrom(todayKey(),(h)=>{ if(h.work)h.work.on=(mode==='work'); });
+  // The mode itself is part of the dated config. Keep every era from today
+  // forward aligned with the switch; otherwise cfgForDate() can resurrect the
+  // previous mode after a reload/realtime update.
+  const lg=cfgLog(), tk=todayKey();
+  for(const e of lg) if(e.from>=tk) e.mode=mode;
+  CFG.travelV=2;
+  _dayCfgCache={};
   applyCfg(); saveCfg();
 }
 function setTravelMode(mode){ haptic(10); applyTravelMode(mode); render(); }
@@ -951,8 +958,11 @@ function checkTravelAuto(){
 // One-time migration: Vacation Mode officially starts on 2026-09-08.
 // Days before that date keep Work Mode; the date itself and all later eras use Vacation.
 function setVacationStartOnce(){
-  if(CFG.travelV>=1)return false;
   const START="2026-09-08";
+  // v2 repairs the existing 2026-09-08 vacation era even if an older build
+  // already marked travelV=1. After this migration, manual Work/Vacation changes
+  // are preserved normally.
+  if(CFG.travelV>=2)return false;
   const lg=cfgLog();
   if(!lg.length){ const b=cfgBaseline(); lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true}); }
 
@@ -1067,6 +1077,8 @@ function cfgForDate(key){
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
+  travelEnsure();
+  if(travelMode()==='vacation'&&CFG.h&&CFG.h.work) CFG.h.work.on=false;
   Object.values(CFG.h||{}).forEach(ensureModePts);
   (CFG.subs||[]).forEach(ensureModePts);
   LVL1=buildLevel(1);LVL2=buildLevel(2);LVL3=buildLevel(3);
@@ -2391,7 +2403,7 @@ function comboBlock(key,alwaysOpen){
   return`      <div style="border-radius:13px;border:1px solid ${ch.social||expanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||expanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
           <div style="display:flex;align-items:center;gap:13px">
-            <div style="width:22px;height:22px;flex-shrink:0" aria-hidden="true"></div>
+            ${chk(!!ch.social,"#fbbf24",18)}
             <div>
               <div class="cb-tit" style="font-size:16.5px;font-weight:${ch.social?600:450}">👥 Social Combo</div>
               ${expanded?`<div class="cb-sub" style="font-size:14.5px;color:#adadbf;margin-top:2px">${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
@@ -2540,7 +2552,7 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
-      ${(socialOwnTab()&&!nested)?"":comboBlock(key)}
+      ${comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>`
       <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">

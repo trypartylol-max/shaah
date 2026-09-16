@@ -3685,5 +3685,40 @@ boot();
     padding-top:7px !important;
     padding-bottom:7px !important;
   }
+
+  /* FINAL +5% SIZE: keep the exact same grid/layout and anchor positions.
+     Grow the visual elements inside the existing bands, while tightening
+     their internal gaps so nothing is pushed to a new row. */
+  #scroll .today .t-score-stack{
+    flex-basis:180px !important;
+    width:180px !important;
+    min-width:180px !important;
+    gap:3px !important;
+  }
+  #scroll .today .t-score-stack > .t-ring{
+    width:160px !important;
+    height:160px !important;
+    flex-basis:160px !important;
+  }
+  #scroll .today .t-score-hero{
+    gap:18px !important;
+  }
+  #scroll .today .today-log-start{
+    transform:scale(1.05);
+    transform-origin:center top;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    padding:13px 19px !important;
+    gap:18px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{
+    font-size:61px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:first-child,
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(2),
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3),
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
+    font-size:15px !important;
+  }
 }
 </style>

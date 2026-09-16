@@ -2768,8 +2768,12 @@ function comboBlock(key,alwaysOpen){
 }
 
 function toggleTodayRoutines(el){
-  // Collapsible ONLY on mobile. Desktop keeps TODAY'S ROUTINES permanently open.
-  if(window.matchMedia && !window.matchMedia('(max-width:879px)').matches)return;
+  // ONLY mobile can collapse Today's Routines. Desktop is permanently open.
+  if(window.innerWidth >= 880){
+    const box=el?.closest('.t-rout');
+    if(box){ box.classList.remove('collapsed'); const body=box.querySelector('.t-rout-body'); if(body)body.style.display=''; }
+    return;
+  }
   const box=el?.closest('.t-rout'); if(!box)return;
   const body=box.querySelector('.t-rout-body'), arrow=box.querySelector('.t-rout-arrow');
   if(!body)return;
@@ -2918,7 +2922,6 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>
     </div>
     ${isToday?`<div class="t-daylog" style="width:100%;max-width:390px">
-      <div class="sec">◷ DAY LOG</div>
       <div class="t-daylog-card ${dayLogActiveId()?"running":""}">
         <div class="t-daylog-row">
           <input id="dayLogInput" type="text" placeholder="${dayLogActiveId()?"Current activity":"What are you doing?"}" autocomplete="off" onkeydown="if(event.key==='Enter')dayLogToggle()">
@@ -3738,6 +3741,44 @@ boot();
     padding:14px 15px !important;
     gap:11px !important;
   }
+}
+</style>
+
+<style>
+/* FINAL ROUTINES FIX — desktop stays open and uses the available horizontal space. */
+@media (min-width:880px){
+  #scroll .today .t-rout{
+    width:100% !important;
+    max-width:none !important;
+    pointer-events:auto;
+  }
+  #scroll .today .t-rout-toggle{
+    cursor:default !important;
+    pointer-events:none !important;
+  }
+  #scroll .today .t-rout-arrow{display:none !important;}
+  #scroll .today .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px !important;
+    width:100% !important;
+  }
+  #scroll .today .t-rout-body > div{
+    width:100% !important;
+    min-width:0 !important;
+    margin-bottom:0 !important;
+    padding:14px !important;
+  }
+  #scroll .today .t-rout-body .r-lab{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
+@media (max-width:879px){
+  /* Mobile: the label is gone; the input card itself is the Day Log field. */
+  .today .t-daylog{max-width:none !important;}
+  .today .t-daylog-card{width:100% !important;}
 }
 </style>
 </html>

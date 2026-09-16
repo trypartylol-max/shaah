@@ -551,29 +551,48 @@ const subsOn=l=>l.filter(x=>x.on!==false);
 function comboIdIn(h){ for(const id of Object.keys(h)) if(h[id]&&h[id].combo) return id; return null; }
 // Parts written before points were per-part fall back to the even split that was
 // in force in THEIR era, so every old day keeps exactly the score it had.
-function resolveSubs(list,comboPts){
-  const n=list.length||1;
-  return list.map(x=>({...x,p:x.p!=null?safePts(x.p):Math.round(comboPts/n)}));
+function modeKey(mode){return mode==='vacation'?'vacation':'work';}
+function modePts(x,mode){
+  if(!x)return 0;
+  const v=modeKey(mode)==='vacation'?x.pVacation:x.pWork;
+  return v!=null?safePts(v):safePts(x.p);
 }
-function subsFor(h,list){
+function ensureModePts(x){
+  if(!x)return;
+  const p=safePts(x.p);
+  if(x.pWork==null)x.pWork=p;
+  if(x.pVacation==null)x.pVacation=p;
+}
+function resolveSubs(list,comboPts,mode){
+  const n=list.length||1;
+  return list.map(x=>{
+    const y={...x}; ensureModePts(y);
+    if(y.pWork==null)y.pWork=Math.round(comboPts/n);
+    if(y.pVacation==null)y.pVacation=Math.round(comboPts/n);
+    y.p=modePts(y,mode);
+    return y;
+  });
+}
+function subsFor(h,list,mode){
   const base=(Array.isArray(list)&&list.length)?list:SOCIAL_SUBS_BASE;
   const cid=comboIdIn(h);
-  return subsOn(resolveSubs(base,cid&&h[cid]?safePts(h[cid].p):18));
+  const cp=cid&&h[cid]?modePts(h[cid],mode):18;
+  return subsOn(resolveSubs(base,cp,mode));
 }
-function levelsFor(h,order,n,subs){
+function levelsFor(h,order,n,subs,mode){
   return order.filter(id=>h[id]&&h[id].lv===n&&h[id].on!==false)
     .map(id=>({id,label:h[id].l,
-               pts:(h[id].combo&&subs)?subs.reduce((a,x)=>a+x.p,0):safePts(h[id].p),
+               pts:(h[id].combo&&subs)?subs.reduce((a,x)=>a+x.p,0):modePts(h[id],mode),
                icon:h[id].i,col:LVL_COL[n],routine:!!h[id].routine,combo:!!h[id].combo}));
 }
-function buildLevel(n){ return levelsFor(CFG.h,CFG.order,n,subsFor(CFG.h,CFG.subs)); }
+function buildLevel(n){ const m=travelMode(); return levelsFor(CFG.h,CFG.order,n,subsFor(CFG.h,CFG.subs,m),m); }
 
 // ── Config timeline ────────────────────────────────────────
 // Every day is scored with the config that was in effect THAT day. Turning a
 // habit off (or adding one) changes today forward and can never rewrite the past.
 var CFG_EPOCH="0001-01-01";
 var _dayCfgCache={};
-function cfgSnap(){return{h:JSON.parse(JSON.stringify(CFG.h)),order:CFG.order.slice(),subs:JSON.parse(JSON.stringify(subsList()))};}
+function cfgSnap(){return{h:JSON.parse(JSON.stringify(CFG.h)),order:CFG.order.slice(),subs:JSON.parse(JSON.stringify(subsList())),mode:travelMode()};}
 // The baseline that covers all history predating the timeline. A habit that was
 // ticked on some past day was plainly active back then, so force it ON here —
 // otherwise a habit switched off BEFORE this build existed (there was no timeline
@@ -598,13 +617,13 @@ const FAMILY_FROM="2026-09-09";   // David pidió Family desde el miércoles, no
 function ensureSubFrom(sub,from){
   subsEnsure();
   const lg=cfgLog();
-  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
   let i=0;
   for(let k=0;k<lg.length;k++){ if(lg[k].from<=from)i=k; else break; }
   if(lg[i].from<from){                       // corta una época nueva justo en esa fecha
     const e=lg[i];
     lg.splice(i+1,0,{from,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
-                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]))});
+                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:e.mode||travelMode()});
     i++;
   }
   for(let k=i;k<lg.length;k++){
@@ -623,13 +642,13 @@ function ensureSubFrom(sub,from){
 // y las épocas anteriores no se tocan (su MAX no se mueve).
 function ensureHabitFrom(id,def,from,after){
   const lg=cfgLog();
-  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
   let i=0;
   for(let k=0;k<lg.length;k++){ if(lg[k].from<=from)i=k; else break; }
   if(lg[i].from<from){
     const e=lg[i];
     lg.splice(i+1,0,{from,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
-                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]))});
+                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:e.mode||travelMode()});
     i++;
   }
   const place=(h,order)=>{
@@ -647,13 +666,13 @@ function ensureHabitFrom(id,def,from,after){
 // config viva. Las épocas anteriores no se tocan — el pasado conserva sus pesos.
 function editFrom(from,fn){
   const lg=cfgLog();
-  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
   let i=0;
   for(let k=0;k<lg.length;k++){ if(lg[k].from<=from)i=k; else break; }
   if(lg[i].from<from){
     const e=lg[i];
     lg.splice(i+1,0,{from,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
-                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]))});
+                     subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:e.mode||travelMode()});
     i++;
   }
   for(let k=i;k<lg.length;k++)fn(lg[k].h,lg[k].subs||(lg[k].subs=[]));
@@ -704,8 +723,8 @@ function travelMode(){ travelEnsure(); return CFG.travel.mode==='vacation'?'vaca
 function applyTravelMode(mode){
   travelEnsure();
   mode=mode==='vacation'?'vacation':'work';
-  editFrom(todayKey(),(h)=>{ if(h.work)h.work.on=(mode==='work'); });
   CFG.travel.mode=mode;
+  editFrom(todayKey(),(h)=>{ if(h.work)h.work.on=(mode==='work'); });
   applyCfg(); saveCfg();
 }
 function setTravelMode(mode){ haptic(10); applyTravelMode(mode); render(); }
@@ -770,7 +789,7 @@ function ensureBaseline(){
   if(lg.length)return false;
   if(!Object.keys(_state).some(k=>DATE_RE.test(k)))return false;
   const b=cfgBaseline(), cur=cfgSnap();
-  lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});
+  lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});
   // If the reconstructed past differs from how the app is set up right now, the
   // current setup is its own era starting today — the past keeps the old rules,
   // today forward keeps what the user actually has switched on.
@@ -785,11 +804,11 @@ function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
 // then stamps the new one as effective from today.
 function cfgEdit(fn){
   const lg=cfgLog();
-  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,auto:true});}
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
   fn();
   const tk=todayKey(), cur=cfgSnap(), last=lg[lg.length-1];
-  if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;last.subs=cur.subs;}
-  else lg.push({from:tk,h:cur.h,order:cur.order,subs:cur.subs});
+  if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;last.subs=cur.subs;last.mode=cur.mode;}
+  else lg.push({from:tk,h:cur.h,order:cur.order,subs:cur.subs,mode:cur.mode});
   if(lg.length>600)lg.splice(1,lg.length-600);   // keep the epoch baseline
   _dayCfgCache={};
   saveCfg(); render();
@@ -800,11 +819,14 @@ function cfgForDate(key){
   const hit=_dayCfgCache[key]; if(hit)return hit;
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
-  const S=subsFor(e.h,e.subs);
-  const v={L1:levelsFor(e.h,e.order,1,S),L2:levelsFor(e.h,e.order,2,S),L3:levelsFor(e.h,e.order,3,S),subs:S};
+  const m=modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
+  const S=subsFor(e.h,e.subs,m);
+  const v={L1:levelsFor(e.h,e.order,1,S,m),L2:levelsFor(e.h,e.order,2,S,m),L3:levelsFor(e.h,e.order,3,S,m),subs:S};
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
+  Object.values(CFG.h||{}).forEach(ensureModePts);
+  (CFG.subs||[]).forEach(ensureModePts);
   LVL1=buildLevel(1);LVL2=buildLevel(2);LVL3=buildLevel(3);
   ROUTINES=CFG.routines||{};
   LVL1_MAX=LVL1.reduce((a,i)=>a+i.pts,0);
@@ -1136,6 +1158,9 @@ async function diagRefresh(){
 function migrateCfg(){
   if(!Array.isArray(CFG.log))CFG.log=[];   // empty timeline = "never edited", scores as before
   subsEnsure();                            // parts must carry explicit points before any era is cut
+  Object.values(CFG.h||{}).forEach(ensureModePts);
+  subsEnsure();
+  syncComboPts();
   if(CFG.v>=4){applyCfg();return;}
   if(!(CFG.v>=2)){
   if(CFG.h&&CFG.h.pomodoro&&Number(CFG.h.pomodoro.p)===6)CFG.h.pomodoro.p=5;
@@ -1387,6 +1412,7 @@ function renderSettings(){
   const lvlBlock=(n,title,col)=>`
     <div style="margin-bottom:20px">
       <div class="sec" style="color:${col}">${title} — ${buildLevel(n).reduce((a,i)=>a+i.pts,0)}%</div>
+      <div style="display:flex;justify-content:flex-end;gap:4px;margin:-7px 10px 5px;padding-right:42px;font-size:9px;letter-spacing:.06em;color:#66667d"><span style="width:44px;text-align:center">WORK</span><span style="width:44px;text-align:center">VACATION</span></div>
       ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n).map(id=>{const x=CFG.h[id];return `
         <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}">
           <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
@@ -1398,9 +1424,13 @@ function renderSettings(){
           <input value="${esc(x.l)}" onchange="cfgSet('${id}','l',this.value)"
             style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
           ${x.combo
-            ?`<span title="Sum of the active parts below" style="width:52px;flex-shrink:0;color:${col};font-size:15px;text-align:center;opacity:.75">${subsOn(subsList()).reduce((a,y)=>a+safePts(y.p),0)}%</span>`
-            :`<input type="number" min="0" max="60" value="${esc(x.p)}" onchange="cfgSet('${id}','p',this.value)"
-            style="width:52px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:15px;padding:5px 6px;text-align:center"/>`}
+            ?`<span title="Sum of the active parts below" style="width:96px;flex-shrink:0;color:${col};font-size:12px;text-align:center;line-height:1.25">W ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'work'),0)}% · V ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'vacation'),0)}%</span>`
+            :`<div style="display:flex;gap:4px;flex-shrink:0">
+              <input type="number" min="0" max="60" value="${esc(modePts(x,'work'))}" onchange="cfgSet('${id}','p',this.value)" title="Work Mode" aria-label="Work Mode points"
+                style="width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center"/>
+              <input type="number" min="0" max="60" value="${esc(modePts(x,'vacation'))}" onchange="cfgEdit(()=>{ensureModePts(CFG.h['${id}']);CFG.h['${id}'].pVacation=Math.max(0,parseInt(this.value)||0);CFG.h['${id}'].p=modePts(CFG.h['${id}'],travelMode())})" title="Vacation Mode" aria-label="Vacation Mode points"
+                style="width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center"/>
+            </div>`}
           <button onclick="cfgToggle('${id}')" title="${x.on!==false?'Pause this habit':'Resume this habit'}" style="background:none;border:1px solid #222;color:${x.on!==false?col:'#555'};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer">${x.on!==false?'✓':'○'}</button>
           ${isCustom(id)?`<button onclick="cfgDel('${id}')" title="Delete habit" style="background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0">✕</button>`:""}
         </div>`}).join("")}
@@ -1414,9 +1444,9 @@ function renderSettings(){
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(68px + env(safe-area-inset-bottom))">
             ${stCard("trav","MODE","#9090aa",`
-      <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Vacation pauses <b style="color:#d0d0da">Work</b> from today; Work turns it back on. Where the freed points go is still to be decided — for now this only toggles Work itself.</div>
+      <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Work and Vacation have independent point values for every habit. Switching mode changes which values are used; Vacation also pauses <b style="color:#d0d0da">Work</b> from today.</div>
       <div style="display:flex;gap:7px;margin-bottom:16px">
-        ${[["vacation","🏖 Vacation","Work paused"],["work","💼 Work","Work active"]].map(([id,lbl,sub])=>`
+        ${[["work","💼 Work","Work active"],["vacation","🏖 Vacation","Work paused"]].map(([id,lbl,sub])=>`
           <button onclick="setTravelMode('${id}')" style="flex:1;background:${travelMode()===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${travelMode()===id?'#3a3a55':'#222'};color:${travelMode()===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
             <div style="font-size:14px">${lbl}</div>
             <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
@@ -1440,8 +1470,12 @@ function renderSettings(){
             style="width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0"/>
           <input value="${esc(x.label)}" onchange="subSet(${i},'label',this.value)"
             style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
-          <input type="number" min="0" max="99" value="${esc(x.p==null?6:x.p)}" onchange="subSet(${i},'p',this.value)"
-            style="width:46px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:15px;padding:5px 4px;text-align:center"/>
+          <input type="number" min="0" max="99" value="${esc(modePts(x,'work'))}" onchange="subSet(${i},'pWork',this.value)"
+             title="Work Mode" aria-label="Work Mode points"
+             style="width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center"/>
+          <input type="number" min="0" max="99" value="${esc(modePts(x,'vacation'))}" onchange="subSet(${i},'pVacation',this.value)"
+             title="Vacation Mode" aria-label="Vacation Mode points"
+             style="width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center"/>
           <button onclick="subToggle(${i})" title="${x.on!==false?"Pause this part":"Resume this part"}" style="background:none;border:1px solid #222;color:${x.on!==false?"#fbbf24":"#555"};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer;flex-shrink:0">${x.on!==false?"✓":"○"}</button>
           ${subsList().length>1?`<button onclick="subDel(${i})" title="Remove" style="background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0">✕</button>`:""}
         </div>`).join("")}
@@ -1554,13 +1588,22 @@ function renderSettings(){
   </div>`;
 }
 
-function cfgSet(id,k,v){ if(!CFG.h[id])return; cfgEdit(()=>{ CFG.h[id][k]= k==='p'?Math.max(0,parseInt(v)||0):v; }); }
+function cfgSet(id,k,v){
+  if(!CFG.h[id])return;
+  cfgEdit(()=>{
+    if(k==='p'){
+      ensureModePts(CFG.h[id]);
+      CFG.h[id][travelMode()==='vacation'?'pVacation':'pWork']=Math.max(0,parseInt(v)||0);
+      CFG.h[id].p=modePts(CFG.h[id],travelMode());
+    }else CFG.h[id][k]=v;
+  });
+}
 const isCustom=id=>/^c[a-z0-9]{5}$/.test(id);
 function cfgAdd(lv){
   if(Object.keys(CFG.h).length>=40)return;
   let id; do{ id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(CFG.h[id]);
   haptic(12);
-  cfgEdit(()=>{ CFG.h[id]={l:"New habit",p:5,i:"⭐",lv:Number(lv)||1,on:true}; CFG.order.push(id); });
+  cfgEdit(()=>{ CFG.h[id]={l:"New habit",p:5,pWork:5,pVacation:5,i:"⭐",lv:Number(lv)||1,on:true}; CFG.order.push(id); });
 }
 function cfgDel(id){
   if(!CFG.h[id]||!isCustom(id))return;
@@ -1586,19 +1629,38 @@ function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function socialOwnTab(){ return CFG.socialTab!==false; }
 function cfgSocialTab(v){ CFG.socialTab=!!v; haptic(10); if(!v&&currentTab==="social")currentTab="today"; saveCfg(); render(); }
 function subsEnsure(){
-  if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x}));
-  const cid=comboIdIn(CFG.h), cp=cid&&CFG.h[cid]?safePts(CFG.h[cid].p):18, n=CFG.subs.length||1;
-  for(const x of CFG.subs) if(x.p==null) x.p=Math.round(cp/n);   // 18 over 3 = 6, history-neutral
+  if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x,pWork:6,pVacation:6}));
+  const cid=comboIdIn(CFG.h);
+  const cpW=cid&&CFG.h[cid]?modePts(CFG.h[cid],'work'):18;
+  const cpV=cid&&CFG.h[cid]?modePts(CFG.h[cid],'vacation'):18;
+  const n=CFG.subs.length||1;
+  for(const x of CFG.subs){
+    if(x.pWork==null)x.pWork=x.p!=null?safePts(x.p):Math.round(cpW/n);
+    if(x.pVacation==null)x.pVacation=x.p!=null?safePts(x.p):Math.round(cpV/n);
+    x.p=modePts(x,travelMode());
+  }
 }
 function syncComboPts(){
   const cid=comboIdIn(CFG.h); if(!cid)return;
-  CFG.h[cid].p=subsOn(CFG.subs||[]).reduce((a,x)=>a+safePts(x.p),0);
+  ensureModePts(CFG.h[cid]);
+  CFG.h[cid].pWork=subsOn(CFG.subs||[]).reduce((a,x)=>a+modePts(x,'work'),0);
+  CFG.h[cid].pVacation=subsOn(CFG.subs||[]).reduce((a,x)=>a+modePts(x,'vacation'),0);
+  CFG.h[cid].p=modePts(CFG.h[cid],travelMode());
 }
 function subSet(i,k,v){ subsEnsure(); if(!CFG.subs[i])return;
-  cfgEdit(()=>{ CFG.subs[i][k]= k==='p'?Math.max(0,Math.min(99,parseInt(v)||0)):String(v==null?'':v).slice(0,k==='icon'?3:28); syncComboPts(); }); }
+  cfgEdit(()=>{
+    const x=CFG.subs[i];
+    if(k==='p'||k==='pWork'||k==='pVacation'){
+      ensureModePts(x);
+      const key=k==='p'?(travelMode()==='vacation'?'pVacation':'pWork'):k;
+      x[key]=Math.max(0,Math.min(99,parseInt(v)||0));
+      x.p=modePts(x,travelMode());
+    }else x[k]=String(v==null?'':v).slice(0,k==='icon'?3:28);
+    syncComboPts();
+  }); }
 function subAdd(){ subsEnsure(); if(CFG.subs.length>=8)return; haptic(12);
   let id; do{ id='s'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(CFG.subs.some(x=>x.id===id));
-  cfgEdit(()=>{ CFG.subs.push({id,label:"New",icon:"•",p:6}); syncComboPts(); }); }
+  cfgEdit(()=>{ CFG.subs.push({id,label:"New",icon:"•",p:6,pWork:6,pVacation:6}); syncComboPts(); }); }
 function subToggle(i){ subsEnsure(); const x=CFG.subs[i]; if(!x)return;
   if(x.on!==false&&subsOn(CFG.subs).length<=1)return;   // never leave the combo with zero parts
   haptic(10); cfgEdit(()=>{ x.on=x.on===false; syncComboPts(); }); }

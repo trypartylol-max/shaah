@@ -3778,6 +3778,70 @@ boot();
 }
 
 </style>
+
+<style>
+/* FINAL TOP-BAR POLISH — desktop only
+   Keep the approved LVL baseline untouched. Recompose only the top band:
+   RING → INFO → LOG, with the ring larger and the info box slightly wider. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:228px !important;
+    min-height:228px !important;
+    width:100% !important;
+    max-width:none !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:20px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Flatten the stack only on desktop so LOG can sit to the far right. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    width:210px !important;
+    height:210px !important;
+    flex:0 0 210px !important;
+    margin:0 !important;
+  }
+
+  /* Keep the score/rating text mathematically centered inside the larger ring. */
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"]{
+    inset:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    width:auto !important;
+    height:auto !important;
+    margin:0 !important;
+  }
+
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 760px !important;
+    width:auto !important;
+    max-width:760px !important;
+    min-width:0 !important;
+    padding:14px 20px !important;
+    box-sizing:border-box !important;
+  }
+
+  #scroll .today .t-score-hero .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 0 0 auto !important;
+    align-self:center !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
 </body>
 
 <style>

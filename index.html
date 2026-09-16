@@ -2786,7 +2786,7 @@ function renderToday(key,nested=false){
   const L1vis=C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
-  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?140:96;
+  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?140:104;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
@@ -2906,6 +2906,16 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       </div>`).join("")}
       </div>
     </div>
+    ${isToday?`<div class="t-daylog" style="width:100%;max-width:390px">
+      <div class="sec">◷ DAY LOG</div>
+      <div class="t-daylog-card ${dayLogActiveId()?"running":""}">
+        <div class="t-daylog-row">
+          <input id="dayLogInput" type="text" placeholder="${dayLogActiveId()?"Current activity":"What are you doing?"}" autocomplete="off" onkeydown="if(event.key==='Enter')dayLogToggle()">
+          <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">${dayLogActiveId()?"STOP":"START"}</button>
+        </div>
+        <div class="t-daylog-meta">${dayLogActiveId()?"LOGGING NOW":"Track an activity"} · ${dayLogFmt(dayLogSummary(key).tracked)} tracked</div>
+      </div>
+    </div>`:""}
     ${isToday?`<button class="t-reset" onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
   </div>`;
 }
@@ -3716,5 +3726,23 @@ boot();
   #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
     font-size:15px !important;
   }
+}
+</style>
+
+<style>
+/* MOBILE TODAY — compact Day Log field, between habits and Day Note. */
+@media(max-width:879px){
+  .today .t-score-stack .t-ring{width:104px !important;height:104px !important;}
+  .today .today-log-start{display:none !important;}
+  .today .t-daylog{order:55 !important;}
+  .today .t-daylog-card{background:#0b0b16;border:1px solid #17172a;border-radius:14px;padding:10px 11px;}
+  .today .t-daylog-row{display:flex;align-items:center;gap:7px;}
+  .today .t-daylog-row #dayLogInput{min-width:0;flex:1;border:1px solid #202033;border-radius:9px;padding:9px 10px;background:#0f0f1d;color:#e2e2e2;font:inherit;font-size:13px;outline:none;}
+  .today .t-daylog-row #dayLogStartBtn{flex:0 0 auto;border:1px solid #303047;border-radius:9px;padding:8px 11px;background:#e2e2e2;color:#080810;font-size:11px;font-weight:800;letter-spacing:.08em;cursor:pointer;}
+  .today .t-daylog-card.running .t-daylog-row #dayLogStartBtn{background:#f87171;}
+  .today .t-daylog-meta{font-size:9.5px;color:#66667d;letter-spacing:.05em;margin-top:6px;}
+}
+@media(min-width:880px){
+  .today .t-daylog{display:none !important;}
 }
 </style>

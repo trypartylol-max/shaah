@@ -420,7 +420,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260914-0530·001cc2";
+const BUILD="20260915-1200·b4c79f";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -537,6 +537,9 @@ let LVL1=[],LVL2=[],LVL3=[],ROUTINES={},MAX=0,LVL1_MAX=0,LVL2_MAX=0,LVL3_MAX=0;
 
 // Points are user-editable, so never trust them: clamp to a sane integer.
 function safePts(v){const n=Math.round(Number(v));return Number.isFinite(n)?Math.max(0,Math.min(999,n)):0;}
+// A routine habit (wod, production) can be logged LIGHT (0.5) as well as FULL (true).
+// Every other habit stays boolean — this reads either shape the same way.
+function doneFrac(v){return v===true?1:(typeof v==="number"&&v>0&&v<1?v:0);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Friends",icon:"👫"}];
 // The combo divides its points by how many sub-items exist, so the list has to
@@ -868,10 +871,10 @@ function calcScore(key){
   const dSubs=C.subs, nSubs=dSubs.length||1;
   const tickedPts=dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0);
   const activeSubs=dSubs.filter(x=>soc[x.id]).length;
-  const l1=C.L1.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
-  const l2=C.L2.reduce((a,i)=>a+(ch[i.id]?safePts(i.pts):0),0);
+  const l1=C.L1.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
+  const l2=C.L2.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
   // combo ticked but no part picked = the whole combo, same as it always behaved
-  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(tickedPts>0?tickedPts:i.pts):0):(ch[i.id]?i.pts:0)),0);
+  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(tickedPts>0?tickedPts:i.pts):0):Math.round(i.pts*doneFrac(ch[i.id]))),0);
   const m1=C.L1.reduce((a,i)=>a+i.pts,0),m2=C.L2.reduce((a,i)=>a+i.pts,0),m3=C.L3.reduce((a,i)=>a+i.pts,0);
   const max=m1+m2+m3, score=l1+l2+l3;
   return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,
@@ -1774,6 +1777,14 @@ function chk(on,col,size){
   const br=Math.round(size*.32);
   return`<div style="width:${size}px;height:${size}px;border-radius:${br}px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;${on?`background:${col};box-shadow:0 0 10px ${col}66;border:none`:`border:1.5px solid #252535;background:transparent`}">${on?`<svg width="${size*.55}" height="${size*.55}" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#080810" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:""}</div>`;
 }
+// Same as chk() but understands the "light" (0.5) state for routine habits —
+// a hollow ring with a half-fill instead of full box or empty.
+function chk3(v,col,size){
+  if(v!==0.5)return chk(v===true,col,size);
+  if(size==null)size=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?26:22;
+  const br=Math.round(size*.32);
+  return`<div style="width:${size}px;height:${size}px;border-radius:${br}px;flex-shrink:0;overflow:hidden;border:1.5px solid ${col}88;background:linear-gradient(90deg,${col} 50%,transparent 50%)"></div>`;
+}
 function bar(pct,col,glow,h=6){
   return`<div style="height:${h}px;border-radius:99px;background:#0f0f1e;overflow:hidden"><div style="height:100%;border-radius:99px;width:${Math.min(pct,100)}%;background:${col};${pct>0?`box-shadow:0 0 8px ${glow}`:""}"></div></div>`;
 }
@@ -2138,17 +2149,22 @@ function renderToday(key,nested=false){
 ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec">TODAY'S ROUTINES</div>
       ${LVL1.filter(i=>i.routine).map(item=>{
-        const rt=ROUTINES[item.id],done=!!ch[item.id],totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
+        const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${esc(rt.icon)}</div>
           <div style="flex:1;min-width:0">
-            <div class="r-lab" style="font-size:17px;color:${done?"#555":"#e2e2e2"};font-weight:500;${done?"text-decoration:line-through":""}">${esc(rt.label)}</div>
+            <div class="r-lab" style="font-size:17px;color:${full?"#555":light?"#c0c0cd":"#e2e2e2"};font-weight:500;${full?"text-decoration:line-through":""}">${esc(rt.label)}${light?` <span style="font-size:13px;color:#f59e0b;font-weight:400">· LIGHT · ${Math.round(item.pts*0.5)}%</span>`:""}</div>
             <div class="r-sub" style="font-size:15px;color:#777;margin-top:3px">${rt.steps.length} steps · ${totalMin} min</div>
             ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span class="r-step" style="font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:14.5px;color:#adadbf">+${rt.steps.length-4} more</span>`:""}</div>`:""}
           </div>
-          ${done?`<div onclick="toggleHabit('${item.id}','${key}')" style="font-size:23px;cursor:pointer">✅</div>`:`
+          ${full?`<div onclick="setHabitState('${item.id}','${key}',false)" style="font-size:23px;cursor:pointer">✅</div>`:light?`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            <button class="r-btn" onclick="toggleHabit('${item.id}','${key}')" title="Mark done without the timer" style="background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px">✓ DONE</button>
+            <button class="r-btn" onclick="setHabitState('${item.id}','${key}',true)" title="Upgrade to full credit" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px">⬆ FULL</button>
+            <button class="r-btn" onclick="setHabitState('${item.id}','${key}',false)" title="Clear" style="background:none;border:1px solid #2a2a3e;color:#a4a4ba;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer">✕ CLEAR</button>
+          </div>`:`
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <button class="r-btn" onclick="setHabitState('${item.id}','${key}',0.5)" title="Light version — half credit" style="background:none;border:1px solid #2a2a3e;color:#f59e0b;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer">½ LIGHT</button>
+            <button class="r-btn" onclick="setHabitState('${item.id}','${key}',true)" title="Mark done without the timer" style="background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px">✓ DONE</button>
             <button class="r-btn" onclick="startRoutine('${item.id}')" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap">▶ START</button>
           </div>`}
         </div>`;
@@ -2168,18 +2184,20 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
     ${!L1vis.length?"":`<div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
-      ${L1vis.map(item=>`
-      <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      ${L1vis.map(item=>{
+        const st=ch[item.id],light=item.routine&&st===0.5,awarded=item.routine?Math.round(item.pts*doneFrac(st)):item.pts;
+        return`
+      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
-          ${chk(!!ch[item.id],item.col)}
-          <span style="font-size:16.5px;font-weight:${ch[item.id]?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}</span>
+          ${item.routine?chk3(st,item.col):chk(!!st,item.col)}
+          <span style="font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-          ${item.routine&&!ch[item.id]&&isToday&&!nested?`
+          ${item.routine&&st!==true&&isToday&&!nested?`
           <button onclick="event.stopPropagation();startRoutine('${item.id}')" title="Start routine" style="background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55;flex-shrink:0">▶</button>`:""}
-          <span style="font-size:15px;color:${ch[item.id]?"#e2e2e299":"#8a8aa0"};min-width:38px;text-align:right">${item.pts}%</span>
+          <span style="font-size:15px;color:${st?(light?"#f59e0b":"#e2e2e299"):"#8a8aa0"};min-width:38px;text-align:right">${awarded}%</span>
         </div>
-      </div>`).join("")}
+      </div>`;}).join("")}
       </div>
     </div>`}
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
@@ -2613,7 +2631,17 @@ function monthGrid(ym){
   for(let d=1;d<=dim;d++){const key=`${ym}-${String(d).padStart(2,'0')}`;out.push({key,day:d,data:hh[key]||null});}
   return out;
 }
-function toggleHabit(id,key){haptic(10);const ch={...getChecked(key)};ch[id]=!ch[id];setChecked(key,ch);persistDay(key);render();}
+function isRoutineItem(id,key){const C=cfgForDate(key);return[...C.L1,...C.L2,...C.L3].some(i=>i.id===id&&i.routine);}
+// Tap-cycle for routine habits: none → light (½ pts) → full → none.
+// Everything else keeps the plain boolean toggle it always had.
+function toggleHabit(id,key){
+  haptic(10);const ch={...getChecked(key)};
+  if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
+  else ch[id]=!ch[id];
+  setChecked(key,ch);persistDay(key);render();
+}
+// Explicit set (used by the LIGHT/FULL/CLEAR buttons on routine cards).
+function setHabitState(id,key,v){haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);render();}
 // One tap ticks (or clears) every habit in a level, combo sub-items included.
 function toggleLevelAll(lv,key){
   const C=cfgForDate(key), items=lv===1?C.L1:lv===2?C.L2:C.L3;

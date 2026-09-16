@@ -181,18 +181,18 @@ input,textarea{-webkit-user-select:text;user-select:text;}
                            zoom:.95;margin:0 !important;}
   #scroll .today .t-grade {grid-row:2;grid-column:3 / -1;align-self:center;}
 
-  /* La nota se queda en su fila, junto a las rutinas. Lo que se iguala son las
-     DIMENSIONES: misma altura que la caja vecina gracias a `stretch`. */
-  #scroll .today .t-rout  {grid-row:3;grid-column:1 / span 8;}
-  #scroll .today .t-note  {grid-row:3;grid-column:9 / span 4;}
+  /* the three levels side by side, en orden 1·2·3, ahora ANTES de rutinas —
+     pedido de David el 15/09. Columnas explicitas para que el orden no
+     dependa del DOM. */
+  #scroll .today .t-lvl1  {grid-row:3;grid-column:1 / span 4;}
+  #scroll .today .t-lvl2  {grid-row:3;grid-column:5 / span 4;}
+  #scroll .today .t-lvl3  {grid-row:3;grid-column:9 / span 4;}
 
-  /* the three levels side by side — the whole day visible at once */
-  /* Fila de niveles al reves (3·2·1) y DAY NOTE como una caja mas: misma
-     anchura y, con `stretch`, mismo alto. Columnas explicitas para que el orden
-     no dependa del DOM. */
-  #scroll .today .t-lvl3  {grid-row:4;grid-column:1 / span 4;}
-  #scroll .today .t-lvl2  {grid-row:4;grid-column:5 / span 4;}
-  #scroll .today .t-lvl1  {grid-row:4;grid-column:9 / span 4;}
+  /* La nota se queda junto a las rutinas, una fila mas abajo. Lo que se
+     iguala son las DIMENSIONES: misma altura que la caja vecina gracias a
+     `stretch`. */
+  #scroll .today .t-rout  {grid-row:4;grid-column:1 / span 8;}
+  #scroll .today .t-note  {grid-row:4;grid-column:9 / span 4;}
 
   #scroll .today .t-reset {grid-row:5;grid-column:1 / -1;justify-self:center;align-self:center;max-width:280px;}
   /* Estirar los tres niveles al mas alto dejaba a LVL 3 (un habito) con ~250 px
@@ -420,7 +420,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     storage:window.localStorage
   }
 });
-const BUILD="20260915-1200·b4c79f";
+const BUILD="20260915-2130·7a0534";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -688,6 +688,36 @@ function addFamilyOnce(){
   CFG.subsV=2;
   saveCfg();
   return true;
+}
+// ── Travel mode: Vacation ⇄ Work ────────────────────────────
+// David sale de Israel y vuelve; "Work" no tiene sentido puntuar igual en
+// ambos casos. Esto es solo el INTERRUPTOR + el calendario — todavía no
+// decide cómo repartir el 118% en cada modo (eso se habla aparte). Por ahora
+// cambiar de modo únicamente enciende/apaga "work" desde hoy; el resto de
+// pesos no se toca hasta que se defina la distribución.
+function travelEnsure(){
+  if(!CFG.travel||typeof CFG.travel!=='object')
+    CFG.travel={mode:'work',auto:false,resumeOn:''};   // por defecto no afecta a nadie mas
+}
+function travelMode(){ travelEnsure(); return CFG.travel.mode==='vacation'?'vacation':'work'; }
+// Aplica el modo desde HOY (editFrom sella el pasado tal cual estaba).
+function applyTravelMode(mode){
+  travelEnsure();
+  mode=mode==='vacation'?'vacation':'work';
+  editFrom(todayKey(),(h)=>{ if(h.work)h.work.on=(mode==='work'); });
+  CFG.travel.mode=mode;
+  applyCfg(); saveCfg();
+}
+function setTravelMode(mode){ haptic(10); applyTravelMode(mode); render(); }
+function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
+function setTravelResume(v){ travelEnsure(); CFG.travel.resumeOn=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:''; saveCfg(); render(); }
+// Se llama una vez por sesión (loadAll): si está en modo automático y ya
+// llegó (o pasó) la fecha de vuelta al trabajo, cambia solo a "work". No hace
+// nada mientras el modo ya sea "work" ni si `auto` está apagado.
+function checkTravelAuto(){
+  travelEnsure();
+  const t=CFG.travel;
+  if(t.auto&&t.mode==='vacation'&&t.resumeOn&&todayKey()>=t.resumeOn) applyTravelMode('work');
 }
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
@@ -1190,7 +1220,7 @@ async function loadAll(){
     _cfgReady=true;                       // a partir de aquí ya es seguro escribir
     ensureBaseline();
     widenBaseline();
-    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();
+    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();checkTravelAuto();
     recoverPeopleFromDays();
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');
@@ -1352,6 +1382,7 @@ function stCard(key,title,col,body,extra){
   </section>`;
 }
 function renderSettings(){
+  travelEnsure();
   const tot=MAX;
   const lvlBlock=(n,title,col)=>`
     <div style="margin-bottom:20px">
@@ -1382,6 +1413,21 @@ function renderSettings(){
       <div style="margin-left:auto;font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(68px + env(safe-area-inset-bottom))">
+            ${stCard("trav","MODE","#9090aa",`
+      <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Vacation pauses <b style="color:#d0d0da">Work</b> from today; Work turns it back on. Where the freed points go is still to be decided — for now this only toggles Work itself.</div>
+      <div style="display:flex;gap:7px;margin-bottom:16px">
+        ${[["vacation","🏖 Vacation","Work paused"],["work","💼 Work","Work active"]].map(([id,lbl,sub])=>`
+          <button onclick="setTravelMode('${id}')" style="flex:1;background:${travelMode()===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${travelMode()===id?'#3a3a55':'#222'};color:${travelMode()===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer">
+            <div style="font-size:14px">${lbl}</div>
+            <div style="font-size:10px;color:#7e7e97;margin-top:3px">${sub}</div>
+          </button>`).join("")}
+      </div>
+      <div class="st-div"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:14px;color:#c0c0cd;flex:1">Auto-switch to Work on</span>
+        <input type="date" value="${esc(CFG.travel.resumeOn||'')}" onchange="setTravelResume(this.value)" style="background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px"/>
+      </div>
+      <button onclick="setTravelAuto(${!CFG.travel.auto})" style="width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer">${CFG.travel.auto?'✓':'○'} AUTOMATIC${CFG.travel.auto&&CFG.travel.resumeOn?` — switches to Work on ${esc(CFG.travel.resumeOn)}`:''}</button>`,"st-col-b")}
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
@@ -1791,7 +1837,7 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
-let secOpen={tz:true,ind:true,hab:true,ppl:true,diag:false,bak:false,rout:false,data:true};
+let secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,diag:false,bak:false,rout:false,data:true};
 function secKey(){return `shaah_sec_${USER?USER.id:'anon'}`;}
 function loadSec(){const v=get(secKey());if(v&&typeof v==='object')secOpen={...secOpen,...v};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);set(secKey(),secOpen);render();}

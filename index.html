@@ -738,6 +738,38 @@ function checkTravelAuto(){
   const t=CFG.travel;
   if(t.auto&&t.mode==='vacation'&&t.resumeOn&&todayKey()>=t.resumeOn) applyTravelMode('work');
 }
+// One-time migration: Vacation Mode officially starts on 2026-09-08.
+// Days before that date keep Work Mode; the date itself and all later eras use Vacation.
+function setVacationStartOnce(){
+  if(CFG.travelV>=1)return false;
+  const START="2026-09-08";
+  const lg=cfgLog();
+  if(!lg.length){ const b=cfgBaseline(); lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true}); }
+
+  // Find the configuration in effect immediately before the start date.
+  let i=0;
+  for(let k=0;k<lg.length;k++){ if(lg[k].from<=START)i=k; else break; }
+  if(lg[i].from<START){
+    const e=lg[i];
+    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
+    i++;
+  }else{
+    lg[i].mode='vacation';
+  }
+
+  // Every era beginning on/after the vacation start is Vacation Mode.
+  for(let k=i;k<lg.length;k++){
+    lg[k].mode='vacation';
+    if(lg[k].h&&lg[k].h.work)lg[k].h.work.on=false;
+  }
+  CFG.travel=CFG.travel||{mode:'work',auto:false,resumeOn:''};
+  CFG.travel.mode='vacation';
+  CFG.travelV=1;
+  if(CFG.h&&CFG.h.work)CFG.h.work.on=false;
+  _dayCfgCache={};
+  return true;
+}
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
 // reconstruye como marcadores renombrables, en vez de dejar el pasado colgando.
@@ -1244,6 +1276,7 @@ async function loadAll(){
     adoptLegacyIfVeteran(hadSettings,dayRows);
     _cfgReady=true;                       // a partir de aquí ya es seguro escribir
     ensureBaseline();
+    if(setVacationStartOnce())saveCfg();
     widenBaseline();
     addFamilyOnce();addJunkFoodOnce();rebalanceOnce();checkTravelAuto();
     recoverPeopleFromDays();

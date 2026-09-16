@@ -684,6 +684,55 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today .sec{margin-bottom:3px!important;}
 }
 
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3679,6 +3728,55 @@ boot();
   .today .t-rout.collapsed .t-rout-body{display:none !important;}
   .today .t-rout-arrow{display:inline-block;width:12px;font-size:11px;color:#8888a4;}
 }
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
 </style>
 </body>
 
@@ -3742,6 +3840,55 @@ boot();
     gap:11px !important;
   }
 }
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
 </style>
 
 <style>
@@ -3780,6 +3927,55 @@ boot();
   .today .t-daylog{max-width:none !important;}
   .today .t-daylog-card{width:100% !important;}
 }
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
 </style>
 </html>
 
@@ -3884,6 +4080,55 @@ boot();
     font-size:15px !important;
   }
 }
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
 </style>
 
 <style>
@@ -3912,4 +4157,53 @@ boot();
 @media(min-width:880px){
   .today .t-daylog{display:none !important;}
 }
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
 </style>

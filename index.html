@@ -2768,6 +2768,8 @@ function comboBlock(key,alwaysOpen){
 }
 
 function toggleTodayRoutines(el){
+  // Collapsible ONLY on mobile. Desktop keeps TODAY'S ROUTINES permanently open.
+  if(window.matchMedia && !window.matchMedia('(max-width:879px)').matches)return;
   const box=el?.closest('.t-rout'); if(!box)return;
   const body=box.querySelector('.t-rout-body'), arrow=box.querySelector('.t-rout-arrow');
   if(!body)return;
@@ -3676,6 +3678,68 @@ boot();
 }
 </style>
 </body>
+
+<style>
+/* FINAL CORRECTION — desktop stays open; mobile routines collapsible.
+   Enlarge the Today hero/info band without changing its layout/positions. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:198px !important;
+    gap:22px !important;
+  }
+  #scroll .today .t-score-stack{
+    flex:0 0 178px !important;
+    width:178px !important;
+    min-width:178px !important;
+    gap:4px !important;
+  }
+  #scroll .today .t-score-stack .t-ring{
+    width:168px !important;
+    height:168px !important;
+    flex:0 0 168px !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    padding:15px 21px !important;
+    gap:20px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{font-size:64px !important;}
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+  }
+}
+@media (max-width:879px){
+  /* Mobile only: the routines header is interactive; desktop is not. */
+  .today .t-rout-toggle{
+    cursor:pointer !important;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .today .t-rout.collapsed .t-rout-body{display:none !important;}
+  .today .t-rout-arrow{display:inline-block !important;width:12px;font-size:11px;color:#8888a4;}
+
+  /* Slightly larger Today ring + info band, same two-column layout. */
+  .today .t-score-hero{
+    gap:10px !important;
+  }
+  .today .t-score-stack{
+    min-width:118px !important;
+    width:118px !important;
+  }
+  .today .t-score-stack .t-ring{
+    width:115px !important;
+    height:115px !important;
+  }
+  .today .t-score-hero .t-grade{
+    padding:14px 15px !important;
+    gap:11px !important;
+  }
+}
+</style>
 </html>
 
 <style>

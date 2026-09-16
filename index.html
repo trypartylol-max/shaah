@@ -179,6 +179,20 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   /* summary strip: ring · grade · streak on one line */
   #scroll .today .t-ring  {grid-row:2;grid-column:1 / span 2;justify-self:center;align-self:center;
                            zoom:.95;margin:0 !important;}
+  /* Desktop Today: keep the score ring + LOG button together on the left,
+     vertically stacked, while the summary bar sits beside them on the same row. */
+  #scroll .today .t-score-hero {
+    grid-row:2 !important;grid-column:1 / span 2 !important;
+    width:auto !important;max-width:none !important;
+    justify-self:center;align-self:center;
+    margin:0 !important;
+  }
+  #scroll .today .t-score-stack {
+    min-width:168px;gap:6px !important;
+  }
+  #scroll .today .today-log-start {
+    margin-top:-1px !important;
+  }
   #scroll .today .t-grade {grid-row:2;grid-column:3 / -1;align-self:center;}
 
   /* the three levels side by side, en orden 1·2·3, ahora ANTES de rutinas —
@@ -523,6 +537,48 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 @media(max-width:879px){
   .t-score-hero{gap:8px!important;height:auto}
   .t-score-stack{min-width:116px}
+}
+
+
+/* ── TODAY mobile: ring + LOG stacked on the left, summary on the right ──
+   Both share the same horizontal band so the hero stays compact and fits
+   without pushing the levels below the fold. */
+@media(max-width:879px){
+  .today .t-score-hero{
+    flex:0 0 108px !important;
+    width:108px !important;
+    max-width:none !important;
+    height:auto !important;
+    margin:0 !important;
+    align-self:center !important;
+  }
+  .today .t-score-stack{
+    min-width:108px !important;
+    width:108px !important;
+    gap:4px !important;
+  }
+  .today .t-score-stack .t-ring{
+    width:96px !important;
+    height:96px !important;
+  }
+  .today .today-log-start{
+    margin-top:-1px !important;
+    padding:6px 8px !important;
+    font-size:8px !important;
+    gap:5px !important;
+  }
+  .today .t-grade{
+    flex:1 1 0 !important;
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    align-self:center !important;
+    padding:11px 12px !important;
+    gap:10px !important;
+  }
+  .today .t-grade>div:first-child{display:none !important;}
+  .today .t-grade span{font-size:12px !important;}
+  .today .t-grade>div:last-child{font-size:12px !important;}
 }
 
 </style>
@@ -2628,7 +2684,7 @@ function renderToday(key,nested=false){
   const L1vis=C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
-  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?168:104;
+  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?168:96;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(68px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>

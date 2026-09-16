@@ -529,10 +529,14 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .t-score-hero{margin:0 auto 4px!important}
 .t-score-stack{min-width:132px}
 @media(min-width:880px){
-  .t-score-hero{height:150px}
+  .t-score-hero{height:150px;display:flex;align-items:center;justify-content:center;gap:18px}
   .t-score-stack .t-ring{transform:scale(.82);transform-origin:center top}
-  .t-score-stack{margin-top:-2px}
-  .today-log-start{margin-top:-18px}
+  .t-score-stack{margin-top:-2px;min-width:132px}
+  .today-log-start{margin-top:-8px}
+  .today .t-grade{width:100%;max-width:390px;padding:14px 16px;gap:16px}
+  .today .t-grade>div:first-child{font-size:54px}
+  .today .t-grade>div:last-child>div{margin-bottom:7px!important}
+  .today .t-grade>div:last-child>div:last-child{margin-top:6px!important}
 }
 @media(max-width:879px){
   .t-score-hero{gap:8px!important;height:auto}
@@ -545,12 +549,15 @@ input,textarea{-webkit-user-select:text;user-select:text;}
    without pushing the levels below the fold. */
 @media(max-width:879px){
   .today .t-score-hero{
-    flex:0 0 108px !important;
-    width:108px !important;
-    max-width:none !important;
+    width:100% !important;
+    max-width:760px !important;
     height:auto !important;
     margin:0 !important;
-    align-self:center !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:8px !important;
   }
   .today .t-score-stack{
     min-width:108px !important;
@@ -2685,7 +2692,7 @@ function renderToday(key,nested=false){
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?168:96;
-  return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"12px":"4px"} 16px ${nested?"32px":`calc(68px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:18px">
+  return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -2703,7 +2710,6 @@ function renderToday(key,nested=false){
           <span>${dayLogActiveId()?"●":"+"}</span><b>${dayLogActiveId()?"VIEW LOG":"LOG ACTIVITY"}</b>
         </button>`:""}
       </div>
-    </div>
     <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
       <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${esc(gr.l)}</div>
       <div style="flex:1;min-width:0">
@@ -2721,6 +2727,8 @@ function renderToday(key,nested=false){
           </div>`;})()}
       </div>
     </div>
+    </div>
+
     
 ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec">TODAY'S ROUTINES</div>

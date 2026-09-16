@@ -447,9 +447,11 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 
 
 /* Day Log — dedicated dock tab */
-.today-log-start{display:flex;align-items:center;gap:9px;background:#e2e2e2;color:#080810;border:0;border-radius:12px;padding:12px 15px;font-family:inherit;font-size:12px;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 22px rgba(255,255,255,.08);white-space:nowrap}
-.today-log-start span{font-size:12px}
+.today-log-start{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#e2e2e2;color:#080810;border:0;border-radius:11px;padding:9px 15px;font-family:inherit;font-size:11px;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 22px rgba(255,255,255,.08);white-space:nowrap;margin-top:1px}
+.today-log-start:hover{transform:translateY(-1px)}
+.today-log-start span{font-size:11px}
 .today-log-start b{font-weight:800}
+.today-log-start.live{background:#f87171}
 .t-score-hero{margin-bottom:-2px}
 .daylog-page{min-height:100%}
 .log-page-head{display:flex;justify-content:space-between;align-items:flex-end;padding:12px 0 18px;border-bottom:1px solid #141424}
@@ -499,7 +501,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 .log-recap-grid span{font-size:8px;letter-spacing:.1em;color:#68687f}
 .log-recap-note{margin-top:11px;font-size:10px;line-height:1.5;color:#5f5f77}
 @media(max-width:879px){
-  .today-log-start{display:none}
+  .today-log-start{padding:8px 13px;font-size:10px}
   .t-score-hero{gap:0}
   .log-page-head{padding-top:6px}
   .log-summary-strip{grid-template-columns:repeat(2,1fr)}
@@ -790,7 +792,7 @@ function dayLogInit(){
   dayLogRender();
 }
 
-const BUILD="20260916-daylog-logtab-ui";
+const BUILD="20260916-daylog-desktop-log-button-position-fix";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -2617,10 +2619,7 @@ function renderToday(key,nested=false){
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}
-    <div class="t-score-hero" style="display:flex;align-items:center;justify-content:center;gap:28px;width:100%;max-width:760px">
-      <button class="today-log-start" type="button" onclick="openDayLogStart()" aria-label="Start Day Log">
-        <span>▶</span><b>START LOG</b>
-      </button>
+    <div class="t-score-hero" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;width:100%;max-width:760px">
       <div class="t-ring" style="position:relative;width:${RSZ}px;height:${RSZ}px">
       ${ring(score,dMax,RSZ,RSZ>140?12:9,gr.c,gr.g)}
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
@@ -2628,6 +2627,9 @@ function renderToday(key,nested=false){
         <div style="font-size:${RSZ>140?14:11.5}px;color:${gr.c};letter-spacing:0.12em;opacity:0.65">${gr.n}</div>
       </div>
       </div>
+      ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""}" type="button" onclick="openDayLogStart()" aria-label="${dayLogActiveId()?"Open active Day Log":"Log an activity"}">
+        <span>${dayLogActiveId()?"●":"+"}</span><b>${dayLogActiveId()?"VIEW LOG":"LOG ACTIVITY"}</b>
+      </button>`:""}
     </div>
     <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
       <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${esc(gr.l)}</div>
@@ -2737,8 +2739,11 @@ function openDayLogStart(){
   setTab('log');
   setTimeout(()=>{
     const input=document.querySelector('#dayLogInput');
-    if(input){input.focus();input.scrollIntoView({behavior:'smooth',block:'center'});}
-  },40);
+    if(input){
+      input.focus();
+      input.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  },60);
 }
 function renderDayLogTab(){
   const key=todayKey(), s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));

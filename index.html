@@ -439,6 +439,18 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   }
 });
 
+
+/* Travel mode persistence hardening */
+function persistTravelMode(){
+  try{
+    travelEnsure();
+    const mode = travelMode()==='vacation' ? 'vacation' : 'work';
+    if(CFG.travel) CFG.travel.mode=mode;
+    localStorage.setItem('travelMode',mode);
+    return mode;
+  }catch(e){ return 'work'; }
+}
+
 /* =========================
    DAY LOG v1
    ========================= */
@@ -550,6 +562,7 @@ function dayLogStart(){
   if(btn)btn.textContent='Stop';
   haptic?.(10);
   dayLogRender();
+  syncSocialComboChecked();
 }
 function dayLogStop(){
   const x=dayLogToday();
@@ -591,12 +604,36 @@ function dayLogHookHabitCompletion(id){
 function dayLogHookRoutineCompletion(id,name){
   dayLogLinkCompletion(name||id,'routine',id);
 }
+
+/* Social Combo visual sync: completed combos must render checked. */
+function syncSocialComboChecked(){
+  try{
+    const candidates=[...document.querySelectorAll('input[type="checkbox"],button,.habit,.task,.combo,.row,.item,.card')];
+    candidates.forEach(el=>{
+      const txt=(el.textContent||'').trim().toLowerCase();
+      if(!txt.includes('social combo')) return;
+      const done = el.classList.contains('done') ||
+                   el.classList.contains('checked') ||
+                   el.getAttribute('aria-checked')==='true' ||
+                   el.dataset?.done==='true' ||
+                   el.querySelector?.('.done,.checked,[aria-checked="true"]');
+      if(el.matches('input[type="checkbox"]')) el.checked=!!done || el.checked;
+      const cb=el.querySelector?.('input[type="checkbox"]');
+      if(cb && done) cb.checked=true;
+      if(done){
+        el.setAttribute('aria-checked','true');
+        el.classList.add('checked');
+      }
+    });
+  }catch(e){}
+}
+
 function dayLogInit(){
   window.__dayLogActive=null;
   dayLogRender();
 }
 
-const BUILD="20260916-daylog-v1";
+const BUILD="20260916-daylog-v1-bugfix";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -3121,5 +3158,5 @@ boot();
 </html>
 
 <script>
-document.addEventListener('DOMContentLoaded',()=>{ try{dayLogInit();}catch(e){console.warn('Day Log init',e);} });
+document.addEventListener('DOMContentLoaded',()=>{ try{persistTravelMode();dayLogInit();syncSocialComboChecked();}catch(e){console.warn('Day Log init',e);} });
 </script>

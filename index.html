@@ -2850,7 +2850,7 @@ function renderToday(key,nested=false){
   const L1vis=C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
-  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?140:104;
+  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:104;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
@@ -3834,6 +3834,77 @@ boot();
   }
 
   #scroll .today .t-score-hero .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 0 0 auto !important;
+    align-self:center !important;
+    white-space:nowrap !important;
+  }
+}
+</style>
+
+<style>
+/* FINAL DESKTOP TODAY HERO: preserve LVL baseline; use the full top band. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    grid-row:2 !important;
+    grid-column:1 / -1 !important;
+    width:100% !important;
+    max-width:none !important;
+    height:214px !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:stretch !important;
+    gap:20px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  /* Flatten only the desktop stack so the visual order is Ring → Info → Log. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    flex:0 0 196px !important;
+    width:196px !important;
+    height:196px !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+  /* Center the score text precisely inside the enlarged ring. */
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"]{
+    inset:0 !important;
+    width:auto !important;
+    height:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"] > div:first-child{
+    font-size:58px !important;
+    line-height:1 !important;
+    text-align:center !important;
+  }
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"] > div:last-child{
+    font-size:15px !important;
+    line-height:1.1 !important;
+    text-align:center !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    padding:16px 20px !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-stack > .today-log-start{
     order:3 !important;
     flex:0 0 auto !important;
     margin:0 0 0 auto !important;

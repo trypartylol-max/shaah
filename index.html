@@ -1353,8 +1353,9 @@ function applyTravelMode(mode){
   if(e.h&&e.h.work)e.h.work.on=(mode==='work');
   // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
+  CFG.travel.updatedAt=Date.now();
   if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
-  CFG.travelV=6;
+  CFG.travelV=7;
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
@@ -1872,7 +1873,16 @@ function rowToState(row){
       const local=get(cfgKey());
       const prevLog=Array.isArray(CFG.log)?CFG.log:(local&&Array.isArray(local.log)?local.log:[]);
       const prevV={subsV:CFG.subsV,junkV:CFG.junkV};
+      const localTravel=local&&local.travel&&typeof local.travel==='object'
+        ?JSON.parse(JSON.stringify(local.travel)):null;
       CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);
+      // If this browser has a newer manual Work/Vacation change than the server
+      // snapshot, keep that change. This prevents a refresh from briefly loading
+      // an older Work config and becoming the persisted state again.
+      const remoteTravel=CFG.travel&&typeof CFG.travel==='object'?CFG.travel:null;
+      if(localTravel&&Number(localTravel.updatedAt)>Number(remoteTravel&&remoteTravel.updatedAt||0)){
+        CFG.travel=localTravel;
+      }
       // La línea de tiempo es historia, no estado: una config entrante sin `log`
       // (dispositivo con versión vieja, o restauración) no puede borrar el pasado.
       if((!Array.isArray(CFG.log)||CFG.log.length<prevLog.length)&&prevLog.length)CFG.log=prevLog;

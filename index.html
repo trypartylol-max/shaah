@@ -1318,7 +1318,17 @@ function travelEnsure(){
 // reset the switch to Work after a reload.
 function travelMode(){
   travelEnsure();
-  const tk=todayKey(),lg=cfgLog();
+  const tk=todayKey();
+
+  // A manually selected CURRENT mode is persisted locally as well as in the
+  // dated config.  On reload this local value must win over an older/stale
+  // settings row arriving from Supabase; otherwise the switch can visibly
+  // jump back to WORK for one device even though the user just selected
+  // VACATION.  Historical dates still use cfgForDate(), never this function.
+  const local=localStorage.getItem('travelMode');
+  if(local==='vacation'||local==='work')return local;
+
+  const lg=cfgLog();
   if(lg.length){
     let e=lg[0];
     for(const x of lg){ if(x.from<=tk)e=x; else break; }
@@ -1356,6 +1366,9 @@ function applyTravelMode(mode){
   // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
   if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
+  // Persist the live switch immediately in the browser too. This is the
+  // current UI state; Supabase remains the shared backup/source for the config.
+  try{localStorage.setItem('travelMode',mode);}catch(e){}
   CFG.travelV=6;
   _dayCfgCache={};
   applyCfg(); saveCfg();

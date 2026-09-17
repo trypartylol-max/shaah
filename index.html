@@ -1318,11 +1318,21 @@ function travelEnsure(){
 // reset the switch to Work after a reload.
 function travelMode(){
   travelEnsure();
-  const tk=todayKey(),lg=cfgLog();
+  const tk=todayKey();
+
+  // Vacation is a real calendar interval, not merely a flag stored in the
+  // current config. This is the authoritative answer for TODAY. It prevents
+  // a stale Supabase/localStorage settings row (for example one that still
+  // says `work`) from flipping the switch back to Work after a refresh.
+  if(isVacationDate(tk))return 'vacation';
+
+  // Outside the Vacation interval, use the dated config timeline so historical
+  // and future mode changes still work normally.
+  const lg=cfgLog();
   if(lg.length){
     let e=lg[0];
     for(const x of lg){ if(x.from<=tk)e=x; else break; }
-    if(e&&e.mode) return modeKey(e.mode);
+    if(e&&e.mode)return modeKey(e.mode);
     if(e&&e.h&&e.h.work&&e.h.work.on===false)return 'vacation';
   }
   return modeKey(CFG.travel.mode);

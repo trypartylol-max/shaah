@@ -1353,9 +1353,8 @@ function applyTravelMode(mode){
   if(e.h&&e.h.work)e.h.work.on=(mode==='work');
   // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
-  CFG.travel.updatedAt=Date.now();
   if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
-  CFG.travelV=7;
+  CFG.travelV=6;
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
@@ -1375,13 +1374,17 @@ function checkTravelAuto(){
 // current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
   const START="2026-09-08";
-  const VERSION=6;
+  const VERSION=7;
   const lg=cfgLog();
   if(!lg.length)return false;
 
-  // The timeline is the source of truth. Vacation starts on 2026-09-08 and
-  // remains active until the FIRST later era explicitly marked Work. It is
-  // deliberately not bounded by today.
+  // Vacation owns the whole interval starting 2026-09-08 and ending at the
+  // configured return-to-Work date. Do not infer the boundary from an
+  // accidental/intermediate era in the timeline (for example 2026-09-16).
+  travelEnsure();
+  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel.resumeOn||'')
+    ? CFG.travel.resumeOn : '';
+
   let i=-1;
   for(let k=0;k<lg.length;k++){
     if(lg[k].from<=START)i=k; else break;
@@ -1402,36 +1405,37 @@ function setVacationStartOnce(){
     changed=true;
   }
 
-  // Find the next explicit Work era. Everything between START and that era
-  // belongs to Vacation, including dates after today.
-  let nextWork=-1;
-  for(let k=i+1;k<lg.length;k++){
-    if(modeKey(lg[k].mode)==='work'){
-      nextWork=k;
-      break;
-    }
-  }
-
-  for(let k=i;k<lg.length;k++){
-    if(k===nextWork)break;
-    if(lg[k].from>=START){
-      if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
-      if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
-        lg[k].h.work.on=false;
-        changed=true;
+  // Prefer the explicitly configured Work return date. Only if none exists do
+  // we fall back to the first later Work era in the dated config.
+  let boundary=resume;
+  if(!boundary){
+    for(let k=i+1;k<lg.length;k++){
+      if(modeKey(lg[k].mode)==='work'){
+        boundary=lg[k].from;
+        break;
       }
     }
   }
 
-  // Keep the live settings consistent with the active era. If a future Work
-  // era exists, the current mode remains Vacation until that date is reached.
-  travelEnsure();
-  const today=todayKey();
-  let active=i;
+  // Repair every era inside Vacation's interval. This intentionally converts
+  // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving
+  // the actual future Work boundary and everything after it untouched.
   for(let k=i;k<lg.length;k++){
-    if(lg[k].from<=today)active=k; else break;
+    const from=lg[k].from;
+    if(from<START)continue;
+    if(boundary && from>=boundary)break;
+    if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
+    if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
+      lg[k].h.work.on=false;
+      changed=true;
+    }
   }
-  if(nextWork<0 || active<nextWork){
+
+  // Keep the live mode aligned with the interval containing today. If today is
+  // before the configured return date, Vacation is the active mode regardless
+  // of any stale one-day Work era left in the timeline.
+  const today=todayKey();
+  if(today>=START && (!boundary || today<boundary)){
     if(CFG.travel.mode!=='vacation'){CFG.travel.mode='vacation';changed=true;}
     if(CFG.h&&CFG.h.work&&CFG.h.work.on!==false){CFG.h.work.on=false;changed=true;}
   }
@@ -1873,16 +1877,7 @@ function rowToState(row){
       const local=get(cfgKey());
       const prevLog=Array.isArray(CFG.log)?CFG.log:(local&&Array.isArray(local.log)?local.log:[]);
       const prevV={subsV:CFG.subsV,junkV:CFG.junkV};
-      const localTravel=local&&local.travel&&typeof local.travel==='object'
-        ?JSON.parse(JSON.stringify(local.travel)):null;
       CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);
-      // If this browser has a newer manual Work/Vacation change than the server
-      // snapshot, keep that change. This prevents a refresh from briefly loading
-      // an older Work config and becoming the persisted state again.
-      const remoteTravel=CFG.travel&&typeof CFG.travel==='object'?CFG.travel:null;
-      if(localTravel&&Number(localTravel.updatedAt)>Number(remoteTravel&&remoteTravel.updatedAt||0)){
-        CFG.travel=localTravel;
-      }
       // La línea de tiempo es historia, no estado: una config entrante sin `log`
       // (dispositivo con versión vieja, o restauración) no puede borrar el pasado.
       if((!Array.isArray(CFG.log)||CFG.log.length<prevLog.length)&&prevLog.length)CFG.log=prevLog;

@@ -1543,6 +1543,15 @@ function cfgForDate(key){
     S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
     if(H.work)H.work.on=false;
   }
+  // 2026-09-16 is inside the same Vacation interval as 09-15 and 09-17.
+  // For scoring, use the exact effective scoring setup of the adjacent Vacation
+  // day before it. This makes the three dates share the same point system rather
+  // than allowing a stray one-day config snapshot to alter the 16th.
+  if(key==='2026-09-16' && keyMinus(key,1)>='2026-09-08'){
+    const prev=cfgForDate(keyMinus(key,1));
+    const v={L1:prev.L1.map(x=>({...x})),L2:prev.L2.map(x=>({...x})),L3:prev.L3.map(x=>({...x})),subs:prev.subs.map(x=>({...x}))};
+    _dayCfgCache[key]=v; return v;
+  }
   const S=subsFor(H,S0,m);
   const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S};
   _dayCfgCache[key]=v; return v;

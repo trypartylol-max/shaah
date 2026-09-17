@@ -1337,37 +1337,55 @@ function checkTravelAuto(){
   const t=CFG.travel;
   if(t.auto&&t.mode==='vacation'&&t.resumeOn&&todayKey()>=t.resumeOn) applyTravelMode('work');
 }
-// One-time migration: Vacation Mode officially starts on 2026-09-08.
-// Days before that date keep Work Mode; the date itself and all later eras use Vacation.
+// One-time repair: Vacation Mode officially starts on 2026-09-08.
+// Historical scores must use the mode that was active on that date, even if the
+// current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
   const START="2026-09-08";
-  // v2 repairs the existing 2026-09-08 vacation era even if an older build
-  // already marked travelV=1. After this migration, manual Work/Vacation changes
-  // are preserved normally.
-  if(CFG.travelV>=2)return false;
-  const lg=cfgLog();
-  if(!lg.length){ const b=cfgBaseline(); lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true}); }
+  const VERSION=4;
+  if(CFG.travelV>=VERSION)return false;
 
-  // Find the configuration in effect immediately before the start date.
+  const lg=cfgLog();
+  if(!lg.length){
+    const b=cfgBaseline();
+    lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});
+  }
+
+  // Find the era covering the day immediately before vacation.
   let i=0;
-  for(let k=0;k<lg.length;k++){ if(lg[k].from<=START)i=k; else break; }
+  for(let k=0;k<lg.length;k++){
+    if(lg[k].from<=START)i=k; else break;
+  }
+
+  // Always create an explicit vacation boundary at 2026-09-08 when needed.
   if(lg[i].from<START){
     const e=lg[i];
-    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
+    lg.splice(i+1,0,{
+      from:START,
+      h:JSON.parse(JSON.stringify(e.h)),
+      order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
+      mode:'vacation'
+    });
     i++;
   }else{
     lg[i].mode='vacation';
   }
 
-  // Every era beginning on/after the vacation start is Vacation Mode.
+  // Repair the Vacation period until the NEXT explicit Work era. Do not use
+  // today as the boundary: the dated config timeline is the source of truth,
+  // so Vacation must keep its own settings for every day until Work resumes.
   for(let k=i;k<lg.length;k++){
-    lg[k].mode='vacation';
-    if(lg[k].h&&lg[k].h.work)lg[k].h.work.on=false;
+    if(k>i && modeKey(lg[k].mode)==='work')break;
+    if(lg[k].from>=START){
+      lg[k].mode='vacation';
+      if(lg[k].h&&lg[k].h.work)lg[k].h.work.on=false;
+    }
   }
+
   CFG.travel=CFG.travel||{mode:'work',auto:false,resumeOn:''};
   CFG.travel.mode='vacation';
-  CFG.travelV=1;
+  CFG.travelV=VERSION;
   if(CFG.h&&CFG.h.work)CFG.h.work.on=false;
   _dayCfgCache={};
   return true;

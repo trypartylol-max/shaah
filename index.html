@@ -3036,14 +3036,16 @@ ${(nested||!isToday||!C.L1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
-      ${C.L2.map(item=>`
-      <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      ${C.L2.map(item=>{
+        const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5,awarded=half?Math.round(item.pts*doneFrac(st)):item.pts;
+        return`
+      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
-          ${chk(!!ch[item.id],item.col)}
-          <span style="font-size:16.5px;font-weight:${ch[item.id]?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
+          ${half?chk3(st,item.col):chk(!!st,item.col)}
+          <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
         </div>
-        <span style="font-size:15px;color:${ch[item.id]?"#a78bfa99":"#8a8aa0"}">${item.pts}%</span>
-      </div>`).join("")}
+        <span style="font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}">${awarded}%</span>
+      </div>`;}).join("")}
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">

@@ -2865,8 +2865,8 @@ function renderToday(key,nested=false){
         <div style="font-size:${RSZ>140?14:11.5}px;color:${gr.c};letter-spacing:0.12em;opacity:0.65">${gr.n}</div>
       </div>
         </div>
-        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""}" type="button" onclick="openDayLogStart()" aria-label="${dayLogActiveId()?"Open active Day Log":"Log an activity"}">
-          <span>${dayLogActiveId()?"●":"+"}</span><b>${dayLogActiveId()?"VIEW LOG":"LOG ACTIVITY"}</b>
+        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""}" type="button" onclick="openDayLogStart()" aria-label="${dayLogActiveId()?"View active Day Log":"Log an activity"}">
+          <span>${dayLogActiveId()?"●":"+"}</span>${dayLogActiveId()?`<b>${dayLogFmt((Date.now()-new Date(dayLogEvents(todayKey()).find(e=>e.id===dayLogActiveId()).start).getTime())/60000)}</b>`:""}
         </button>`:""}
       </div>
     <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
@@ -4668,6 +4668,27 @@ boot();
     margin:0 !important;
     align-self:center !important;
     white-space:nowrap !important;
+  }
+}
+</style>
+
+<style>
+/* BARRA1 — anillo/LOG desplazados 50% de su tamaño hacia afuera del centro,
+   y LOG pasa a círculo espejo del anillo con estado dinámico (idle/live). */
+@media (min-width:880px){
+  #scroll .today .t-score-hero .t-ring{transform:translateX(-50%) !important}
+  #scroll .today .t-score-hero .today-log-start{transform:translateX(50%) !important}
+
+  .today-log-start{
+    width:64px;height:64px;border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;padding:0;font-size:9px;letter-spacing:.04em;
+  }
+  .today-log-start span{font-size:20px;line-height:1}
+  .today-log-start.live{
+    background:#f87171;
+    box-shadow:0 0 16px rgba(248,113,113,.5);
+    animation:rzPulse 1.8s ease-in-out infinite;
   }
 }
 </style>

@@ -381,6 +381,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   font-size:15px;font-weight:700;letter-spacing:.12em;padding:13px;border-radius:12px;cursor:pointer;
   transition:transform .12s;}
 .tour-next:active{transform:scale(.97);}
+#mode-status{font-size:9px;letter-spacing:.12em;color:#7e7e97;white-space:nowrap;flex-shrink:0;margin-right:1px;}
 #sync-status{display:flex;align-items:center;justify-content:center;height:34px;width:34px;flex-shrink:0;cursor:default;}
 #sync-status span{width:9px;height:9px;border-radius:50%;display:block;
   box-shadow:0 0 8px currentColor;transition:background .3s;}
@@ -1308,21 +1309,52 @@ function addFamilyOnce(){
 // pesos no se toca hasta que se defina la distribución.
 function travelEnsure(){
   if(!CFG.travel||typeof CFG.travel!=='object')
-    CFG.travel={mode:'work',auto:false,resumeOn:''};   // por defecto no afecta a nadie mas
+    CFG.travel={mode:'work',auto:false,resumeOn:''};
 }
-function travelMode(){ travelEnsure(); return CFG.travel.mode==='vacation'?'vacation':'work'; }
-// Aplica el modo desde HOY (editFrom sella el pasado tal cual estaba).
+// The dated config timeline is the source of truth for the CURRENT mode.
+// CFG.travel is only the live/persistence fallback; it must never silently
+// reset the switch to Work after a reload.
+function travelMode(){
+  travelEnsure();
+  const tk=todayKey(),lg=cfgLog();
+  if(lg.length){
+    let e=lg[0];
+    for(const x of lg){ if(x.from<=tk)e=x; else break; }
+    if(e&&e.mode) return modeKey(e.mode);
+    if(e&&e.h&&e.h.work&&e.h.work.on===false)return 'vacation';
+  }
+  return modeKey(CFG.travel.mode);
+}
+// Switch ONLY the current era. Never rewrite an already-configured future era:
+// that future era is the boundary where the next Work/Vacation period starts.
 function applyTravelMode(mode){
   travelEnsure();
   mode=mode==='vacation'?'vacation':'work';
+  const tk=todayKey(),lg=cfgLog();
+  if(!lg.length){
+    const b=cfgBaseline();
+    lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});
+  }
+  let i=0;
+  for(let k=0;k<lg.length;k++){ if(lg[k].from<=tk)i=k; else break; }
+  if(lg[i].from<tk){
+    const e=lg[i];
+    lg.splice(i+1,0,{
+      from:tk,
+      h:JSON.parse(JSON.stringify(e.h)),
+      order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
+      mode
+    });
+    i++;
+  }
+  const e=lg[i];
+  e.mode=mode;
+  if(e.h&&e.h.work)e.h.work.on=(mode==='work');
+  // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
-  editFrom(todayKey(),(h)=>{ if(h.work)h.work.on=(mode==='work'); });
-  // The mode itself is part of the dated config. Keep every era from today
-  // forward aligned with the switch; otherwise cfgForDate() can resurrect the
-  // previous mode after a reload/realtime update.
-  const lg=cfgLog(), tk=todayKey();
-  for(const e of lg) if(e.from>=tk) e.mode=mode;
-  CFG.travelV=2;
+  if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
+  CFG.travelV=6;
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
@@ -1342,7 +1374,7 @@ function checkTravelAuto(){
 // current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
   const START="2026-09-08";
-  const VERSION=5;
+  const VERSION=6;
   const lg=cfgLog();
   if(!lg.length)return false;
 
@@ -2777,6 +2809,7 @@ function topbarHTML(){
       <span class="tb-dt">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</span>
       <span class="tb-gr">${greet}</span>
     </div>
+    <div id="mode-status" title="Current mode">${travelMode()==='vacation'?'VACATION':'WORK'}</div>
     <div id="sync-status" title="${_live?"Live — synced":"Connecting…"}"><span style="background:${dot}"></span></div>
   </div>
   ${currentTab==="today"?scoreStripHTML(todayKey()):""}`;

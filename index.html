@@ -1375,7 +1375,7 @@ function checkTravelAuto(){
 // Historical scores must use the mode that was active on that date, even if the
 // current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
-  const START="2026-09-08";
+  const START=VACATION_START;
   const VERSION=7;
   const lg=cfgLog();
   if(!lg.length)return false;
@@ -1384,8 +1384,7 @@ function setVacationStartOnce(){
   // configured return-to-Work date. Do not infer the boundary from an
   // accidental/intermediate era in the timeline (for example 2026-09-16).
   travelEnsure();
-  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel.resumeOn||'')
-    ? CFG.travel.resumeOn : '';
+  const resume=vacationResumeDate();
 
   let i=-1;
   for(let k=0;k<lg.length;k++){
@@ -1396,13 +1395,7 @@ function setVacationStartOnce(){
   let changed=false;
   if(lg[i].from<START){
     const e=lg[i];
-    lg.splice(i+1,0,{
-      from:START,
-      h:JSON.parse(JSON.stringify(e.h)),
-      order:e.order.slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
-      mode:'vacation'
-    });
+    lg.splice(i+1,0,cloneEra({...e,from:START},'vacation'));
     i++;
     changed=true;
   }
@@ -1419,13 +1412,22 @@ function setVacationStartOnce(){
     }
   }
 
-  // Repair every era inside Vacation's interval. This intentionally converts
-  // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving
-  // the actual future Work boundary and everything after it untouched.
+  // Normalize the Vacation interval. A stale Work era inside this interval is
+  // not a real scoring change: it is a mode-history artifact. Reuse the previous
+  // Vacation era's scoring configuration so a stray one-day Work snapshot cannot
+  // create a different score for an otherwise identical Vacation day.
   for(let k=i;k<lg.length;k++){
     const from=lg[k].from;
     if(from<START)continue;
     if(boundary && from>=boundary)break;
+    const prev=k>i?lg[k-1]:null;
+    const wasVacation=modeKey(lg[k].mode)==='vacation';
+    if(!wasVacation && prev && modeKey(prev.mode)==='vacation'){
+      lg[k].h=JSON.parse(JSON.stringify(prev.h));
+      lg[k].order=prev.order.slice();
+      lg[k].subs=JSON.parse(JSON.stringify(Array.isArray(prev.subs)?prev.subs:[]));
+      changed=true;
+    }
     if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
     if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
       lg[k].h.work.on=false;
@@ -1508,6 +1510,18 @@ function ensureBaseline(){
   return true;
 }
 function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
+const VACATION_START='2026-09-08';
+function vacationResumeDate(){
+  const v=CFG.travel?.resumeOn||'';
+  return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';
+}
+function isVacationDate(key){
+  const resume=vacationResumeDate();
+  return key>=VACATION_START&&(!resume||key<resume);
+}
+function cloneEra(e,mode){
+  return {from:e.from,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:mode||e.mode};
+}
 // Wrap every change that affects scoring. Seals the old config over the past,
 // then stamps the new one as effective from today.
 function cfgEdit(fn){
@@ -1532,9 +1546,7 @@ function cfgForDate(key){
   // From 2026-09-08 until the explicitly configured Work return date, the day
   // MUST use Vacation scoring and Work Routine must be absent. This prevents a
   // stray dated era (such as 2026-09-16) from changing the mode for one day.
-  const VAC_START='2026-09-08';
-  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
-  const inVacation=key>=VAC_START&&(!resume||key<resume);
+  const inVacation=isVacationDate(key);
   let m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
   let H=e.h,O=e.order,S0=e.subs;
   if(inVacation){
@@ -1542,15 +1554,6 @@ function cfgForDate(key){
     O=e.order.slice();
     S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
     if(H.work)H.work.on=false;
-  }
-  // 2026-09-16 is inside the same Vacation interval as 09-15 and 09-17.
-  // For scoring, use the exact effective scoring setup of the adjacent Vacation
-  // day before it. This makes the three dates share the same point system rather
-  // than allowing a stray one-day config snapshot to alter the 16th.
-  if(key==='2026-09-16' && keyMinus(key,1)>='2026-09-08'){
-    const prev=cfgForDate(keyMinus(key,1));
-    const v={L1:prev.L1.map(x=>({...x})),L2:prev.L2.map(x=>({...x})),L3:prev.L3.map(x=>({...x})),subs:prev.subs.map(x=>({...x}))};
-    _dayCfgCache[key]=v; return v;
   }
   const S=subsFor(H,S0,m);
   const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S};

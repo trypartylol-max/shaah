@@ -1342,22 +1342,20 @@ function checkTravelAuto(){
 // current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
   const START="2026-09-08";
-  const VERSION=4;
-  if(CFG.travelV>=VERSION)return false;
-
+  const VERSION=5;
   const lg=cfgLog();
-  if(!lg.length){
-    const b=cfgBaseline();
-    lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});
-  }
+  if(!lg.length)return false;
 
-  // Find the era covering the day immediately before vacation.
-  let i=0;
+  // The timeline is the source of truth. Vacation starts on 2026-09-08 and
+  // remains active until the FIRST later era explicitly marked Work. It is
+  // deliberately not bounded by today.
+  let i=-1;
   for(let k=0;k<lg.length;k++){
     if(lg[k].from<=START)i=k; else break;
   }
+  if(i<0)i=0;
 
-  // Always create an explicit vacation boundary at 2026-09-08 when needed.
+  let changed=false;
   if(lg[i].from<START){
     const e=lg[i];
     lg.splice(i+1,0,{
@@ -1368,27 +1366,46 @@ function setVacationStartOnce(){
       mode:'vacation'
     });
     i++;
-  }else{
-    lg[i].mode='vacation';
+    changed=true;
   }
 
-  // Repair the Vacation period until the NEXT explicit Work era. Do not use
-  // today as the boundary: the dated config timeline is the source of truth,
-  // so Vacation must keep its own settings for every day until Work resumes.
-  for(let k=i;k<lg.length;k++){
-    if(k>i && modeKey(lg[k].mode)==='work')break;
-    if(lg[k].from>=START){
-      lg[k].mode='vacation';
-      if(lg[k].h&&lg[k].h.work)lg[k].h.work.on=false;
+  // Find the next explicit Work era. Everything between START and that era
+  // belongs to Vacation, including dates after today.
+  let nextWork=-1;
+  for(let k=i+1;k<lg.length;k++){
+    if(modeKey(lg[k].mode)==='work'){
+      nextWork=k;
+      break;
     }
   }
 
-  CFG.travel=CFG.travel||{mode:'work',auto:false,resumeOn:''};
-  CFG.travel.mode='vacation';
-  CFG.travelV=VERSION;
-  if(CFG.h&&CFG.h.work)CFG.h.work.on=false;
+  for(let k=i;k<lg.length;k++){
+    if(k===nextWork)break;
+    if(lg[k].from>=START){
+      if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
+      if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
+        lg[k].h.work.on=false;
+        changed=true;
+      }
+    }
+  }
+
+  // Keep the live settings consistent with the active era. If a future Work
+  // era exists, the current mode remains Vacation until that date is reached.
+  travelEnsure();
+  const today=todayKey();
+  let active=i;
+  for(let k=i;k<lg.length;k++){
+    if(lg[k].from<=today)active=k; else break;
+  }
+  if(nextWork<0 || active<nextWork){
+    if(CFG.travel.mode!=='vacation'){CFG.travel.mode='vacation';changed=true;}
+    if(CFG.h&&CFG.h.work&&CFG.h.work.on!==false){CFG.h.work.on=false;changed=true;}
+  }
+
+  if(CFG.travelV!==VERSION){CFG.travelV=VERSION;changed=true;}
   _dayCfgCache={};
-  return true;
+  return changed;
 }
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
@@ -2893,9 +2910,9 @@ function renderToday(key,nested=false){
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${dMax}%</span></div>
         ${bar((Math.min(score,dMax)/dMax)*100,gr.c,gr.g,5)}
         <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:#8888a4;margin-top:8px">
-          <span style="color:#c0c0cd;white-space:nowrap">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${LVL1_MAX}</span></span>
-          <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#8a8aa0"}">${l2}/${LVL2_MAX}</span></span>
-          <span style="color:#c0c0cd">BONUS <span style="color:${l3>0?"#fbbf24":"#8a8aa0"}">${l3}/${LVL3_MAX}</span></span>
+          <span style="color:#c0c0cd;white-space:nowrap">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${dM1}</span></span>
+          <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#8a8aa0"}">${l2}/${dM2}</span></span>
+          <span style="color:#c0c0cd">BONUS <span style="color:${l3>0?"#fbbf24":"#8a8aa0"}">${l3}/${dM3}</span></span>
         </div>
         ${(()=>{const nm=nextMove(key);if(!nm)return"";
           return`<div style="display:flex;align-items:center;gap:7px;font-size:14px;margin-top:9px;padding-top:9px;border-top:1px solid ${gr.c}1a;min-width:0">
@@ -2907,9 +2924,9 @@ function renderToday(key,nested=false){
     </div>
 
     
-${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
+${(nested||!isToday||!C.L1.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec t-rout-toggle" onclick="toggleTodayRoutines(this)" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">▾</span>TODAY'S ROUTINES</div>
-      <div class="t-rout-body">${LVL1.filter(i=>i.routine).map(item=>{
+      <div class="t-rout-body">${C.L1.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${esc(rt.icon)}</div>

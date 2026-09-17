@@ -1133,6 +1133,8 @@ function safePts(v){const n=Math.round(Number(v));return Number.isFinite(n)?Math
 // A routine habit (wod, production) can be logged LIGHT (0.5) as well as FULL (true).
 // Every other habit stays boolean — this reads either shape the same way.
 function doneFrac(v){return v===true?1:(typeof v==="number"&&v>0&&v<1?v:0);}
+// These habits use the same three-state scoring cycle as routines: none → half → full → none.
+function halfCreditItem(id){return id==='work'||id==='sleep';}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Friends",icon:"👫"}];
 // The combo divides its points by how many sub-items exist, so the list has to
@@ -1525,9 +1527,24 @@ function cfgForDate(key){
   const hit=_dayCfgCache[key]; if(hit)return hit;
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
-  const m=modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
-  const S=subsFor(e.h,e.subs,m);
-  const v={L1:levelsFor(e.h,e.order,1,S,m),L2:levelsFor(e.h,e.order,2,S,m),L3:levelsFor(e.h,e.order,3,S,m),subs:S};
+
+  // Vacation is an interval, not a collection of individual config eras.
+  // From 2026-09-08 until the explicitly configured Work return date, the day
+  // MUST use Vacation scoring and Work Routine must be absent. This prevents a
+  // stray dated era (such as 2026-09-16) from changing the mode for one day.
+  const VAC_START='2026-09-08';
+  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
+  const inVacation=key>=VAC_START&&(!resume||key<resume);
+  let m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
+  let H=e.h,O=e.order,S0=e.subs;
+  if(inVacation){
+    H=JSON.parse(JSON.stringify(e.h));
+    O=e.order.slice();
+    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
+    if(H.work)H.work.on=false;
+  }
+  const S=subsFor(H,S0,m);
+  const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S};
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
@@ -3001,11 +3018,11 @@ ${(nested||!isToday||!C.L1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${L1vis.map(item=>{
-        const st=ch[item.id],light=item.routine&&st===0.5,awarded=item.routine?Math.round(item.pts*doneFrac(st)):item.pts;
+        const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5,awarded=(item.routine||half)?Math.round(item.pts*doneFrac(st)):item.pts;
         return`
       <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
-          ${item.routine?chk3(st,item.col):chk(!!st,item.col)}
+          ${(item.routine||half)?chk3(st,item.col):chk(!!st,item.col)}
           <span style="font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -3552,7 +3569,7 @@ function monthGrid(ym){
   for(let d=1;d<=dim;d++){const key=`${ym}-${String(d).padStart(2,'0')}`;out.push({key,day:d,data:hh[key]||null});}
   return out;
 }
-function isRoutineItem(id,key){const C=cfgForDate(key);return[...C.L1,...C.L2,...C.L3].some(i=>i.id===id&&i.routine);}
+function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)||[...C.L1,...C.L2,...C.L3].some(i=>i.id===id&&i.routine);}
 // Tap-cycle for routine habits: none → light (½ pts) → full → none.
 // Everything else keeps the plain boolean toggle it always had.
 function toggleHabit(id,key){

@@ -768,15 +768,36 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 
-/* Travel mode persistence hardening */
-function persistTravelMode(){
+/* Travel mode persistence hardening
+   The live switch is separate from the historical config timeline.  The timeline
+   decides how PAST dates are scored; this value decides what the switch shows TODAY.
+   A timestamp lets the browser's most recent explicit choice win over an older
+   settings snapshot arriving from Supabase during refresh. */
+function persistTravelMode(mode){
   try{
     travelEnsure();
-    const mode = travelMode()==='vacation' ? 'vacation' : 'work';
-    if(CFG.travel) CFG.travel.mode=mode;
-    localStorage.setItem('travelMode',mode);
+    mode=mode==='vacation'?'vacation':'work';
+    const rec={mode,updatedAt:Date.now()};
+    localStorage.setItem('travelMode',JSON.stringify(rec));
+    CFG.travel.mode=mode;
+    CFG.travel.modeUpdatedAt=rec.updatedAt;
     return mode;
-  }catch(e){ return 'work'; }
+  }catch(e){ return mode==='vacation'?'vacation':'work'; }
+}
+function restoreLiveTravelMode(){
+  try{
+    travelEnsure();
+    const raw=localStorage.getItem('travelMode');
+    if(!raw)return false;
+    let rec=null;
+    try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
+    const mode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
+    if(!mode)return false;
+    CFG.travel.mode=mode;
+    CFG.travel.modeUpdatedAt=Number(rec.updatedAt)||0;
+    if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
+    return true;
+  }catch(e){return false;}
 }
 
 /* =========================
@@ -1318,21 +1339,22 @@ function travelEnsure(){
 // reset the switch to Work after a reload.
 function travelMode(){
   travelEnsure();
-  const tk=todayKey();
-
-  // A manually selected CURRENT mode is persisted locally as well as in the
-  // dated config.  On reload this local value must win over an older/stale
-  // settings row arriving from Supabase; otherwise the switch can visibly
-  // jump back to WORK for one device even though the user just selected
-  // VACATION.  Historical dates still use cfgForDate(), never this function.
-  const local=localStorage.getItem('travelMode');
-  if(local==='vacation'||local==='work')return local;
-
-  const lg=cfgLog();
+  // For TODAY, an explicit local switch is authoritative. Historical dates are
+  // resolved by cfgForDate() and never use this live preference.
+  try{
+    const raw=localStorage.getItem('travelMode');
+    if(raw){
+      let rec=null;
+      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw};}
+      if(rec&&rec.mode==='vacation')return 'vacation';
+      if(rec&&rec.mode==='work')return 'work';
+    }
+  }catch(e){}
+  const tk=todayKey(),lg=cfgLog();
   if(lg.length){
     let e=lg[0];
     for(const x of lg){ if(x.from<=tk)e=x; else break; }
-    if(e&&e.mode) return modeKey(e.mode);
+    if(e&&e.mode)return modeKey(e.mode);
     if(e&&e.h&&e.h.work&&e.h.work.on===false)return 'vacation';
   }
   return modeKey(CFG.travel.mode);
@@ -1366,14 +1388,11 @@ function applyTravelMode(mode){
   // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
   if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
-  // Persist the live switch immediately in the browser too. This is the
-  // current UI state; Supabase remains the shared backup/source for the config.
-  try{localStorage.setItem('travelMode',mode);}catch(e){}
   CFG.travelV=6;
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
-function setTravelMode(mode){ haptic(10); applyTravelMode(mode); render(); }
+function setTravelMode(mode){ haptic(10); persistTravelMode(mode); applyTravelMode(mode); persistTravelMode(mode); render(); }
 function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
 function setTravelResume(v){ travelEnsure(); CFG.travel.resumeOn=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:''; saveCfg(); render(); }
 // Se llama una vez por sesión (loadAll): si está en modo automático y ya
@@ -1980,7 +1999,12 @@ async function loadAll(){
     ensureBaseline();
     if(setVacationStartOnce())saveCfg();
     widenBaseline();
-    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();checkTravelAuto();
+    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();
+    // Restore the user's explicit live switch AFTER the settings row has been
+    // loaded, because the server row may contain an older mode snapshot.
+    restoreLiveTravelMode();
+    applyCfg();
+    checkTravelAuto();
     recoverPeopleFromDays();
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');

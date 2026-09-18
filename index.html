@@ -1599,6 +1599,14 @@ function cfgForDate(key){
   }
   const S=subsFor(H,S0,m);
   const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S};
+  // HARD GUARD: once a date is inside Vacation, Work must NEVER appear in
+  // that day's scoring configuration, regardless of a stale/stray timeline
+  // era.  This applies to historical days too (e.g. Thu 2026-09-17).
+  if(inVacation){
+    v.L1=v.L1.filter(i=>i.id!=='work');
+    v.L2=v.L2.filter(i=>i.id!=='work');
+    v.L3=v.L3.filter(i=>i.id!=='work');
+  }
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){

@@ -1439,17 +1439,11 @@ function setVacationStartOnce(){
     changed=true;
   }
 
-  // Prefer the explicitly configured Work return date. Only if none exists do
-  // we fall back to the first later Work era in the dated config.
-  let boundary=resume;
-  if(!boundary){
-    for(let k=i+1;k<lg.length;k++){
-      if(modeKey(lg[k].mode)==='work'){
-        boundary=lg[k].from;
-        break;
-      }
-    }
-  }
+  // The only legitimate end of Vacation is the explicitly configured
+  // return-to-Work date. A later Work era in the timeline is NOT a boundary:
+  // those eras can be stale/intermediate snapshots created while switching
+  // modes and must not be allowed to shorten the Vacation interval.
+  const boundary=resume;
 
   // Repair every era inside Vacation's interval. This intentionally converts
   // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving

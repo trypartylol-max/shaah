@@ -2992,6 +2992,15 @@ function toggleTodayRoutines(el){
   if(arrow)arrow.textContent=collapsed?'▸':'▾';
 }
 
+function earnedPointsForItem(item,state){
+  const frac=doneFrac(state);
+  const raw=safePts(item.pts)*frac;
+  return Number.isInteger(raw)?String(raw):String(Math.round(raw*10)/10);
+}
+function pointsLabel(item,state){
+  return `${earnedPointsForItem(item,state)} / ${safePts(item.pts)}`;
+}
+
 function renderToday(key,nested=false){
   const _hr=new Date().getHours();
   const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";
@@ -3094,7 +3103,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${L1vis.map(item=>{
-        const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5,awarded=(item.routine||half)?Math.round(item.pts*doneFrac(st)):item.pts;
+        const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
         return`
       <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
@@ -3104,7 +3113,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           ${item.routine&&st!==true&&isToday&&!nested?`
           <button onclick="event.stopPropagation();startRoutine('${item.id}')" title="Start routine" style="background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55;flex-shrink:0">▶</button>`:""}
-          <span style="font-size:15px;color:${st?(light?"#f59e0b":"#e2e2e299"):"#8a8aa0"};min-width:38px;text-align:right">${awarded}%</span>
+          <span style="font-size:15px;color:${st?(light?"#f59e0b":"#e2e2e299"):"#8a8aa0"};min-width:38px;text-align:right">${pointsLabel(item,st)}</span>
         </div>
       </div>`;}).join("")}
       </div>
@@ -3113,14 +3122,14 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
       ${C.L2.map(item=>{
-        const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5,awarded=half?Math.round(item.pts*doneFrac(st)):item.pts;
+        const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5;
         return`
       <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${half?chk3(st,item.col):chk(!!st,item.col)}
           <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
         </div>
-        <span style="font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}">${awarded}%</span>
+        <span style="font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}">${pointsLabel(item,st)}</span>
       </div>`;}).join("")}
       </div>
     </div>
@@ -3128,14 +3137,17 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       ${comboBlock(key)}
-      ${C.L3.filter(x=>!x.combo).map(item=>`
-      <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      ${C.L3.filter(x=>!x.combo).map(item=>{
+        const st=ch[item.id];
+        return `
+      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
-          ${chk(!!ch[item.id],"#fbbf24")}
-          <span style="font-size:16.5px;font-weight:${ch[item.id]?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
+          ${chk(!!st,"#fbbf24")}
+          <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
         </div>
-        <span style="font-size:15px;color:${ch[item.id]?"#fbbf2499":"#8a8aa0"}">${item.pts}%</span>
-      </div>`).join("")}
+        <span style="font-size:15px;color:${st?"#fbbf2499":"#8a8aa0"}">${pointsLabel(item,st)}</span>
+      </div>`;
+      }).join("")}
       </div>
     </div>
     ${isToday?`<div class="t-daylog" style="width:100%;max-width:390px">

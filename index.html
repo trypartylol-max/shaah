@@ -1680,7 +1680,11 @@ function nextMove(key){
     if(!soc[x.id]&&x.p>0)items.push({id:x.id,label:x.label,icon:x.icon,pts:x.p});
   const llegan=items.filter(i=>i.pts>=need).sort((a,b)=>a.pts-b.pts);
   const mayor=[...items].sort((a,b)=>b.pts-a.pts);
-  return {need,target,next:GRADE(target,dMax),item:llegan[0]||mayor[0]||null,reaches:!!llegan[0]};
+  // Keep a small set of actionable options for the Today Next Move card.
+  // Prefer the cheapest items that can reach the next grade; if none can,
+  // show the largest available moves so the card still gives useful direction.
+  const options=(llegan.length?llegan:mayor).slice(0,2);
+  return {need,target,next:GRADE(target,dMax),item:llegan[0]||mayor[0]||null,options,reaches:!!llegan[0]};
 }
 // La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
 function scoreStripHTML(key){
@@ -3060,23 +3064,23 @@ function renderToday(key,nested=false){
           <span>${dayLogActiveId()?"●":"+"}</span>${dayLogActiveId()?`<b>${dayLogFmt((Date.now()-new Date(dayLogEvents(todayKey()).find(e=>e.id===dayLogActiveId()).start).getTime())/60000)}</b>`:""}
         </button>`:""}
       </div>
-    <div class="t-grade" style="width:100%;max-width:390px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:18px">
-      <div style="font-family:'Bebas Neue';font-size:62px;color:${gr.c};line-height:1;text-shadow:0 0 28px ${gr.g}">${esc(gr.l)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${dMax}%</span></div>
-        ${bar((Math.min(score,dMax)/dMax)*100,gr.c,gr.g,5)}
-        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:#8888a4;margin-top:8px">
-          <span style="color:#c0c0cd;white-space:nowrap">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${dM1}</span></span>
-          <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#8a8aa0"}">${l2}/${dM2}</span></span>
-          <span style="color:#c0c0cd">BONUS <span style="color:${l3>0?"#fbbf24":"#8a8aa0"}">${l3}/${dM3}</span></span>
+    <div class="t-grade t-nextmove" style="width:100%;max-width:520px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:15px 18px;box-sizing:border-box">
+      ${(()=>{
+        const nm=nextMove(key);
+        if(!nm)return`<div class="nm-top"><span class="nm-kicker">NEXT MOVE</span><span class="nm-done" style="color:${gr.c}">TOPE</span></div>`;
+        const opts=nm.options||[];
+        return`<div class="nm-top">
+          <span class="nm-kicker">◎&nbsp; NEXT MOVE</span>
+          <span class="nm-need" style="color:${nm.next.c}">+${nm.need}%</span>
         </div>
-        ${(()=>{const nm=nextMove(key);if(!nm)return"";
-          return`<div style="display:flex;align-items:center;gap:7px;font-size:14px;margin-top:9px;padding-top:9px;border-top:1px solid ${gr.c}1a;min-width:0">
-            <span style="color:${nm.next.c};font-weight:500;flex-shrink:0">+${nm.need}% → ${esc(nm.next.l)}</span>
-            ${nm.item?`<span style="color:#8888a4;flex-shrink:0">·</span><span style="color:#c0c0cd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nm.reaches?"":"empieza por "}${esc(nm.item.icon)} ${esc(nm.item.label)} (${nm.item.pts}%)</span>`:""}
-          </div>`;})()}
-      </div>
-    </div>
+        <div class="nm-target"><span class="nm-arrow">↑</span><b style="color:${nm.next.c}">${esc(nm.next.l)}</b><span>TO REACH NEXT LEVEL</span></div>
+        <div class="nm-options">${opts.map((x,idx)=>`<div class="nm-option">
+          <span class="nm-icon">${esc(x.icon)}</span>
+          <span class="nm-label">${esc(x.label)}</span>
+          <span class="nm-pts" style="color:${idx===0&&nm.reaches?nm.next.c:'#a7a0c5'}">+${x.pts}%</span>
+        </div>`).join("")}</div>
+        <div class="nm-footer"><span style="color:${nm.next.c}">${nm.need}% to next level</span><span>·</span><span>${opts.length} ${opts.length===1?'move':'moves'} available</span></div>`;
+      })()}
     </div>
 
     
@@ -4150,6 +4154,34 @@ boot();
     margin:0 !important;
     white-space:nowrap !important;
   }
+}
+</style>
+
+<style>
+/* NEXT MOVE card — replaces the redundant Today score summary. */
+.t-nextmove{display:block !important;overflow:hidden;}
+.nm-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.nm-kicker{font-family:'Bebas Neue';font-size:15px;letter-spacing:.14em;color:#a9a1c8;}
+.nm-need{font-family:'Bebas Neue';font-size:19px;letter-spacing:.08em;}
+.nm-target{display:flex;align-items:center;gap:9px;font-size:13.5px;letter-spacing:.07em;color:#8f8da6;margin-bottom:9px;}
+.nm-target b{font-size:17px;letter-spacing:.08em;}
+.nm-arrow{width:22px;height:22px;border-radius:7px;background:#15152a;display:inline-flex;align-items:center;justify-content:center;font-size:15px;}
+.nm-options{display:flex;flex-direction:column;gap:6px;}
+.nm-option{display:flex;align-items:center;gap:10px;min-width:0;background:rgba(255,255,255,.025);border:1px solid rgba(130,120,180,.14);border-radius:10px;padding:8px 10px;}
+.nm-icon{width:24px;flex:0 0 24px;text-align:center;font-size:17px;}
+.nm-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d9d7e3;font-size:15px;}
+.nm-pts{font-size:14px;flex-shrink:0;}
+.nm-footer{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#77758e;margin-top:9px;}
+.nm-done{font-family:'Bebas Neue';font-size:18px;letter-spacing:.08em;}
+@media(max-width:879px){
+  .today .t-score-hero .t-nextmove{padding:11px 12px !important;gap:0 !important;}
+  .today .nm-kicker{font-size:13px;}
+  .today .nm-target{font-size:11px;gap:6px;margin-bottom:7px;}
+  .today .nm-target b{font-size:14px;}
+  .today .nm-option{padding:6px 7px;gap:7px;}
+  .today .nm-label{font-size:13px;}
+  .today .nm-pts{font-size:12px;}
+  .today .nm-footer{font-size:10.5px;margin-top:7px;}
 }
 </style>
 </body>

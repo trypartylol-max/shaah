@@ -1552,17 +1552,14 @@ function cfgEdit(fn){
 function vacationIntervalForDate(key){
   const VAC_START='2026-09-08';
   const today=todayKey();
-  if(key<VAC_START || key>=today)return false;
 
-  // Historical dates are immutable with respect to today's switch. Once Work is
-  // active today, every date from the official Vacation start through yesterday
-  // is Vacation. A stale timeline era or localStorage value must never split it.
-  if(travelMode()==='work')return true;
-
-  // If Vacation is still active today, an explicit future resume date is the
-  // only boundary for historical scoring.
-  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
-  return !resume||key<resume;
+  // IMPORTANT: this function is only for PAST dates. The vacation that started
+  // on 2026-09-08 is a fixed historical interval: every completed day from
+  // 2026-09-08 through yesterday is Vacation. Never consult today's switch,
+  // localStorage, resumeOn, or a timeline era here. Those are live-state data
+  // and were the source of the 9/16-9/17 Work leak and the 118% denominator.
+  // TODAY is resolved separately by cfgForDate() from the live mode.
+  return key>=VAC_START && key<today;
 }
 function cfgForDate(key){
   const lg=cfgLog();

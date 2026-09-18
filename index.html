@@ -735,6 +735,34 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 }
 
 </style>
+
+<style>
+/* NEXT MOVE — visual/content replacement only. Preserve the existing Today layout. */
+.t-nextmove{display:flex !important;flex-direction:column !important;align-items:stretch !important;justify-content:center !important;overflow:hidden;}
+.nm-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.nm-kicker{font-family:'Bebas Neue';font-size:15px;letter-spacing:.14em;color:#a9a1c8;}
+.nm-need{font-family:'Bebas Neue';font-size:19px;letter-spacing:.08em;}
+.nm-target{display:flex;align-items:center;gap:9px;font-size:13.5px;letter-spacing:.07em;color:#8f8da6;margin-bottom:9px;}
+.nm-target b{font-size:17px;letter-spacing:.08em;}
+.nm-arrow{width:22px;height:22px;border-radius:7px;background:#15152a;display:inline-flex;align-items:center;justify-content:center;font-size:15px;}
+.nm-options{display:flex;flex-direction:column;gap:6px;}
+.nm-option{display:flex;align-items:center;gap:10px;min-width:0;background:rgba(255,255,255,.025);border:1px solid rgba(130,120,180,.14);border-radius:10px;padding:8px 10px;}
+.nm-icon{width:24px;flex:0 0 24px;text-align:center;font-size:17px;}
+.nm-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d9d7e3;font-size:15px;}
+.nm-pts{font-size:14px;flex-shrink:0;}
+.nm-footer{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#77758e;margin-top:9px;}
+.nm-done{font-family:'Bebas Neue';font-size:18px;letter-spacing:.08em;}
+@media(max-width:879px){
+  .today .t-score-hero .t-nextmove{padding:11px 12px !important;gap:0 !important;}
+  .today .nm-kicker{font-size:13px;}
+  .today .nm-target{font-size:11px;gap:6px;margin-bottom:7px;}
+  .today .nm-target b{font-size:14px;}
+  .today .nm-option{padding:6px 7px;gap:7px;}
+  .today .nm-label{font-size:13px;}
+  .today .nm-pts{font-size:12px;}
+  .today .nm-footer{font-size:10.5px;margin-top:7px;}
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -3082,6 +3110,7 @@ function renderToday(key,nested=false){
         <div class="nm-footer"><span style="color:${nm.next.c}">${nm.need}% to next level</span><span>·</span><span>${opts.length} ${opts.length===1?'move':'moves'} available</span></div>`;
       })()}
     </div>
+    </div>
 
     
 ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
@@ -4154,34 +4183,6 @@ boot();
     margin:0 !important;
     white-space:nowrap !important;
   }
-}
-</style>
-
-<style>
-/* NEXT MOVE card — replaces the redundant Today score summary. */
-.t-nextmove{display:block !important;overflow:hidden;}
-.nm-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
-.nm-kicker{font-family:'Bebas Neue';font-size:15px;letter-spacing:.14em;color:#a9a1c8;}
-.nm-need{font-family:'Bebas Neue';font-size:19px;letter-spacing:.08em;}
-.nm-target{display:flex;align-items:center;gap:9px;font-size:13.5px;letter-spacing:.07em;color:#8f8da6;margin-bottom:9px;}
-.nm-target b{font-size:17px;letter-spacing:.08em;}
-.nm-arrow{width:22px;height:22px;border-radius:7px;background:#15152a;display:inline-flex;align-items:center;justify-content:center;font-size:15px;}
-.nm-options{display:flex;flex-direction:column;gap:6px;}
-.nm-option{display:flex;align-items:center;gap:10px;min-width:0;background:rgba(255,255,255,.025);border:1px solid rgba(130,120,180,.14);border-radius:10px;padding:8px 10px;}
-.nm-icon{width:24px;flex:0 0 24px;text-align:center;font-size:17px;}
-.nm-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d9d7e3;font-size:15px;}
-.nm-pts{font-size:14px;flex-shrink:0;}
-.nm-footer{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#77758e;margin-top:9px;}
-.nm-done{font-family:'Bebas Neue';font-size:18px;letter-spacing:.08em;}
-@media(max-width:879px){
-  .today .t-score-hero .t-nextmove{padding:11px 12px !important;gap:0 !important;}
-  .today .nm-kicker{font-size:13px;}
-  .today .nm-target{font-size:11px;gap:6px;margin-bottom:7px;}
-  .today .nm-target b{font-size:14px;}
-  .today .nm-option{padding:6px 7px;gap:7px;}
-  .today .nm-label{font-size:13px;}
-  .today .nm-pts{font-size:12px;}
-  .today .nm-footer{font-size:10.5px;margin-top:7px;}
 }
 </style>
 </body>

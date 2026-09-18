@@ -1439,11 +1439,14 @@ function setVacationStartOnce(){
     changed=true;
   }
 
-  // The only legitimate end of Vacation is the explicitly configured
-  // return-to-Work date. A later Work era in the timeline is NOT a boundary:
-  // those eras can be stale/intermediate snapshots created while switching
-  // modes and must not be allowed to shorten the Vacation interval.
-  const boundary=resume;
+  // The current live mode is the authoritative boundary for the present
+  // vacation period. If today is already Work, Vacation owns every historical
+  // date from 2026-09-08 through yesterday. This prevents a stale one-day Work
+  // era (notably 2026-09-16/17) from becoming a false historical boundary.
+  // A future explicit resume date is still respected while Vacation is active.
+  const today=todayKey();
+  const live=travelMode();
+  const boundary=(live==='work' && today>=START) ? today : resume;
 
   // Repair every era inside Vacation's interval. This intentionally converts
   // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving
@@ -1459,10 +1462,9 @@ function setVacationStartOnce(){
     }
   }
 
-  // Keep the live mode aligned with the interval containing today. If today is
-  // before the configured return date, Vacation is the active mode regardless
-  // of any stale one-day Work era left in the timeline.
-  const today=todayKey();
+  // Keep the live mode aligned with the interval containing today. When the
+  // live switch is already Work, today is the return boundary; historical days
+  // before today remain Vacation even if an old timeline era says Work.
   if(today>=START && (!boundary || today<boundary)){
     if(CFG.travel.mode!=='vacation'){CFG.travel.mode='vacation';changed=true;}
     if(CFG.h&&CFG.h.work&&CFG.h.work.on!==false){CFG.h.work.on=false;changed=true;}
@@ -1549,8 +1551,15 @@ function cfgEdit(fn){
 }
 function vacationIntervalForDate(key){
   const VAC_START='2026-09-08';
+  if(key<VAC_START)return false;
+  const today=todayKey();
+  // Once Work is active today, all dates from Vacation start through yesterday
+  // are definitively Vacation. Never let a stale historical Work era split this
+  // interval. While Vacation is still active, an explicit future resume date is
+  // the only boundary.
+  if(key<today && travelMode()==='work')return true;
   const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
-  return key>=VAC_START&&(!resume||key<resume);
+  return !resume||key<resume;
 }
 function cfgForDate(key){
   const lg=cfgLog();

@@ -1689,7 +1689,7 @@ const loadCache=()=>{_state=get(cacheKey())||{};};
 const saveCache=()=>set(cacheKey(),_state);
 
 function statusEl(){return document.getElementById('sync-status');}
-function setStatus(text,color){const e=statusEl();if(e){e.textContent=text;e.style.color=color;}}
+function setStatus(text,color){const e=statusEl();if(e&&color)e.querySelector('span')?.style.setProperty('background',color);}
 
 // ── Data accessors — all derive from _state ────────────────
 const blankSocial=()=>{const o={};for(const x of subsList())o[x.id]=false;return o;};
@@ -4842,6 +4842,32 @@ boot();
     background:#f87171;
     box-shadow:0 0 16px rgba(248,113,113,.5);
     animation:rzPulse 1.8s ease-in-out infinite;
+  }
+}
+</style>
+
+<style>
+/* FINAL POLISH — Today levels / card contrast / LOG size */
+@media (min-width:880px){
+  /* Move the three LVL cards slightly toward the ring and away from routines. */
+  #scroll .today .t-lvl1,
+  #scroll .today .t-lvl2,
+  #scroll .today .t-lvl3{
+    transform:translateY(-6px) !important;
+  }
+
+  /* Slightly clearer separation between cards and the page background. */
+  #scroll .today .t-lvl,
+  #scroll .today .t-rout,
+  #scroll .today .t-note{
+    background:#0d0d19 !important;
+    border-color:#1d1d33 !important;
+  }
+
+  /* Larger Today LOG button, keeping the same circular desktop treatment. */
+  #scroll .today .today-log-start{
+    width:72px !important;
+    height:72px !important;
   }
 }
 </style>

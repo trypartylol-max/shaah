@@ -1553,27 +1553,30 @@ function cfgEdit(fn){
   _dayCfgCache={};
   saveCfg(); render();
 }
+function vacationIntervalForDate(key){
+  const VAC_START='2026-09-08';
+  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
+  return key>=VAC_START&&(!resume||key<resume);
+}
 function cfgForDate(key){
   const lg=cfgLog();
-  if(!lg.length)return{L1:LVL1,L2:LVL2,L3:LVL3,subs:subsFor(CFG.h,CFG.subs)};
+  const liveToday=key===todayKey();
+  // Historical dates obey the configured Vacation interval. Only TODAY may
+  // follow the user's live Work/Vacation switch.
+  const inVacation=liveToday ? travelMode()==='vacation' : vacationIntervalForDate(key);
+  if(!lg.length){
+    const m=inVacation?'vacation':travelMode();
+    const h=JSON.parse(JSON.stringify(CFG.h)),subs=subsFor(h,CFG.subs,m);
+    if(inVacation&&h.work)h.work.on=false;
+    const v={L1:levelsFor(h,CFG.order,1,subs,m),L2:levelsFor(h,CFG.order,2,subs,m),L3:levelsFor(h,CFG.order,3,subs,m),subs,inVacation,mode:m};
+    return v;
+  }
   // TODAY is live state: never reuse a cached config because the user can
   // switch Work/Vacation without changing the date. Historical dates remain cached.
-  const hit=key===todayKey()?null:_dayCfgCache[key]; if(hit)return hit;
+  const hit=liveToday?null:_dayCfgCache[key]; if(hit)return hit;
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
 
-  // Vacation is an interval, not a collection of individual config eras.
-  // From 2026-09-08 until the explicitly configured Work return date, the day
-  // MUST use Vacation scoring and Work Routine must be absent. This prevents a
-  // stray dated era (such as 2026-09-16) from changing the mode for one day.
-  const VAC_START='2026-09-08';
-  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
-  const historicalVacation=key>=VAC_START&&(!resume||key<resume);
-  const liveToday=key===todayKey();
-  // TODAY follows the user's explicit live switch. Historical dates keep using
-  // the dated timeline/official Vacation interval. This prevents a stale
-  // settings snapshot from bringing Work back after a browser refresh.
-  const inVacation=liveToday ? travelMode()==='vacation' : historicalVacation;
   let m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
   if(liveToday)m=travelMode();
   let H=e.h,O=e.order,S0=e.subs;
@@ -1594,14 +1597,15 @@ function cfgForDate(key){
   // than allowing a stray one-day config snapshot to alter the 16th.
   if(key==='2026-09-16' && keyMinus(key,1)>='2026-09-08'){
     const prev=cfgForDate(keyMinus(key,1));
-    const v={L1:prev.L1.map(x=>({...x})),L2:prev.L2.map(x=>({...x})),L3:prev.L3.map(x=>({...x})),subs:prev.subs.map(x=>({...x}))};
+    const v={L1:prev.L1.map(x=>({...x})),L2:prev.L2.map(x=>({...x})),L3:prev.L3.map(x=>({...x})),subs:prev.subs.map(x=>({...x})),inVacation:true,mode:'vacation'};
     _dayCfgCache[key]=v; return v;
   }
   const S=subsFor(H,S0,m);
-  const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S};
-  // HARD GUARD: once a date is inside Vacation, Work must NEVER appear in
-  // that day's scoring configuration, regardless of a stale/stray timeline
-  // era.  This applies to historical days too (e.g. Thu 2026-09-17).
+  const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S,inVacation,mode:m};
+  // The Vacation interval is a semantic rule, not a cosmetic filter. Once a
+  // date is in Vacation, Work is excluded from every level for that date,
+  // regardless of any stale/stray timeline era. This same rule is used by the
+  // renderer through `C.inVacation`, so no view can resurrect Work.
   if(inVacation){
     v.L1=v.L1.filter(i=>i.id!=='work');
     v.L2=v.L2.filter(i=>i.id!=='work');
@@ -3006,7 +3010,10 @@ function renderToday(key,nested=false){
   // nivel — la preferencia vive en CFG.lvlOpen y viaja entre dispositivos.
   // Work is a live-mode habit. Keep a final render-level guard so a stale
   // cached/config snapshot can never resurrect it on TODAY after a refresh.
-  const L1vis=(isToday&&travelMode()==='vacation')?C.L1.filter(i=>i.id!=='work'):C.L1;
+  // Render from the resolved day configuration, never from today's live switch.
+  // This keeps historical Vacation days (including routines) consistent with
+  // the scoring model and prevents a stale Work item from appearing in L1.
+  const L1vis=C.inVacation?C.L1.filter(i=>i.id!=='work'):C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:104;

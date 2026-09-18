@@ -763,6 +763,28 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .today .nm-footer{font-size:10.5px;margin-top:7px;}
 }
 </style>
+
+<style>
+/* LEVEL STATUS — compact replacement for the redundant Today stats box. */
+.t-levelstatus{overflow:hidden;}
+.t-levelstatus .ls-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+.t-levelstatus .ls-kicker{font-family:'Bebas Neue';font-size:15px;letter-spacing:.14em;color:#a9a1c8;}
+.t-levelstatus .ls-need{font-family:'Bebas Neue';font-size:19px;letter-spacing:.08em;}
+.t-levelstatus .ls-path{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Bebas Neue';font-size:18px;letter-spacing:.10em;margin:2px 0 11px;}
+.t-levelstatus .ls-path span{font-family:inherit;color:#77758e;font-size:16px;}
+.t-levelstatus .ls-bar{height:9px;border-radius:999px;background:#111120;border:1px solid #1c1c30;overflow:hidden;box-sizing:border-box;}
+.t-levelstatus .ls-bar i{display:block;height:100%;border-radius:999px;min-width:0;transition:width .25s ease;}
+.t-levelstatus .ls-footer{display:flex;align-items:center;justify-content:flex-end;font-size:12.5px;color:#77758e;margin-top:9px;letter-spacing:.03em;}
+@media(max-width:879px){
+  .today .t-levelstatus{padding:11px 12px !important;}
+  .today .t-levelstatus .ls-kicker{font-size:13px;}
+  .today .t-levelstatus .ls-need{font-size:17px;}
+  .today .t-levelstatus .ls-path{font-size:15px;gap:9px;margin-bottom:8px;}
+  .today .t-levelstatus .ls-path span{font-size:14px;}
+  .today .t-levelstatus .ls-bar{height:7px;}
+  .today .t-levelstatus .ls-footer{font-size:10.5px;margin-top:7px;}
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -3092,22 +3114,22 @@ function renderToday(key,nested=false){
           <span>${dayLogActiveId()?"●":"+"}</span>${dayLogActiveId()?`<b>${dayLogFmt((Date.now()-new Date(dayLogEvents(todayKey()).find(e=>e.id===dayLogActiveId()).start).getTime())/60000)}</b>`:""}
         </button>`:""}
       </div>
-    <div class="t-grade t-nextmove" style="width:100%;max-width:520px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:15px 18px;box-sizing:border-box">
+    <div class="t-grade t-nextmove t-levelstatus" style="width:100%;max-width:520px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:15px 20px;box-sizing:border-box">
       ${(()=>{
         const nm=nextMove(key);
-        if(!nm)return`<div class="nm-top"><span class="nm-kicker">NEXT MOVE</span><span class="nm-done" style="color:${gr.c}">TOPE</span></div>`;
-        const opts=nm.options||[];
-        return`<div class="nm-top">
-          <span class="nm-kicker">◎&nbsp; NEXT MOVE</span>
-          <span class="nm-need" style="color:${nm.next.c}">+${nm.need}%</span>
+        if(!nm)return`<div class="ls-top"><span class="ls-kicker">NEXT LEVEL</span><span class="ls-need" style="color:${gr.c}">TOPE</span></div>
+          <div class="ls-path"><b style="color:${gr.c}">${esc(gr.l)}</b><span>MAX</span></div>
+          <div class="ls-bar"><i style="width:100%;background:${gr.c};box-shadow:0 0 12px ${gr.g}"></i></div>
+          <div class="ls-footer"><span style="color:${gr.c}">MAX LEVEL REACHED</span></div>`;
+        const targetScore=Math.max(1,nm.target);
+        const progress=Math.max(0,Math.min(100,(sc.score/targetScore)*100));
+        return`<div class="ls-top">
+          <span class="ls-kicker">◎&nbsp; NEXT LEVEL</span>
+          <span class="ls-need" style="color:${nm.next.c}">+${nm.need}%</span>
         </div>
-        <div class="nm-target"><span class="nm-arrow">↑</span><b style="color:${nm.next.c}">${esc(nm.next.l)}</b><span>TO REACH NEXT LEVEL</span></div>
-        <div class="nm-options">${opts.map((x,idx)=>`<div class="nm-option">
-          <span class="nm-icon">${esc(x.icon)}</span>
-          <span class="nm-label">${esc(x.label)}</span>
-          <span class="nm-pts" style="color:${idx===0&&nm.reaches?nm.next.c:'#a7a0c5'}">+${x.pts}%</span>
-        </div>`).join("")}</div>
-        <div class="nm-footer"><span style="color:${nm.next.c}">${nm.need}% to next level</span><span>·</span><span>${opts.length} ${opts.length===1?'move':'moves'} available</span></div>`;
+        <div class="ls-path"><b style="color:${gr.c}">${esc(gr.l)}</b><span>→</span><b style="color:${nm.next.c}">${esc(nm.next.l)}</b></div>
+        <div class="ls-bar"><i style="width:${progress}%;background:linear-gradient(90deg,${gr.c},${nm.next.c});box-shadow:0 0 12px ${nm.next.g||gr.g}"></i></div>
+        <div class="ls-footer"><span style="color:${nm.next.c}">${nm.need}% remaining</span></div>`;
       })()}
     </div>
     </div>

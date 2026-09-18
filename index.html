@@ -1561,57 +1561,70 @@ function vacationIntervalForDate(key){
 function cfgForDate(key){
   const lg=cfgLog();
   const liveToday=key===todayKey();
-  // Historical dates obey the configured Vacation interval. Only TODAY may
-  // follow the user's live Work/Vacation switch.
+  // A date is resolved from one source of truth: the configuration era that
+  // was effective on that date, plus the Vacation interval. TODAY may use the
+  // live switch; historical dates never do.
   const inVacation=liveToday ? travelMode()==='vacation' : vacationIntervalForDate(key);
+
   if(!lg.length){
-    const m=inVacation?'vacation':travelMode();
-    const h=JSON.parse(JSON.stringify(CFG.h)),subs=subsFor(h,CFG.subs,m);
+    const m=inVacation?'vacation':(liveToday?travelMode():'work');
+    const h=JSON.parse(JSON.stringify(CFG.h));
+    const subs=subsFor(h,CFG.subs,m);
     if(inVacation&&h.work)h.work.on=false;
     const v={L1:levelsFor(h,CFG.order,1,subs,m),L2:levelsFor(h,CFG.order,2,subs,m),L3:levelsFor(h,CFG.order,3,subs,m),subs,inVacation,mode:m};
     return v;
   }
-  // TODAY is live state: never reuse a cached config because the user can
-  // switch Work/Vacation without changing the date. Historical dates remain cached.
-  const hit=liveToday?null:_dayCfgCache[key]; if(hit)return hit;
+
+  // Historical configs are cached by date, but the cache can never override
+  // the semantic Vacation interval. If an older cached config contains Work,
+  // normalize that config before returning it. This is important after a
+  // configuration migration or after opening History before a mode repair.
+  let v=liveToday?null:_dayCfgCache[key];
+  if(v){
+    if(inVacation){
+      v={...v,
+        L1:v.L1.filter(i=>i.id!=='work'),
+        L2:v.L2.filter(i=>i.id!=='work'),
+        L3:v.L3.filter(i=>i.id!=='work'),
+        inVacation:true,mode:'vacation'};
+      _dayCfgCache[key]=v;
+    }
+    return v;
+  }
+
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
 
-  let m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
-  if(liveToday)m=travelMode();
+  const m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
   let H=e.h,O=e.order,S0=e.subs;
-  if(inVacation){
+
+  // For a live day, clone the active era so changing the live mode cannot
+  // mutate the historical timeline. Historical days always keep their era.
+  if(liveToday){
+    H=JSON.parse(JSON.stringify(e.h));
+    O=e.order.slice();
+    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
+    if(H.work)H.work.on=(m==='work');
+  }else if(inVacation){
     H=JSON.parse(JSON.stringify(e.h));
     O=e.order.slice();
     S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
     if(H.work)H.work.on=false;
-  }else if(liveToday){
-    H=JSON.parse(JSON.stringify(e.h));
-    O=e.order.slice();
-    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
-    if(H.work)H.work.on=true;
   }
-  // 2026-09-16 is inside the same Vacation interval as 09-15 and 09-17.
-  // For scoring, use the exact effective scoring setup of the adjacent Vacation
-  // day before it. This makes the three dates share the same point system rather
-  // than allowing a stray one-day config snapshot to alter the 16th.
-  if(key==='2026-09-16' && keyMinus(key,1)>='2026-09-08'){
-    const prev=cfgForDate(keyMinus(key,1));
-    const v={L1:prev.L1.map(x=>({...x})),L2:prev.L2.map(x=>({...x})),L3:prev.L3.map(x=>({...x})),subs:prev.subs.map(x=>({...x})),inVacation:true,mode:'vacation'};
-    _dayCfgCache[key]=v; return v;
-  }
+
   const S=subsFor(H,S0,m);
-  const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S,inVacation,mode:m};
-  // The Vacation interval is a semantic rule, not a cosmetic filter. Once a
-  // date is in Vacation, Work is excluded from every level for that date,
-  // regardless of any stale/stray timeline era. This same rule is used by the
-  // renderer through `C.inVacation`, so no view can resurrect Work.
+  v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S,inVacation,mode:m};
+
+  // Vacation is a date interval, not a special case for individual dates.
+  // Therefore every date inside the interval naturally resolves without Work.
   if(inVacation){
     v.L1=v.L1.filter(i=>i.id!=='work');
     v.L2=v.L2.filter(i=>i.id!=='work');
     v.L3=v.L3.filter(i=>i.id!=='work');
   }
-  _dayCfgCache[key]=v; return v;
+
+  if(!liveToday)_dayCfgCache[key]=v;
+  return v;
 }
 function applyCfg(){
   travelEnsure();

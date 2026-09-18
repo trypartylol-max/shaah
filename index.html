@@ -1551,13 +1551,16 @@ function cfgEdit(fn){
 }
 function vacationIntervalForDate(key){
   const VAC_START='2026-09-08';
-  if(key<VAC_START)return false;
   const today=todayKey();
-  // Once Work is active today, all dates from Vacation start through yesterday
-  // are definitively Vacation. Never let a stale historical Work era split this
-  // interval. While Vacation is still active, an explicit future resume date is
-  // the only boundary.
-  if(key<today && travelMode()==='work')return true;
+  if(key<VAC_START || key>=today)return false;
+
+  // Historical dates are immutable with respect to today's switch. Once Work is
+  // active today, every date from the official Vacation start through yesterday
+  // is Vacation. A stale timeline era or localStorage value must never split it.
+  if(travelMode()==='work')return true;
+
+  // If Vacation is still active today, an explicit future resume date is the
+  // only boundary for historical scoring.
   const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
   return !resume||key<resume;
 }

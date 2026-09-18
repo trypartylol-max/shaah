@@ -4947,3 +4947,92 @@ boot();
   }
 }
 </style>
+
+<style>
+/* FINAL NEXT MOVE LAYOUT FIX — keep the existing Today positions, but give the
+   new card enough internal room and move the circular Log button slightly right. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    display:grid !important;
+    grid-template-columns:minmax(184px, 1fr) minmax(680px, 760px) minmax(110px, 1fr) !important;
+    align-items:center !important;
+    column-gap:24px !important;
+    width:100% !important;
+    max-width:none !important;
+    height:214px !important;
+    min-height:214px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Keep the ring where it was visually; remove the old artificial 50% shift. */
+  #scroll .today .t-score-stack{display:contents !important;}
+  #scroll .today .t-score-hero .t-ring{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    width:184px !important;
+    height:184px !important;
+    flex:none !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+
+  /* The Next Move card gets the full center column instead of being squeezed
+     by the old horizontal summary layout. */
+  #scroll .today .t-score-hero .t-grade.t-nextmove{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    justify-self:stretch !important;
+    align-self:center !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    justify-content:center !important;
+    gap:0 !important;
+    padding:15px 20px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Restore the intended vertical structure inside NEXT MOVE. */
+  #scroll .today .t-score-hero .t-nextmove .nm-top,
+  #scroll .today .t-score-hero .t-nextmove .nm-target,
+  #scroll .today .t-score-hero .t-nextmove .nm-options,
+  #scroll .today .t-score-hero .t-nextmove .nm-footer{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-hero .t-nextmove .nm-options{display:flex !important;flex-direction:column !important;gap:6px !important;}
+  #scroll .today .t-score-hero .t-nextmove .nm-target{white-space:normal !important;}
+  #scroll .today .t-score-hero .t-nextmove .nm-option{min-width:0 !important;}
+  #scroll .today .t-score-hero .t-nextmove .nm-label{min-width:0 !important;}
+
+  /* Log button: same circular treatment, but with a little more breathing room
+     on the right so it no longer crowds the scorebox. */
+  #scroll .today .t-score-hero .today-log-start{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:start !important;
+    align-self:center !important;
+    margin-left:12px !important;
+    transform:none !important;
+    width:72px !important;
+    height:72px !important;
+  }
+}
+
+@media (min-width:880px) and (max-width:1250px){
+  #scroll .today .t-score-hero{
+    grid-template-columns:minmax(150px, 1fr) minmax(500px, 1fr) minmax(90px, 1fr) !important;
+    column-gap:16px !important;
+  }
+  #scroll .today .t-score-hero .t-ring{width:160px !important;height:160px !important;}
+  #scroll .today .t-score-hero .t-nextmove{padding:13px 16px !important;}
+  #scroll .today .t-score-hero .today-log-start{margin-left:6px !important;width:64px !important;height:64px !important;}
+}
+</style>

@@ -3121,7 +3121,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
           ${(item.routine||half)?chk3(st,item.col):chk(!!st,item.col)}
-          <span style="font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
+          <span style="font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           ${item.routine&&st!==true&&isToday&&!nested?`
@@ -3140,7 +3140,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
           ${half?chk3(st,item.col):chk(!!st,item.col)}
-          <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
+          <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
         </div>
         <span style="font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}">${pointsLabel(item,st)}</span>
       </div>`;}).join("")}

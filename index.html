@@ -3122,7 +3122,7 @@ function renderToday(key,nested=false){
           <div class="ls-bar"><i style="width:100%;background:${gr.c};box-shadow:0 0 12px ${gr.g}"></i></div>
           <div class="ls-footer"><span style="color:${gr.c}">MAX LEVEL REACHED</span></div>`;
         const targetScore=Math.max(1,nm.target);
-        const progress=Math.max(0,Math.min(100,(sc.score/targetScore)*100));
+        const progress=Math.max(0,Math.min(100,(score/targetScore)*100));
         return`<div class="ls-top">
           <span class="ls-kicker">◎&nbsp; NEXT LEVEL</span>
           <span class="ls-need" style="color:${nm.next.c}">+${nm.need}%</span>

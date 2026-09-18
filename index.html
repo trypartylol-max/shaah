@@ -785,6 +785,91 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .today .t-levelstatus .ls-footer{font-size:10.5px;margin-top:7px;}
 }
 </style>
+
+<style>
+/* LEVEL STATUS — OPTION 2 live-test polish. Keep the existing Today geometry. */
+.t-levelstatus{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+}
+.t-levelstatus .ls-top{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:14px !important;
+  margin-bottom:10px !important;
+}
+.t-levelstatus .ls-kicker{
+  font-family:'Bebas Neue' !important;
+  font-size:15px !important;
+  letter-spacing:.15em !important;
+  color:#aaa6c4 !important;
+}
+.t-levelstatus .ls-need{
+  font-family:'Bebas Neue' !important;
+  font-size:18px !important;
+  letter-spacing:.08em !important;
+}
+.t-levelstatus .ls-path{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:15px !important;
+  font-family:'Bebas Neue' !important;
+  font-size:20px !important;
+  letter-spacing:.12em !important;
+  margin:0 0 12px !important;
+}
+.t-levelstatus .ls-path span{
+  color:#77758e !important;
+  font-size:18px !important;
+}
+.t-levelstatus .ls-bar{
+  width:100% !important;
+  height:8px !important;
+  border-radius:999px !important;
+  background:#11172b !important;
+  border:1px solid #1b2238 !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+.t-levelstatus .ls-bar i{
+  display:block !important;
+  height:100% !important;
+  border-radius:999px !important;
+  transition:width .25s ease !important;
+}
+.t-levelstatus .ls-footer{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  font-size:12px !important;
+  color:#77758e !important;
+  margin-top:9px !important;
+  letter-spacing:.035em !important;
+}
+@media (min-width:880px){
+  #scroll .today .t-score-hero .t-grade.t-levelstatus{
+    justify-self:center !important;
+    width:min(560px,100%) !important;
+    max-width:560px !important;
+    min-height:126px !important;
+    padding:15px 20px !important;
+  }
+}
+@media (max-width:879px){
+  .today .t-levelstatus{padding:11px 12px !important;}
+  .today .t-levelstatus .ls-kicker{font-size:13px !important;}
+  .today .t-levelstatus .ls-need{font-size:16px !important;}
+  .today .t-levelstatus .ls-path{font-size:16px !important;gap:10px !important;margin-bottom:8px !important;}
+  .today .t-levelstatus .ls-path span{font-size:14px !important;}
+  .today .t-levelstatus .ls-bar{height:7px !important;}
+  .today .t-levelstatus .ls-footer{font-size:10.5px !important;margin-top:7px !important;}
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -3129,7 +3214,10 @@ function renderToday(key,nested=false){
         </div>
         <div class="ls-path"><b style="color:${gr.c}">${esc(gr.l)}</b><span>→</span><b style="color:${nm.next.c}">${esc(nm.next.l)}</b></div>
         <div class="ls-bar"><i style="width:${progress}%;background:linear-gradient(90deg,${gr.c},${nm.next.c});box-shadow:0 0 12px ${nm.next.g||gr.g}"></i></div>
-        <div class="ls-footer"><span style="color:${nm.next.c}">${nm.need}% remaining</span></div>`;
+        <div class="ls-footer">
+          <span style="color:${nm.next.c}">${nm.need}% REMAINING</span>
+          <span>${score} / ${targetScore} pts</span>
+        </div>`;
       })()}
     </div>
     </div>

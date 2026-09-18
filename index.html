@@ -381,6 +381,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   font-size:15px;font-weight:700;letter-spacing:.12em;padding:13px;border-radius:12px;cursor:pointer;
   transition:transform .12s;}
 .tour-next:active{transform:scale(.97);}
+#mode-status{font-size:9px;letter-spacing:.12em;color:#7e7e97;white-space:nowrap;flex-shrink:0;margin-right:1px;}
 #sync-status{display:flex;align-items:center;justify-content:center;height:34px;width:34px;flex-shrink:0;cursor:default;}
 #sync-status span{width:9px;height:9px;border-radius:50%;display:block;
   box-shadow:0 0 8px currentColor;transition:background .3s;}
@@ -767,15 +768,36 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 
-/* Travel mode persistence hardening */
-function persistTravelMode(){
+/* Travel mode persistence hardening
+   The live switch is separate from the historical config timeline.  The timeline
+   decides how PAST dates are scored; this value decides what the switch shows TODAY.
+   A timestamp lets the browser's most recent explicit choice win over an older
+   settings snapshot arriving from Supabase during refresh. */
+function persistTravelMode(mode){
   try{
     travelEnsure();
-    const mode = travelMode()==='vacation' ? 'vacation' : 'work';
-    if(CFG.travel) CFG.travel.mode=mode;
-    localStorage.setItem('travelMode',mode);
+    mode=mode==='vacation'?'vacation':'work';
+    const rec={mode,updatedAt:Date.now()};
+    localStorage.setItem('travelMode',JSON.stringify(rec));
+    CFG.travel.mode=mode;
+    CFG.travel.modeUpdatedAt=rec.updatedAt;
     return mode;
-  }catch(e){ return 'work'; }
+  }catch(e){ return mode==='vacation'?'vacation':'work'; }
+}
+function restoreLiveTravelMode(){
+  try{
+    travelEnsure();
+    const raw=localStorage.getItem('travelMode');
+    if(!raw)return false;
+    let rec=null;
+    try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
+    const mode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
+    if(!mode)return false;
+    CFG.travel.mode=mode;
+    CFG.travel.modeUpdatedAt=Number(rec.updatedAt)||0;
+    if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
+    return true;
+  }catch(e){return false;}
 }
 
 /* =========================
@@ -1132,6 +1154,8 @@ function safePts(v){const n=Math.round(Number(v));return Number.isFinite(n)?Math
 // A routine habit (wod, production) can be logged LIGHT (0.5) as well as FULL (true).
 // Every other habit stays boolean — this reads either shape the same way.
 function doneFrac(v){return v===true?1:(typeof v==="number"&&v>0&&v<1?v:0);}
+// These habits use the same three-state scoring cycle as routines: none → half → full → none.
+function halfCreditItem(id){return id==='work'||id==='sleep';}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Friends",icon:"👫"}];
 // The combo divides its points by how many sub-items exist, so the list has to
@@ -1183,7 +1207,6 @@ function buildLevel(n){ const m=travelMode(); return levelsFor(CFG.h,CFG.order,n
 // Every day is scored with the config that was in effect THAT day. Turning a
 // habit off (or adding one) changes today forward and can never rewrite the past.
 var CFG_EPOCH="0001-01-01";
-var VACATION_START_KEY="2026-09-08";   // ver setVacationStartOnce() — misma fecha, una sola constante
 var _dayCfgCache={};
 function cfgSnap(){return{h:JSON.parse(JSON.stringify(CFG.h)),order:CFG.order.slice(),subs:JSON.parse(JSON.stringify(subsList())),mode:travelMode()};}
 // The baseline that covers all history predating the timeline. A habit that was
@@ -1309,25 +1332,67 @@ function addFamilyOnce(){
 // pesos no se toca hasta que se defina la distribución.
 function travelEnsure(){
   if(!CFG.travel||typeof CFG.travel!=='object')
-    CFG.travel={mode:'work',auto:false,resumeOn:''};   // por defecto no afecta a nadie mas
+    CFG.travel={mode:'work',auto:false,resumeOn:''};
 }
-function travelMode(){ travelEnsure(); return CFG.travel.mode==='vacation'?'vacation':'work'; }
-// Aplica el modo desde HOY (editFrom sella el pasado tal cual estaba).
+// The dated config timeline is the source of truth for the CURRENT mode.
+// CFG.travel is only the live/persistence fallback; it must never silently
+// reset the switch to Work after a reload.
+function travelMode(){
+  travelEnsure();
+  // For TODAY, an explicit local switch is authoritative. Historical dates are
+  // resolved by cfgForDate() and never use this live preference.
+  try{
+    const raw=localStorage.getItem('travelMode');
+    if(raw){
+      let rec=null;
+      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw};}
+      if(rec&&rec.mode==='vacation')return 'vacation';
+      if(rec&&rec.mode==='work')return 'work';
+    }
+  }catch(e){}
+  const tk=todayKey(),lg=cfgLog();
+  if(lg.length){
+    let e=lg[0];
+    for(const x of lg){ if(x.from<=tk)e=x; else break; }
+    if(e&&e.mode)return modeKey(e.mode);
+    if(e&&e.h&&e.h.work&&e.h.work.on===false)return 'vacation';
+  }
+  return modeKey(CFG.travel.mode);
+}
+// Switch ONLY the current era. Never rewrite an already-configured future era:
+// that future era is the boundary where the next Work/Vacation period starts.
 function applyTravelMode(mode){
   travelEnsure();
   mode=mode==='vacation'?'vacation':'work';
+  const tk=todayKey(),lg=cfgLog();
+  if(!lg.length){
+    const b=cfgBaseline();
+    lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});
+  }
+  let i=0;
+  for(let k=0;k<lg.length;k++){ if(lg[k].from<=tk)i=k; else break; }
+  if(lg[i].from<tk){
+    const e=lg[i];
+    lg.splice(i+1,0,{
+      from:tk,
+      h:JSON.parse(JSON.stringify(e.h)),
+      order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
+      mode
+    });
+    i++;
+  }
+  const e=lg[i];
+  e.mode=mode;
+  if(e.h&&e.h.work)e.h.work.on=(mode==='work');
+  // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
-  editFrom(todayKey(),(h)=>{ if(h.work)h.work.on=(mode==='work'); });
-  // The mode itself is part of the dated config. Keep every era from today
-  // forward aligned with the switch; otherwise cfgForDate() can resurrect the
-  // previous mode after a reload/realtime update.
-  const lg=cfgLog(), tk=todayKey();
-  for(const e of lg) if(e.from>=tk) e.mode=mode;
-  CFG.travelV=2;
+  if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
+  CFG.travelV=6;
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
-function setTravelMode(mode){ haptic(10); applyTravelMode(mode); render(); }
+function setTravelMode(mode){ haptic(10); persistTravelMode(mode); applyTravelMode(mode); persistTravelMode(mode); render(); }
 function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
 function setTravelResume(v){ travelEnsure(); CFG.travel.resumeOn=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:''; saveCfg(); render(); }
 // Se llama una vez por sesión (loadAll): si está en modo automático y ya
@@ -1338,40 +1403,80 @@ function checkTravelAuto(){
   const t=CFG.travel;
   if(t.auto&&t.mode==='vacation'&&t.resumeOn&&todayKey()>=t.resumeOn) applyTravelMode('work');
 }
-// One-time migration: Vacation Mode officially starts on 2026-09-08.
-// Days before that date keep Work Mode; the date itself and all later eras use Vacation.
+// One-time repair: Vacation Mode officially starts on 2026-09-08.
+// Historical scores must use the mode that was active on that date, even if the
+// current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
-  const START=VACATION_START_KEY;
-  // v2 repairs the existing 2026-09-08 vacation era even if an older build
-  // already marked travelV=1. After this migration, manual Work/Vacation changes
-  // are preserved normally.
-  if(CFG.travelV>=2)return false;
+  const START="2026-09-08";
+  const VERSION=7;
   const lg=cfgLog();
-  if(!lg.length){ const b=cfgBaseline(); lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true}); }
+  if(!lg.length)return false;
 
-  // Find the configuration in effect immediately before the start date.
-  let i=0;
-  for(let k=0;k<lg.length;k++){ if(lg[k].from<=START)i=k; else break; }
+  // Vacation owns the whole interval starting 2026-09-08 and ending at the
+  // configured return-to-Work date. Do not infer the boundary from an
+  // accidental/intermediate era in the timeline (for example 2026-09-16).
+  travelEnsure();
+  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel.resumeOn||'')
+    ? CFG.travel.resumeOn : '';
+
+  let i=-1;
+  for(let k=0;k<lg.length;k++){
+    if(lg[k].from<=START)i=k; else break;
+  }
+  if(i<0)i=0;
+
+  let changed=false;
   if(lg[i].from<START){
     const e=lg[i];
-    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
+    lg.splice(i+1,0,{
+      from:START,
+      h:JSON.parse(JSON.stringify(e.h)),
+      order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
+      mode:'vacation'
+    });
     i++;
-  }else{
-    lg[i].mode='vacation';
+    changed=true;
   }
 
-  // Every era beginning on/after the vacation start is Vacation Mode.
-  for(let k=i;k<lg.length;k++){
-    lg[k].mode='vacation';
-    if(lg[k].h&&lg[k].h.work)lg[k].h.work.on=false;
+  // Prefer the explicitly configured Work return date. Only if none exists do
+  // we fall back to the first later Work era in the dated config.
+  let boundary=resume;
+  if(!boundary){
+    for(let k=i+1;k<lg.length;k++){
+      if(modeKey(lg[k].mode)==='work'){
+        boundary=lg[k].from;
+        break;
+      }
+    }
   }
-  CFG.travel=CFG.travel||{mode:'work',auto:false,resumeOn:''};
-  CFG.travel.mode='vacation';
-  CFG.travelV=2;
-  if(CFG.h&&CFG.h.work)CFG.h.work.on=false;
+
+  // Repair every era inside Vacation's interval. This intentionally converts
+  // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving
+  // the actual future Work boundary and everything after it untouched.
+  for(let k=i;k<lg.length;k++){
+    const from=lg[k].from;
+    if(from<START)continue;
+    if(boundary && from>=boundary)break;
+    if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
+    if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
+      lg[k].h.work.on=false;
+      changed=true;
+    }
+  }
+
+  // Keep the live mode aligned with the interval containing today. If today is
+  // before the configured return date, Vacation is the active mode regardless
+  // of any stale one-day Work era left in the timeline.
+  const today=todayKey();
+  if(today>=START && (!boundary || today<boundary)){
+    if(CFG.travel.mode!=='vacation'){CFG.travel.mode='vacation';changed=true;}
+    if(CFG.h&&CFG.h.work&&CFG.h.work.on!==false){CFG.h.work.on=false;changed=true;}
+  }
+
+  if(CFG.travelV!==VERSION){CFG.travelV=VERSION;changed=true;}
   _dayCfgCache={};
-  return true;
+  return changed;
 }
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
@@ -1451,16 +1556,49 @@ function cfgEdit(fn){
 function cfgForDate(key){
   const lg=cfgLog();
   if(!lg.length)return{L1:LVL1,L2:LVL2,L3:LVL3,subs:subsFor(CFG.h,CFG.subs)};
-  const hit=_dayCfgCache[key]; if(hit)return hit;
+  // TODAY is live state: never reuse a cached config because the user can
+  // switch Work/Vacation without changing the date. Historical dates remain cached.
+  const hit=key===todayKey()?null:_dayCfgCache[key]; if(hit)return hit;
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
-  let m=modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
-  // Red de seguridad: si la era encontrada empieza ANTES del inicio de vacaciones
-  // (es decir, el corte del 8/9 no se aplicó a esta era por lo que sea) pero la
-  // fecha consultada ya es esa fecha o posterior, nunca debe leerse como Work.
-  if(m==='work'&&e.from<VACATION_START_KEY&&key>=VACATION_START_KEY)m='vacation';
-  const S=subsFor(e.h,e.subs,m);
-  const v={L1:levelsFor(e.h,e.order,1,S,m),L2:levelsFor(e.h,e.order,2,S,m),L3:levelsFor(e.h,e.order,3,S,m),subs:S};
+
+  // Vacation is an interval, not a collection of individual config eras.
+  // From 2026-09-08 until the explicitly configured Work return date, the day
+  // MUST use Vacation scoring and Work Routine must be absent. This prevents a
+  // stray dated era (such as 2026-09-16) from changing the mode for one day.
+  const VAC_START='2026-09-08';
+  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel?.resumeOn||'')?CFG.travel.resumeOn:'';
+  const historicalVacation=key>=VAC_START&&(!resume||key<resume);
+  const liveToday=key===todayKey();
+  // TODAY follows the user's explicit live switch. Historical dates keep using
+  // the dated timeline/official Vacation interval. This prevents a stale
+  // settings snapshot from bringing Work back after a browser refresh.
+  const inVacation=liveToday ? travelMode()==='vacation' : historicalVacation;
+  let m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
+  if(liveToday)m=travelMode();
+  let H=e.h,O=e.order,S0=e.subs;
+  if(inVacation){
+    H=JSON.parse(JSON.stringify(e.h));
+    O=e.order.slice();
+    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
+    if(H.work)H.work.on=false;
+  }else if(liveToday){
+    H=JSON.parse(JSON.stringify(e.h));
+    O=e.order.slice();
+    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
+    if(H.work)H.work.on=true;
+  }
+  // 2026-09-16 is inside the same Vacation interval as 09-15 and 09-17.
+  // For scoring, use the exact effective scoring setup of the adjacent Vacation
+  // day before it. This makes the three dates share the same point system rather
+  // than allowing a stray one-day config snapshot to alter the 16th.
+  if(key==='2026-09-16' && keyMinus(key,1)>='2026-09-08'){
+    const prev=cfgForDate(keyMinus(key,1));
+    const v={L1:prev.L1.map(x=>({...x})),L2:prev.L2.map(x=>({...x})),L3:prev.L3.map(x=>({...x})),subs:prev.subs.map(x=>({...x}))};
+    _dayCfgCache[key]=v; return v;
+  }
+  const S=subsFor(H,S0,m);
+  const v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S};
   _dayCfgCache[key]=v; return v;
 }
 function applyCfg(){
@@ -1874,7 +2012,12 @@ async function loadAll(){
     ensureBaseline();
     if(setVacationStartOnce())saveCfg();
     widenBaseline();
-    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();checkTravelAuto();
+    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();
+    // Restore the user's explicit live switch AFTER the settings row has been
+    // loaded, because the server row may contain an older mode snapshot.
+    restoreLiveTravelMode();
+    applyCfg();
+    checkTravelAuto();
     recoverPeopleFromDays();
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');
@@ -2747,7 +2890,8 @@ function topbarHTML(){
       <span class="tb-dt">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</span>
       <span class="tb-gr">${greet}</span>
     </div>
-    <div id="sync-status" title="${_live?"Live — synced":"Connecting…"}"><span style="background:${dot}"></span></div>
+    <div id="mode-status" title="Current mode">${travelMode()==='vacation'?'VACATION':'WORK'}</div>
+    <div id="sync-status" title="${travelMode()==="vacation"?"Vacation mode":"Work mode"}"><span style="background:${dot}"></span></div>
   </div>
   ${currentTab==="today"?scoreStripHTML(todayKey()):""}`;
 }
@@ -2852,7 +2996,9 @@ function renderToday(key,nested=false){
   // LVL 1 se lista entero, rutinas incluidas: esconderlas dejaba el nivel a medias
   // y `work` (que no es rutina) descolgado. Para no verlas dos veces se plega el
   // nivel — la preferencia vive en CFG.lvlOpen y viaja entre dispositivos.
-  const L1vis=C.L1;
+  // Work is a live-mode habit. Keep a final render-level guard so a stale
+  // cached/config snapshot can never resurrect it on TODAY after a refresh.
+  const L1vis=(isToday&&travelMode()==='vacation')?C.L1.filter(i=>i.id!=='work'):C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:104;
@@ -2880,9 +3026,9 @@ function renderToday(key,nested=false){
         <div style="display:flex;justify-content:space-between;font-size:14px;color:#9a9ab2;margin-bottom:9px"><span style="color:#d0d0da">${done} HABITS${streak>0?` <span style="color:#FFD700">· 🔥 ${streak}</span>`:""}</span><span style="color:#d0d0da">/${dMax}%</span></div>
         ${bar((Math.min(score,dMax)/dMax)*100,gr.c,gr.g,5)}
         <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:#8888a4;margin-top:8px">
-          <span style="color:#c0c0cd;white-space:nowrap">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${LVL1_MAX}</span></span>
-          <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#8a8aa0"}">${l2}/${LVL2_MAX}</span></span>
-          <span style="color:#c0c0cd">BONUS <span style="color:${l3>0?"#fbbf24":"#8a8aa0"}">${l3}/${LVL3_MAX}</span></span>
+          <span style="color:#c0c0cd;white-space:nowrap">CORE <span style="color:${l1>0?"#e2e2e2":"#8a8aa0"}">${l1}/${dM1}</span></span>
+          <span style="color:#c0c0cd">HABITS <span style="color:${l2>0?"#a78bfa":"#8a8aa0"}">${l2}/${dM2}</span></span>
+          <span style="color:#c0c0cd">BONUS <span style="color:${l3>0?"#fbbf24":"#8a8aa0"}">${l3}/${dM3}</span></span>
         </div>
         ${(()=>{const nm=nextMove(key);if(!nm)return"";
           return`<div style="display:flex;align-items:center;gap:7px;font-size:14px;margin-top:9px;padding-top:9px;border-top:1px solid ${gr.c}1a;min-width:0">
@@ -2894,9 +3040,9 @@ function renderToday(key,nested=false){
     </div>
 
     
-${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
+${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
       <div class="sec t-rout-toggle" onclick="toggleTodayRoutines(this)" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">▾</span>TODAY'S ROUTINES</div>
-      <div class="t-rout-body">${LVL1.filter(i=>i.routine).map(item=>{
+      <div class="t-rout-body">${L1vis.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${esc(rt.icon)}</div>
@@ -2933,11 +3079,11 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${L1vis.map(item=>{
-        const st=ch[item.id],light=item.routine&&st===0.5,awarded=item.routine?Math.round(item.pts*doneFrac(st)):item.pts;
+        const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5,awarded=(item.routine||half)?Math.round(item.pts*doneFrac(st)):item.pts;
         return`
       <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
-          ${item.routine?chk3(st,item.col):chk(!!st,item.col)}
+          ${(item.routine||half)?chk3(st,item.col):chk(!!st,item.col)}
           <span style="font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
@@ -2951,14 +3097,16 @@ ${(nested||!isToday||!LVL1.some(i=>i.routine))?"":`<div class="t-rout" style="wi
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
-      ${C.L2.map(item=>`
-      <div class="row${ch[item.id]?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      ${C.L2.map(item=>{
+        const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5,awarded=half?Math.round(item.pts*doneFrac(st)):item.pts;
+        return`
+      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
         <div style="display:flex;align-items:center;gap:13px">
-          ${chk(!!ch[item.id],item.col)}
-          <span style="font-size:16.5px;font-weight:${ch[item.id]?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
+          ${half?chk3(st,item.col):chk(!!st,item.col)}
+          <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}${light?` <span style="font-size:12.5px;color:#f59e0b">· LIGHT</span>`:""}</span>
         </div>
-        <span style="font-size:15px;color:${ch[item.id]?"#a78bfa99":"#8a8aa0"}">${item.pts}%</span>
-      </div>`).join("")}
+        <span style="font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}">${awarded}%</span>
+      </div>`;}).join("")}
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
@@ -3484,7 +3632,7 @@ function monthGrid(ym){
   for(let d=1;d<=dim;d++){const key=`${ym}-${String(d).padStart(2,'0')}`;out.push({key,day:d,data:hh[key]||null});}
   return out;
 }
-function isRoutineItem(id,key){const C=cfgForDate(key);return[...C.L1,...C.L2,...C.L3].some(i=>i.id===id&&i.routine);}
+function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)||[...C.L1,...C.L2,...C.L3].some(i=>i.id===id&&i.routine);}
 // Tap-cycle for routine habits: none → light (½ pts) → full → none.
 // Everything else keeps the plain boolean toggle it always had.
 function toggleHabit(id,key){

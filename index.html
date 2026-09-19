@@ -1684,25 +1684,15 @@ function cfgEdit(fn){
   _dayCfgCache={};
   saveCfg(); render();
 }
-function vacationIntervalForDate(key){
-  const VAC_START='2026-09-08';
-  const today=todayKey();
-
-  // IMPORTANT: this function is only for PAST dates. The vacation that started
-  // on 2026-09-08 is a fixed historical interval: every completed day from
-  // 2026-09-08 through yesterday is Vacation. Never consult today's switch,
-  // localStorage, resumeOn, or a timeline era here. Those are live-state data
-  // and were the source of the 9/16-9/17 Work leak and the 118% denominator.
-  // TODAY is resolved separately by cfgForDate() from the live mode.
-  return key>=VAC_START && key<today;
-}
 function cfgForDate(key){
   const lg=cfgLog();
   const liveToday=key===todayKey();
-  // A date is resolved from one source of truth: the configuration era that
-  // was effective on that date, plus the Vacation interval. TODAY may use the
-  // live switch; historical dates never do.
-  const inVacation=liveToday ? travelMode()==='vacation' : vacationIntervalForDate(key);
+  // HISTORICAL INVARIANT: once a day is in the past, its scoring mode comes
+  // exclusively from CFG.log, the dated configuration timeline. Never consult
+  // the current switch, localStorage, resumeOn, or any hard-coded vacation
+  // interval for a historical date. This prevents a later live-mode change
+  // from rewriting the meaning of 9/16, 9/17, or any other completed day.
+  const inVacation=liveToday ? travelMode()==='vacation' : false;
 
   if(!lg.length){
     const m=inVacation?'vacation':(liveToday?travelMode():'work');
@@ -1713,53 +1703,33 @@ function cfgForDate(key){
     return v;
   }
 
-  // Historical configs are cached by date, but the cache can never override
-  // the semantic Vacation interval. If an older cached config contains Work,
-  // normalize that config before returning it. This is important after a
-  // configuration migration or after opening History before a mode repair.
+  // Historical configs are cached by date. The cache is safe because its
+  // source is the dated era selected below; it is never normalized against
+  // today's live mode.
   let v=liveToday?null:_dayCfgCache[key];
-  if(v){
-    if(inVacation){
-      v={...v,
-        L1:v.L1.filter(i=>i.id!=='work'),
-        L2:v.L2.filter(i=>i.id!=='work'),
-        L3:v.L3.filter(i=>i.id!=='work'),
-        inVacation:true,mode:'vacation'};
-      _dayCfgCache[key]=v;
-    }
-    return v;
-  }
+  if(v)return v;
 
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
 
-  const m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
+  // Past dates use the mode stamped on their historical era. Only TODAY may
+  // be overridden by the live switch.
+  const m=liveToday
+    ? travelMode()
+    : modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
   let H=e.h,O=e.order,S0=e.subs;
 
-  // For a live day, clone the active era so changing the live mode cannot
-  // mutate the historical timeline. Historical days always keep their era.
+  // Clone the live era so today's switch cannot mutate the historical timeline.
+  // Historical dates keep the era exactly as recorded in CFG.log.
   if(liveToday){
     H=JSON.parse(JSON.stringify(e.h));
     O=e.order.slice();
     S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
     if(H.work)H.work.on=(m==='work');
-  }else if(inVacation){
-    H=JSON.parse(JSON.stringify(e.h));
-    O=e.order.slice();
-    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
-    if(H.work)H.work.on=false;
   }
 
   const S=subsFor(H,S0,m);
   v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S,inVacation,mode:m};
-
-  // Vacation is a date interval, not a special case for individual dates.
-  // Therefore every date inside the interval naturally resolves without Work.
-  if(inVacation){
-    v.L1=v.L1.filter(i=>i.id!=='work');
-    v.L2=v.L2.filter(i=>i.id!=='work');
-    v.L3=v.L3.filter(i=>i.id!=='work');
-  }
 
   if(!liveToday)_dayCfgCache[key]=v;
   return v;

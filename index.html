@@ -1543,17 +1543,14 @@ function checkTravelAuto(){
 // current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
   const START="2026-09-08";
-  const VERSION=7;
+  const VERSION=8;
   const lg=cfgLog();
-  if(!lg.length)return false;
+  if(CFG.travelV>=VERSION||!lg.length)return false;
 
-  // Vacation owns the whole interval starting 2026-09-08 and ending at the
-  // configured return-to-Work date. Do not infer the boundary from an
-  // accidental/intermediate era in the timeline (for example 2026-09-16).
-  travelEnsure();
-  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel.resumeOn||'')
-    ? CFG.travel.resumeOn : '';
-
+  // Permanent historical repair: Vacation started on 2026-09-08.
+  // Every completed day from START through yesterday is explicitly stamped
+  // Vacation. Mutable current settings (resumeOn/localStorage/switch) are not
+  // allowed to redefine completed history.
   let i=-1;
   for(let k=0;k<lg.length;k++){
     if(lg[k].from<=START)i=k; else break;
@@ -1563,51 +1560,23 @@ function setVacationStartOnce(){
   let changed=false;
   if(lg[i].from<START){
     const e=lg[i];
-    lg.splice(i+1,0,{
-      from:START,
-      h:JSON.parse(JSON.stringify(e.h)),
-      order:e.order.slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
-      mode:'vacation'
-    });
-    i++;
-    changed=true;
+    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
+    i++; changed=true;
   }
 
-  // The current live mode is the authoritative boundary for the present
-  // vacation period. If today is already Work, Vacation owns every historical
-  // date from 2026-09-08 through yesterday. This prevents a stale one-day Work
-  // era (notably 2026-09-16/17) from becoming a false historical boundary.
-  // A future explicit resume date is still respected while Vacation is active.
-  const today=todayKey();
-  const live=travelMode();
-  const boundary=(live==='work' && today>=START) ? today : resume;
-
-  // Repair every era inside Vacation's interval. This intentionally converts
-  // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving
-  // the actual future Work boundary and everything after it untouched.
+  const yesterday=keyMinus(todayKey(),1);
   for(let k=i;k<lg.length;k++){
-    const from=lg[k].from;
-    if(from<START)continue;
-    if(boundary && from>=boundary)break;
-    if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
-    if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
-      lg[k].h.work.on=false;
-      changed=true;
-    }
+    const e=lg[k];
+    if(e.from<START)continue;
+    if(e.from>yesterday)break;
+    if(e.mode!=='vacation'){e.mode='vacation';changed=true;}
+    if(e.h&&e.h.work&&e.h.work.on!==false){e.h.work.on=false;changed=true;}
   }
 
-  // Keep the live mode aligned with the interval containing today. When the
-  // live switch is already Work, today is the return boundary; historical days
-  // before today remain Vacation even if an old timeline era says Work.
-  if(today>=START && (!boundary || today<boundary)){
-    if(CFG.travel.mode!=='vacation'){CFG.travel.mode='vacation';changed=true;}
-    if(CFG.h&&CFG.h.work&&CFG.h.work.on!==false){CFG.h.work.on=false;changed=true;}
-  }
-
-  if(CFG.travelV!==VERSION){CFG.travelV=VERSION;changed=true;}
+  CFG.travelV=VERSION;
   _dayCfgCache={};
-  return changed;
+  return changed||true;
 }
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los

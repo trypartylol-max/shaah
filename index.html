@@ -3524,7 +3524,7 @@ function renderResume(){
   }
   if(style==="slim"){
     el.innerHTML=items.map(({rt,s,step,col,t},i)=>`
-      <div class="rz-slim" onclick="openRoutine('${ids[i]}')">
+      <div class="rz-slim" role="button" tabindex="0" aria-label="Open routine" onclick="openRoutine('${ids[i]}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
         <span class="rz-dot${s.running?" live":""}" style="background:${col}"></span>
         <span class="rz-lbl">${esc(step.icon)} ${esc(step.label)}</span>
         <span class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</span>
@@ -3534,7 +3534,7 @@ function renderResume(){
   }
   // chips (default)
   el.innerHTML=`<div class="rz-row">${items.map(({rt,s,step,col,t},i)=>`
-    <div class="rz-chip" onclick="openRoutine('${ids[i]}')">
+    <div class="rz-chip" role="button" tabindex="0" aria-label="Open routine" onclick="openRoutine('${ids[i]}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
       <span class="rz-dot${s.running?" live":""}" style="background:${col}"></span>
       <span class="rz-cmid">
         <span class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</span>
@@ -3621,7 +3621,7 @@ function comboBlock(key,alwaysOpen){
   const socialPts=ch.social?(dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0)||comboPts):0;
   const expanded=alwaysOpen?true:socialExpanded;   // let de nivel superior, no window
   return`      <div style="border-radius:13px;border:1px solid ${ch.social||expanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||expanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')">
+        <div role="button" tabindex="0" aria-label="Toggle social activity" style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
           <div style="display:flex;align-items:center;gap:13px">
             ${chk(!!ch.social,"#fbbf24",18)}
             <div>
@@ -3783,7 +3783,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
       ${L1vis.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
         return`
-      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
         <div style="display:flex;align-items:center;gap:13px;min-width:0;flex:1">
           ${(item.routine||half)?chk3(st,item.col):chk(!!st,item.col)}
           <span style="font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(item.icon)} ${esc(item.label)}</span>
@@ -3802,7 +3802,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
       ${C.L2.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5;
         return`
-      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
         <div style="display:flex;align-items:center;gap:13px">
           ${half?chk3(st,item.col):chk(!!st,item.col)}
           <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
@@ -3818,7 +3818,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
       ${C.L3.filter(x=>!x.combo).map(item=>{
         const st=ch[item.id];
         return `
-      <div class="row${st?" on":""}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')">
+      <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" style="margin-bottom:3px" onclick="toggleHabit('${item.id}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
         <div style="display:flex;align-items:center;gap:13px">
           ${chk(!!st,"#fbbf24")}
           <span style="font-size:16.5px;font-weight:${st?600:450}">${esc(item.icon)} ${esc(item.label)}</span>
@@ -3936,7 +3936,7 @@ function renderDayLogTab(){
           <div class="logdesk-table-head"><span>TIME</span><span>ACTIVITY</span><span>TYPE</span><span>DURATION</span><span></span></div>
           ${evs.length?evs.map(e=>{
             const dur=dayLogDuration(e),running=!e.end&&!dayLogIsSleepWake(e);
-            return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')">
+            return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" role="button" tabindex="0" aria-label="Edit activity" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
               <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':' · NOW')}</div>
               <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(e.meta?.sleepRole==='sleep'?'SLEEP':'WAKE'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':''))}</div></div>
               <div><span class="logdesk-type ${e.type}">${dayLogTypeLabel(e.type)}</span></div>

@@ -2145,6 +2145,39 @@ select:focus-visible,
   .history-compact .history-month-best-score{font-size:18px!important;margin-left:3px!important}
 }
 </style>
+
+<style>
+/* Step 5J2 — Stats six-card layout; preserves all E11 History styling */
+.stats-six-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.stats-six-grid{grid-template-columns:1fr;gap:8px}}
+.stats-metric-card{
+  min-height:92px!important;
+  padding:12px 18px!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:44px minmax(90px,auto) 1fr!important;
+  grid-template-rows:1fr!important;
+  column-gap:14px!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+.stats-metric-icon{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;border-radius:10px;background:#0b0b15;border:1px solid #ffffff08;
+}
+.stats-metric-main{min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:nowrap}
+.stats-metric-value{font-family:'Bebas Neue';font-size:30px;line-height:1;white-space:nowrap}
+.stats-metric-label{font-size:12px;color:#c0c0cd;letter-spacing:.12em;line-height:1.15;white-space:nowrap}
+.stats-metric-sub{min-width:0;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+@media(max-width:600px){
+  .stats-metric-card{min-height:88px!important;padding:11px 12px!important;grid-template-columns:38px 1fr!important;grid-template-rows:auto auto!important;column-gap:10px!important;row-gap:3px!important}
+  .stats-metric-icon{grid-row:1 / span 2;width:34px;height:34px;font-size:20px;border-radius:8px}
+  .stats-metric-main{gap:8px}
+  .stats-metric-value{font-size:26px}
+  .stats-metric-label{font-size:10px}
+  .stats-metric-sub{grid-column:2;text-align:left;font-size:11px}
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -4908,7 +4941,9 @@ function renderStats(){
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
   const total=allDays.length,best=allDays.reduce((m,[,d])=>Math.max(m,dPct(d)),0);
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+dPct(d),0)/total):0,streak=getStreak();
-  const bestStreak=getBestStreak(),trend=weekTrend();
+  const bestStreak=getBestStreak(),trend=weekTrend(),review=weekReview();
+  const bestHabit=review?.best||{icon:"—",label:"No data",done:0};
+  const worstHabit=review?.worst||{icon:"—",label:"No data",done:0};
   if(total===0&&score===0){
     return`<div class="fade-up" style="height:calc(100dvh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center">
       <div style="font-size:44px;opacity:.5">📊</div>
@@ -4919,8 +4954,15 @@ function renderStats(){
   }
   return`<div class="fade-up history-compact" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
+    <div class="stats-six-grid">
+      ${[
+        {icon:bestHabit.icon,label:"MOST CONSISTENT",val:`${bestHabit.done}/7`,col:"#4ade80",sub:bestHabit.label},
+        {icon:worstHabit.icon,label:"NEEDS WORK",val:`${worstHabit.done}/7`,col:"#ef4444",sub:worstHabit.label},
+        {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
+        {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
+        {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
+        {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
+      ].map(m=>`<div class="card stats-metric-card" style="border:1px solid ${m.col}20;background:${m.col}08"><div class="stats-metric-icon">${esc(m.icon)}</div><div class="stats-metric-main"><div class="stats-metric-value" style="color:${m.col}">${m.val}</div><div class="stats-metric-label">${esc(m.label)}</div></div><div class="stats-metric-sub" style="color:${m.col}">${esc(m.sub)}</div></div>`).join("")}
     </div>
     ${renderConsistency()}
     ${renderWeekday()}

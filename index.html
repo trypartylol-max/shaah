@@ -2759,7 +2759,16 @@ function setTravelResume(v){
 function checkTravelAuto(){
   travelEnsure();
   const t=CFG.travel;
-  if(t.auto&&t.mode==='vacation'&&t.resumeOn&&todayKey()>=t.resumeOn) applyTravelMode('work');
+  if(!t.auto||!t.resumeOn)return;
+  // AUTOMATIC defines the live mode for the period leading up to the return
+  // date as well as the return itself: before resumeOn => Vacation, on/after
+  // resumeOn => Work. This prevents an inconsistent state where Automatic says
+  // "switch to Work on a future date" while the live switch is already Work.
+  const wanted=todayKey()>=t.resumeOn?'work':'vacation';
+  if(t.mode!==wanted||travelMode()!==wanted){
+    applyTravelMode(wanted);
+    persistTravelMode(wanted);
+  }
 }
 // One-time repair: Vacation Mode officially starts on 2026-09-08.
 // Historical scores must use the mode that was active on that date, even if the

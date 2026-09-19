@@ -803,19 +803,24 @@ select:focus-visible,
 .history-compact .history-week-card .h-lvl{font-size:9.5px!important;margin-bottom:1px!important}
 .history-compact .history-week-card .h-lvl+div{height:2px!important}
 .history-compact .history-month-wrap{gap:5px!important}
-.history-compact .history-month-head{min-height:29px!important}
-.history-compact .history-month-head>button{width:29px!important;height:29px!important;border-radius:7px!important;font-size:15px!important}
-.history-compact .history-month-meta{font-size:10px!important}
-.history-compact .history-month-best-inline{padding:2px 5px!important;border-radius:6px!important;gap:4px!important}
+.history-compact .history-month-head{min-height:40px!important}
+.history-compact .history-month-head>button{width:36px!important;height:36px!important;border-radius:9px!important;font-size:19px!important}
+.history-compact .history-month-head>div{gap:7px!important}
+.history-compact .history-month-head>div>div:first-child{font-size:24px!important;letter-spacing:.08em!important}
+.history-compact .history-month-meta{font-size:11.5px!important}
+.history-compact .history-month-best-inline{padding:4px 8px!important;border-radius:8px!important;gap:5px!important}
+.history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
+.history-compact .history-month-best-inline span:nth-child(3){font-size:11.5px!important}
+.history-compact .history-month-best-inline span:nth-child(4){font-size:17px!important}
 .history-compact .history-month-card{padding:5px!important;border-radius:8px!important}
 .history-compact .history-month-card .month-weekdays{gap:1px!important;margin-bottom:2px!important}
 .history-compact .history-month-card .month-weekdays>div{font-size:9.5px!important}
 .history-compact .history-month-card .month-days{gap:1px!important}
-.history-compact .history-month-card .month-day{border-radius:5px!important}
+.history-compact .history-month-card .month-day{border-radius:6px!important;aspect-ratio:auto!important;height:43px!important;min-height:43px!important}
 .history-compact .history-month-card .month-grade{font-size:12px!important}
 .history-compact .history-month-card .month-score{font-size:8px!important}
 .history-compact .history-month-card .month-day>span:first-child{font-size:8.5px!important;top:1px!important;left:3px!important}
-@media(max-width:600px){.history-compact{padding-left:6px!important;padding-right:6px!important}.history-compact .history-week-card{padding:4px 7px!important}.history-compact .history-month-card{padding:4px!important}.history-compact .history-month-head{gap:5px!important}.history-compact .history-month-head>div{gap:5px!important}.history-compact .history-month-best-inline{max-width:100%;white-space:nowrap}}
+@media(max-width:600px){.history-compact{padding-left:6px!important;padding-right:6px!important}.history-compact .history-week-card{padding:4px 7px!important}.history-compact .history-month-card{padding:4px!important}.history-compact .history-month-head{gap:5px!important}.history-compact .history-month-head>div{gap:5px!important}.history-compact .history-month-head>div>div:first-child{font-size:21px!important}.history-compact .history-month-best-inline{max-width:100%;white-space:nowrap}.history-compact .history-month-card .month-day{height:36px!important;min-height:36px!important}}
 @media(min-width:601px){.history-compact{max-width:760px;margin:0 auto;width:100%;box-sizing:border-box}.history-compact .history-week-card{padding-top:4px!important;padding-bottom:4px!important}}
 </style><style>
 /* LEVEL STATUS — compact replacement for the redundant Today stats box. */
@@ -4399,7 +4404,7 @@ function renderToday(key,nested=false){
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px">
-    ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
+    ${(!nested&&!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}

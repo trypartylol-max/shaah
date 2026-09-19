@@ -789,35 +789,34 @@ select:focus-visible,
   .today .nm-footer{font-size:10.5px;margin-top:7px;}
 }
 
-/* HISTORY compact layout — fit the useful view in one viewport when possible. */
-.history-compact{gap:7px!important;padding:0 14px 8px!important}
-.history-compact .htab{min-height:30px;padding:4px 10px!important;font-size:11px!important}
-.history-compact .history-week-list{gap:3px!important}
-.history-compact .history-week-list>.sec{font-size:11px!important;margin-bottom:0!important}
-.history-compact .history-week-card{padding:7px 11px!important;border-radius:10px!important}
-.history-compact .history-week-card>div:first-child{margin-bottom:4px!important}
-.history-compact .h-day{font-size:12px!important}
-.history-compact .h-today{font-size:10.5px!important}
-.history-compact .h-grade{font-size:22px!important}
-.history-compact .h-edit{font-size:11px!important;padding:3px 7px!important;border-radius:6px!important}
-.history-compact .history-week-card .h-lvl{font-size:10.5px!important;margin-bottom:2px!important}
-.history-compact .history-week-card .h-lvl+div{height:3px!important}
-.history-compact .history-month-wrap{gap:7px!important}
-.history-compact .history-month-wrap>div:first-child{gap:7px!important}
-.history-compact .history-month-card{padding:7px!important;border-radius:10px!important}
-.history-compact .history-month-card .month-weekdays{gap:2px!important;margin-bottom:3px!important}
-.history-compact .history-month-card .month-weekdays>div{font-size:10.5px!important}
-.history-compact .history-month-card .month-days{gap:2px!important}
-.history-compact .history-month-card .month-day{border-radius:6px!important}
-.history-compact .history-month-card .month-grade{font-size:13px!important}
-.history-compact .history-month-card .month-score{font-size:9px!important}
-.history-compact .history-month-card .month-day>span:first-child{font-size:9px!important;top:2px!important;left:4px!important}
-.history-compact .history-month-best{padding:7px 10px!important;border-radius:10px!important}
-.history-compact .history-month-best .best-label{font-size:10.5px!important}
-.history-compact .history-month-best .best-date{font-size:11px!important}
-.history-compact .history-month-best .best-score{font-size:16px!important}
-@media(max-width:600px){.history-compact{padding-left:8px!important;padding-right:8px!important}.history-compact .history-week-card{padding:6px 9px!important}.history-compact .history-month-card{padding:6px!important}}
-@media(min-width:601px){.history-compact{max-width:760px;margin:0 auto;width:100%;box-sizing:border-box}.history-compact .history-week-card{padding-top:6px!important;padding-bottom:6px!important}}
+/* HISTORY compact layout — single-viewport fit. */
+.history-compact{gap:5px!important;padding:0 12px 4px!important}
+.history-compact .htab{min-height:27px;padding:3px 9px!important;font-size:10.5px!important}
+.history-compact .history-week-list{gap:2px!important}
+.history-compact .history-week-list>.sec{font-size:10px!important;margin-bottom:0!important}
+.history-compact .history-week-card{padding:5px 9px!important;border-radius:8px!important}
+.history-compact .history-week-card>div:first-child{margin-bottom:2px!important}
+.history-compact .h-day{font-size:11px!important}
+.history-compact .h-today{font-size:9.5px!important}
+.history-compact .h-grade{font-size:20px!important}
+.history-compact .h-edit{font-size:10px!important;padding:2px 6px!important;border-radius:5px!important}
+.history-compact .history-week-card .h-lvl{font-size:9.5px!important;margin-bottom:1px!important}
+.history-compact .history-week-card .h-lvl+div{height:2px!important}
+.history-compact .history-month-wrap{gap:5px!important}
+.history-compact .history-month-head{min-height:29px!important}
+.history-compact .history-month-head>button{width:29px!important;height:29px!important;border-radius:7px!important;font-size:15px!important}
+.history-compact .history-month-meta{font-size:10px!important}
+.history-compact .history-month-best-inline{padding:2px 5px!important;border-radius:6px!important;gap:4px!important}
+.history-compact .history-month-card{padding:5px!important;border-radius:8px!important}
+.history-compact .history-month-card .month-weekdays{gap:1px!important;margin-bottom:2px!important}
+.history-compact .history-month-card .month-weekdays>div{font-size:9.5px!important}
+.history-compact .history-month-card .month-days{gap:1px!important}
+.history-compact .history-month-card .month-day{border-radius:5px!important}
+.history-compact .history-month-card .month-grade{font-size:12px!important}
+.history-compact .history-month-card .month-score{font-size:8px!important}
+.history-compact .history-month-card .month-day>span:first-child{font-size:8.5px!important;top:1px!important;left:3px!important}
+@media(max-width:600px){.history-compact{padding-left:6px!important;padding-right:6px!important}.history-compact .history-week-card{padding:4px 7px!important}.history-compact .history-month-card{padding:4px!important}.history-compact .history-month-head{gap:5px!important}.history-compact .history-month-head>div{gap:5px!important}.history-compact .history-month-best-inline{max-width:100%;white-space:nowrap}}
+@media(min-width:601px){.history-compact{max-width:760px;margin:0 auto;width:100%;box-sizing:border-box}.history-compact .history-week-card{padding-top:4px!important;padding-bottom:4px!important}}
 </style><style>
 /* LEVEL STATUS — compact replacement for the redundant Today stats box. */
 .t-levelstatus{overflow:hidden;}
@@ -4899,19 +4898,17 @@ function renderHistMonth(){
   const canFwd=ym<nowYM;
   const nav=(d,lab,on)=>`<button onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"} style="background:none;border:1px solid ${on?"#1e1e2e":"#111120"};color:${on?"#c0c0cd":"#23233a"};width:34px;height:34px;border-radius:9px;cursor:${on?"pointer":"default"};font-size:17px;font-family:inherit;flex-shrink:0">${lab}</button>`;
   return`<div class="history-month-wrap" style="display:flex;flex-direction:column;gap:14px">
-    <div style="display:flex;align-items:center;gap:10px">
+    <div class="history-month-head" style="display:flex;align-items:center;gap:8px;min-height:34px">
       ${nav(-1,"‹",true)}
-      <div style="flex:1;min-width:0;text-align:center">
-        <div style="font-family:'Bebas Neue';font-size:21px;letter-spacing:0.1em;color:#e2e2e2;line-height:1.1">${title.toUpperCase()}</div>
-        <div style="font-size:14px;color:#8888a4;margin-top:3px">${logged.length?`${logged.length} day${logged.length===1?"":"s"} logged`:"no days logged"}${g?` · AVG ${a}% · ${esc(g.l)}`:""}</div>
+      <div style="flex:1;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;line-height:1">
+        <div style="font-family:'Bebas Neue';font-size:20px;letter-spacing:0.09em;color:#e2e2e2">${title.toUpperCase()}</div>
+        <div class="history-month-meta" style="font-size:11px;color:#8888a4;letter-spacing:.03em">${logged.length?`${logged.length}d logged`:"no days logged"}${g?` · AVG ${a}% · ${esc(g.l)}`:""}</div>
+        ${best?`<div class="history-month-best-inline" style="display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid ${GRADE(best.data.score,best.data.max).c}30;border-radius:7px;background:${GRADE(best.data.score,best.data.max).c}08">
+          <span style="font-size:11px">🏆</span><span style="font-family:'Bebas Neue';font-size:10px;letter-spacing:.08em;color:#aaaabc">BEST</span><span style="font-size:10.5px;color:#c8c8d4">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})}</span><span style="font-family:'Bebas Neue';font-size:15px;color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</span>
+        </div>`:""}
       </div>
       ${nav(1,"›",canFwd)}
     </div>
-    ${best?`<div class="card history-month-best" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center;padding:8px 10px">
-      <div class="best-label" style="font-family:'Bebas Neue';font-size:12px;color:#a8a8ba;letter-spacing:.12em;text-align:left">🏆 BEST DAY</div>
-      <div class="best-date" style="font-size:12px;color:#c8c8d4">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",timeZone:"UTC"})}</div>
-      <div class="best-score" style="font-family:'Bebas Neue';font-size:17px;color:${GRADE(best.data.score,best.data.max).c};text-align:right">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</div>
-    </div>`:""}
     <div class="card history-month-card">
       <div class="month-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
         ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em">${d}</div>`).join("")}

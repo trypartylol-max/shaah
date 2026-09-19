@@ -884,27 +884,33 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 <style>
 /* RESTORE HISTORY MONTH — single-line header + rectangular month cells */
 .history-month-bar{
-  min-height:84px!important;height:84px!important;padding:10px 14px!important;box-sizing:border-box!important;
+  min-height:108px!important;height:108px!important;padding:12px 18px!important;box-sizing:border-box!important;
   border:1px solid #1c1d32!important;border-radius:14px!important;
   background:linear-gradient(180deg,#0d0d18 0%,#0a0a13 100%)!important;
-  display:flex!important;align-items:center!important;gap:12px!important;
+  display:flex!important;align-items:center!important;gap:16px!important;
 }
-.history-month-nav{width:42px!important;height:42px!important;flex:0 0 42px!important;border-radius:10px!important;border:1px solid #24253b!important;background:#0b0b16!important;color:#c8c8d4!important;font-size:20px!important;font-family:inherit!important;line-height:1!important;cursor:pointer!important}
+.history-month-nav{width:44px!important;height:44px!important;flex:0 0 44px!important;border-radius:10px!important;border:1px solid #24253b!important;background:#0b0b16!important;color:#c8c8d4!important;font-size:21px!important;font-family:inherit!important;line-height:1!important;cursor:pointer!important}
 .history-month-nav:disabled{color:#25253a!important;border-color:#151525!important;cursor:default!important}
-.history-month-summary{flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;white-space:nowrap!important;overflow:hidden!important;flex-wrap:nowrap!important}
-.history-month-title{font-size:26px!important;line-height:1!important;flex:0 0 auto!important}
-.history-month-divider{width:1px!important;height:30px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
-.history-month-meta{font-size:16px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
-.history-month-grade{font-family:'Bebas Neue'!important;font-size:26px!important;line-height:1!important;flex:0 0 auto!important}
-.history-month-best-inline{height:52px!important;min-height:52px!important;padding:7px 12px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:8px!important;border:1px solid #26324a!important;border-radius:10px!important;background:#0b0c16!important;flex:0 0 auto!important;white-space:nowrap!important;overflow:hidden!important}
-.history-month-best-icon{font-size:20px!important;line-height:1!important}
-.history-month-best-label{font-family:'Bebas Neue'!important;font-size:14px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
-.history-month-best-date{font-size:14px!important;color:#c8c8d4!important;line-height:1!important}
-.history-month-best-score{font-family:'Bebas Neue'!important;font-size:22px!important;line-height:1!important;margin-left:2px!important}
+.history-month-summary{flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:16px!important;white-space:nowrap!important;overflow:hidden!important;flex-wrap:nowrap!important}
+.history-month-title{font-size:44px!important;line-height:1!important;flex:0 0 auto!important}
+.history-month-divider{width:1px!important;height:40px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
+.history-month-meta{font-size:20px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
+.history-month-grade{font-family:'Bebas Neue'!important;font-size:32px!important;line-height:1!important;flex:0 0 auto!important}
+.history-month-best-inline{height:80px!important;min-height:80px!important;padding:10px 16px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:10px!important;border:1px solid #26324a!important;border-radius:10px!important;background:#0b0c16!important;flex:0 0 auto!important;white-space:nowrap!important;overflow:hidden!important}
+.history-month-best-icon{font-size:30px!important;line-height:1!important}
+.history-month-best-label{font-family:'Bebas Neue'!important;font-size:18px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
+.history-month-best-date{font-size:18px!important;color:#c8c8d4!important;line-height:1!important}
+.history-month-best-score{font-family:'Bebas Neue'!important;font-size:30px!important;line-height:1!important;margin-left:2px!important}
 .history-month-card{padding:10px!important}
 .history-month-card .month-weekdays{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:8px!important;margin-bottom:7px!important}
 .history-month-card .month-days{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:8px!important}
 .history-month-card .month-day{height:102px!important;min-height:102px!important;aspect-ratio:auto!important;box-sizing:border-box!important;border-radius:10px!important}
+.history-month-card--six-weeks{padding:8px!important}
+.history-month-card--six-weeks .month-weekdays{gap:6px!important;margin-bottom:5px!important}
+.history-month-card--six-weeks .month-days{gap:6px!important}
+.history-month-card--six-weeks .month-day{height:82px!important;min-height:82px!important;border-radius:9px!important}
+.history-month-card--six-weeks .month-day .month-grade{font-size:21px!important;margin-top:7px!important}
+.history-month-card--six-weeks .month-day .month-score{font-size:14px!important}
 @media(max-width:900px){
   .history-month-bar{min-height:70px!important;padding:8px 8px!important;gap:7px!important}
   .history-month-nav{width:34px!important;height:34px!important;flex-basis:34px!important;font-size:18px!important}
@@ -923,6 +929,12 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .history-month-card .month-day{height:72px!important;min-height:72px!important;border-radius:8px!important}
   .history-month-card .month-day .month-grade{font-size:19px!important}
   .history-month-card .month-day .month-score{font-size:13px!important}
+  .history-month-card--six-weeks{padding:7px!important}
+  .history-month-card--six-weeks .month-weekdays{gap:4px!important;margin-bottom:4px!important}
+  .history-month-card--six-weeks .month-days{gap:4px!important}
+  .history-month-card--six-weeks .month-day{height:60px!important;min-height:60px!important;border-radius:7px!important}
+  .history-month-card--six-weeks .month-day .month-grade{font-size:17px!important;margin-top:5px!important}
+  .history-month-card--six-weeks .month-day .month-score{font-size:12px!important}
 }
 </style>
 <style>
@@ -4032,7 +4044,7 @@ function renderHistMonth(){
       </div>`:""}
       ${nav(1,"›",canFwd)}
     </div>
-    <div class="card history-month-card">
+    <div class="card history-month-card ${Math.ceil(cells.length/7)>=6?"history-month-card--six-weeks":""}">
       <div class="month-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
         ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em">${d}</div>`).join("")}
       </div>

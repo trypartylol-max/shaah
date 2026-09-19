@@ -870,6 +870,103 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .today .t-levelstatus .ls-footer{font-size:10.5px !important;margin-top:7px !important;}
 }
 </style>
+<style>
+/* Step 5K — Stats: six cards in 3 columns × 2 rows.
+   The separate Most Consistent / Needs Work row is intentionally removed;
+   those metrics live in the six-card grid. */
+.stats-six-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.stats-metric-card{
+  min-height:92px!important;
+  padding:12px 18px!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:44px minmax(0,auto) minmax(0,1fr)!important;
+  grid-template-rows:1fr!important;
+  column-gap:14px!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+.stats-metric-icon{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;border-radius:10px;background:#0b0b15;border:1px solid #ffffff08;
+}
+.stats-metric-main{min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:nowrap}
+.stats-metric-value{font-family:'Bebas Neue';font-size:30px;line-height:1;white-space:nowrap}
+.stats-metric-label{font-size:12px;color:#c0c0cd;letter-spacing:.12em;line-height:1.15;white-space:nowrap}
+.stats-metric-sub{min-width:0;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+@media(max-width:900px){
+  .stats-six-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:600px){
+  .stats-six-grid{grid-template-columns:1fr;gap:8px}
+  .stats-metric-card{min-height:88px!important;padding:11px 12px!important;grid-template-columns:38px 1fr!important;grid-template-rows:auto auto!important;column-gap:10px!important;row-gap:3px!important}
+  .stats-metric-icon{grid-row:1 / span 2;width:34px;height:34px;font-size:20px;border-radius:8px}
+  .stats-metric-main{gap:8px}
+  .stats-metric-value{font-size:26px}
+  .stats-metric-label{font-size:10px}
+  .stats-metric-sub{grid-column:2;text-align:left;font-size:11px}
+}
+
+</style>
+<style id="step5E13-restore-calendar-stats">
+/* Step 5E13 — restore the previously approved Month calendar proportions.
+   Keep the new single-line month bar from 5E12 untouched. */
+.history-compact .history-month-card .month-day{
+  height:102px!important;
+  min-height:102px!important;
+  aspect-ratio:auto!important;
+}
+@media(max-width:600px){
+  .history-compact .history-month-card .month-day{
+    height:72px!important;
+    min-height:72px!important;
+  }
+}
+
+/* Step 5K approved Stats layout: six unified metric cards, 3 columns × 2 rows.
+   This intentionally replaces the older 4-card / 2-column presentation. */
+.stats-six-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.stats-metric-card{
+  min-height:92px!important;
+  padding:12px 18px!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:44px minmax(0,auto) minmax(0,1fr)!important;
+  grid-template-rows:1fr!important;
+  column-gap:14px!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+.stats-metric-icon{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;border-radius:10px;background:#0b0b15;border:1px solid #ffffff08;
+}
+.stats-metric-main{min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:nowrap}
+.stats-metric-value{font-family:'Bebas Neue';font-size:30px;line-height:1;white-space:nowrap}
+.stats-metric-label{font-size:12px;color:#c0c0cd;letter-spacing:.12em;line-height:1.15;white-space:nowrap}
+.stats-metric-sub{min-width:0;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+@media(max-width:900px){
+  .stats-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+@media(max-width:600px){
+  .stats-six-grid{grid-template-columns:1fr!important;gap:8px!important}
+  .stats-metric-card{min-height:88px!important;padding:11px 12px!important;grid-template-columns:38px 1fr!important;grid-template-rows:auto auto!important;column-gap:10px!important;row-gap:3px!important}
+  .stats-metric-icon{grid-row:1 / span 2;width:34px;height:34px;font-size:20px;border-radius:8px}
+  .stats-metric-main{gap:8px}
+  .stats-metric-value{font-size:26px}
+  .stats-metric-label{font-size:10px}
+  .stats-metric-sub{grid-column:2;text-align:left;font-size:11px}
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -3585,11 +3682,11 @@ function renderWeekday(){
 }
 
 function renderStats(){
-  const tk=todayKey(),{score,l1,l2,l3,done}=calcScore(tk),gr=GRADE(score),h=getHistory();
+  const tk=todayKey(),{score}=calcScore(tk),h=getHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
   const total=allDays.length,best=allDays.reduce((m,[,d])=>Math.max(m,dPct(d)),0);
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+dPct(d),0)/total):0,streak=getStreak();
-  const bestStreak=getBestStreak(),trend=weekTrend();
+  const bestStreak=getBestStreak(),trend=weekTrend(),review=weekReview();
   if(total===0&&score===0){
     return`<div class="fade-up" style="height:calc(100dvh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center">
       <div style="font-size:44px;opacity:.5">📊</div>
@@ -3598,10 +3695,22 @@ function renderStats(){
       <button onclick="setTab('today')" style="margin-top:8px;background:#e2e2e2;color:#07070f;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer">START →</button>
     </div>`;
   }
-  return`<div class="fade-up" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  const metrics = [
+    {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
+    {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
+    {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
+    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/7`,col:"#4ade80",sub:review?.best?.label||"—"},
+    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/7`,col:"#ef4444",sub:review?.worst?.label||"—"},
+    {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
+  ];
+  return`<div class="fade-up stats-page" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
+    <div class="stats-six-grid">
+      ${metrics.map(m=>`<div class="card stats-metric-card" style="border:1px solid ${m.col}20;background:${m.col}08">
+        <div class="stats-metric-icon">${esc(m.icon)}</div>
+        <div class="stats-metric-main"><div class="stats-metric-value" style="color:${m.col}">${esc(m.val)}</div><div class="stats-metric-label">${esc(m.label)}</div></div>
+        <div class="stats-metric-sub" style="color:${m.col}">${esc(m.sub)}</div>
+      </div>`).join("")}
     </div>
     ${renderConsistency()}
     ${renderWeekday()}

@@ -1182,7 +1182,59 @@ function dayLogEsc(s){return esc(s);}
 function dayLogTypeLabel(t){return t==='habit'?'HABIT':t==='routine'?'ROUTINE':'MANUAL';}
 // Sleep Early is a two-point habit: wake time + sleep time. It is deliberately
 // excluded from duration/timeline math so the overnight span is never drawn as a block.
-function dayLogIsSleepWake(e){return !!(e&&e.type==='habit'&&e.sourceId==='sleep'&&e.meta?.sleepWake);}
+function dayLogIsSleepWake(e){return !!(e&&e.type==='habit'&&e.sourceId==='sleep');}
+// Normalize older Sleep & Wake records created before the two-event model.
+// Any record linked to sourceId=sleep is a point event; legacy start→end records
+// are split into WAKE and SLEEP, while duplicate/open legacy rows are collapsed.
+function dayLogNormalizeSleepWake(key){
+  const arr=dayLogEvents(key);
+  const raw=arr.filter(e=>e&&e.type==='habit'&&e.sourceId==='sleep');
+  if(!raw.length)return false;
+  let changed=false;
+  const roleWake=raw.filter(e=>e.meta?.sleepRole==='wake');
+  const roleSleep=raw.filter(e=>e.meta?.sleepRole==='sleep');
+  const untagged=raw.filter(e=>!e.meta?.sleepRole);
+  let wake=roleWake[0]||null, sleep=roleSleep[0]||null;
+  // Capture a legacy end before clearing it from the WAKE point below.
+  const legacySource=raw.find(e=>e.end)||null;
+  const legacyEnd=legacySource?.end||null;
+
+  if(!wake){
+    const candidate=untagged.slice().sort((a,b)=>new Date(a.start)-new Date(b.start))[0]||null;
+    if(candidate){wake=candidate;changed=true;}
+  }
+  if(wake){
+    wake.end=null;
+    wake.title=wake.title||'Sleep & Wake Up Early';
+    wake.meta={...(wake.meta||{}),sleepWake:true,sleepRole:'wake',light:true,completed:false};
+  }
+
+  // If an older build already created two separate rows, keep the latest
+  // distinct point as SLEEP. Only when there is no second row do we split a
+  // legacy start→end record into a standalone SLEEP event.
+  if(!sleep){
+    const candidate=untagged.slice().sort((a,b)=>new Date(b.start)-new Date(a.start)).find(e=>e!==wake);
+    if(candidate){sleep=candidate;changed=true;}
+  }
+  if(!sleep && legacyEnd){
+    sleep={...(legacySource||wake),id:dayLogId(),start:legacyEnd,end:null,
+      meta:{...((legacySource||wake)?.meta||{}),sleepWake:true,sleepRole:'sleep',light:false,completed:true}};
+    arr.push(sleep);changed=true;
+  }
+  if(sleep){
+    sleep.end=null;
+    sleep.title=sleep.title||'Sleep & Wake Up Early';
+    sleep.meta={...(sleep.meta||{}),sleepWake:true,sleepRole:'sleep',light:false,completed:true};
+  }
+
+  // Remove extra legacy rows while preserving the selected wake/sleep points.
+  for(let i=arr.length-1;i>=0;i--){
+    const e=arr[i];
+    if(e&&e.type==='habit'&&e.sourceId==='sleep'&&e!==wake&&e!==sleep){arr.splice(i,1);changed=true;}
+  }
+  if(changed)dayLogPersist(key);
+  return changed;
+}
 function dayLogDuration(e){
   if(dayLogIsSleepWake(e))return null;
   const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);
@@ -1242,54 +1294,32 @@ function dayLogSyncCompletion(id,key,state){
   // neither is drawn as a duration block on the timeline.
   if(id==='sleep' && type==='habit'){
     const arr=dayLogEvents(key);
-    const sleepEvents=arr.filter(e=>e.type==='habit'&&e.sourceId==='sleep'&&e.meta?.sleepWake);
-    const wake=sleepEvents.find(e=>e.meta?.sleepRole==='wake')||sleepEvents[0]||null;
+    dayLogNormalizeSleepWake(key);
+    const sleepEvents=arr.filter(e=>e.type==='habit'&&e.sourceId==='sleep');
+    const wake=sleepEvents.find(e=>e.meta?.sleepRole==='wake')||null;
     const sleep=sleepEvents.find(e=>e.meta?.sleepRole==='sleep')||null;
 
+    if(state===true){
+      if(!wake){
+        const now=dayLogNowISO();
+        dayLogAdd(title,now,null,'habit',id,{sleepWake:true,sleepRole:'wake',light:false,completed:true});
+      }else if(!sleep){
+        const now=dayLogNowISO();
+        dayLogAdd(title,now,null,'habit',id,{sleepWake:true,sleepRole:'sleep',light:false,completed:true});
+      }
+      return;
+    }
     if(state===0.5){
-      // Repair any legacy combined record into a standalone WAKE event.
-      if(wake){
-        wake.title=title;
-        wake.end=null;
-        wake.meta={...(wake.meta||{}),sleepWake:true,sleepRole:'wake',light:true,completed:false};
-        // If an old combined record is present, remove its embedded sleep end.
-        if(wake!==sleep) wake.end=null;
-        dayLogPersist(key);
-      }else{
+      if(!wake){
         const now=dayLogNowISO();
         dayLogAdd(title,now,null,'habit',id,{sleepWake:true,sleepRole:'wake',light:true,completed:false});
       }
       return;
     }
-
-    if(state===true){
-      // Ensure WAKE exists as its own event. If this is an old combined record,
-      // split it instead of keeping a single start→end event.
-      if(wake){
-        wake.title=title;
-        wake.end=null;
-        wake.meta={...(wake.meta||{}),sleepWake:true,sleepRole:'wake',light:true,completed:false};
-      }else{
-        const fallback=dayLogNowISO();
-        dayLogAdd(title,fallback,null,'habit',id,{sleepWake:true,sleepRole:'wake',light:true,completed:false});
-      }
-      if(sleep){
-        sleep.title=title;
-        sleep.end=null;
-        sleep.meta={...(sleep.meta||{}),sleepWake:true,sleepRole:'sleep',light:false,completed:true};
-        dayLogPersist(key);
-      }else{
-        const now=dayLogNowISO();
-        dayLogAdd(title,now,null,'habit',id,{sleepWake:true,sleepRole:'sleep',completed:true});
-      }
-      return;
-    }
-
-    // Clearing Sleep & Wake removes both timestamp events.
     if(sleepEvents.length){
       for(let i=arr.length-1;i>=0;i--){
         const e=arr[i];
-        if(e.type==='habit'&&e.sourceId==='sleep'&&e.meta?.sleepWake)arr.splice(i,1);
+        if(e.type==='habit'&&e.sourceId==='sleep')arr.splice(i,1);
       }
       dayLogPersist(key);
     }
@@ -3631,13 +3661,15 @@ function dayLogPanelSave(key){
   const ev=dayLogEvents(key).find(e=>e.id===window.__dayLogSelectedId);
   const sleepWake=window.__dayLogPanelMode==='edit'&&dayLogIsSleepWake(ev);
   if(!title){alert('Please enter an activity name.');return;}
-  if(a==null||(!sleepWake&&b==null)||(b!=null&&b<a)){alert('Please enter valid start and end times.');return;}
-  const start=dayLogDateTime(key,a).toISOString(),end=b==null?null:dayLogDateTime(key,b).toISOString();
+  if(a==null||(!sleepWake&&b==null)||(b!=null&&!sleepWake&&b<a)){alert('Please enter valid start and end times.');return;}
+  const start=dayLogDateTime(key,a).toISOString(),end=sleepWake?null:(b==null?null:dayLogDateTime(key,b).toISOString());
   if(window.__dayLogPanelMode==='new'){
     dayLogAdd(title,start,end,'manual');
   }else{
     if(!ev)return;
-    Object.assign(ev,{title,start,end});dayLogPersist(key);
+    Object.assign(ev,{title,start,end});
+    if(sleepWake)ev.meta={...(ev.meta||{}),sleepWake:true,sleepRole:ev.meta?.sleepRole||'wake',completed:ev.meta?.sleepRole==='sleep'};
+    dayLogPersist(key);
   }
   window.__dayLogPanelMode='edit';window.__dayLogSelectedId=null;haptic(8);render();
 }
@@ -3648,7 +3680,9 @@ function dayLogPanelDelete(key){
 }
 
 function renderDayLogTab(){
-  const key=todayKey(), s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));
+  const key=todayKey();
+  dayLogNormalizeSleepWake(key);
+  const s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));
   const active=!!dayLogActiveId();
   if(!window.__dayLogSelectedId || !evs.some(e=>e.id===window.__dayLogSelectedId)) window.__dayLogSelectedId=evs[0]?.id||null;
   const selected=evs.find(e=>e.id===window.__dayLogSelectedId)||null;
@@ -3686,8 +3720,8 @@ function renderDayLogTab(){
           ${evs.length?evs.map(e=>{
             const dur=dayLogDuration(e),running=!e.end&&!dayLogIsSleepWake(e);
             return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')">
-              <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:' · NOW'}</div>
-              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':'')}</div></div>
+              <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':' · NOW')}</div>
+              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(e.meta?.sleepRole==='sleep'?'SLEEP':'WAKE'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':''))}</div></div>
               <div><span class="logdesk-type ${e.type}">${dayLogTypeLabel(e.type)}</span></div>
               <div class="logdesk-duration">${dur==null?'—':dayLogFmt(dur)}</div>
               <button class="logdesk-edit" type="button" onclick="event.stopPropagation();dayLogPanelSelect('${dayLogEsc(e.id)}')" aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
@@ -3703,8 +3737,8 @@ function renderDayLogTab(){
           ${mode==='edit'&&panelEv?`<div class="logdesk-identity"><div class="logdesk-icon">${icon}</div><div><div class="logdesk-identity-name">${dayLogEsc(panelTitle)}</div><span class="logdesk-badge">${dayLogTypeLabel(panelEv.type)}</span></div></div>`:''}
           <div class="logdesk-field"><label for="logPanelName">ACTIVITY</label><input id="logPanelName" class="logdesk-input" type="text" maxlength="120" value="${dayLogEsc(panelTitle)}" placeholder="e.g. Deep Work, Lunch, Gym…" autocomplete="off"></div>
           ${mode==='edit'&&panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-note">Wake & Sleep Early uses two timestamps: the first tap logs when you woke up, the second logs when you went to sleep. The overnight span is not drawn on the timeline.</div>`:mode==='edit'&&panelEv&&panelEv.type!=='manual'?`<div class="logdesk-note">This activity is linked to ${dayLogTypeLabel(panelEv.type).toLowerCase()} completion. Its type is managed automatically; you can edit the name and time.</div>`:''}
-          <div class="logdesk-field"><label>${panelEv&&dayLogIsSleepWake(panelEv)?(panelEv.meta?.sleepRole==='sleep'?'SLEEP TIME':'WAKE TIME'):'START / END'}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"><input id="logPanelEnd" class="logdesk-input" type="time" value="${panelEnd}"></div></div>
-          <div class="logdesk-duration-line"><span>${panelEv&&dayLogIsSleepWake(panelEv)?'TIMESTAMPS':'DURATION'}</span><b>${panelEv&&dayLogIsSleepWake(panelEv)?(panelEnd?'WAKE → SLEEP':'WAKE LOGGED'):panelEv&&dayLogDuration(panelEv)!=null?dayLogFmt(dayLogDuration(panelEv)):'Calculated on save'}</b></div>
+          ${panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-field"><label>${panelEv.meta?.sleepRole==='sleep'?'SLEEP TIME':'WAKE TIME'}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"></div></div>`:`<div class="logdesk-field"><label>START / END</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"><input id="logPanelEnd" class="logdesk-input" type="time" value="${panelEnd}"></div></div>`}
+          <div class="logdesk-duration-line"><span>${panelEv&&dayLogIsSleepWake(panelEv)?'POINT EVENT':'DURATION'}</span><b>${panelEv&&dayLogIsSleepWake(panelEv)?(panelEv.meta?.sleepRole==='sleep'?'SLEEP LOGGED':'WAKE LOGGED'):panelEv&&dayLogDuration(panelEv)!=null?dayLogFmt(dayLogDuration(panelEv)):'Calculated on save'}</b></div>
           <div class="logdesk-actions">${mode==='new'?`<button type="button" class="logdesk-cancel" onclick="dayLogPanelCancel()">CANCEL</button><button type="button" class="logdesk-save" onclick="dayLogPanelSave('${key}')">ADD ACTIVITY</button>`:`<button type="button" class="logdesk-delete" onclick="dayLogPanelDelete('${key}')">DELETE</button><button type="button" class="logdesk-save" onclick="dayLogPanelSave('${key}')">SAVE</button>`}</div>
         </div>
       </aside>
@@ -4121,6 +4155,23 @@ function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)
 // Everything else keeps the plain boolean toggle it always had.
 function toggleHabit(id,key){
   haptic(10);const ch={...getChecked(key)};
+  if(id==='sleep' && key===todayKey()){
+    // Sleep & Wake Up Early is a three-step point-event cycle:
+    // none → WAKE → SLEEP → none. The habit remains checked after WAKE so the
+    // second tap can record SLEEP without creating a running activity.
+    dayLogNormalizeSleepWake(key);
+    const evs=dayLogEvents(key).filter(e=>e.type==='habit'&&e.sourceId==='sleep');
+    const hasWake=evs.some(e=>e.meta?.sleepRole==='wake');
+    const hasSleep=evs.some(e=>e.meta?.sleepRole==='sleep');
+    if(!hasWake){
+      ch[id]=true;setChecked(key,ch);persistDay(key);dayLogSyncCompletion(id,key,true);
+    }else if(!hasSleep){
+      ch[id]=true;setChecked(key,ch);persistDay(key);dayLogSyncCompletion(id,key,true);
+    }else{
+      ch[id]=false;setChecked(key,ch);persistDay(key);dayLogSyncCompletion(id,key,false);
+    }
+    render();return;
+  }
   if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
   else ch[id]=!ch[id];
   setChecked(key,ch);persistDay(key);

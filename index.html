@@ -884,19 +884,19 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 <style>
 /* RESTORE HISTORY MONTH — single-line header + rectangular month cells */
 .history-month-bar{
-  min-height:76px!important;padding:10px 12px!important;box-sizing:border-box!important;
+  min-height:76px!important;height:76px!important;padding:10px 12px!important;box-sizing:border-box!important;
   border:1px solid #1c1d32!important;border-radius:14px!important;
   background:linear-gradient(180deg,#0d0d18 0%,#0a0a13 100%)!important;
   display:flex!important;align-items:center!important;gap:12px!important;
 }
 .history-month-nav{width:38px!important;height:38px!important;flex:0 0 38px!important;border-radius:10px!important;border:1px solid #24253b!important;background:#0b0b16!important;color:#c8c8d4!important;font-size:20px!important;font-family:inherit!important;line-height:1!important;cursor:pointer!important}
 .history-month-nav:disabled{color:#25253a!important;border-color:#151525!important;cursor:default!important}
-.history-month-summary{flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;white-space:nowrap!important;overflow:hidden!important}
+.history-month-summary{flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;white-space:nowrap!important;overflow:hidden!important;flex-wrap:nowrap!important}
 .history-month-title{font-size:22px!important;line-height:1!important;flex:0 0 auto!important}
 .history-month-divider{width:1px!important;height:26px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
 .history-month-meta{font-size:14px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
 .history-month-grade{font-family:'Bebas Neue'!important;font-size:22px!important;line-height:1!important;flex:0 0 auto!important}
-.history-month-best-inline{min-height:46px!important;padding:6px 10px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:8px!important;border:1px solid #26324a!important;border-radius:10px!important;background:#0b0c16!important;flex:0 0 auto!important;white-space:nowrap!important}
+.history-month-best-inline{height:46px!important;min-height:46px!important;padding:6px 10px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:8px!important;border:1px solid #26324a!important;border-radius:10px!important;background:#0b0c16!important;flex:0 0 auto!important;white-space:nowrap!important;overflow:hidden!important}
 .history-month-best-icon{font-size:18px!important;line-height:1!important}
 .history-month-best-label{font-family:'Bebas Neue'!important;font-size:12px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
 .history-month-best-date{font-size:12px!important;color:#c8c8d4!important;line-height:1!important}
@@ -921,6 +921,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .history-month-card .month-weekdays{gap:5px!important}
   .history-month-card .month-days{gap:5px!important}
   .history-month-card .month-day{height:72px!important;min-height:72px!important;border-radius:8px!important}
+  .history-month-card .month-day .month-grade{font-size:19px!important}
+  .history-month-card .month-day .month-score{font-size:13px!important}
 }
 </style>
 <style>
@@ -4037,8 +4039,8 @@ function renderHistMonth(){
           const dg=c.data?GRADE(c.data.score,c.data.max):null;
           if(future)return`<div class="month-day" style="height:102px;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px;box-sizing:border-box"><span style="font-size:11px;line-height:1;color:#22223a">${c.day}</span></div>`;
           return`<div class="month-day" role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;height:102px;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
-            <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
-            ${c.data?`<span class="month-grade" style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span class="month-score" style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
+            <span style="position:absolute;top:2px;left:5px;font-size:13px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
+            ${c.data?`<span class="month-grade" style="font-family:'Bebas Neue';font-size:23px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span class="month-score" style="font-size:15px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:20px;color:#9a9ab2;margin-top:7px">+</span>`}
           </div>`;
         }).join("")}
       </div>

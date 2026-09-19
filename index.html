@@ -2067,6 +2067,28 @@ select:focus-visible,
   #scroll .today .t-reset{order:8 !important;}
   #scroll .today .t-rout.collapsed .t-rout-body{display:none !important;}
 }
+
+/* E10 — enlarge MONTH header chrome, keep month title size */
+.history-compact .history-month-head{min-height:88px!important}
+.history-compact .history-month-head>button{width:44px!important;height:44px!important;border-radius:10px!important;font-size:22px!important}
+.history-compact .history-month-head>div{gap:12px!important}
+.history-compact .history-month-head>div>div:first-child{font-size:32px!important}
+.history-compact .history-month-meta{font-size:18px!important}
+.history-compact .history-month-best-inline{padding:10px 15px!important;border-radius:11px!important;gap:9px!important}
+.history-compact .history-month-best-inline span:nth-child(2){font-size:15px!important}
+.history-compact .history-month-best-inline span:nth-child(3){font-size:15px!important}
+.history-compact .history-month-best-inline span:nth-child(4){font-size:25px!important}
+@media(max-width:600px){
+  .history-compact .history-month-head{min-height:64px!important}
+  .history-compact .history-month-head>button{width:34px!important;height:34px!important;font-size:18px!important}
+  .history-compact .history-month-head>div{gap:6px!important}
+  .history-compact .history-month-head>div>div:first-child{font-size:24px!important}
+  .history-compact .history-month-meta{font-size:11.5px!important}
+  .history-compact .history-month-best-inline{padding:7px 10px!important;gap:6px!important}
+  .history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
+  .history-compact .history-month-best-inline span:nth-child(3){font-size:11.5px!important}
+  .history-compact .history-month-best-inline span:nth-child(4){font-size:18px!important}
+}
 </style>
 </head>
 <body>
@@ -2082,12 +2104,6 @@ select:focus-visible,
 <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
 </nav>
 </div>
-<style>
-@media(max-width:600px){
-  .week-review-habits{grid-template-columns:1fr!important}
-  .week-review-habits>div{min-height:46px!important}
-}
-</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -4733,20 +4749,16 @@ function renderWeekReview(){
             <div style="font-size:10px;color:#8888a4">${keyToDate(x.key).toLocaleDateString("en-US",{weekday:"narrow"})}</div>
           </div>`}).join("")}
       </div>
-      <div class="week-review-habits" style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
-        <div style="background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:11px;padding:9px 12px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div style="font-size:10px;letter-spacing:.1em;color:#4ade80;white-space:nowrap">MOST CONSISTENT</div>
-          <div style="min-width:0;text-align:right">
-            <div style="font-size:13.5px;color:#e2e2e2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.best.icon)} ${esc(r.best.label)}</div>
-            <div style="font-size:12px;color:#4ade80;margin-top:2px">${r.best.done}/7 days</div>
-          </div>
+      <div style="display:flex;gap:9px">
+        <div style="flex:1;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:11px;padding:11px 12px">
+          <div style="font-size:10px;letter-spacing:.1em;color:#4ade80;margin-bottom:5px">MOST CONSISTENT</div>
+          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.best.icon)} ${esc(r.best.label)}</div>
+          <div style="font-size:12px;color:#4ade80;margin-top:3px">${r.best.done}/7 days</div>
         </div>
-        <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:11px;padding:9px 12px;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div style="font-size:10px;letter-spacing:.1em;color:#ef4444;white-space:nowrap">NEEDS WORK</div>
-          <div style="min-width:0;text-align:right">
-            <div style="font-size:13.5px;color:#e2e2e2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.worst.icon)} ${esc(r.worst.label)}</div>
-            <div style="font-size:12px;color:#ef4444;margin-top:2px">${r.worst.done}/7 days</div>
-          </div>
+        <div style="flex:1;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:11px;padding:11px 12px">
+          <div style="font-size:10px;letter-spacing:.1em;color:#ef4444;margin-bottom:5px">NEEDS WORK</div>
+          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.worst.icon)} ${esc(r.worst.label)}</div>
+          <div style="font-size:12px;color:#ef4444;margin-top:3px">${r.worst.done}/7 days</div>
         </div>
       </div>
     </div>

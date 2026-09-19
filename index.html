@@ -2245,6 +2245,50 @@ select:focus-visible,
 }
 </style>
 
+
+<style>
+/* Final polish: keep History MONTH summary as one strong desktop line and keep
+   calendar cells horizontal rectangles so the month stays above the fold. */
+.history-compact .history-month-bar{
+  min-height:82px!important;height:82px!important;padding:10px 14px!important;gap:12px!important;
+  flex-wrap:nowrap!important;overflow:hidden!important;
+}
+.history-compact .history-month-summary{
+  flex-wrap:nowrap!important;overflow:hidden!important;gap:15px!important;white-space:nowrap!important;
+  justify-content:flex-start!important;
+}
+.history-compact .history-month-title{font-size:30px!important;white-space:nowrap!important}
+.history-compact .history-month-meta{font-size:16px!important;white-space:nowrap!important}
+.history-compact .history-month-grade{font-size:26px!important}
+.history-compact .history-month-best-inline{
+  min-width:220px!important;min-height:58px!important;height:58px!important;padding:7px 12px!important;
+  grid-template-columns:auto auto!important;flex:0 0 auto!important;
+}
+.history-compact .history-month-best-icon{font-size:24px!important}
+.history-compact .history-month-best-label{font-size:14px!important}
+.history-compact .history-month-best-date{font-size:13px!important}
+.history-compact .history-month-best-score{font-size:22px!important}
+.history-compact .history-month-card .month-day{
+  height:76px!important;min-height:76px!important;aspect-ratio:auto!important;
+}
+@media(max-width:900px){
+  .history-compact .history-month-bar{height:68px!important;min-height:68px!important;padding:7px 8px!important;gap:6px!important}
+  .history-compact .history-month-nav{width:32px!important;height:32px!important;flex-basis:32px!important;font-size:17px!important}
+  .history-compact .history-month-summary{gap:7px!important}
+  .history-compact .history-month-title{font-size:21px!important}
+  .history-compact .history-month-meta{font-size:10.5px!important}
+  .history-compact .history-month-grade{font-size:18px!important}
+  .history-compact .history-month-best-inline{min-width:145px!important;width:145px!important;height:48px!important;min-height:48px!important;padding:5px 7px!important;column-gap:5px!important}
+  .history-compact .history-month-best-icon{font-size:17px!important}
+  .history-compact .history-month-best-label{font-size:10px!important}
+  .history-compact .history-month-best-date{font-size:9.5px!important}
+  .history-compact .history-month-best-score{font-size:16px!important;margin-left:0!important}
+  .history-compact .history-month-card .month-day{height:54px!important;min-height:54px!important}
+}
+.logdesk-point{position:absolute;top:9px;width:10px;height:40px;padding:0;border:0;border-radius:999px;transform:translateX(-50%);box-shadow:0 0 10px currentColor;cursor:pointer;z-index:3;background:currentColor}
+.logdesk-point::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);background:#fff8;border-radius:99px}
+.logdesk-point:hover,.logdesk-point.selected{filter:brightness(1.25);box-shadow:0 0 0 2px #e8e8f088,0 0 18px currentColor}
+</style>
 </head>
 <body>
 <div id="app">
@@ -2385,6 +2429,29 @@ function dayLogTypeLabel(t){return t==='habit'?'HABIT':t==='routine'?'ROUTINE':'
 // Sleep Early is a two-point habit: wake time + sleep time. It is deliberately
 // excluded from duration/timeline math so the overnight span is never drawn as a block.
 function dayLogIsSleepWake(e){return !!(e&&e.type==='habit'&&e.sourceId==='sleep'&&e.meta?.sleepWake);}
+function dayLogSleepPoint(e){return dayLogIsSleepWake(e)?(e.meta?.sleepWakePoint||null):null;}
+function dayLogSleepPointLabel(e){const pt=dayLogSleepPoint(e);return pt==='wake'?'WAKE UP':pt==='sleep'?'SLEEP':'SLEEP & WAKE UP EARLY';}
+function dayLogMigrateSleepWakePoints(key){
+  const arr=dayLogEvents(key);
+  let changed=false;
+  for(let i=arr.length-1;i>=0;i--){
+    const e=arr[i];
+    if(!dayLogIsSleepWake(e)||dayLogSleepPoint(e))continue;
+    // Previous build stored both timestamps in one event. Preserve them by
+    // splitting that legacy record into two point events.
+    if(e.end){
+      const wake={...e,id:dayLogId(),title:'Wake Up',end:null,meta:{...(e.meta||{}),sleepWake:true,sleepWakePoint:'wake',completed:true}};
+      const sleep={...e,id:dayLogId(),title:'Sleep',start:e.end,end:null,meta:{...(e.meta||{}),sleepWake:true,sleepWakePoint:'sleep',completed:true}};
+      arr.splice(i,1,wake,sleep);changed=true;
+    }else{
+      e.title='Wake Up';
+      e.meta={...(e.meta||{}),sleepWake:true,sleepWakePoint:'wake',completed:false};
+      changed=true;
+    }
+  }
+  if(changed)dayLogPersist(key);
+  return arr;
+}
 function dayLogDuration(e){
   if(dayLogIsSleepWake(e))return null;
   const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);
@@ -2437,36 +2504,43 @@ function dayLogSyncCompletion(id,key,state){
   if(!item)return;
   const type=item.routine?'routine':'habit';
   const title=item.routine?(ROUTINES[id]?.label||item.label):item.label;
-  const existing=dayLogFindLinked(type,id,key);
 
-  // Sleep Early is intentionally not a duration block. First tap = wake timestamp;
-  // second tap = sleep timestamp. The overnight interval stays out of the timeline.
+  // Sleep & Wake Up Early is a three-state habit:
+  // none → WAKE point → WAKE + SLEEP point. Both are separate log events and
+  // neither has an end time, so the overnight interval can never become a block.
   if(id==='sleep' && type==='habit'){
+    dayLogMigrateSleepWakePoints(key);
+    const arr=dayLogEvents(key);
+    const wake=arr.find(e=>dayLogSleepPoint(e)==='wake');
+    const sleep=arr.find(e=>dayLogSleepPoint(e)==='sleep');
     if(state===0.5){
-      if(existing){
-        existing.title=title;
-        existing.meta={...(existing.meta||{}),sleepWake:true,light:true,completed:false};
-        dayLogPersist(key);
-      }else{
+      if(!wake){
         const now=dayLogNowISO();
-        dayLogAdd(title,now,null,'habit',id,{sleepWake:true,light:true,completed:false});
+        dayLogAdd('Wake Up',now,null,'habit',id,{sleepWake:true,sleepWakePoint:'wake',light:true,completed:false});
+      }else{
+        wake.meta={...(wake.meta||{}),sleepWake:true,sleepWakePoint:'wake',light:true,completed:false};
+        dayLogPersist(key);
       }
     }else if(state===true){
-      const now=dayLogNowISO();
-      if(existing){
-        existing.title=title;
-        existing.end=now;
-        existing.meta={...(existing.meta||{}),sleepWake:true,light:false,completed:true};
-        dayLogPersist(key);
-      }else{
-        // Defensive fallback if the first tap was missed.
-        dayLogAdd(title,now,now,'habit',id,{sleepWake:true,completed:true});
+      if(!wake){
+        const now=dayLogNowISO();
+        dayLogAdd('Wake Up',now,null,'habit',id,{sleepWake:true,sleepWakePoint:'wake',completed:true});
       }
-    }else if(existing){
-      const arr=dayLogEvents(key),i=arr.indexOf(existing);if(i>=0)arr.splice(i,1);dayLogPersist(key);
+      if(!sleep){
+        const now=dayLogNowISO();
+        dayLogAdd('Sleep',now,null,'habit',id,{sleepWake:true,sleepWakePoint:'sleep',completed:true});
+      }
+      // Re-read because dayLogAdd mutates the backing array.
+      dayLogEvents(key).filter(e=>dayLogSleepPoint(e)==='wake'||dayLogSleepPoint(e)==='sleep').forEach(e=>e.meta={...(e.meta||{}),sleepWake:true,sleepWakePoint:dayLogSleepPoint(e),completed:true,light:false});
+      dayLogPersist(key);
+    }else{
+      const a=dayLogEvents(key),keep=a.filter(e=>!dayLogIsSleepWake(e));
+      a.length=0;a.push(...keep);dayLogPersist(key);
     }
     return;
   }
+
+  const existing=dayLogFindLinked(type,id,key);
 
   if(state===true){
     if(existing){
@@ -4819,7 +4893,9 @@ function dayLogPanelDelete(key){
 }
 
 function renderDayLogTab(){
-  const key=todayKey(), s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));
+  const key=todayKey();
+  dayLogMigrateSleepWakePoints(key);
+  const s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));
   const active=!!dayLogActiveId();
   if(!window.__dayLogSelectedId || !evs.some(e=>e.id===window.__dayLogSelectedId)) window.__dayLogSelectedId=evs[0]?.id||null;
   const selected=evs.find(e=>e.id===window.__dayLogSelectedId)||null;
@@ -4841,10 +4917,11 @@ function renderDayLogTab(){
           <div class="logdesk-card-title">TODAY'S TIMELINE</div>
           <div class="logdesk-ticks">${ticks.map(h=>`<span>${String(h).padStart(2,'0')}</span>`).join('')}</div>
           <div class="logdesk-timeline">
-            ${evs.filter(e=>!dayLogIsSleepWake(e)).map((e,i)=>{
-              const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);if(a==null)return '';
-              const aa=Math.max(totalStart,Math.min(totalEnd,a)),bb=Math.max(aa+2,Math.min(totalEnd,b??Math.min(totalEnd,a+20)));
-              const left=((aa-totalStart)/span)*100,width=((bb-aa)/span)*100;
+            ${evs.map((e,i)=>{
+              const a=dayLogMinutes(e.start);if(a==null)return '';
+              const aa=Math.max(totalStart,Math.min(totalEnd,a)),left=((aa-totalStart)/span)*100;
+              if(dayLogIsSleepWake(e))return `<button type="button" class="logdesk-point s${i%4} ${e.id===window.__dayLogSelectedId?'selected':''}" style="left:${left}%" title="${dayLogEsc(dayLogSleepPointLabel(e))}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')" aria-label="Edit ${dayLogEsc(dayLogSleepPointLabel(e))}"></button>`;
+              const b=dayLogMinutes(e.end),bb=Math.max(aa+2,Math.min(totalEnd,b??Math.min(totalEnd,a+20))),width=((bb-aa)/span)*100;
               return `<button type="button" class="logdesk-seg s${i%4} ${e.id===window.__dayLogSelectedId?'selected':''}" style="left:${left}%;width:${Math.max(1.2,width)}%" title="${dayLogEsc(e.title)}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')" aria-label="Edit ${dayLogEsc(e.title)}"></button>`;
             }).join('')}
           </div>
@@ -4858,7 +4935,7 @@ function renderDayLogTab(){
             const dur=dayLogDuration(e),running=!e.end;
             return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')">
               <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:' · NOW'}</div>
-              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':'')}</div></div>
+              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogIsSleepWake(e)?dayLogEsc(dayLogSleepPointLabel(e)):dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?'SLEEP & WAKE UP EARLY':(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':''))}</div></div>
               <div><span class="logdesk-type ${e.type}">${dayLogTypeLabel(e.type)}</span></div>
               <div class="logdesk-duration">${dur==null?'—':dayLogFmt(dur)}</div>
               <button class="logdesk-edit" type="button" onclick="event.stopPropagation();dayLogPanelSelect('${dayLogEsc(e.id)}')" aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
@@ -5294,7 +5371,10 @@ function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)
 // Everything else keeps the plain boolean toggle it always had.
 function toggleHabit(id,key){
   haptic(10);const ch={...getChecked(key)};
-  if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
+  if(id==='sleep'){
+    // Sleep & Wake Up Early: none → wake logged → sleep logged → clear.
+    const v=ch[id];ch[id]=v===undefined?0.5:(v===0.5?true:false);
+  }else if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
   else ch[id]=!ch[id];
   setChecked(key,ch);persistDay(key);
   if(key===todayKey())dayLogSyncCompletion(id,key,ch[id]);

@@ -2338,6 +2338,54 @@ function getDayRecord(key){
 
 // ── Writes — optimistic local, then push to server ─────────
 const _pending={};
+const _offlineKey='shaah-offline-day-writes';
+let _offlineQueue={};
+try{_offlineQueue=JSON.parse(localStorage.getItem(_offlineKey)||'{}')||{};}catch(e){_offlineQueue={};}
+function saveOfflineQueue(){try{localStorage.setItem(_offlineKey,JSON.stringify(_offlineQueue));}catch(e){}}
+function queueOfflineDay(key){
+  if(!DATE_RE.test(key))return;
+  const st=_state[key]||{};
+  const ch=getChecked(key),soc=getSocial(key),ppl=getPeople(key);
+  const dl=Array.isArray(st._daylog)?st._daylog:[];
+  const anything=Object.values(ch).some(Boolean)||Object.values(soc).some(Boolean)
+                 ||!!getNote(key)||ppl.length>0||dl.length>0;
+  _offlineQueue[key]=anything?{delete:false,data:{score:calcScore(key).score,grade:GRADE(calcScore(key).score,calcScore(key).max).l,l1:calcScore(key).l1,l2:calcScore(key).l2,l3:calcScore(key).l3,done:calcScore(key).done,max:calcScore(key).max,pct:calcScore(key).pct,_checks:ch,_social:soc,_people:ppl,_note:(st&&st.note)||'',_daylog:dl}}:{delete:true};
+  saveOfflineQueue();
+}
+async function flushOfflineQueue(){
+  if(!USER||!navigator.onLine)return;
+  const entries=Object.entries(_offlineQueue);
+  for(const [key,item] of entries){
+    const token=Symbol(key),pending={timer:null,token};
+    _pending[key]=pending;
+    try{
+      if(item&&item.delete){
+        const r=await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
+        if(r&&r.error)throw r.error;
+        delete _state[key];
+      }else if(item&&item.data){
+        const r=await sb.from('day_logs').upsert({user_id:USER.id,date:key,data:item.data},{onConflict:'user_id,date'});
+        if(r&&r.error)throw r.error;
+      }
+      delete _offlineQueue[key];
+      saveOfflineQueue();
+    }catch(e){
+      break;
+    }finally{
+      if(_pending[key]===pending)delete _pending[key];
+    }
+  }
+  if(!Object.keys(_offlineQueue).length)setStatus(_live?'LIVE':'✓','#4ade80');
+}
+function restoreOfflineQueue(){
+  for(const [key,item] of Object.entries(_offlineQueue)){
+    if(!DATE_RE.test(key))continue;
+    if(item&&item.delete){delete _state[key];continue;}
+    const d=item&&item.data;if(!d)continue;
+    _state[key]={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]};
+  }
+}
+window.addEventListener('online',()=>{setStatus('SYNC…','#f59e0b');flushOfflineQueue();render();});
 function persistDay(key){
   if(!DATE_RE.test(key))return;
   saveCache();
@@ -2372,7 +2420,10 @@ function persistDay(key){
         if(r&&r.error)throw r.error;
       }
       if(_live)setStatus('LIVE','#4ade80');
-    }catch(e){ setStatus('SAVE FAILED','#ef4444'); }
+    }catch(e){
+      queueOfflineDay(key);
+      setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');
+    }
     finally{
       // Only the request that owns the current marker may clear it. A newer
       // edit has already installed a different token and remains protected.
@@ -2628,6 +2679,7 @@ async function loadAll(){
     bakLoad(rows);
     _state={};
     rows.forEach(rowToState);
+    restoreOfflineQueue();
     adoptLegacyIfVeteran(hadSettings,dayRows);
     _cfgReady=true;                       // a partir de aquí ya es seguro escribir
     ensureBaseline();
@@ -2644,6 +2696,7 @@ async function loadAll(){
     recoverPeopleFromDays();
     saveCache();
     setStatus(_live?'LIVE':'✓','#4ade80');
+    if(Object.keys(_offlineQueue).length)flushOfflineQueue();
   }catch(e){
     setStatus('OFFLINE','#ef4444');
   }

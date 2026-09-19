@@ -1589,7 +1589,7 @@ select:focus-visible,
 </style><style>
 /* MOBILE TODAY — compact Day Log field, between habits and Day Note. */
 @media(max-width:879px){
-  .today .t-score-stack .t-ring{width:104px !important;height:104px !important;}
+  .today .t-score-stack .t-ring{width:115px !important;height:115px !important;}
   /* Mobile: the desktop quick-log button must not render under the ring. */
   .today .t-score-stack > .today-log-start,
   .today .today-log-start{display:none !important;visibility:hidden !important;}
@@ -4288,7 +4288,7 @@ function renderToday(key,nested=false){
   const L1vis=C.inVacation?C.L1.filter(i=>i.id!=='work'):C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
-  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:104;
+  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px">
     ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>

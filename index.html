@@ -1106,22 +1106,42 @@ function dayLogAddManual(){
 }
 function dayLogEdit(id,key=todayKey()){
   const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
-  const title=prompt('Activity',ev.title);if(title==null)return;
   const fmtTime=iso=>{
-    const d=new Date(iso),tz=dayLogTz();
-    return new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(d);
+    const mins=dayLogMinutes(iso);if(mins==null)return '';
+    return `${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`;
   };
-  const sm=prompt('Start time (HH:MM)',fmtTime(ev.start));
-  if(sm==null)return;
-  const em=ev.end?prompt('End time (HH:MM)',fmtTime(ev.end)):null;
-  const valid=/^\d{1,2}:\d{2}$/.test(sm)&&(em==null||/^\d{1,2}:\d{2}$/.test(em));
-  if(!valid){alert('Use HH:MM.');return;}
+  const old=document.getElementById('dayLogEditModal');if(old)old.remove();
+  const modal=document.createElement('div');
+  modal.id='dayLogEditModal';
+  modal.className='daylog-edit-modal';
+  modal.innerHTML=`<div class="daylog-edit-backdrop" onclick="dayLogEditClose()"></div>
+    <div class="daylog-edit-card" role="dialog" aria-modal="true" aria-labelledby="daylogEditTitle">
+      <div class="daylog-edit-head"><div><div class="daylog-edit-kicker">EDIT ACTIVITY</div><div id="daylogEditTitle" class="daylog-edit-title">DAY LOG</div></div><button type="button" onclick="dayLogEditClose()" aria-label="Close">×</button></div>
+      <label>ACTIVITY<input id="daylogEditName" type="text" maxlength="120" value="${dayLogEsc(ev.title)}" autocomplete="off"></label>
+      <div class="daylog-edit-times">
+        <label>START<input id="daylogEditStart" type="time" value="${fmtTime(ev.start)}"></label>
+        ${ev.end?`<label>END<input id="daylogEditEnd" type="time" value="${fmtTime(ev.end)}"></label>`:''}
+      </div>
+      <div class="daylog-edit-actions"><button type="button" class="secondary" onclick="dayLogEditClose()">CANCEL</button><button type="button" onclick="dayLogEditSave('${dayLogEsc(id)}','${dayLogEsc(key)}')">SAVE</button></div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(()=>document.getElementById('daylogEditName')?.focus(),30);
+}
+function dayLogEditClose(){document.getElementById('dayLogEditModal')?.remove();}
+function dayLogEditSave(id,key){
+  const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
+  const title=(document.getElementById('daylogEditName')?.value||'').trim();
+  const sm=document.getElementById('daylogEditStart')?.value||'';
+  const endEl=document.getElementById('daylogEditEnd');
+  const em=endEl?endEl.value:null;
+  const valid=/^\d{2}:\d{2}$/.test(sm)&&(em==null||/^\d{2}:\d{2}$/.test(em));
+  if(!valid){alert('Please enter a valid time.');return;}
   const parse=s=>{const [h,m]=s.split(':').map(Number);return h*60+m;};
   const a=parse(sm),b=em==null?null:parse(em);
   if(a>1439||(b!=null&&b>1439)||(b!=null&&b<a)){alert('End must be after start.');return;}
   const start=dayLogDateTime(key,a).toISOString(),end=b==null?null:dayLogDateTime(key,b).toISOString();
-  Object.assign(ev,{title:title.trim()||ev.title,start,end});
-  dayLogPersist(key);render();
+  Object.assign(ev,{title:title||ev.title,start,end});
+  dayLogPersist(key);dayLogEditClose();render();
 }
 function dayLogGapEvents(key){
   const evs=dayLogSort(dayLogEvents(key));let prev=null,gaps=[];
@@ -3341,7 +3361,7 @@ function renderDayLogTab(){
             if(a!=null&&b!=null&&b>a)gapHtml=`<div class="log-gap"><span>⚠</span><b>${dayLogFmt(b-a)}</b><small>UNTRACKED</small><button onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">CLASSIFY</button></div>`;
           }
           return `${gapHtml}<div class="log-event ${running?"running":""}" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">
-            <div class="log-event-time">${new Date(e.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+            <div class="log-event-time">${(()=>{const m=dayLogMinutes(e.start);return m==null?'—':`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`})()}</div>
             <div class="log-line"></div>
             <div class="log-event-body">
               <div class="log-event-title">${dayLogEsc(e.title)}</div>
@@ -4254,6 +4274,20 @@ boot();
     white-space:nowrap !important;
   }
 }
+</style>
+<style>
+/* Day Log edit sheet — one place for name + time */
+.daylog-edit-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.daylog-edit-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(5px)}
+.daylog-edit-card{position:relative;width:min(440px,100%);padding:20px;border:1px solid #25253a;border-radius:16px;background:#0b0b15;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.daylog-edit-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.daylog-edit-head button{background:none;border:0;color:#77778f;font-size:27px;line-height:1;cursor:pointer;padding:2px 6px}
+.daylog-edit-kicker{font-size:10px;letter-spacing:.14em;color:#77778f}.daylog-edit-title{margin-top:3px;font-size:18px;font-weight:700;color:#e4e4ec}
+.daylog-edit-card label{display:block;font-size:10px;letter-spacing:.12em;color:#77778f;margin-bottom:14px}
+.daylog-edit-card input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px 13px;border:1px solid #29293d;border-radius:9px;background:#11111d;color:#e8e8ef;font:inherit;outline:none}
+.daylog-edit-card input:focus{border-color:#55556f}
+.daylog-edit-times{display:grid;grid-template-columns:1fr 1fr;gap:12px}.daylog-edit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.daylog-edit-actions button{border:1px solid #303046;border-radius:9px;padding:10px 16px;background:#e7e7ee;color:#101018;font:700 11px inherit;letter-spacing:.1em;cursor:pointer}.daylog-edit-actions .secondary{background:transparent;color:#aaaabb}
+@media(max-width:520px){.daylog-edit-modal{align-items:flex-end;padding:12px}.daylog-edit-card{border-radius:16px 16px 12px 12px}}
 </style>
 </body>
 

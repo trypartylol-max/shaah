@@ -2020,20 +2020,32 @@ function bakRestore(i){
   CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);
   haptic([30,40,30]); applyCfg(); saveCfg(); render();
 }
+let _cfgSaveChain=Promise.resolve();
+let _cfgSavePending=false;
+let _cfgSyncStamp=0;
+function queueCfgServerSave(){
+  if(!USER||!_cfgReady)return;
+  _cfgSavePending=true;
+  _cfgSaveChain=_cfgSaveChain.then(async()=>{
+    const snapshot=JSON.parse(JSON.stringify(CFG));
+    const stamp=Number(snapshot._syncAt)||Date.now();
+    snapshot._syncAt=stamp;
+    const r=await sb.from('day_logs').upsert({
+      user_id:USER.id,date:'settings',data:{_cfg:snapshot}
+    },{onConflict:'user_id,date'});
+    if(r&&r.error)throw r.error;
+  }).catch(e=>{ setStatus('SAVE FAILED','#ef4444'); })
+    .finally(()=>{ _cfgSavePending=false; });
+}
 function saveCfg(){
   const prev=get(cfgKey());           // lo que había ANTES de este guardado
   if(prev)bakBefore(prev);
+  _cfgSyncStamp=Date.now();
+  CFG._syncAt=_cfgSyncStamp;
   set(cfgKey(),CFG); applyCfg();
-  // Guardar antes de haber leído del servidor sobreescribe la config buena con la
-  // que haya en memoria (posiblemente la genérica). Pasó el 13/09 y borró personas.
-  if(USER&&_cfgReady){
-    Promise.resolve()
-      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
-      .then(r=>{ const e=r&&r.error;
-        if(e)setStatus('SAVE FAILED','#ef4444');
-      })
-      .catch(e=>{ setStatus('SAVE FAILED','#ef4444'); });
-  }
+  // Los guardados de settings se serializan: nunca dejamos que dos upserts
+  // salgan en paralelo y terminen aplicándose en orden inverso.
+  queueCfgServerSave();
   bakPush(CFG);                       // y también el estado nuevo
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
@@ -2062,6 +2074,13 @@ function rowToState(row){
   if(row.date==='cfgbak')return;
   if(row.date==='settings'){
     if(row.data&&row.data._cfg){
+      const incomingStamp=Number(row.data._cfg._syncAt)||0;
+      // Un eco/realtime viejo no puede pisar una edición local que todavía se
+      // está guardando. Si ambas versiones ya están sincronizadas, gana la más
+      // reciente; las filas antiguas sin sello siguen siendo compatibles.
+      if(_cfgSavePending && incomingStamp < _cfgSyncStamp)return;
+      if(!_cfgSavePending && incomingStamp && _cfgSyncStamp && incomingStamp < _cfgSyncStamp)return;
+      _cfgSyncStamp=Math.max(_cfgSyncStamp,incomingStamp);
       const local=get(cfgKey());
       const prevLog=Array.isArray(CFG.log)?CFG.log:(local&&Array.isArray(local.log)?local.log:[]);
       const prevV={subsV:CFG.subsV,junkV:CFG.junkV};
@@ -2783,12 +2802,12 @@ function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
 // Preferencia de interfaz: se guarda sin pasar por saveCfg() para no tocar el
 // anillo de respaldos (5 huecos; una copia buena vale mas que un plegado).
 function saveCfgPref(){
+  _cfgSyncStamp=Date.now();
+  CFG._syncAt=_cfgSyncStamp;
   set(cfgKey(),CFG);
-  if(USER&&_cfgReady){
-    Promise.resolve()
-      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
-      .catch(()=>{});
-  }
+  // Las preferencias de UI usan el mismo canal serializado de settings, pero no
+  // generan una copia de backup adicional.
+  queueCfgServerSave();
 }
 // La config manda; localStorage es solo el eco local (y la migracion de quien ya
 // tenia niveles plegados antes de que esto viajara al servidor).

@@ -3908,7 +3908,7 @@ function renderWeekday(){
   const con=w.filter(x=>x.n);
   const mejor=con.reduce((m,x)=>!m||x.avg>m.avg?x:m,null);
   const peor=con.reduce((m,x)=>!m||x.avg<m.avg?x:m,null);
-  return`<div><div class="sec">BY WEEKDAY</div><div class="card">
+  return`<div><div class="sec">ALL-TIME BY WEEKDAY</div><div class="card">
     <div style="display:flex;align-items:flex-end;gap:8px;height:118px">
       ${w.map(x=>{const g=x.n?GRADE(x.avg,100):null, h=x.n?Math.max(7,Math.round(x.avg/100*82)):3;
       return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;min-width:0">
@@ -3917,7 +3917,7 @@ function renderWeekday(){
         <span style="font-size:12.5px;color:#8888a4;letter-spacing:.08em">${N[x.dia]}</span>
       </div>`;}).join("")}
     </div>
-    ${mejor&&peor&&mejor.dia!==peor.dia?`<div style="margin-top:13px;font-size:14.5px;color:#9a9ab2;line-height:1.5">Your best day is <b style="color:${GRADE(mejor.avg,100).c}">${N[mejor.dia]}</b> (${mejor.avg}%) · weakest is <b style="color:${GRADE(peor.avg,100).c}">${N[peor.dia]}</b> (${peor.avg}%)</div>`:""}
+    ${mejor&&peor&&mejor.dia!==peor.dia?`<div style="margin-top:13px;font-size:14.5px;color:#9a9ab2;line-height:1.5">Best historical weekday: <b style="color:${GRADE(mejor.avg,100).c}">${N[mejor.dia]}</b> (${mejor.avg}%) · Weakest: <b style="color:${GRADE(peor.avg,100).c}">${N[peor.dia]}</b> (${peor.avg}%)</div>`:""}
   </div></div>`;
 }
 

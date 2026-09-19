@@ -1,18 +1,22 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="SHAAH"/>
-<meta name="theme-color" content="#07070f"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="SHAAH" name="apple-mobile-web-app-title"/>
+<meta content="#07070f" name="theme-color"/>
 <title>SHAAH</title>
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22SHAAH%22%2C%22short_name%22%3A%22SHAAH%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%2307070f%22%2C%22theme_color%22%3A%22%2307070f%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE%2FYAAAAASFBMVEXk5OT%2F4QD%2F1wD91wD00RJsYCMUFCYQEB0LCxUKChIJCRIICBILChAJCBAICBEICBAHCBAHBxUIBxAHBxAGBxAHBw8HBw4BAQ%2Fpfe25AAAKH0lEQVR42u2d63rjKAyGfeZQbGZqJ9z%2FnS7CbsLRBoy72Wetf5lpmzfqh5BBUqvHf9CqG%2FqGvqFv6Bv6hr6hb%2Bgb%2Boa%2BoW%2Fo%2FyX0bNinQ8879pHQc4R9FLQPcGRsvAq8usbFIxPSOLvG4dUlqpDIqO8HIcbvK7CrK4TMxNC1dd12veD8AnlXFyw9Jvq6btq2qes%2B5OtT3NU1zK1EbiQ3UJcPJlXxCMcX1NWA%2FEPNisfAqnRQ5srRzWYKmpcO3VVJZA7GRKdDd0wwaSMviF2VYlbA%2FPF8mNBNi1TIXiR4IJL8BnSQ%2BPnkGCM0IA0aZN11MmQD%2Bcz8SrkcOoT85BSjQRnqdehGBj5pGzj36%2BRa6ADxg6CNWNka8F6uBqvVXjNwIbzuvhLai%2FzgWCdeXW34ekVvlMORH%2FsyaD8yNYmV9WpDdLlhb4eU5CR2dY75STzIQN3Jjdxj4G9ISYQnb70C2odM%2FchSIUPft00Iu%2B4GGQN5NnWVyay0HEIG%2Bzt0jR8bNvdWant0sEtDe9yMh30LQsOeUyuNZFJXmcz7bj6CViLpkKvsktDpbl6hw9SrRtwHsnLQrpwjmIe2%2FtlZghrpvx2JXAMNzCiCWT5xwTNXrR5ivODS2SARfgm0LedpnxkhjDGlcmeHwNf3Xdes4B5sCH7p1FU6M9nlpdMM3zFN07IsQhmTe01b%2BzbJRgk7mbpKZsY7xPwBtJtR6W3I%2FwmwI8Xt2dubOp06DXqHGYj55DVgX7lrXyblUJ%2BHjmNGVPexDxy4mcI%2BT12lMZMQ8nRslM0K295z0qmrFGY%2B5SODjWyS2G3tULeDddBQChqSZ1%2Bsw%2FM8xRtbxNDZypYfA5nUZ6AtcXiY0VcKshKJgFMzm7pj32M0dRXvaF%2B%2BgULIVJnf2VT0nUNtyTof%2BnAR4kcIVzcXWyAvdayr46G5y0znY2IvN5Pr0aR2FmMutCkOV9DTHEfs4Zbr0aauu3Ec46irWHG4gp54ArKNTahLHS2QKlscycwmNbWppUBQpECioH2ONvVMI0339byYq9GOIDnQhqOpu6XkMJvUC%2FZQx7i6inK0swrRIwvZxGbCOvWTWwwfz0DrjnZCtLGnUJpP3We5uspy9NcJ5h1qcPWfMR96V9F4PsOsUZMFWQKJcnWV4Wh0klmjdl29RASQGOgpHO0oPUc9TpN52VEbm3ka9F52p0eOs9Cuq2P0EQFtp9H0PLMua%2F0yTD6JdWgZC0CToKMpPU%2B97%2Bo8aHcZFnF02NV1lwu9o45IR5PNzFfk0NVwWyqO9HEMbQVpzH3MBG%2B2YU3PRdlzVi%2BX5%2FJU5vP1zExXH%2BvjENqKHcgf7rZTOyEW9fLr9U0Ivux9Yhnh6vPQjqTf6tDeHou%2B2mwQ2HjdC3D%2Bz6sKzcShlnmTKerxD8%2BA3sn%2B8bQP3VvQ8kPgZXhBP32unkdzgzncX6q0gOdXBxZDEHrB9v%2Be18cRtPXI4lUHJZovLWjs%2Fh48%2BigMbUn6nd8Z0BN%2BQa%2Be1z%2FDITRdkHYTFhGpq4N1aEVp6g%2FS5E0p9UDxolPay9TVB7GLcbSdPAfaWoezf2MJrjwFvbyDx0LooT7MlZgDTQPrMAgtMbWVZwUPQShNFHUs9E7weMRAo%2FcrT2gpsBKrpOCBozxtUobX4QuaCNQ27e9DaxJAL8gN%2Br1IA%2FKQ4aMkdFTEk9Hj%2BYbWDU0Yz8i%2FHxrQrKsvg6ahrFQL1JpB4rEnaU0fZsz7HWhNA5o9ZQYdjtIfAN27fiYcS%2Br59Q94op8O3YsJkwN1fBZ032O5rRyq4xJoxtKhe4yofIShgEzw08z%2FfgEa%2BhGguuDgAdEO1PKl8rLp6B110JmVguZcQIVJ1%2FWHcdoI1DLN%2B3n41jb0PUeX21yAGWp5VO3fIbT2HIjnjVomIUO1p%2Bjy0OPaj6AqRLuDhMkI1PCEpexLY%2FaJI%2FhomwP9ePdQvH7Mquu%2Fj4iVOIivtRJIS0KqJyV70OdTUwXNtQUN16l%2F1Xqco8LHAF%2Fa60FweGIaDZ39EDDCJY7%2B4WFNti1baCh89FXYvIIOPW412Y9b9h1OsxbYyeTyOObFMoeSvG7m30WgtxUp1RYIH2HongaY31uL9VvNfRrnxsOEFvZJIKNeUABZrkucckR95txjFJ1b2AXnsAFR09lHDLX0mBwcUVPzhDrzWGxbiZ4iurA%2BjJUI1ZpyH%2F0SYsH46Fwd1GHeJR6sw51T01GVGrX2RXBIH5QK2xaKg17eUUd35qiXQalRbTQkgD5CQY9i20jcBYaljpPn0wwqLaU1rVcfp65cgjdFESe9%2BxdFqlXM%2FuWRuexFkauO8fvU7RZnzExmyrl60oN0W%2FZKbh7%2FWPc4HSl6%2Belcbg0FoGff7WS5a2bH0V3%2BNbPuaiNDV3F0pgWh0y9sY6oQLnD1bpVKidKJmRn5zFarWKZIhTqVE6eKVExXWz9ZbovjJeVAUTUIcYVX3vqojyy82nH1OWq9MM%2FpIY5ydFwxoaeADunUecWElIjixYQ7AWSNe%2BRc2ebk%2B6GclyuQHeVTXGs7xS54TUN2mOMdHVvV630HSvJLkSf9XCW1wj626Ntei%2Bo9DIUkFX1TD7Nchex00be1FpHV5yapl4XlldcTYjMniCMe2j0I2SZK5DUy%2BJl5Ceh9Wa%2FdhISktoxQb%2FNFt8R2BKQ058if6b5Vq%2FrWk7pz2B9Pm0ub1FKU0LvFFtdBcJ4qJhaPLNU8uQ1FSV0uSdDOxri1yfaTIJHYBNTstm6ltskltfY5cerdt04iRAItiUPv6Ugs3NoXQ93WCntmZN%2FJFJDbwLHVmMCc2q7qo96wpRulL2mgXxXOn3qJ7Hbtq1lNSczJjcFA7XljhT2MQizQC0x%2Bgp2MetAaDHcZ6%2FQMf4utyVwC2qV2Wjc3bBhMg9ZTvIXB9RabF70Hu%2FUNKslgzmh2hxhS%2BxrXV24J3qN1jJGkRUjde9T%2BrvGtATuVOWeswLqh%2BecEqME0ddv9WLsOFgjNFVCt7snMWQMcVDdhExqUovjqzV7%2FEDsKoRy0Pd4DugnbOjwIo9UsPCujzh06kTmUZIQxfvXO0JFDU1tp5niP7PEvTHzvOvsQGZKWzEEq2YN2ZsYF6uss7PbkyJozI43W5CcZe0UePZOYHuWh3eFRMgEaV%2Bw2nrhdZ3V5poc%2BroD2jLySGmHb9txGETcr8vJrY7r82PM7rdgFX4lbSKyWUzO6HiVGzzH2MyelDuwk%2Buw5SGHH3x095x3yx1UaJ5OMFdzYWtZP8TPlTwSm5V085O8RnCa8JnNQFFJb1rzmKY5FkMsNruQSaN7S0HWOkTJ1R67yaTW58l8bXBkeEcp%2FEn77jnwMAv%2FaiNDHwTBWx0b%2BAcNYD7ATLPPNLxgwfDXyNaOcr2a%2BZmj21TPhrxlPfvEY%2B4sGwV87ef%2BykftX%2Fq2A%2F%2B8fN4gBL%2Fk%2B9x%2Fs%2BC27oW%2FoG%2FqGvqFv6Bv6hr6hb%2Bgb%2Bob%2BfPsHrAbs6fk55Z0AAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%22180x180%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D"/>
-<link rel="apple-touch-icon" href="data:image/png;base64,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"/>
-<link rel="icon" type="image/png" href="data:image/png;base64,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"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<link href="data:application/manifest+json,%7B%22name%22%3A%22SHAAH%22%2C%22short_name%22%3A%22SHAAH%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%2307070f%22%2C%22theme_color%22%3A%22%2307070f%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE%2FYAAAAASFBMVEXk5OT%2F4QD%2F1wD91wD00RJsYCMUFCYQEB0LCxUKChIJCRIICBILChAJCBAICBEICBAHCBAHBxUIBxAHBxAGBxAHBw8HBw4BAQ%2Fpfe25AAAKH0lEQVR42u2d63rjKAyGfeZQbGZqJ9z%2FnS7CbsLRBoy72Wetf5lpmzfqh5BBUqvHf9CqG%2FqGvqFv6Bv6hr6hb%2Bgb%2Boa%2BoW%2Fo%2FyX0bNinQ8879pHQc4R9FLQPcGRsvAq8usbFIxPSOLvG4dUlqpDIqO8HIcbvK7CrK4TMxNC1dd12veD8AnlXFyw9Jvq6btq2qes%2B5OtT3NU1zK1EbiQ3UJcPJlXxCMcX1NWA%2FEPNisfAqnRQ5srRzWYKmpcO3VVJZA7GRKdDd0wwaSMviF2VYlbA%2FPF8mNBNi1TIXiR4IJL8BnSQ%2BPnkGCM0IA0aZN11MmQD%2Bcz8SrkcOoT85BSjQRnqdehGBj5pGzj36%2BRa6ADxg6CNWNka8F6uBqvVXjNwIbzuvhLai%2FzgWCdeXW34ekVvlMORH%2FsyaD8yNYmV9WpDdLlhb4eU5CR2dY75STzIQN3Jjdxj4G9ISYQnb70C2odM%2FchSIUPft00Iu%2B4GGQN5NnWVyay0HEIG%2Bzt0jR8bNvdWant0sEtDe9yMh30LQsOeUyuNZFJXmcz7bj6CViLpkKvsktDpbl6hw9SrRtwHsnLQrpwjmIe2%2FtlZghrpvx2JXAMNzCiCWT5xwTNXrR5ivODS2SARfgm0LedpnxkhjDGlcmeHwNf3Xdes4B5sCH7p1FU6M9nlpdMM3zFN07IsQhmTe01b%2BzbJRgk7mbpKZsY7xPwBtJtR6W3I%2FwmwI8Xt2dubOp06DXqHGYj55DVgX7lrXyblUJ%2BHjmNGVPexDxy4mcI%2BT12lMZMQ8nRslM0K295z0qmrFGY%2B5SODjWyS2G3tULeDddBQChqSZ1%2Bsw%2FM8xRtbxNDZypYfA5nUZ6AtcXiY0VcKshKJgFMzm7pj32M0dRXvaF%2B%2BgULIVJnf2VT0nUNtyTof%2BnAR4kcIVzcXWyAvdayr46G5y0znY2IvN5Pr0aR2FmMutCkOV9DTHEfs4Zbr0aauu3Ec46irWHG4gp54ArKNTahLHS2QKlscycwmNbWppUBQpECioH2ONvVMI0339byYq9GOIDnQhqOpu6XkMJvUC%2FZQx7i6inK0swrRIwvZxGbCOvWTWwwfz0DrjnZCtLGnUJpP3We5uspy9NcJ5h1qcPWfMR96V9F4PsOsUZMFWQKJcnWV4Wh0klmjdl29RASQGOgpHO0oPUc9TpN52VEbm3ka9F52p0eOs9Cuq2P0EQFtp9H0PLMua%2F0yTD6JdWgZC0CToKMpPU%2B97%2Bo8aHcZFnF02NV1lwu9o45IR5PNzFfk0NVwWyqO9HEMbQVpzH3MBG%2B2YU3PRdlzVi%2BX5%2FJU5vP1zExXH%2BvjENqKHcgf7rZTOyEW9fLr9U0Ivux9Yhnh6vPQjqTf6tDeHou%2B2mwQ2HjdC3D%2Bz6sKzcShlnmTKerxD8%2BA3sn%2B8bQP3VvQ8kPgZXhBP32unkdzgzncX6q0gOdXBxZDEHrB9v%2Be18cRtPXI4lUHJZovLWjs%2Fh48%2BigMbUn6nd8Z0BN%2BQa%2Be1z%2FDITRdkHYTFhGpq4N1aEVp6g%2FS5E0p9UDxolPay9TVB7GLcbSdPAfaWoezf2MJrjwFvbyDx0LooT7MlZgDTQPrMAgtMbWVZwUPQShNFHUs9E7weMRAo%2FcrT2gpsBKrpOCBozxtUobX4QuaCNQ27e9DaxJAL8gN%2Br1IA%2FKQ4aMkdFTEk9Hj%2BYbWDU0Yz8i%2FHxrQrKsvg6ahrFQL1JpB4rEnaU0fZsz7HWhNA5o9ZQYdjtIfAN27fiYcS%2Br59Q94op8O3YsJkwN1fBZ032O5rRyq4xJoxtKhe4yofIShgEzw08z%2FfgEa%2BhGguuDgAdEO1PKl8rLp6B110JmVguZcQIVJ1%2FWHcdoI1DLN%2B3n41jb0PUeX21yAGWp5VO3fIbT2HIjnjVomIUO1p%2Bjy0OPaj6AqRLuDhMkI1PCEpexLY%2FaJI%2FhomwP9ePdQvH7Mquu%2Fj4iVOIivtRJIS0KqJyV70OdTUwXNtQUN16l%2F1Xqco8LHAF%2Fa60FweGIaDZ39EDDCJY7%2B4WFNti1baCh89FXYvIIOPW412Y9b9h1OsxbYyeTyOObFMoeSvG7m30WgtxUp1RYIH2HongaY31uL9VvNfRrnxsOEFvZJIKNeUABZrkucckR95txjFJ1b2AXnsAFR09lHDLX0mBwcUVPzhDrzWGxbiZ4iurA%2BjJUI1ZpyH%2F0SYsH46Fwd1GHeJR6sw51T01GVGrX2RXBIH5QK2xaKg17eUUd35qiXQalRbTQkgD5CQY9i20jcBYaljpPn0wwqLaU1rVcfp65cgjdFESe9%2BxdFqlXM%2FuWRuexFkauO8fvU7RZnzExmyrl60oN0W%2FZKbh7%2FWPc4HSl6%2Belcbg0FoGff7WS5a2bH0V3%2BNbPuaiNDV3F0pgWh0y9sY6oQLnD1bpVKidKJmRn5zFarWKZIhTqVE6eKVExXWz9ZbovjJeVAUTUIcYVX3vqojyy82nH1OWq9MM%2FpIY5ydFwxoaeADunUecWElIjixYQ7AWSNe%2BRc2ebk%2B6GclyuQHeVTXGs7xS54TUN2mOMdHVvV630HSvJLkSf9XCW1wj626Ntei%2Bo9DIUkFX1TD7Nchex00be1FpHV5yapl4XlldcTYjMniCMe2j0I2SZK5DUy%2BJl5Ceh9Wa%2FdhISktoxQb%2FNFt8R2BKQ058if6b5Vq%2FrWk7pz2B9Pm0ub1FKU0LvFFtdBcJ4qJhaPLNU8uQ1FSV0uSdDOxri1yfaTIJHYBNTstm6ltskltfY5cerdt04iRAItiUPv6Ugs3NoXQ93WCntmZN%2FJFJDbwLHVmMCc2q7qo96wpRulL2mgXxXOn3qJ7Hbtq1lNSczJjcFA7XljhT2MQizQC0x%2Bgp2MetAaDHcZ6%2FQMf4utyVwC2qV2Wjc3bBhMg9ZTvIXB9RabF70Hu%2FUNKslgzmh2hxhS%2BxrXV24J3qN1jJGkRUjde9T%2BrvGtATuVOWeswLqh%2BecEqME0ddv9WLsOFgjNFVCt7snMWQMcVDdhExqUovjqzV7%2FEDsKoRy0Pd4DugnbOjwIo9UsPCujzh06kTmUZIQxfvXO0JFDU1tp5niP7PEvTHzvOvsQGZKWzEEq2YN2ZsYF6uss7PbkyJozI43W5CcZe0UePZOYHuWh3eFRMgEaV%2Bw2nrhdZ3V5poc%2BroD2jLySGmHb9txGETcr8vJrY7r82PM7rdgFX4lbSKyWUzO6HiVGzzH2MyelDuwk%2Buw5SGHH3x095x3yx1UaJ5OMFdzYWtZP8TPlTwSm5V085O8RnCa8JnNQFFJb1rzmKY5FkMsNruQSaN7S0HWOkTJ1R67yaTW58l8bXBkeEcp%2FEn77jnwMAv%2FaiNDHwTBWx0b%2BAcNYD7ATLPPNLxgwfDXyNaOcr2a%2BZmj21TPhrxlPfvEY%2B4sGwV87ef%2BykftX%2Fq2A%2F%2B8fN4gBL%2Fk%2B9x%2Fs%2BC27oW%2FoG%2FqGvqFv6Bv6hr6hb%2Bgb%2Bob%2BfPsHrAbs6fk55Z0AAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%22180x180%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D" rel="manifest"/>
+<link href="data:image/png;base64,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" rel="apple-touch-icon"/>
+<link href="data:image/png;base64,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" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+
+
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
@@ -22,6 +26,27 @@ html,body{height:100%;background:#07070f;color:#ececf2;font-family:'DM Sans','DM
   overscroll-behavior:none;touch-action:manipulation;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.5;}
 input,textarea{-webkit-user-select:text;user-select:text;}
+
+/* Accessibility: preserve a visible keyboard focus ring without changing normal visuals. */
+button:focus-visible,
+a[href]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible{
+  outline:2px solid rgba(226,226,238,.72);
+  outline-offset:2px;
+}
+
+/* Accessibility: respect users who request reduced motion. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
 
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:smooth;}
@@ -458,6 +483,63 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 }
 
 
+
+/* LOG ACTIVITY — desktop timeline + editable activity center */
+.logdesk-shell{width:min(1420px,100%);margin:0 auto;padding:6px 20px calc(88px + env(safe-area-inset-bottom));box-sizing:border-box}
+.logdesk-grid{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:14px;align-items:stretch}
+.logdesk-left{min-width:0}
+.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor{border:1px solid #17172b;border-radius:16px;background:#0b0b16;box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.logdesk-timeline-card{padding:17px 18px 14px}
+.logdesk-card-title{font-family:'Bebas Neue';font-size:15px;letter-spacing:.12em;color:#d5d5df}
+.logdesk-timeline{position:relative;height:58px;margin:14px 0 4px;border-radius:11px;background:#111124;overflow:hidden;border:1px solid #17172b}
+.logdesk-ticks{display:flex;justify-content:space-between;color:#66667e;font-size:9px;font-variant-numeric:tabular-nums;margin-bottom:3px}
+.logdesk-seg{position:absolute;top:15px;height:27px;border-radius:8px;min-width:2px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);cursor:pointer;transition:filter .15s,transform .15s}
+.logdesk-seg:hover,.logdesk-seg.selected{filter:brightness(1.18);transform:translateY(-1px)}
+.logdesk-seg.selected{box-shadow:0 0 0 2px #e8e8f088,0 0 18px #ffffff18}
+.logdesk-seg.s0{background:#12cfa8}.logdesk-seg.s1{background:#f4b62b}.logdesk-seg.s2{background:#178ee8}.logdesk-seg.s3{background:#9b45e9}.logdesk-seg.s4{background:#65708d}
+.logdesk-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:9px;color:#a4a4b7;font-size:10px}
+.logdesk-legend i{display:inline-block;width:8px;height:8px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.logdesk-list-card{margin-top:12px;padding:16px 18px 10px}
+.logdesk-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.logdesk-sort{border:1px solid #22223a;background:#0f0f1d;color:#aaaabd;border-radius:9px;padding:7px 9px;font:inherit;font-size:10px;cursor:pointer}
+.logdesk-table-head,.logdesk-row{display:grid;grid-template-columns:155px minmax(180px,1.35fr) 105px 82px 34px;gap:10px;align-items:center}
+.logdesk-table-head{padding:0 8px 8px;border-bottom:1px solid #18182b;color:#62627a;font-size:9px;letter-spacing:.1em}
+.logdesk-row{min-height:57px;padding:6px 8px;border-bottom:1px solid #141426;cursor:pointer;border-left:2px solid transparent}
+.logdesk-row:hover{background:#0e1020}
+.logdesk-row.selected{background:#0d1b31;border-left-color:#36a5ff}
+.logdesk-time{font-size:11px;color:#b8b8c7;font-variant-numeric:tabular-nums}
+.logdesk-activity{min-width:0}
+.logdesk-activity-name{font-size:13px;color:#dedee6;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.logdesk-activity-sub{font-size:9px;color:#62627a;margin-top:3px;letter-spacing:.03em}
+.logdesk-type{display:inline-flex;width:max-content;max-width:100%;padding:5px 8px;border-radius:7px;border:1px solid #1f9c7f55;background:#0b3a3255;color:#38d6ad;font-size:9px;letter-spacing:.05em}
+.logdesk-type.habit{border-color:#8b63ff55;background:#34226355;color:#b497ff}.logdesk-type.routine{border-color:#4f8dff55;background:#15315a55;color:#79aaff}
+.logdesk-duration{font-size:11px;color:#b0b0bf;font-variant-numeric:tabular-nums}
+.logdesk-edit{background:none;border:0;color:#9fa9bc;font-size:17px;cursor:pointer;padding:6px;border-radius:7px}.logdesk-edit:hover{background:#151a2b;color:#fff}
+.logdesk-empty{padding:30px 10px;text-align:center;color:#77778f;font-size:12px}
+.logdesk-editor{min-height:100%;overflow:hidden;display:flex;flex-direction:column}
+.logdesk-editor-top{padding:13px 14px;border-bottom:1px solid #17172b}
+.logdesk-new{width:100%;border:0;border-radius:10px;padding:11px 12px;background:linear-gradient(90deg,#4b25f5,#5268ff);color:#fff;font:700 11px inherit;letter-spacing:.08em;cursor:pointer;box-shadow:0 8px 20px #3b36ff22}
+.logdesk-editor-body{padding:18px 18px 20px;display:flex;flex-direction:column;min-height:430px;flex:1}
+.logdesk-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px}
+.logdesk-editor-title{font-size:18px;font-weight:700;color:#e2e2ea}.logdesk-editor-kicker{font-size:9px;letter-spacing:.13em;color:#77778f;margin-bottom:4px}
+.logdesk-editor-close{border:0;background:none;color:#77778f;font-size:24px;cursor:pointer;padding:0 2px;line-height:1}
+.logdesk-identity{display:flex;align-items:center;gap:11px;margin-bottom:18px}.logdesk-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#073b3444;border:1px solid #15d6ad88;font-size:20px}.logdesk-identity-name{font-size:15px;color:#e1e1e8;font-weight:650}.logdesk-badge{margin-top:5px;display:inline-block;font-size:9px;color:#38d6ad;border:1px solid #16a98a66;border-radius:6px;padding:3px 6px}
+.logdesk-field{margin-bottom:15px}.logdesk-field>label{display:block;font-size:9px;letter-spacing:.1em;color:#77778f;margin-bottom:6px}.logdesk-input,.logdesk-select{width:100%;box-sizing:border-box;border:1px solid #202039;border-radius:9px;background:#10101d;color:#e4e4eb;padding:11px 12px;font:inherit;font-size:12px;outline:none}.logdesk-input:focus,.logdesk-select:focus{border-color:#4b5a86}
+.logdesk-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}.logdesk-duration-line{display:flex;justify-content:space-between;align-items:center;padding:3px 0 17px;color:#77778f;font-size:10px}.logdesk-duration-line b{color:#d0d0db;font-size:12px}
+.logdesk-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;padding-top:16px}.logdesk-actions button{border-radius:9px;padding:11px 12px;font:700 10px inherit;letter-spacing:.08em;cursor:pointer}.logdesk-save{border:0;background:linear-gradient(90deg,#4d2bff,#556cff);color:#fff}.logdesk-delete{border:1px solid #9d2d4544;background:#160d13;color:#f87171}.logdesk-cancel{border:1px solid #303046;background:transparent;color:#aaaabd}
+.logdesk-note{font-size:9px;color:#5d5d75;line-height:1.5;margin-top:12px}
+.logdesk-running{font-size:9px;color:#4ade80;letter-spacing:.08em}.logdesk-running-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade8066;margin-right:5px}
+@media(max-width:879px){
+  .logdesk-shell{padding:4px 13px calc(88px + env(safe-area-inset-bottom))}
+  .logdesk-grid{grid-template-columns:1fr;gap:10px}
+  .logdesk-editor{order:-1}
+  .logdesk-editor-body{min-height:0}
+  .logdesk-table-head{display:none}
+  .logdesk-row{grid-template-columns:86px minmax(0,1fr) 28px;min-height:52px}
+  .logdesk-row .logdesk-type,.logdesk-row .logdesk-duration{display:none}
+  .logdesk-timeline-card{padding:14px}.logdesk-list-card{padding:14px}
+}
+
 /* Day Log — dedicated dock tab */
 .today-log-start{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#e2e2e2;color:#080810;border:0;border-radius:10px;padding:7px 12px;font-family:inherit;font-size:10px;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 18px rgba(255,255,255,.07);white-space:nowrap;margin-top:0}
 .today-log-start:hover{transform:translateY(-1px)}
@@ -734,9 +816,10 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   }
 }
 
-</style>
 
-<style>
+
+
+
 /* NEXT MOVE — visual/content replacement only. Preserve the existing Today layout. */
 .t-nextmove{display:flex !important;flex-direction:column !important;align-items:stretch !important;justify-content:center !important;overflow:hidden;}
 .nm-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
@@ -762,9 +845,61 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .today .nm-pts{font-size:12px;}
   .today .nm-footer{font-size:10.5px;margin-top:7px;}
 }
-</style>
 
-<style>
+/* HISTORY compact layout — single-viewport fit. */
+.history-compact{gap:5px!important;padding:0 12px 4px!important}
+.history-compact .htab{min-height:27px;padding:3px 9px!important;font-size:10.5px!important}
+.history-compact .history-week-list{gap:2px!important}
+.history-compact .history-week-list>.sec{font-size:10px!important;margin-bottom:0!important}
+.history-compact .history-week-card{padding:5px 9px!important;border-radius:8px!important}
+.history-compact .history-week-card>div:first-child{margin-bottom:2px!important}
+.history-compact .h-day{font-size:11px!important}
+.history-compact .h-today{font-size:9.5px!important}
+.history-compact .h-grade{font-size:20px!important}
+.history-compact .h-edit{font-size:10px!important;padding:2px 6px!important;border-radius:5px!important}
+.history-compact .history-week-card .h-lvl{font-size:9.5px!important;margin-bottom:1px!important}
+.history-compact .history-week-card .h-lvl+div{height:2px!important}
+.history-compact .history-month-wrap{gap:5px!important}
+.history-compact .history-month-head{min-height:40px!important}
+.history-compact .history-month-head>button{width:36px!important;height:36px!important;border-radius:9px!important;font-size:19px!important}
+.history-compact .history-month-head>div{gap:7px!important}
+.history-compact .history-month-head>div>div:first-child{font-size:24px!important;letter-spacing:.08em!important}
+.history-compact .history-month-meta{font-size:11.5px!important}
+.history-compact .history-month-best-inline{padding:4px 8px!important;border-radius:8px!important;gap:5px!important}
+.history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
+.history-compact .history-month-best-inline span:nth-child(3){font-size:11.5px!important}
+.history-compact .history-month-best-inline span:nth-child(4){font-size:17px!important}
+.history-compact .history-month-card{padding:5px!important;border-radius:8px!important}
+.history-compact .history-month-card .month-weekdays{gap:1px!important;margin-bottom:2px!important}
+.history-compact .history-month-card .month-weekdays>div{font-size:9.5px!important}
+.history-compact .history-month-card .month-days{gap:1px!important}
+.history-compact .history-month-card .month-day{border-radius:6px!important;aspect-ratio:auto!important;height:43px!important;min-height:43px!important}
+.history-compact .history-month-card .month-grade{font-size:12px!important}
+.history-compact .history-month-card .month-score{font-size:8px!important}
+.history-compact .history-month-card .month-day>span:first-child{font-size:8.5px!important;top:1px!important;left:3px!important}
+@media(max-width:600px){.history-compact{padding-left:6px!important;padding-right:6px!important}.history-compact .history-week-card{padding:4px 7px!important}.history-compact .history-month-card{padding:4px!important}.history-compact .history-month-head{gap:5px!important}.history-compact .history-month-head>div{gap:5px!important}.history-compact .history-month-head>div>div:first-child{font-size:24px!important}.history-compact .history-month-best-inline{max-width:100%;white-space:nowrap}.history-compact .history-month-card .month-day{height:36px!important;min-height:36px!important}}
+@media(min-width:601px){.history-compact{width:100%;box-sizing:border-box}.history-compact .history-week-card{padding-top:4px!important;padding-bottom:4px!important}}
+
+/* FINAL HISTORY / EDIT-DAY FIXES */
+.edit-day-screen .t-head{display:none!important}
+.history-compact .history-month-head{min-height:68px!important}
+.history-compact .history-month-head>div>div:first-child{font-size:32px!important}
+.history-compact .history-month-meta{font-size:15px!important}
+.history-compact .history-month-best-inline{padding:8px 12px!important;border-radius:10px!important;gap:7px!important}
+.history-compact .history-month-best-inline span:nth-child(2){font-size:14px!important}
+.history-compact .history-month-best-inline span:nth-child(3){font-size:14px!important}
+.history-compact .history-month-best-inline span:nth-child(4){font-size:22px!important}
+.history-compact .history-month-card .month-day{height:102px!important;min-height:102px!important;aspect-ratio:auto!important}
+@media(max-width:600px){
+  .history-compact .history-month-head>div>div:first-child{font-size:24px!important}
+  .history-compact .history-month-meta{font-size:11.5px!important}
+  .history-compact .history-month-best-inline{padding:6px 9px!important}
+  .history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
+  .history-compact .history-month-best-inline span:nth-child(3){font-size:11px!important}
+  .history-compact .history-month-best-inline span:nth-child(4){font-size:18px!important}
+  .history-compact .history-month-card .month-day{height:72px!important;min-height:72px!important}
+}
+</style><style>
 /* LEVEL STATUS — compact replacement for the redundant Today stats box. */
 .t-levelstatus{overflow:hidden;}
 .t-levelstatus .ls-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
@@ -784,9 +919,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .today .t-levelstatus .ls-bar{height:7px;}
   .today .t-levelstatus .ls-footer{font-size:10.5px;margin-top:7px;}
 }
-</style>
-
-<style>
+</style><style>
 /* LEVEL STATUS — OPTION 2 live-test polish. Keep the existing Today geometry. */
 .t-levelstatus{
   display:flex !important;
@@ -869,7 +1002,1207 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .today .t-levelstatus .ls-bar{height:7px !important;}
   .today .t-levelstatus .ls-footer{font-size:10.5px !important;margin-top:7px !important;}
 }
+</style><style>
+/* FINAL MICRO-POLISH — Today hero larger, same layout; routines collapsible on mobile */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:204px !important;
+    gap:20px !important;
+    max-width:900px !important;
+  }
+  #scroll .today .t-score-stack{
+    flex-basis:190px !important; width:190px !important; min-width:190px !important;
+  }
+  #scroll .today .t-score-stack > .t-ring{
+    width:168px !important; height:168px !important; flex-basis:168px !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    padding:15px 21px !important; gap:20px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{font-size:64px !important;}
+}
+@media (max-width:879px){
+  .today .t-score-hero{
+    width:100% !important; max-width:none !important; gap:10px !important;
+  }
+  .today .t-score-stack{
+    min-width:112px !important; width:112px !important;
+  }
+  .today .t-score-stack .t-ring{
+    width:110px !important; height:110px !important;
+  }
+  .today .t-score-hero .t-grade{
+    flex:1 1 0 !important; width:auto !important; max-width:none !important;
+    padding:12px 13px !important; gap:10px !important;
+  }
+  .today .t-score-hero .t-grade > div:first-child{font-size:42px !important;}
+  .today .t-rout-toggle{
+    user-select:none; -webkit-tap-highlight-color:transparent;
+    padding-bottom:2px;
+  }
+  .today .t-rout.collapsed .t-rout-body{display:none !important;}
+  .today .t-rout-arrow{display:inline-block;width:12px;font-size:11px;color:#8888a4;}
+}
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
+</style><style>
+/* FINAL TOP-BAR POLISH — desktop only
+   Keep the approved LVL baseline untouched. Recompose only the top band:
+   RING → INFO → LOG, with the ring larger and the info box slightly wider. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:228px !important;
+    min-height:228px !important;
+    width:100% !important;
+    max-width:none !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:20px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Flatten the stack only on desktop so LOG can sit to the far right. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    width:210px !important;
+    height:210px !important;
+    flex:0 0 210px !important;
+    margin:0 !important;
+  }
+
+  /* Keep the score/rating text mathematically centered inside the larger ring. */
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"]{
+    inset:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    width:auto !important;
+    height:auto !important;
+    margin:0 !important;
+  }
+
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 760px !important;
+    width:auto !important;
+    max-width:760px !important;
+    min-width:0 !important;
+    padding:14px 20px !important;
+    box-sizing:border-box !important;
+  }
+
+  #scroll .today .t-score-hero .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 0 0 auto !important;
+    align-self:center !important;
+    white-space:nowrap !important;
+  }
+}
+</style><style>
+/* FINAL DESKTOP TODAY HERO: preserve LVL baseline; use the full top band. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    grid-row:2 !important;
+    grid-column:1 / -1 !important;
+    width:100% !important;
+    max-width:none !important;
+    height:214px !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:stretch !important;
+    gap:20px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  /* Flatten only the desktop stack so the visual order is Ring → Info → Log. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    flex:0 0 196px !important;
+    width:196px !important;
+    height:196px !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+  /* Center the score text precisely inside the enlarged ring. */
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"]{
+    inset:0 !important;
+    width:auto !important;
+    height:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-align:center !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"] > div:first-child{
+    font-size:58px !important;
+    line-height:1 !important;
+    text-align:center !important;
+  }
+  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"] > div:last-child{
+    font-size:15px !important;
+    line-height:1.1 !important;
+    text-align:center !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    padding:16px 20px !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-stack > .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 0 0 auto !important;
+    align-self:center !important;
+    white-space:nowrap !important;
+  }
+}
+</style><style>
+/* FINAL DESKTOP HERO: centered scorebox with ring and log symmetrically at its sides. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:214px !important;
+    min-height:214px !important;
+    display:grid !important;
+    grid-template-columns:1fr auto 1fr !important;
+    align-items:center !important;
+    justify-items:center !important;
+    gap:18px !important;
+    width:100% !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-stack{display:contents !important;}
+  #scroll .today .t-score-hero .t-ring{
+    grid-column:1 !important;
+    justify-self:end !important;
+    width:196px !important;
+    height:196px !important;
+    flex:none !important;
+    margin:0 !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    grid-column:2 !important;
+    justify-self:center !important;
+    width:520px !important;
+    max-width:520px !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:16px 20px !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-hero .today-log-start{
+    grid-column:3 !important;
+    justify-self:start !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+  }
+}
+</style><style>
+/* Day Log edit sheet — one place for name + time */
+.daylog-edit-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.daylog-edit-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(5px)}
+.daylog-edit-card{position:relative;width:min(440px,100%);padding:20px;border:1px solid #25253a;border-radius:16px;background:#0b0b15;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.daylog-edit-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.daylog-edit-head button{background:none;border:0;color:#77778f;font-size:27px;line-height:1;cursor:pointer;padding:2px 6px}
+.daylog-edit-kicker{font-size:10px;letter-spacing:.14em;color:#77778f}.daylog-edit-title{margin-top:3px;font-size:18px;font-weight:700;color:#e4e4ec}
+.daylog-edit-card label{display:block;font-size:10px;letter-spacing:.12em;color:#77778f;margin-bottom:14px}
+.daylog-edit-card input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:12px 13px;border:1px solid #29293d;border-radius:9px;background:#11111d;color:#e8e8ef;font:inherit;outline:none}
+.daylog-edit-card input:focus{border-color:#55556f}
+.daylog-edit-times{display:grid;grid-template-columns:1fr 1fr;gap:12px}.daylog-edit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.daylog-edit-actions button{border:1px solid #303046;border-radius:9px;padding:10px 16px;background:#e7e7ee;color:#101018;font:700 11px inherit;letter-spacing:.1em;cursor:pointer}.daylog-edit-actions .secondary{background:transparent;color:#aaaabb}
+@media(max-width:520px){.daylog-edit-modal{align-items:flex-end;padding:12px}.daylog-edit-card{border-radius:16px 16px 12px 12px}}
+</style><style>
+/* FINAL CORRECTION — desktop stays open; mobile routines collapsible.
+   Enlarge the Today hero/info band without changing its layout/positions. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    height:198px !important;
+    gap:22px !important;
+  }
+  #scroll .today .t-score-stack{
+    flex:0 0 178px !important;
+    width:178px !important;
+    min-width:178px !important;
+    gap:4px !important;
+  }
+  #scroll .today .t-score-stack .t-ring{
+    width:168px !important;
+    height:168px !important;
+    flex:0 0 168px !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    padding:15px 21px !important;
+    gap:20px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{font-size:64px !important;}
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+  }
+}
+@media (max-width:879px){
+  /* Mobile only: the routines header is interactive; desktop is not. */
+  .today .t-rout-toggle{
+    cursor:pointer !important;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .today .t-rout.collapsed .t-rout-body{display:none !important;}
+  .today .t-rout-arrow{display:inline-block !important;width:12px;font-size:11px;color:#8888a4;}
+
+  /* Slightly larger Today ring + info band, same two-column layout. */
+  .today .t-score-hero{
+    gap:10px !important;
+  }
+  .today .t-score-stack{
+    min-width:118px !important;
+    width:118px !important;
+  }
+  .today .t-score-stack .t-ring{
+    width:115px !important;
+    height:115px !important;
+  }
+  .today .t-score-hero .t-grade{
+    padding:14px 15px !important;
+    gap:11px !important;
+  }
+}
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
+</style><style>
+/* FINAL ROUTINES FIX — desktop stays open and uses the available horizontal space. */
+@media (min-width:880px){
+  #scroll .today .t-rout{
+    width:100% !important;
+    max-width:none !important;
+    pointer-events:auto;
+  }
+  #scroll .today .t-rout-toggle{
+    cursor:default !important;
+    pointer-events:none !important;
+  }
+  #scroll .today .t-rout-arrow{display:none !important;}
+  #scroll .today .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px !important;
+    width:100% !important;
+  }
+  #scroll .today .t-rout-body > div{
+    width:100% !important;
+    min-width:0 !important;
+    margin-bottom:0 !important;
+    padding:14px !important;
+  }
+  #scroll .today .t-rout-body .r-lab{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
+@media (max-width:879px){
+  /* Mobile: the label is gone; the input card itself is the Day Log field. */
+  .today .t-daylog{max-width:none !important;}
+  .today .t-daylog-card{width:100% !important;}
+}
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
+</style><style>
+/* DESKTOP FINAL — balanced top hero
+   Keep the scorebox mathematically centered in the viewport and give the
+   ring / scorebox / LOG equal visual spacing on both sides. Mobile untouched. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) !important;
+    grid-template-rows:1fr !important;
+    align-items:center !important;
+    justify-items:stretch !important;
+    justify-content:center !important;
+    column-gap:28px !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:214px !important;
+    min-height:214px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* The old stack is flattened on desktop so these become the three
+     intentional columns of the hero. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+
+  /* Ring: right-aligned inside the left column. */
+  #scroll .today .t-score-hero .t-ring{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    width:184px !important;
+    height:184px !important;
+    flex:none !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+
+  /* Scorebox: its own auto-sized center column = exact viewport center. */
+  #scroll .today .t-score-hero .t-grade{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    width:min(720px, calc(100vw - 520px)) !important;
+    max-width:720px !important;
+    min-width:560px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* LOG: left-aligned inside the right column, mirroring the ring. */
+  #scroll .today .t-score-hero .today-log-start{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:start !important;
+    align-self:center !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+    transform:none !important;
+  }
+}
+
+/* For medium desktop widths, reduce the side gap before shrinking the
+   center scorebox. */
+@media (min-width:880px) and (max-width:1250px){
+  #scroll .today .t-score-hero{
+    column-gap:18px !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    min-width:500px !important;
+    width:min(650px, calc(100vw - 430px)) !important;
+  }
+}
+</style><style>
+/* FINAL DESKTOP POLISH — Today hero */
+@media (min-width:880px){
+  #scroll .today{
+    max-width:1500px !important;
+    padding-left:18px !important;
+    padding-right:18px !important;
+    column-gap:16px !important;
+    row-gap:7px !important;
+  }
+  #scroll .today .t-score-hero{
+    height:192px !important;
+    gap:20px !important;
+    justify-content:flex-start !important;
+  }
+  #scroll .today .t-score-stack{
+    flex:0 0 172px !important;
+    width:172px !important;
+    min-width:172px !important;
+    gap:5px !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+  /* Explicit order: ring FIRST, LOG BELOW it. */
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    width:152px !important;
+    height:152px !important;
+    flex:0 0 152px !important;
+    transform:none !important;
+    margin:0 !important;
+  }
+  #scroll .today .t-score-stack > .today-log-start{
+    order:2 !important;
+    margin:0 !important;
+    align-self:center !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    width:auto !important;
+    padding:14px 20px !important;
+    gap:20px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{
+    font-size:58px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:first-child,
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(2),
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3){
+    font-size:14.5px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3){
+    flex-wrap:nowrap !important;
+    white-space:nowrap !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
+    font-size:14.5px !important;
+  }
+  #scroll .today .t-lvl .row{
+    padding-top:7px !important;
+    padding-bottom:7px !important;
+  }
+
+  /* FINAL +5% SIZE: keep the exact same grid/layout and anchor positions.
+     Grow the visual elements inside the existing bands, while tightening
+     their internal gaps so nothing is pushed to a new row. */
+  #scroll .today .t-score-stack{
+    flex-basis:180px !important;
+    width:180px !important;
+    min-width:180px !important;
+    gap:3px !important;
+  }
+  #scroll .today .t-score-stack > .t-ring{
+    width:160px !important;
+    height:160px !important;
+    flex-basis:160px !important;
+  }
+  #scroll .today .t-score-hero{
+    gap:18px !important;
+  }
+  #scroll .today .today-log-start{
+    transform:scale(1.05);
+    transform-origin:center top;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    padding:13px 19px !important;
+    gap:18px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:first-child{
+    font-size:61px !important;
+  }
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:first-child,
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(2),
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3),
+  #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
+    font-size:15px !important;
+  }
+}
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
+</style><style>
+/* MOBILE TODAY — compact Day Log field, between habits and Day Note. */
+@media(max-width:879px){
+  .today .t-score-stack .t-ring{width:115px !important;height:115px !important;}
+  /* Mobile: the desktop quick-log button must not render under the ring. */
+  .today .t-score-stack > .today-log-start,
+  .today .today-log-start{display:none !important;visibility:hidden !important;}
+  /* Mobile Today order: routines → core → habits → bonus → day log → day note. */
+  .today .t-score-hero{order:1;}
+  .today .t-rout{order:2;}
+  .today .t-lvl1{order:3;}
+  .today .t-lvl2{order:4;}
+  .today .t-lvl3{order:5;}
+  .today .t-daylog{order:6 !important;}
+  .today .t-note{order:7;}
+  .today .t-reset{order:8;}
+  .today .t-daylog-card{background:#0b0b16;border:1px solid #17172a;border-radius:14px;padding:10px 11px;}
+  .today .t-daylog-row{display:flex;align-items:center;gap:7px;}
+  .today .t-daylog-row #dayLogInput{min-width:0;flex:1;border:1px solid #202033;border-radius:9px;padding:9px 10px;background:#0f0f1d;color:#e2e2e2;font:inherit;font-size:13px;outline:none;}
+  .today .t-daylog-row #dayLogStartBtn{flex:0 0 auto;border:1px solid #303047;border-radius:9px;padding:8px 11px;background:#e2e2e2;color:#080810;font-size:11px;font-weight:800;letter-spacing:.08em;cursor:pointer;}
+  .today .t-daylog-card.running .t-daylog-row #dayLogStartBtn{background:#f87171;}
+  .today .t-daylog-meta{font-size:9.5px;color:#66667d;letter-spacing:.05em;margin-top:6px;}
+}
+@media(min-width:880px){
+  .today .t-daylog{display:none !important;}
+}
+
+/* FINAL DESKTOP ROUTINES FIX
+   The routine wrapper was auto-placing its BODY as a second grid item.
+   Keep the wrapper as one full card and make its BODY the horizontal grid. */
+@media(min-width:880px){
+  #scroll .today .t-rout{
+    grid-row:3 !important;
+    grid-column:1 / span 8 !important;
+    display:block !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    padding:15px 20px !important;
+  }
+  #scroll .today .t-rout>.sec{
+    display:flex !important;
+    width:100% !important;
+    margin-bottom:10px !important;
+  }
+  #scroll .today .t-rout .t-rout-body{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px !important;
+    width:100% !important;
+    min-width:0 !important;
+    align-items:stretch !important;
+  }
+  #scroll .today .t-rout .t-rout-body>div{
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-note{
+    grid-row:3 !important;
+    grid-column:9 / -1 !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-reset{
+    grid-row:4 !important;
+    grid-column:1 / -1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+}
+
+</style><style>
+/* FINAL TODAY DESKTOP — 2a: RING → INFO BAR → LOG ACTIVITY
+   Keep the lower layout untouched. The score hero uses the full width so the
+   information bar can breathe, while the ring and Log button stay on one line. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    grid-row:2 !important;
+    grid-column:1 / -1 !important;
+    width:100% !important;
+    max-width:none !important;
+    height:190px !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:20px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Flatten the old vertical stack: ring and button become flex items of the hero. */
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+
+  #scroll .today .t-score-hero .t-ring{
+    order:1 !important;
+    flex:0 0 180px !important;
+    width:180px !important;
+    height:180px !important;
+    margin:0 !important;
+    zoom:1 !important;
+  }
+
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:17px 22px !important;
+    box-sizing:border-box !important;
+  }
+
+  #scroll .today .t-score-hero .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 !important;
+    white-space:nowrap !important;
+  }
+}
+</style><style>
+/* FINAL DESKTOP TOP-BAR REPAIR
+   Keep the Today hero ABOVE the levels. The global mobile ordering rules must
+   never reorder the desktop grid; explicit rows/columns are authoritative here. */
+@media (min-width:880px){
+  #scroll .today > *{order:0 !important;}
+  #scroll .today .t-score-hero{
+    order:1 !important;
+    grid-row:1 !important;
+    grid-column:1 / -1 !important;
+  }
+  #scroll .today .t-lvl1{order:2 !important;grid-row:2 !important;grid-column:1 / span 4 !important;}
+  #scroll .today .t-lvl2{order:3 !important;grid-row:2 !important;grid-column:5 / span 4 !important;}
+  #scroll .today .t-lvl3{order:4 !important;grid-row:2 !important;grid-column:9 / span 4 !important;}
+  #scroll .today .t-rout{order:5 !important;grid-row:3 !important;grid-column:1 / span 8 !important;}
+  #scroll .today .t-note{order:6 !important;grid-row:3 !important;grid-column:9 / span 4 !important;}
+  #scroll .today .t-reset{order:7 !important;grid-row:4 !important;grid-column:1 / -1 !important;}
+
+  /* 2a: ring → info bar → LOG, all in the same top band. */
+  #scroll .today .t-score-hero{
+    height:180px !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:22px !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+  }
+  #scroll .today .t-score-stack{
+    display:contents !important;
+  }
+  #scroll .today .t-score-stack .t-ring{
+    order:1 !important;
+    flex:0 0 140px !important;
+    width:140px !important;
+    height:140px !important;
+    margin:0 !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:15px 21px !important;
+  }
+  #scroll .today .t-score-hero .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 !important;
+    align-self:center !important;
+    white-space:nowrap !important;
+  }
+}
+</style><style>
+/* FINAL TOP-BAR TUNE — desktop
+   Use the bottom edge of the tallest LVL card as the common baseline, so LVL1/2/3
+   share one clean row. This frees the top band to breathe without changing the
+   overall desktop arrangement. */
+@media (min-width:880px){
+  /* LVL3 establishes the row's natural height; the other two stretch to it. */
+  #scroll .today .t-lvl1,
+  #scroll .today .t-lvl2,
+  #scroll .today .t-lvl3{
+    align-self:end !important;
+    height:auto !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Give the top band a little more vertical room for the ring. */
+  #scroll .today .t-score-hero{
+    height:214px !important;
+    min-height:214px !important;
+    gap:18px !important;
+    align-items:center !important;
+  }
+
+  /* Slightly larger ring, still inside the same top-band position. */
+  #scroll .today .t-score-stack > .t-ring{
+    width:184px !important;
+    height:184px !important;
+    flex-basis:184px !important;
+  }
+  #scroll .today .t-score-stack{
+    flex:0 0 196px !important;
+    width:196px !important;
+    min-width:196px !important;
+    gap:3px !important;
+  }
+
+  /* Trim the info box a little horizontally so the larger ring has room. */
+  #scroll .today .t-score-hero .t-grade{
+    flex:0 1 720px !important;
+    width:auto !important;
+    max-width:720px !important;
+    min-width:0 !important;
+    padding:13px 18px !important;
+    box-sizing:border-box !important;
+  }
+}
+</style><style>
+/* FIX DEFINITIVO — hero centrado: ring · info · log en una fila, gaps iguales.
+   Va al final a propósito: misma especificidad (!important) que los parches
+   anteriores, así que por orden de cascada este es el que manda. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:26px !important;
+    width:100% !important;
+    max-width:none !important;
+    height:214px !important;
+    min-height:214px !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-stack{ display:contents !important; }
+  #scroll .today .t-score-stack > .t-ring{
+    order:1 !important;
+    flex:0 0 184px !important;
+    width:184px !important;
+    height:184px !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+  #scroll .today .t-score-hero .t-grade{
+    order:2 !important;
+    flex:0 1 620px !important;
+    width:auto !important;
+    max-width:620px !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:16px 20px !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-stack > .today-log-start{
+    order:3 !important;
+    flex:0 0 auto !important;
+    margin:0 !important;
+    align-self:center !important;
+    white-space:nowrap !important;
+  }
+}
+</style><style>
+/* STEP 5A.2 — SAFE CSS CONSOLIDATION
+   These three final override layers are merged verbatim and in the original order.
+   No selector, property, value, media query, or !important was removed or changed.
+*/
+
+/* BARRA1 — anillo/LOG desplazados 50% de su tamaño hacia afuera del centro,
+   y LOG pasa a círculo espejo del anillo con estado dinámico (idle/live). */
+@media (min-width:880px){
+  #scroll .today .t-score-hero .t-ring{transform:translateX(-50%) !important}
+  #scroll .today .t-score-hero .today-log-start{transform:translateX(50%) !important}
+
+  .today-log-start{
+    width:64px;height:64px;border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;padding:0;font-size:9px;letter-spacing:.04em;
+  }
+  .today-log-start span{font-size:20px;line-height:1}
+  .today-log-start.live{
+    background:#f87171;
+    box-shadow:0 0 16px rgba(248,113,113,.5);
+    animation:rzPulse 1.8s ease-in-out infinite;
+  }
+}
+
+
+/* FINAL POLISH — Today levels / card contrast / LOG size */
+@media (min-width:880px){
+  /* Move the three LVL cards slightly toward the ring and away from routines. */
+  #scroll .today .t-lvl1,
+  #scroll .today .t-lvl2,
+  #scroll .today .t-lvl3{
+    transform:translateY(-6px) !important;
+  }
+
+  /* Slightly clearer separation between cards and the page background. */
+  #scroll .today .t-lvl,
+  #scroll .today .t-rout,
+  #scroll .today .t-note{
+    background:#0d0d19 !important;
+    border-color:#1d1d33 !important;
+  }
+
+  /* Larger Today LOG button, keeping the same circular desktop treatment. */
+  #scroll .today .today-log-start{
+    width:72px !important;
+    height:72px !important;
+  }
+}
+
+
+/* FINAL NEXT MOVE LAYOUT FIX — keep the existing Today positions, but give the
+   new card enough internal room and move the circular Log button slightly right. */
+@media (min-width:880px){
+  #scroll .today .t-score-hero{
+    display:grid !important;
+    grid-template-columns:minmax(184px, 1fr) minmax(680px, 760px) minmax(110px, 1fr) !important;
+    align-items:center !important;
+    column-gap:24px !important;
+    width:100% !important;
+    max-width:none !important;
+    height:214px !important;
+    min-height:214px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Keep the ring where it was visually; remove the old artificial 50% shift. */
+  #scroll .today .t-score-stack{display:contents !important;}
+  #scroll .today .t-score-hero .t-ring{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    width:184px !important;
+    height:184px !important;
+    flex:none !important;
+    margin:0 !important;
+    transform:none !important;
+  }
+
+  /* The Next Move card gets the full center column instead of being squeezed
+     by the old horizontal summary layout. */
+  #scroll .today .t-score-hero .t-grade.t-nextmove{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    justify-self:stretch !important;
+    align-self:center !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    height:auto !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    justify-content:center !important;
+    gap:0 !important;
+    padding:15px 20px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Restore the intended vertical structure inside NEXT MOVE. */
+  #scroll .today .t-score-hero .t-nextmove .nm-top,
+  #scroll .today .t-score-hero .t-nextmove .nm-target,
+  #scroll .today .t-score-hero .t-nextmove .nm-options,
+  #scroll .today .t-score-hero .t-nextmove .nm-footer{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today .t-score-hero .t-nextmove .nm-options{display:flex !important;flex-direction:column !important;gap:6px !important;}
+  #scroll .today .t-score-hero .t-nextmove .nm-target{white-space:normal !important;}
+  #scroll .today .t-score-hero .t-nextmove .nm-option{min-width:0 !important;}
+  #scroll .today .t-score-hero .t-nextmove .nm-label{min-width:0 !important;}
+
+  /* Log button: same circular treatment, but with a little more breathing room
+     on the right so it no longer crowds the scorebox. */
+  #scroll .today .t-score-hero .today-log-start{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:start !important;
+    align-self:center !important;
+    margin-left:12px !important;
+    transform:none !important;
+    width:72px !important;
+    height:72px !important;
+  }
+}
+
+@media (min-width:880px) and (max-width:1250px){
+  #scroll .today .t-score-hero{
+    grid-template-columns:minmax(150px, 1fr) minmax(500px, 1fr) minmax(90px, 1fr) !important;
+    column-gap:16px !important;
+  }
+  #scroll .today .t-score-hero .t-ring{width:160px !important;height:160px !important;}
+  #scroll .today .t-score-hero .t-nextmove{padding:13px 16px !important;}
+  #scroll .today .t-score-hero .today-log-start{margin-left:6px !important;width:64px !important;height:64px !important;}
+}
+
+</style><style>
+/* STEP 5B.4 — MOBILE TODAY ORDER (authoritative)
+   Ring/score hero first, then Today's Routines, levels, Day Log, Day Note, Reset Day.
+   Routines have their own state and are not coupled to level collapses. */
+@media (max-width:879px){
+  #scroll .today .t-score-hero{order:1 !important;}
+  #scroll .today .t-rout{order:2 !important;}
+  #scroll .today .t-lvl1{order:3 !important;}
+  #scroll .today .t-lvl2{order:4 !important;}
+  #scroll .today .t-lvl3{order:5 !important;}
+  #scroll .today .t-daylog{order:6 !important;}
+  #scroll .today .t-note{order:7 !important;}
+  #scroll .today .t-reset{order:8 !important;}
+  #scroll .today .t-rout.collapsed .t-rout-body{display:none !important;}
+}
+
+/* E10 — enlarge MONTH header chrome, keep month title size */
+.history-compact .history-month-head{min-height:88px!important}
+.history-compact .history-month-head>button{width:44px!important;height:44px!important;border-radius:10px!important;font-size:22px!important}
+.history-compact .history-month-head>div{gap:12px!important}
+.history-compact .history-month-head>div>div:first-child{font-size:32px!important}
+.history-compact .history-month-meta{font-size:18px!important}
+.history-compact .history-month-best-inline{padding:10px 15px!important;border-radius:11px!important;gap:9px!important}
+.history-compact .history-month-best-inline span:nth-child(2){font-size:15px!important}
+.history-compact .history-month-best-inline span:nth-child(3){font-size:15px!important}
+.history-compact .history-month-best-inline span:nth-child(4){font-size:25px!important}
+@media(max-width:600px){
+  .history-compact .history-month-head{min-height:64px!important}
+  .history-compact .history-month-head>button{width:34px!important;height:34px!important;font-size:18px!important}
+  .history-compact .history-month-head>div{gap:6px!important}
+  .history-compact .history-month-head>div>div:first-child{font-size:24px!important}
+  .history-compact .history-month-meta{font-size:11.5px!important}
+  .history-compact .history-month-best-inline{padding:7px 10px!important;gap:6px!important}
+  .history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
+  .history-compact .history-month-best-inline span:nth-child(3){font-size:11.5px!important}
+  .history-compact .history-month-best-inline span:nth-child(4){font-size:18px!important}
+}
+
+/* E11 — MONTH header: unified sketch-style bar */
+.history-compact .history-month-bar{
+  min-height:86px!important;
+  padding:12px 14px!important;
+  box-sizing:border-box!important;
+  border:1px solid #1c1d32!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#0d0d18 0%,#0a0a13 100%)!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:16px!important;
+}
+.history-compact .history-month-nav{
+  width:42px!important;height:42px!important;flex:0 0 42px!important;
+  border-radius:10px!important;border:1px solid #24253b!important;
+  background:#0b0b16!important;color:#c8c8d4!important;
+  font-size:22px!important;font-family:inherit!important;line-height:1!important;
+  cursor:pointer!important;
+}
+.history-compact .history-month-nav:disabled{color:#25253a!important;border-color:#151525!important;cursor:default!important}
+.history-compact .history-month-summary{
+  flex:1!important;min-width:0!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:16px!important;white-space:nowrap!important;overflow:hidden!important;
+}
+.history-compact .history-month-title{font-size:30px!important;line-height:1!important;flex:0 0 auto!important}
+.history-compact .history-month-divider{width:1px!important;height:28px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
+.history-compact .history-month-meta{font-size:17px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
+.history-compact .history-month-grade{font-family:'Bebas Neue'!important;font-size:27px!important;line-height:1!important;flex:0 0 auto!important}
+.history-compact .history-month-best-inline{
+  min-height:62px!important;padding:8px 16px!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:auto auto!important;grid-template-rows:auto auto!important;
+  align-items:center!important;column-gap:11px!important;row-gap:0!important;
+  border:1px solid #26324a!important;border-radius:11px!important;background:#0b0c16!important;
+  flex:0 0 auto!important;min-width:190px!important;
+}
+.history-compact .history-month-best-icon{grid-row:1 / span 2!important;font-size:25px!important;line-height:1!important}
+.history-compact .history-month-best-label{font-family:'Bebas Neue'!important;font-size:14px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
+.history-compact .history-month-best-date{font-size:13px!important;color:#c8c8d4!important;line-height:1!important}
+.history-compact .history-month-best-score{font-family:'Bebas Neue'!important;font-size:23px!important;line-height:1!important;grid-column:2!important;grid-row:1 / span 2!important;align-self:center!important;margin-left:8px!important}
+@media(max-width:900px){
+  .history-compact .history-month-bar{min-height:76px!important;padding:9px 10px!important;gap:9px!important}
+  .history-compact .history-month-nav{width:36px!important;height:36px!important;flex-basis:36px!important;font-size:19px!important}
+  .history-compact .history-month-summary{gap:9px!important;overflow:visible!important;flex-wrap:wrap!important;justify-content:center!important}
+  .history-compact .history-month-title{font-size:24px!important}
+  .history-compact .history-month-divider{height:22px!important}
+  .history-compact .history-month-meta{font-size:12px!important}
+  .history-compact .history-month-grade{font-size:20px!important}
+  .history-compact .history-month-best-inline{min-width:145px!important;min-height:54px!important;padding:6px 9px!important;column-gap:6px!important}
+  .history-compact .history-month-best-icon{font-size:19px!important}
+  .history-compact .history-month-best-label{font-size:11px!important}
+  .history-compact .history-month-best-date{font-size:10.5px!important}
+  .history-compact .history-month-best-score{font-size:18px!important;margin-left:3px!important}
+}
 </style>
+
 <style>
 /* Step 5K — Stats: six cards in 3 columns × 2 rows.
    The separate Most Consistent / Needs Work row is intentionally removed;
@@ -910,92 +2243,21 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   .stats-metric-label{font-size:10px}
   .stats-metric-sub{grid-column:2;text-align:left;font-size:11px}
 }
-
-</style>
-<style id="step5E14-history-calendar-stats-fix">
-/* Step 5E14 — remove the accidental duplicate Stats review row and restore
-   Month calendar cells as wide rectangles (not 1:1 squares). */
-.history-month-grid .history-month-grid-day{
-  height:102px!important;
-  min-height:102px!important;
-  aspect-ratio:auto!important;
-  box-sizing:border-box!important;
-}
-@media(max-width:600px){
-  .history-month-grid .history-month-grid-day{
-    height:72px!important;
-    min-height:72px!important;
-  }
-}
-</style>
-<style id="step5E13-restore-calendar-stats">
-/* Step 5E13 — restore the previously approved Month calendar proportions.
-   Keep the new single-line month bar from 5E12 untouched. */
-.history-compact .history-month-card .month-day{
-  height:102px!important;
-  min-height:102px!important;
-  aspect-ratio:auto!important;
-}
-@media(max-width:600px){
-  .history-compact .history-month-card .month-day{
-    height:72px!important;
-    min-height:72px!important;
-  }
-}
-
-/* Step 5K approved Stats layout: six unified metric cards, 3 columns × 2 rows.
-   This intentionally replaces the older 4-card / 2-column presentation. */
-.stats-six-grid{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:10px!important;
-}
-.stats-metric-card{
-  min-height:92px!important;
-  padding:12px 18px!important;
-  box-sizing:border-box!important;
-  display:grid!important;
-  grid-template-columns:44px minmax(0,auto) minmax(0,1fr)!important;
-  grid-template-rows:1fr!important;
-  column-gap:14px!important;
-  align-items:center!important;
-  overflow:hidden!important;
-}
-.stats-metric-icon{
-  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
-  font-size:24px;border-radius:10px;background:#0b0b15;border:1px solid #ffffff08;
-}
-.stats-metric-main{min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:nowrap}
-.stats-metric-value{font-family:'Bebas Neue';font-size:30px;line-height:1;white-space:nowrap}
-.stats-metric-label{font-size:12px;color:#c0c0cd;letter-spacing:.12em;line-height:1.15;white-space:nowrap}
-.stats-metric-sub{min-width:0;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
-@media(max-width:900px){
-  .stats-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-}
-@media(max-width:600px){
-  .stats-six-grid{grid-template-columns:1fr!important;gap:8px!important}
-  .stats-metric-card{min-height:88px!important;padding:11px 12px!important;grid-template-columns:38px 1fr!important;grid-template-rows:auto auto!important;column-gap:10px!important;row-gap:3px!important}
-  .stats-metric-icon{grid-row:1 / span 2;width:34px;height:34px;font-size:20px;border-radius:8px}
-  .stats-metric-main{gap:8px}
-  .stats-metric-value{font-size:26px}
-  .stats-metric-label{font-size:10px}
-  .stats-metric-sub{grid-column:2;text-align:left;font-size:11px}
-}
 </style>
 
 </head>
 <body>
 <div id="app">
-  <div id="scroll"></div>
-  <div id="resume"></div>
-  <div id="tour"></div>
-  <nav id="nav">
-    <button class="nav-btn active" data-tab="today" onclick="setTab('today')"><span style="font-size:18px">◉</span>TODAY</button>
-    <button class="nav-btn" data-tab="log" onclick="setTab('log')"><span style="font-size:18px">◷</span>LOG</button>
-    <button class="nav-btn" data-tab="social" onclick="setTab('social')" hidden><span style="font-size:18px">◍</span>SOCIAL</button>
-    <button class="nav-btn" data-tab="stats" onclick="setTab('stats')"><span style="font-size:18px">◇</span>STATS</button>
-    <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
-  </nav>
+<div id="scroll"></div>
+<div id="resume"></div>
+<div id="tour"></div>
+<nav id="nav">
+<button class="nav-btn active" data-tab="today" onclick="setTab('today')"><span style="font-size:18px">◉</span>TODAY</button>
+<button class="nav-btn" data-tab="log" onclick="setTab('log')"><span style="font-size:18px">◷</span>LOG</button>
+<button class="nav-btn" data-tab="social" hidden="" onclick="setTab('social')"><span style="font-size:18px">◍</span>SOCIAL</button>
+<button class="nav-btn" data-tab="stats" onclick="setTab('stats')"><span style="font-size:18px">◇</span>STATS</button>
+<button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
+</nav>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1039,13 +2301,28 @@ function restoreLiveTravelMode(){
     if(!raw)return false;
     let rec=null;
     try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
-    const mode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
-    if(!mode)return false;
-    CFG.travel.mode=mode;
-    CFG.travel.modeUpdatedAt=Number(rec.updatedAt)||0;
-    if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
-    return true;
-  }catch(e){return false;}
+    const localMode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
+    if(!localMode)return false;
+    const localTs=Number(rec.updatedAt)||0;
+    const serverMode=CFG.travel.mode==='vacation'?'vacation':'work';
+    const serverTs=Number(CFG.travel.modeUpdatedAt)||0;
+    // A newer explicit local choice is allowed to win (useful after an offline
+    // change). A newer server snapshot wins over stale browser state.
+    if(localTs>serverTs){
+      CFG.travel.mode=localMode;
+      CFG.travel.modeUpdatedAt=localTs;
+      if(CFG.h&&CFG.h.work)CFG.h.work.on=(localMode==='work');
+      return true;
+    }
+    // Server is equal/newer: synchronize the browser echo so travelMode() cannot
+    // resurrect a stale choice on the next render.
+    const synced={mode:serverMode,updatedAt:serverTs||localTs};
+    try{localStorage.setItem('travelMode',JSON.stringify(synced));}catch(e){}
+    CFG.travel.mode=serverMode;
+    CFG.travel.modeUpdatedAt=serverTs||localTs;
+    if(CFG.h&&CFG.h.work)CFG.h.work.on=(serverMode==='work');
+    return false;
+  }catch(e){ return false; }
 }
 
 /* =========================
@@ -1072,15 +2349,32 @@ function dayLogFmt(mins){
   const h=Math.floor(mins/60),m=mins%60;
   return h?`${h}h${m?` ${m}m`:''}`:`${m}m`;
 }
+function dayLogTz(){return CFG.tz&&CFG.tz!=='device'?CFG.tz:Intl.DateTimeFormat().resolvedOptions().timeZone;}
 function dayLogDateTime(key,minutes){
-  const d=new Date(`${key}T00:00:00`);
-  d.setMinutes(Math.max(0,Math.min(1439,minutes)));
-  return d;
+  const mins=Math.max(0,Math.min(1439,minutes));
+  const [y,m,d]=key.split('-').map(Number);
+  const hh=Math.floor(mins/60), mm=mins%60;
+  const tz=dayLogTz();
+  // Convert a wall-clock date/time in SHAAH's configured timezone to an instant.
+  // The second pass handles DST transitions around the target date.
+  let guess=new Date(Date.UTC(y,m-1,d,hh,mm));
+  for(let i=0;i<2;i++){
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(guess);
+    const get=t=>Number(parts.find(x=>x.type===t)?.value||0);
+    const shown=Date.UTC(get('year'),get('month')-1,get('day'),get('hour'),get('minute'));
+    const target=Date.UTC(y,m-1,d,hh,mm);
+    guess=new Date(guess.getTime()+(target-shown));
+  }
+  return guess;
 }
 function dayLogMinutes(iso){
   if(!iso)return null;
   const d=new Date(iso);
-  return d.getHours()*60+d.getMinutes();
+  if(isNaN(d))return null;
+  const tz=dayLogTz();
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);
+  const get=t=>Number(parts.find(x=>x.type===t)?.value||0);
+  return get('hour')*60+get('minute');
 }
 function dayLogNowISO(){
   const d=new Date();d.setSeconds(0,0);return d.toISOString();
@@ -1202,18 +2496,42 @@ function dayLogAddManual(){
 }
 function dayLogEdit(id,key=todayKey()){
   const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
-  const title=prompt('Activity',ev.title);if(title==null)return;
-  const sm=prompt('Start time (HH:MM)',new Date(ev.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}));
-  if(sm==null)return;
-  const em=ev.end?prompt('End time (HH:MM)',new Date(ev.end).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false})):null;
-  const valid=/^\d{1,2}:\d{2}$/.test(sm)&&(em==null||/^\d{1,2}:\d{2}$/.test(em));
-  if(!valid){alert('Use HH:MM.');return;}
+  const fmtTime=iso=>{
+    const mins=dayLogMinutes(iso);if(mins==null)return '';
+    return `${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`;
+  };
+  const old=document.getElementById('dayLogEditModal');if(old)old.remove();
+  const modal=document.createElement('div');
+  modal.id='dayLogEditModal';
+  modal.className='daylog-edit-modal';
+  modal.innerHTML=`<div class="daylog-edit-backdrop" role="button" tabindex="0" aria-label="Close editor" onclick="dayLogEditClose()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"></div>
+    <div class="daylog-edit-card" role="dialog" aria-modal="true" aria-labelledby="daylogEditTitle">
+      <div class="daylog-edit-head"><div><div class="daylog-edit-kicker">EDIT ACTIVITY</div><div id="daylogEditTitle" class="daylog-edit-title">DAY LOG</div></div><button type="button" onclick="dayLogEditClose()" aria-label="Close">×</button></div>
+      <label>ACTIVITY<input id="daylogEditName" type="text" maxlength="120" value="${dayLogEsc(ev.title)}" autocomplete="off"></label>
+      <div class="daylog-edit-times">
+        <label>START<input id="daylogEditStart" type="time" value="${fmtTime(ev.start)}"></label>
+        ${ev.end?`<label>END<input id="daylogEditEnd" type="time" value="${fmtTime(ev.end)}"></label>`:''}
+      </div>
+      <div class="daylog-edit-actions"><button type="button" class="secondary" onclick="dayLogEditClose()">CANCEL</button><button type="button" onclick="dayLogEditSave('${dayLogEsc(id)}','${dayLogEsc(key)}')">SAVE</button></div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(()=>document.getElementById('daylogEditName')?.focus(),30);
+}
+function dayLogEditClose(){document.getElementById('dayLogEditModal')?.remove();}
+function dayLogEditSave(id,key){
+  const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
+  const title=(document.getElementById('daylogEditName')?.value||'').trim();
+  const sm=document.getElementById('daylogEditStart')?.value||'';
+  const endEl=document.getElementById('daylogEditEnd');
+  const em=endEl?endEl.value:null;
+  const valid=/^\d{2}:\d{2}$/.test(sm)&&(em==null||/^\d{2}:\d{2}$/.test(em));
+  if(!valid){alert('Please enter a valid time.');return;}
   const parse=s=>{const [h,m]=s.split(':').map(Number);return h*60+m;};
   const a=parse(sm),b=em==null?null:parse(em);
   if(a>1439||(b!=null&&b>1439)||(b!=null&&b<a)){alert('End must be after start.');return;}
   const start=dayLogDateTime(key,a).toISOString(),end=b==null?null:dayLogDateTime(key,b).toISOString();
-  Object.assign(ev,{title:title.trim()||ev.title,start,end});
-  dayLogPersist(key);render();
+  Object.assign(ev,{title:title||ev.title,start,end});
+  dayLogPersist(key);dayLogEditClose();render();
 }
 function dayLogGapEvents(key){
   const evs=dayLogSort(dayLogEvents(key));let prev=null,gaps=[];
@@ -1238,7 +2556,7 @@ function dayLogRender(key=todayKey()){
     const dur=dayLogDuration(e), running=!e.end;
     html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
       <div class="dl-time">${new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:' · NOW'}</div>
-      <div class="dl-main" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">
+      <div class="dl-main" role="button" tabindex="0" aria-label="Edit activity" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
         <div class="dl-title">${dayLogEsc(e.title)} ${e.meta?.light?'<span class="dl-light">½</span>':''}</div>
         <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}${running?' · RUNNING':''}</div>
       </div>
@@ -1582,18 +2900,34 @@ function travelEnsure(){
   if(!CFG.travel||typeof CFG.travel!=='object')
     CFG.travel={mode:'work',auto:false,resumeOn:''};
 }
+// Normalize legacy travel-return dates. A malformed year such as 0026 is the
+// same year 26 that the browser can display after an old date-input conversion;
+// in this app the intended modern year is 20xx. Keep valid four-digit years
+// untouched.
+function normalizeTravelResume(){
+  travelEnsure();
+  const v=String(CFG.travel.resumeOn||'');
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+  if(!m)return false;
+  const y=Number(m[1]);
+  if(y>=100)return false;
+  const fixed='20'+String(y).padStart(2,'0')+'-'+m[2]+'-'+m[3];
+  CFG.travel.resumeOn=fixed;
+  return true;
+}
 // The dated config timeline is the source of truth for the CURRENT mode.
 // CFG.travel is only the live/persistence fallback; it must never silently
 // reset the switch to Work after a reload.
 function travelMode(){
   travelEnsure();
-  // For TODAY, an explicit local switch is authoritative. Historical dates are
-  // resolved by cfgForDate() and never use this live preference.
+  // TODAY uses the explicit live preference, but restoreLiveTravelMode() first
+  // reconciles its timestamp with the server snapshot. Historical dates never
+  // use this preference; they resolve through cfgForDate()/the dated timeline.
   try{
     const raw=localStorage.getItem('travelMode');
     if(raw){
       let rec=null;
-      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw};}
+      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
       if(rec&&rec.mode==='vacation')return 'vacation';
       if(rec&&rec.mode==='work')return 'work';
     }
@@ -1642,7 +2976,14 @@ function applyTravelMode(mode){
 }
 function setTravelMode(mode){ haptic(10); persistTravelMode(mode); applyTravelMode(mode); persistTravelMode(mode); render(); }
 function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
-function setTravelResume(v){ travelEnsure(); CFG.travel.resumeOn=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:''; saveCfg(); render(); }
+function setTravelResume(v){
+  travelEnsure();
+  const raw=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';
+  CFG.travel.resumeOn=raw;
+  normalizeTravelResume();
+  saveCfg();
+  render();
+}
 // Se llama una vez por sesión (loadAll): si está en modo automático y ya
 // llegó (o pasó) la fecha de vuelta al trabajo, cambia solo a "work". No hace
 // nada mientras el modo ya sea "work" ni si `auto` está apagado.
@@ -1656,17 +2997,14 @@ function checkTravelAuto(){
 // current config was already marked as v2 before the dated vacation era existed.
 function setVacationStartOnce(){
   const START="2026-09-08";
-  const VERSION=7;
+  const VERSION=8;
   const lg=cfgLog();
-  if(!lg.length)return false;
+  if(CFG.travelV>=VERSION||!lg.length)return false;
 
-  // Vacation owns the whole interval starting 2026-09-08 and ending at the
-  // configured return-to-Work date. Do not infer the boundary from an
-  // accidental/intermediate era in the timeline (for example 2026-09-16).
-  travelEnsure();
-  const resume=/^\d{4}-\d{2}-\d{2}$/.test(CFG.travel.resumeOn||'')
-    ? CFG.travel.resumeOn : '';
-
+  // Permanent historical repair: Vacation started on 2026-09-08.
+  // Every completed day from START through yesterday is explicitly stamped
+  // Vacation. Mutable current settings (resumeOn/localStorage/switch) are not
+  // allowed to redefine completed history.
   let i=-1;
   for(let k=0;k<lg.length;k++){
     if(lg[k].from<=START)i=k; else break;
@@ -1676,51 +3014,23 @@ function setVacationStartOnce(){
   let changed=false;
   if(lg[i].from<START){
     const e=lg[i];
-    lg.splice(i+1,0,{
-      from:START,
-      h:JSON.parse(JSON.stringify(e.h)),
-      order:e.order.slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),
-      mode:'vacation'
-    });
-    i++;
-    changed=true;
+    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:e.order.slice(),
+      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
+    i++; changed=true;
   }
 
-  // The current live mode is the authoritative boundary for the present
-  // vacation period. If today is already Work, Vacation owns every historical
-  // date from 2026-09-08 through yesterday. This prevents a stale one-day Work
-  // era (notably 2026-09-16/17) from becoming a false historical boundary.
-  // A future explicit resume date is still respected while Vacation is active.
-  const today=todayKey();
-  const live=travelMode();
-  const boundary=(live==='work' && today>=START) ? today : resume;
-
-  // Repair every era inside Vacation's interval. This intentionally converts
-  // stray one-day Work eras (such as 2026-09-16) back to Vacation, while leaving
-  // the actual future Work boundary and everything after it untouched.
+  const yesterday=keyMinus(todayKey(),1);
   for(let k=i;k<lg.length;k++){
-    const from=lg[k].from;
-    if(from<START)continue;
-    if(boundary && from>=boundary)break;
-    if(lg[k].mode!=='vacation'){lg[k].mode='vacation';changed=true;}
-    if(lg[k].h&&lg[k].h.work&&lg[k].h.work.on!==false){
-      lg[k].h.work.on=false;
-      changed=true;
-    }
+    const e=lg[k];
+    if(e.from<START)continue;
+    if(e.from>yesterday)break;
+    if(e.mode!=='vacation'){e.mode='vacation';changed=true;}
+    if(e.h&&e.h.work&&e.h.work.on!==false){e.h.work.on=false;changed=true;}
   }
 
-  // Keep the live mode aligned with the interval containing today. When the
-  // live switch is already Work, today is the return boundary; historical days
-  // before today remain Vacation even if an old timeline era says Work.
-  if(today>=START && (!boundary || today<boundary)){
-    if(CFG.travel.mode!=='vacation'){CFG.travel.mode='vacation';changed=true;}
-    if(CFG.h&&CFG.h.work&&CFG.h.work.on!==false){CFG.h.work.on=false;changed=true;}
-  }
-
-  if(CFG.travelV!==VERSION){CFG.travelV=VERSION;changed=true;}
+  CFG.travelV=VERSION;
   _dayCfgCache={};
-  return changed;
+  return changed||true;
 }
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
@@ -1797,25 +3107,15 @@ function cfgEdit(fn){
   _dayCfgCache={};
   saveCfg(); render();
 }
-function vacationIntervalForDate(key){
-  const VAC_START='2026-09-08';
-  const today=todayKey();
-
-  // IMPORTANT: this function is only for PAST dates. The vacation that started
-  // on 2026-09-08 is a fixed historical interval: every completed day from
-  // 2026-09-08 through yesterday is Vacation. Never consult today's switch,
-  // localStorage, resumeOn, or a timeline era here. Those are live-state data
-  // and were the source of the 9/16-9/17 Work leak and the 118% denominator.
-  // TODAY is resolved separately by cfgForDate() from the live mode.
-  return key>=VAC_START && key<today;
-}
 function cfgForDate(key){
   const lg=cfgLog();
   const liveToday=key===todayKey();
-  // A date is resolved from one source of truth: the configuration era that
-  // was effective on that date, plus the Vacation interval. TODAY may use the
-  // live switch; historical dates never do.
-  const inVacation=liveToday ? travelMode()==='vacation' : vacationIntervalForDate(key);
+  // HISTORICAL INVARIANT: once a day is in the past, its scoring mode comes
+  // exclusively from CFG.log, the dated configuration timeline. Never consult
+  // the current switch, localStorage, resumeOn, or any hard-coded vacation
+  // interval for a historical date. This prevents a later live-mode change
+  // from rewriting the meaning of 9/16, 9/17, or any other completed day.
+  const inVacation=liveToday ? travelMode()==='vacation' : false;
 
   if(!lg.length){
     const m=inVacation?'vacation':(liveToday?travelMode():'work');
@@ -1826,53 +3126,33 @@ function cfgForDate(key){
     return v;
   }
 
-  // Historical configs are cached by date, but the cache can never override
-  // the semantic Vacation interval. If an older cached config contains Work,
-  // normalize that config before returning it. This is important after a
-  // configuration migration or after opening History before a mode repair.
+  // Historical configs are cached by date. The cache is safe because its
+  // source is the dated era selected below; it is never normalized against
+  // today's live mode.
   let v=liveToday?null:_dayCfgCache[key];
-  if(v){
-    if(inVacation){
-      v={...v,
-        L1:v.L1.filter(i=>i.id!=='work'),
-        L2:v.L2.filter(i=>i.id!=='work'),
-        L3:v.L3.filter(i=>i.id!=='work'),
-        inVacation:true,mode:'vacation'};
-      _dayCfgCache[key]=v;
-    }
-    return v;
-  }
+  if(v)return v;
 
   let e=lg[0];
   for(const x of lg){ if(x.from<=key)e=x; else break; }
 
-  const m=inVacation?'vacation':modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
+  // Past dates use the mode stamped on their historical era. Only TODAY may
+  // be overridden by the live switch.
+  const m=liveToday
+    ? travelMode()
+    : modeKey(e.mode||(e.h.work&&e.h.work.on===false?'vacation':'work'));
   let H=e.h,O=e.order,S0=e.subs;
 
-  // For a live day, clone the active era so changing the live mode cannot
-  // mutate the historical timeline. Historical days always keep their era.
+  // Clone the live era so today's switch cannot mutate the historical timeline.
+  // Historical dates keep the era exactly as recorded in CFG.log.
   if(liveToday){
     H=JSON.parse(JSON.stringify(e.h));
     O=e.order.slice();
     S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
     if(H.work)H.work.on=(m==='work');
-  }else if(inVacation){
-    H=JSON.parse(JSON.stringify(e.h));
-    O=e.order.slice();
-    S0=JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[]));
-    if(H.work)H.work.on=false;
   }
 
   const S=subsFor(H,S0,m);
   v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),subs:S,inVacation,mode:m};
-
-  // Vacation is a date interval, not a special case for individual dates.
-  // Therefore every date inside the interval naturally resolves without Work.
-  if(inVacation){
-    v.L1=v.L1.filter(i=>i.id!=='work');
-    v.L2=v.L2.filter(i=>i.id!=='work');
-    v.L3=v.L3.filter(i=>i.id!=='work');
-  }
 
   if(!liveToday)_dayCfgCache[key]=v;
   return v;
@@ -1993,7 +3273,8 @@ function calcScore(key){
          done:Object.values(ch).filter(Boolean).length};
 }
 
-// History is DERIVED, never stored separately — cannot drift from checks
+// History score records stay score-only; day existence is tracked separately so
+// notes, Day Log, people, or other saved activity are not mistaken for scored days.
 function getHistory(){
   const h={};
   for(const date of Object.keys(_state)){
@@ -2002,6 +3283,18 @@ function getHistory(){
     if(score>0)h[date]={score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,l1max,l2max,l3max};
   }
   return h;
+}
+function hasDayData(key){
+  if(!DATE_RE.test(key)||!_state[key])return false;
+  const st=_state[key],ch=st.checks||{},soc=st.social||{};
+  return Object.values(ch).some(Boolean)||Object.values(soc).some(Boolean)
+    ||!!st.note||(Array.isArray(st.people)&&st.people.length>0)
+    ||(Array.isArray(st._daylog)&&st._daylog.length>0);
+}
+function getDayRecord(key){
+  if(!hasDayData(key))return null;
+  const{score,l1,l2,l3,done,max,pct,l1max,l2max,l3max}=calcScore(key);
+  return{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,l1max,l2max,l3max};
 }
 
 // ── Writes — optimistic local, then push to server ─────────
@@ -2250,21 +3543,13 @@ function rowToState(row){
   const d=row.data||{};
   const inc={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',
              people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]};
-  // Si esta pestaña tiene un guardado pendiente para ese día, la fila entrante viene
-  // de OTRA pestaña y sustituirla borraría lo que el usuario acaba de marcar aquí.
-  // Se fusiona (unión de lo marcado) y el guardado pendiente sube el resultado.
+  // Si esta pestaña tiene un guardado pendiente para ese día, NO fusionamos una
+  // fila remota encima: la fusión anterior solo conservaba valores truthy y podía
+  // resucitar un check/persona que el usuario acababa de quitar. El cambio local
+  // gana durante esta ventana y su upsert será la nueva base para Realtime.
   const mine=_state[row.date];
-  if(mine&&_pending[row.date]){
-    const u=(a,b)=>{const o={...(b||{})};for(const k of Object.keys(a||{}))if(a[k])o[k]=true;return o;};
-    _state[row.date]={checks:u(mine.checks,inc.checks),
-                      social:u(mine.social,inc.social),
-                      note:mine.note||inc.note,
-                      people:[...new Set([...(mine.people||[]),...inc.people])],
-                      _daylog:[...(mine._daylog||[]),...inc._daylog.filter(e=>!(mine._daylog||[]).some(m=>m.id===e.id))]};
-    persistDay(row.date);          // reprograma la subida con lo fusionado
-  }else{
-    _state[row.date]=inc;
-  }
+  if(mine&&_pending[row.date])return;
+  _state[row.date]=inc;
 }
 
 // A user with history but no saved config predates the generic defaults —
@@ -2296,6 +3581,8 @@ async function loadAll(){
     // Restore the user's explicit live switch AFTER the settings row has been
     // loaded, because the server row may contain an older mode snapshot.
     restoreLiveTravelMode();
+    // Repair malformed legacy dates before the automatic return check.
+    if(normalizeTravelResume())saveCfg();
     applyCfg();
     checkTravelAuto();
     recoverPeopleFromDays();
@@ -2314,7 +3601,11 @@ function subscribeRealtime(){
       {event:'*',schema:'public',table:'day_logs',filter:`user_id=eq.${USER.id}`},
       payload=>{
         if(payload.eventType==='DELETE'){
-          if(payload.old&&payload.old.date)delete _state[payload.old.date];
+          const key=payload.old&&payload.old.date;
+          // A remote DELETE must not erase a local edit that is still waiting to
+          // be written. Once the local upsert completes, the echo is authoritative.
+          if(key&&_pending[key])return;
+          if(key)delete _state[key];
         }else if(payload.new){
           rowToState(payload.new);
         }
@@ -2346,7 +3637,7 @@ async function signOut(){
 
 function renderReview(){
   const days=getDays(7), h7=getHistory();
-  const logged=days.filter(d=>d.data);
+  const logged=days.filter(d=>d.data&&d.data.score>0);
   const avg=avgW(days), tr=weekTrend();
   const best=logged.reduce((m,d)=>!m||d.data.score>m.data.score?d:m,null);
   const worst=logged.reduce((m,d)=>!m||d.data.score<m.data.score?d:m,null);
@@ -2361,7 +3652,7 @@ function renderReview(){
   const g=GRADE(avg,100);
   const dn=k=>keyToDate(k).toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"});
 
-  return`<div style="display:flex;flex-direction:column;min-height:100%">
+  return`<div class="edit-day-screen" style="display:flex;flex-direction:column;min-height:100%">
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeReview()" style="background:none;border:1px solid #1e1e2e;color:#c0c0cd;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:19px;letter-spacing:0.16em;color:#e2e2e2">WEEKLY REVIEW</div>
@@ -2451,7 +3742,7 @@ function renderReview(){
 function stCard(key,title,col,body,extra){
   const open=secOpen[key]!==false;
   return`<section class="st-card${extra?" "+extra:""}">
-    <div class="st-head" onclick="toggleSec('${key}')">
+    <div class="st-head" role="button" tabindex="0" aria-expanded="${open}" onclick="toggleSec('${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
       <span class="lvl-ar${open?"":" cl"}">▾</span>
       <span class="st-title" style="color:${col||"#9090aa"}">${title}</span>
     </div>
@@ -2488,7 +3779,7 @@ function renderSettings(){
         </div>`}).join("")}
       <button onclick="cfgAdd(${n})" style="width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px">+ ADD HABIT</button>
     </div>`;
-  return`<div style="display:flex;flex-direction:column;min-height:100%">
+  return`<div class="edit-day-screen" style="display:flex;flex-direction:column;min-height:100%">
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeSettings()" style="background:none;border:1px solid #1e1e2e;color:#d0d0da;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2">SETTINGS</div>
@@ -2856,6 +4147,7 @@ async function boot(){
     loadCache();
     loadLvl();
     loadSec();
+  loadTodayRoutines();
     restoreRoutine();
     if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
     render();
@@ -2903,17 +4195,17 @@ function weekTrend(){
 // key "YYYY-MM-DD" → Date at local noon (DST-safe for display)
 function keyToDate(key){return new Date(key+'T12:00:00');}
 function getDays(n){
-  const days=[],hh=getHistory(),tk=todayKey();
+  const days=[],tk=todayKey();
   for(let i=n-1;i>=0;i--){
     const key=keyMinus(tk,i);
-    days.push({key,date:new Date(key+'T12:00:00'),data:hh[key]||null});
+    days.push({key,date:new Date(key+'T12:00:00'),data:getDayRecord(key)});
   }
   return days;
 }
 function getWeeks(){const d=getDays(28);return[0,1,2,3].map(w=>d.slice(w*7,w*7+7));}
 // Days can have different maxes now, so averages run on normalised percentages.
 const dPct=d=>d&&(d.pct!=null?d.pct:(d.max?Math.round(d.score/d.max*100):d.score));
-function avgW(days){const f=days.filter(d=>d.data);return f.length?Math.round(f.reduce((a,d)=>a+dPct(d.data),0)/f.length):0;}
+function avgW(days){const f=days.filter(d=>d.data&&d.data.score>0);return f.length?Math.round(f.reduce((a,d)=>a+dPct(d.data),0)/f.length):0;}
 
 function ring(score,max,size,thick,col,glow){
   const r=(size-thick)/2-2,c=2*Math.PI*r,off=c-(Math.min(score,max)/max)*c,cx=size/2;
@@ -3113,7 +4405,7 @@ function renderResume(){
 
   if(style==="circle"){
     el.innerHTML=items.map(({rt,s,step,col,t},i)=>`
-      <div class="rz-circle" onclick="openRoutine('${rt._id||liveSessions()[i]}')" style="border-color:${col}44">
+      <div class="rz-circle" role="button" tabindex="0" aria-label="Open routine" onclick="openRoutine('${rt._id||liveSessions()[i]}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="border-color:${col}44">
         <div class="rz-cdot" style="background:${col};opacity:${s.running?1:.35}"></div>
         <div class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</div>
         <div class="rz-ci">${esc(step.icon)}</div>
@@ -3146,7 +4438,7 @@ function renderTour(){
   if(tourStep===null||!USER){t.className="";t.innerHTML="";return;}
   const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
   t.className="on";
-  t.innerHTML=`<div class="tour-scrim" onclick="tourDone()"></div>
+  t.innerHTML=`<div class="tour-scrim" role="button" tabindex="0" aria-label="Close tutorial" onclick="tourDone()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"></div>
     <div class="tour-card">
       <div class="tour-dots">${TOUR.map((_,i)=>`<div class="tour-dot ${i===tourStep?"cur":i<tourStep?"done":""}"></div>`).join("")}</div>
       <div class="tour-ico">${s.ico}</div>
@@ -3187,7 +4479,12 @@ function render(){
   if(sbtn)sbtn.hidden=!socialOwnTab();
   if(currentTab==="social"&&!socialOwnTab())currentTab="today";   // el ajuste se apagó estando ahí
   const bar=topbarHTML();   // scrolls away with the content
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
+  document.querySelectorAll(".nav-btn").forEach(b=>{
+    const active=b.dataset.tab===currentTab;
+    b.classList.toggle("active",active);
+    if(active)b.setAttribute('aria-current','page');
+    else b.removeAttribute('aria-current');
+  });
   if(currentTab==="social")el.innerHTML=bar+renderSocial();
   else if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
   else if(currentTab==="log")el.innerHTML=bar+renderDayLogTab();
@@ -3231,7 +4528,7 @@ function comboBlock(key,alwaysOpen){
           ${dSubs.map(s=>{
             const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key), corto=shortLabels(mine);
             return`<div style="border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}">
-            <div class="cb-row" onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
+            <div class="cb-row" role="button" tabindex="0" aria-pressed="${!!soc[s.id]}" onclick="toggleSub('${s.id}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
               ${chk(!!soc[s.id],"#fbbf24",18)}
               <span>${esc(s.icon)} ${esc(s.label)}</span>
               <span style="margin-left:auto;font-size:14.5px;color:#adadbf">${s.p}%</span>
@@ -3245,19 +4542,28 @@ function comboBlock(key,alwaysOpen){
       </div>`;
 }
 
+let todayRoutinesOpen=true;
+function todayRoutinesKey(){return `shaah_today_routines_${USER?USER.id:'anon'}`;}
+function loadTodayRoutines(){
+  const v=get(todayRoutinesKey());
+  if(v===true||v===false) todayRoutinesOpen=v;
+}
 function toggleTodayRoutines(el){
   // ONLY mobile can collapse Today's Routines. Desktop is permanently open.
   if(window.innerWidth >= 880){
     const box=el?.closest('.t-rout');
-    if(box){ box.classList.remove('collapsed'); const body=box.querySelector('.t-rout-body'); if(body)body.style.display=''; }
+    if(box){
+      box.classList.remove('collapsed');
+      const body=box.querySelector('.t-rout-body');
+      if(body)body.style.display='';
+      const toggle=box.querySelector('.t-rout-toggle');
+      if(toggle)toggle.setAttribute('aria-expanded','true');
+    }
     return;
   }
-  const box=el?.closest('.t-rout'); if(!box)return;
-  const body=box.querySelector('.t-rout-body'), arrow=box.querySelector('.t-rout-arrow');
-  if(!body)return;
-  const collapsed=box.classList.toggle('collapsed');
-  body.style.display=collapsed?'none':'';
-  if(arrow)arrow.textContent=collapsed?'▸':'▾';
+  todayRoutinesOpen=!todayRoutinesOpen;
+  set(todayRoutinesKey(),todayRoutinesOpen);
+  render();
 }
 
 function earnedPointsForItem(item,state){
@@ -3293,9 +4599,9 @@ function renderToday(key,nested=false){
   const L1vis=C.inVacation?C.L1.filter(i=>i.id!=='work'):C.L1;
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
-  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:104;
+  const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
   return`<div class="fade-up today${(!nested&&isToday&&isNight())?" night":""}" style="padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px">
-    ${(nested||!isToday)?`<div class="t-head" style="text-align:center;width:100%">
+    ${(!nested&&!isToday)?`<div class="t-head" style="text-align:center;width:100%">
       <div style="font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4">DAY SCORE</div>
       <div style="font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}
@@ -3336,9 +4642,9 @@ function renderToday(key,nested=false){
     </div>
 
     
-${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
-      <div class="sec t-rout-toggle" onclick="toggleTodayRoutines(this)" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">▾</span>TODAY'S ROUTINES</div>
-      <div class="t-rout-body">${L1vis.filter(i=>i.routine).map(item=>{
+${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" style="width:100%;max-width:390px">
+      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="${todayRoutinesOpen}" onclick="toggleTodayRoutines(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>TODAY'S ROUTINES</div>
+      <div class="t-rout-body" style="${todayRoutinesOpen?"":"display:none;"}">${L1vis.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${esc(rt.icon)}</div>
@@ -3347,7 +4653,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
             <div class="r-sub" style="font-size:15px;color:#777;margin-top:3px">${rt.steps.length} steps · ${totalMin} min</div>
             ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span class="r-step" style="font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:14.5px;color:#adadbf">+${rt.steps.length-4} more</span>`:""}</div>`:""}
           </div>
-          ${full?`<div onclick="setHabitState('${item.id}','${key}',false)" style="font-size:23px;cursor:pointer">✅</div>`:light?`
+          ${full?`<div role="button" tabindex="0" aria-label="Clear completed routine" onclick="setHabitState('${item.id}','${key}',false)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="font-size:23px;cursor:pointer">✅</div>`:light?`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
             <button class="r-btn" onclick="setHabitState('${item.id}','${key}',true)" title="Upgrade to full credit" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px">⬆ FULL</button>
             <button class="r-btn" onclick="setHabitState('${item.id}','${key}',false)" title="Clear" style="background:none;border:1px solid #2a2a3e;color:#a4a4ba;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer">✕ CLEAR</button>
@@ -3361,18 +4667,8 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       }).join("")}</div>
     </div>`}
 
-    <div class="t-note" style="width:100%;max-width:390px">
-      <div class="sec">✎ DAY NOTE</div>
-      <div class="notecard${getNote(key)?" filled":""}">
-        <div class="notebar"></div>
-        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
-          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
-          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
-        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
-      </div>
-    </div>
     ${!L1vis.length?"":`<div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
+      <div class="sec lvl-h" style="display:flex;align-items:center;gap:8px"><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span class="lvl-toggle-count" style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${L1vis.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
@@ -3391,7 +4687,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       </div>
     </div>`}
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
+      <div class="sec lvl-h" style="display:flex;align-items:center;gap:8px"><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[2]}" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span class="lvl-toggle-count" style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span></span></button>${allBtn(2,C.L2)}</div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
       ${C.L2.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5;
@@ -3406,7 +4702,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
+      <div class="sec lvl-h" style="display:flex;align-items:center;gap:8px"><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[3]}" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span class="lvl-toggle-count" style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span></span></button>${allBtn(3,C.L3)}</div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       ${comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>{
@@ -3431,6 +4727,16 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
         <div class="t-daylog-meta">${dayLogActiveId()?"LOGGING NOW":"Track an activity"} · ${dayLogFmt(dayLogSummary(key).tracked)} tracked</div>
       </div>
     </div>`:""}
+    <div class="t-note" style="width:100%;max-width:390px">
+      <div class="sec">✎ DAY NOTE</div>
+      <div class="notecard${getNote(key)?" filled":""}">
+        <div class="notebar"></div>
+        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
+          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
+          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
+      </div>
+    </div>
     ${isToday?`<button class="t-reset" onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
   </div>`;
 }
@@ -3446,84 +4752,98 @@ function openDayLogStart(){
     }
   },60);
 }
+
+window.__dayLogPanelMode=window.__dayLogPanelMode||'edit';
+window.__dayLogSelectedId=window.__dayLogSelectedId||null;
+function dayLogPanelSelect(id){window.__dayLogSelectedId=id;window.__dayLogPanelMode='edit';render();}
+function dayLogPanelNew(){window.__dayLogPanelMode='new';window.__dayLogSelectedId=null;render();setTimeout(()=>document.getElementById('logPanelName')?.focus(),40);}
+function dayLogPanelCancel(){window.__dayLogPanelMode='edit';render();}
+function dayLogPanelTime(iso){const m=dayLogMinutes(iso);return m==null?'':`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;}
+function dayLogPanelParseTime(v){if(!/^\d{2}:\d{2}$/.test(v||''))return null;const [h,m]=v.split(':').map(Number);return h*60+m;}
+function dayLogPanelSave(key){
+  const title=(document.getElementById('logPanelName')?.value||'').trim();
+  const sm=document.getElementById('logPanelStart')?.value||'';
+  const em=document.getElementById('logPanelEnd')?.value||'';
+  const a=dayLogPanelParseTime(sm),b=dayLogPanelParseTime(em);
+  if(!title){alert('Please enter an activity name.');return;}
+  if(a==null||b==null||b<a){alert('Please enter valid start and end times.');return;}
+  const start=dayLogDateTime(key,a).toISOString(),end=dayLogDateTime(key,b).toISOString();
+  if(window.__dayLogPanelMode==='new'){
+    dayLogAdd(title,start,end,'manual');
+  }else{
+    const ev=dayLogEvents(key).find(e=>e.id===window.__dayLogSelectedId);
+    if(!ev)return;
+    Object.assign(ev,{title,start,end});dayLogPersist(key);
+  }
+  window.__dayLogPanelMode='edit';window.__dayLogSelectedId=null;haptic(8);render();
+}
+function dayLogPanelDelete(key){
+  const ev=dayLogEvents(key).find(e=>e.id===window.__dayLogSelectedId);if(!ev)return;
+  if(!confirm(`Delete "${ev.title}" from the Day Log?`))return;
+  dayLogDelete(ev.id,key);window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';haptic(8);render();
+}
+
 function renderDayLogTab(){
   const key=todayKey(), s=dayLogSummary(key), evs=dayLogSort(dayLogEvents(key));
   const active=!!dayLogActiveId();
-  const gaps=s.gaps;
+  if(!window.__dayLogSelectedId || !evs.some(e=>e.id===window.__dayLogSelectedId)) window.__dayLogSelectedId=evs[0]?.id||null;
+  const selected=evs.find(e=>e.id===window.__dayLogSelectedId)||null;
+  const mode=window.__dayLogPanelMode==='new'?'new':(selected?'edit':'new');
+  if(!selected && mode==='edit')window.__dayLogPanelMode='new';
+  const panelEv=mode==='edit'?selected:null;
+  const panelTitle=panelEv?.title||'';
+  const panelStart=panelEv?dayLogPanelTime(panelEv.start):'';
+  const panelEnd=panelEv?dayLogPanelTime(panelEv.end):'';
+  const totalStart=6*60,totalEnd=24*60,span=totalEnd-totalStart;
+  const ticks=[6,8,10,12,14,16,18,20,22,24];
+  const icon=panelEv?.type==='habit'?'◐':panelEv?.type==='routine'?'◆':'✣';
   const byHour=Array.from({length:24},()=>0);
-  evs.forEach(e=>{
-    const a=dayLogMinutes(e.start),d=dayLogDuration(e);
-    if(a!=null&&d>0)byHour[Math.floor(a/60)]+=d;
-  });
-  return `<div class="fade-up daylog-page" style="padding:4px 20px calc(88px + env(safe-area-inset-bottom));max-width:900px;margin:0 auto">
-    <div class="log-page-head">
-      <div>
-        <div class="log-kicker">DAY LOG</div>
-        <div class="log-date">${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}).toUpperCase()}</div>
-      </div>
-      <div class="log-live ${active?"on":""}"><span></span>${active?"LOGGING":"READY"}</div>
-    </div>
-
-    <div class="log-start-card ${active?"running":""}">
-      <div class="log-start-copy">
-        <div class="log-start-title">${active?"CURRENT ACTIVITY":"WHAT ARE YOU DOING?"}</div>
-        <div class="log-start-sub">${active?"Press STOP when you finish.":"Start a block and shaah will build your timeline automatically."}</div>
-      </div>
-      <div class="log-start-row">
-        <input id="dayLogInput" type="text" placeholder="${active?"":"e.g. Deep Work, Lunch, Drive…"}" autocomplete="off"
-          onkeydown="if(event.key==='Enter')dayLogToggle()">
-        <button id="dayLogStartBtn" type="button" onclick="dayLogToggle()">${active?"STOP":"START"}</button>
-      </div>
-    </div>
-
-    <div class="log-summary-strip">
-      <div><b>${dayLogFmt(s.tracked)}</b><span>TRACKED</span></div>
-      <div><b>${dayLogFmt(s.gap)}</b><span>UNTRACKED</span></div>
-      <div><b>${s.events}</b><span>EVENTS</span></div>
-      <div><b>${gaps.length}</b><span>GAPS</span></div>
-    </div>
-
-    <div class="log-section">
-      <div class="log-section-head"><span>TODAY'S TIMELINE</span><small>tap an event to edit</small></div>
-      <div class="log-timeline">
-        ${evs.length?evs.map((e,i)=>{
-          const dur=dayLogDuration(e), running=!e.end;
-          let gapHtml="";
-          if(i>0){
-            const prev=evs[i-1],a=dayLogMinutes(prev.end),b=dayLogMinutes(e.start);
-            if(a!=null&&b!=null&&b>a)gapHtml=`<div class="log-gap"><span>⚠</span><b>${dayLogFmt(b-a)}</b><small>UNTRACKED</small><button onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">CLASSIFY</button></div>`;
-          }
-          return `${gapHtml}<div class="log-event ${running?"running":""}" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">
-            <div class="log-event-time">${new Date(e.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
-            <div class="log-line"></div>
-            <div class="log-event-body">
-              <div class="log-event-title">${dayLogEsc(e.title)}</div>
-              <div class="log-event-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:""}${running?" · RUNNING":""}</div>
-            </div>
-            <button class="log-event-delete" onclick="event.stopPropagation();dayLogDelete('${dayLogEsc(e.id)}','${key}');render()">×</button>
-          </div>`;
-        }).join(""):`<div class="log-empty">Your timeline is empty.<br><span>Start logging above, or complete a habit/routine and it will appear here automatically.</span></div>`}
-      </div>
-    </div>
-
-    <div class="log-section">
-      <div class="log-section-head"><span>QUICK ADD</span><small>for something that already happened</small></div>
-      <div class="log-quick">
-        <input id="dayLogQuickInput" type="text" placeholder="Activity name…">
-        <button onclick="dayLogQuickAdd()">+ ADD</button>
-      </div>
-    </div>
-
-    <div class="log-section">
-      <div class="log-section-head"><span>DAY RECAP</span><small>generated from your timeline</small></div>
-      <div class="log-recap">
-        <div class="log-recap-grid">
-          <div><b>${dayLogFmt(s.tracked)}</b><span>TRACKED</span></div>
-          <div><b>${dayLogFmt(s.gap)}</b><span>UNTRACKED</span></div>
-          <div><b>${dayLogFmt(byHour.reduce((a,b)=>a+b,0))}</b><span>LOGGED TIME</span></div>
+  evs.forEach(e=>{const a=dayLogMinutes(e.start),d=dayLogDuration(e);if(a!=null&&d>0)byHour[Math.min(23,Math.floor(a/60))]+=d;});
+  return `<div class="fade-up logdesk-shell">
+    <div class="logdesk-grid">
+      <div class="logdesk-left">
+        <div class="logdesk-timeline-card">
+          <div class="logdesk-card-title">TODAY'S TIMELINE</div>
+          <div class="logdesk-ticks">${ticks.map(h=>`<span>${String(h).padStart(2,'0')}</span>`).join('')}</div>
+          <div class="logdesk-timeline">
+            ${evs.map((e,i)=>{
+              const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);if(a==null)return '';
+              const aa=Math.max(totalStart,Math.min(totalEnd,a)),bb=Math.max(aa+2,Math.min(totalEnd,b??Math.min(totalEnd,a+20)));
+              const left=((aa-totalStart)/span)*100,width=((bb-aa)/span)*100;
+              return `<button type="button" class="logdesk-seg s${i%4} ${e.id===window.__dayLogSelectedId?'selected':''}" style="left:${left}%;width:${Math.max(1.2,width)}%" title="${dayLogEsc(e.title)}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')" aria-label="Edit ${dayLogEsc(e.title)}"></button>`;
+            }).join('')}
+          </div>
+          <div class="logdesk-legend">${evs.slice(0,6).map((e,i)=>`<span><i class="s${i%4}" style="background:${['#12cfa8','#f4b62b','#178ee8','#9b45e9'][i%4]}"></i>${dayLogEsc(e.title)}</span>`).join('')}${!evs.length?'<span>No activities logged yet</span>':''}</div>
         </div>
-        <div class="log-recap-note">Habits and routines are inserted automatically when completed. Manual activities are the only things you need to type.</div>
+
+        <div class="logdesk-list-card">
+          <div class="logdesk-list-head"><div class="logdesk-card-title">ACTIVITY LOGS</div><select class="logdesk-sort" aria-label="Sort activity logs"><option>Sort by: Time</option></select></div>
+          <div class="logdesk-table-head"><span>TIME</span><span>ACTIVITY</span><span>TYPE</span><span>DURATION</span><span></span></div>
+          ${evs.length?evs.map(e=>{
+            const dur=dayLogDuration(e),running=!e.end;
+            return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" onclick="dayLogPanelSelect('${dayLogEsc(e.id)}')">
+              <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:' · NOW'}</div>
+              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':'')}</div></div>
+              <div><span class="logdesk-type ${e.type}">${dayLogTypeLabel(e.type)}</span></div>
+              <div class="logdesk-duration">${dur==null?'—':dayLogFmt(dur)}</div>
+              <button class="logdesk-edit" type="button" onclick="event.stopPropagation();dayLogPanelSelect('${dayLogEsc(e.id)}')" aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
+            </div>`;
+          }).join(''):`<div class="logdesk-empty">No activities logged yet.<br>Use <b>LOG ACTIVITY</b> to add your first entry.</div>`}
+        </div>
       </div>
+
+      <aside class="logdesk-editor" aria-label="Activity editor">
+        <div class="logdesk-editor-top"><button type="button" class="logdesk-new" onclick="dayLogPanelNew()">＋ &nbsp;LOG ACTIVITY</button></div>
+        <div class="logdesk-editor-body">
+          <div class="logdesk-editor-head"><div><div class="logdesk-editor-kicker">${mode==='new'?'NEW ACTIVITY':'EDIT ACTIVITY'}</div><div class="logdesk-editor-title">${mode==='new'?'Log a new activity':dayLogEsc(panelTitle)}</div></div>${mode==='edit'?'<button type="button" class="logdesk-editor-close" onclick="dayLogPanelCancel()" aria-label="Clear selection">×</button>':''}</div>
+          ${mode==='edit'&&panelEv?`<div class="logdesk-identity"><div class="logdesk-icon">${icon}</div><div><div class="logdesk-identity-name">${dayLogEsc(panelTitle)}</div><span class="logdesk-badge">${dayLogTypeLabel(panelEv.type)}</span></div></div>`:''}
+          <div class="logdesk-field"><label for="logPanelName">ACTIVITY</label><input id="logPanelName" class="logdesk-input" type="text" maxlength="120" value="${dayLogEsc(panelTitle)}" placeholder="e.g. Deep Work, Lunch, Gym…" autocomplete="off"></div>
+          ${mode==='edit'&&panelEv&&panelEv.type!=='manual'?`<div class="logdesk-note">This activity is linked to ${dayLogTypeLabel(panelEv.type).toLowerCase()} completion. Its type is managed automatically; you can edit the name and time.</div>`:''}
+          <div class="logdesk-field"><label>START / END</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"><input id="logPanelEnd" class="logdesk-input" type="time" value="${panelEnd}"></div></div>
+          <div class="logdesk-duration-line"><span>DURATION</span><b>${panelEv&&dayLogDuration(panelEv)!=null?dayLogFmt(dayLogDuration(panelEv)):'Calculated on save'}</b></div>
+          <div class="logdesk-actions">${mode==='new'?`<button type="button" class="logdesk-cancel" onclick="dayLogPanelCancel()">CANCEL</button><button type="button" class="logdesk-save" onclick="dayLogPanelSave('${key}')">ADD ACTIVITY</button>`:`<button type="button" class="logdesk-delete" onclick="dayLogPanelDelete('${key}')">DELETE</button><button type="button" class="logdesk-save" onclick="dayLogPanelSave('${key}')">SAVE</button>`}</div>
+        </div>
+      </aside>
     </div>
   </div>`;
 }
@@ -3534,7 +4854,7 @@ function dayLogQuickAdd(){
 
 function renderEditDay(){
   const dateStr=new Date(editDayKey+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
-  return`<div style="display:flex;flex-direction:column;min-height:100%">
+  return`<div class="edit-day-screen" style="display:flex;flex-direction:column;min-height:100%">
     <div style="display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50">
       <button onclick="closeEditDay()" style="background:none;border:1px solid #1e1e2e;color:#d0d0da;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
       <div style="font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2">EDIT DAY</div>
@@ -3610,7 +4930,7 @@ function renderSocial(){
   const d=keyToDate(tk);
   const etiqueta=esHoy?"TODAY":d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
   const nav=(paso,txt,on)=>`<button class="sd-nav" onclick="${on?`socialShift(${paso})`:""}" ${on?"":"disabled"}>${txt}</button>`;
-  return`<div class="fade-up soc" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up soc" style="padding:0 14px 8px;display:flex;flex-direction:column;gap:7px">
     <div>
       <div class="sec sd-bar">
         ${nav(-1,"‹",true)}
@@ -3762,10 +5082,10 @@ function renderHistory(){
 
 function renderHistWeek(){
   const days=getDays(7).reverse(),tk=todayKey();
-  return`<div style="display:flex;flex-direction:column;gap:8px"><div class="sec">LAST 7 DAYS</div>
+  return`<div class="history-week-list" style="display:flex;flex-direction:column;gap:8px"><div class="sec" style="margin-bottom:0">LAST 7 DAYS</div>
     ${days.map(({key,date,data})=>{
       const g=data?GRADE(data.score,data.max):null,isT=key===tk,tgr=GRADE(calcScore(tk).score);
-      return`<div class="card" style="border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}">
+      return`<div class="card history-week-card" style="border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${data?14:0}px">
           <div>
             <div class="h-day" style="font-size:15px;color:${isT?"#e2e2e2":"#8a8aa0"};letter-spacing:0.06em">${date.toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
@@ -3785,53 +5105,51 @@ function renderHistMonth(){
   const tk=todayKey(), nowYM=tk.slice(0,7);
   const ym=histMonth||nowYM, cells=monthGrid(ym);
   const[yy,mm]=ym.split('-').map(Number);
-  const title=new Date(Date.UTC(yy,mm-1,1)).toLocaleDateString("en-US",{month:"long",year:"numeric",timeZone:"UTC"});
+  const title=new Date(Date.UTC(yy,mm-1,1,12)).toLocaleDateString("en-US",{month:"long",year:"numeric",timeZone:"UTC"});
   const logged=cells.filter(c=>c&&c.data);
-  const a=logged.length?Math.round(logged.reduce((t,c)=>t+dPct(c.data),0)/logged.length):0;
+  const scored=logged.filter(c=>c.data.score>0);
+  const a=scored.length?Math.round(scored.reduce((t,c)=>t+dPct(c.data),0)/scored.length):0;
   const g=a>0?GRADE(a,100):null;
-  const best=logged.reduce((m,c)=>!m||dPct(c.data)>dPct(m.data)?c:m,null);
+  const best=scored.reduce((m,c)=>!m||dPct(c.data)>dPct(m.data)?c:m,null);
   const canFwd=ym<nowYM;
-  const nav=(d,lab,on)=>`<button onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"} style="background:none;border:1px solid ${on?"#25253a":"#111120"};color:${on?"#c0c0cd":"#23233a"};width:46px;height:46px;border-radius:11px;cursor:${on?"pointer":"default"};font-size:23px;font-family:inherit;flex-shrink:0">${lab}</button>`;
-  return`<div style="display:flex;flex-direction:column;gap:12px">
-    <div class="history-month-bar" style="display:flex;align-items:center;gap:14px;min-height:86px;padding:10px 18px;border:1px solid #1b1b35;border-radius:14px;background:#090914;box-sizing:border-box">
+  const nav=(d,lab,on)=>`<button class="history-month-nav" onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"}>${lab}</button>`;
+  return`<div class="history-month-wrap" style="display:flex;flex-direction:column;gap:14px">
+    <div class="history-month-head history-month-bar">
       ${nav(-1,"‹",true)}
-      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:18px;white-space:nowrap;overflow:hidden">
-        <div style="font-family:'Bebas Neue';font-size:30px;letter-spacing:0.09em;color:#e6e6ee;line-height:1;flex-shrink:0">${title.toUpperCase()}</div>
-        <div style="width:1px;height:32px;background:#25253d;flex-shrink:0"></div>
-        <div style="font-size:17px;color:#a5a5b8;letter-spacing:.02em;flex-shrink:0">${logged.length}d logged</div>
-        <div style="width:1px;height:32px;background:#25253d;flex-shrink:0"></div>
-        <div style="font-size:17px;color:#a5a5b8;flex-shrink:0">AVG ${a}%</div>
-        ${g?`<div style="width:1px;height:32px;background:#25253d;flex-shrink:0"></div><div style="font-family:'Bebas Neue';font-size:24px;color:${g.c};line-height:1;flex-shrink:0">${esc(g.l)}</div>`:""}
-        ${best?`<div class="history-month-best-bar" style="margin-left:auto;display:flex;align-items:center;gap:12px;min-width:255px;height:60px;padding:7px 16px;border:1px solid ${GRADE(best.data.score,best.data.max).c}70;border-radius:12px;background:${GRADE(best.data.score,best.data.max).c}0b;box-sizing:border-box;flex-shrink:0">
-          <div style="font-size:31px;line-height:1">🏆</div>
-          <div style="display:flex;flex-direction:column;justify-content:center;line-height:1.05">
-            <div style="font-family:'Bebas Neue';font-size:14px;letter-spacing:.09em;color:#d2d2dc">BEST DAY</div>
-            <div style="font-size:16px;color:#b8b8c8;margin-top:4px">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})}</div>
-          </div>
-          <div style="margin-left:auto;font-family:'Bebas Neue';font-size:27px;color:${GRADE(best.data.score,best.data.max).c};line-height:1;white-space:nowrap">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</div>
-        </div>`:""}
+      <div class="history-month-summary">
+        <div class="history-month-title" style="font-family:'Bebas Neue';letter-spacing:0.09em;color:#e2e2e2">${title.toUpperCase()}</div>
+        <span class="history-month-divider"></span>
+        <div class="history-month-meta">${logged.length?`${logged.length}d logged`:"no days logged"}</div>
+        ${g?`<span class="history-month-divider"></span><div class="history-month-meta">AVG ${a}%</div><span class="history-month-divider"></span><div class="history-month-grade" style="color:${g.c}">${esc(g.l)}</div>`:""}
       </div>
+      ${best?`<div class="history-month-best-inline">
+        <span class="history-month-best-icon">🏆</span>
+        <span class="history-month-best-label">BEST DAY</span>
+        <span class="history-month-best-date">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})}</span>
+        <span class="history-month-best-score" style="color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</span>
+      </div>`:""}
       ${nav(1,"›",canFwd)}
     </div>
-    <div class="card">
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
+    <div class="card history-month-card">
+      <div class="month-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
         ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em">${d}</div>`).join("")}
       </div>
-      <div class="history-month-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+      <div class="month-days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
         ${cells.map(c=>{
           if(!c)return`<div></div>`;
           const isT=c.key===tk, future=c.key>tk;
           const dg=c.data?GRADE(c.data.score,c.data.max):null;
-          if(future)return`<div class="history-month-grid-day" style="border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
-          return`<div onclick="openEditDay('${c.key}')" title="${c.key}" class="history-month-grid-day" style="position:relative;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
+          if(future)return`<div class="month-day" style="height:102px;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px;box-sizing:border-box"><span style="font-size:11px;line-height:1;color:#22223a">${c.day}</span></div>`;
+          return`<div class="month-day" role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;height:102px;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
             <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
-            ${c.data?`<span style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
+            ${c.data?`<span class="month-grade" style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span class="month-score" style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
           </div>`;
         }).join("")}
       </div>
     </div>
   </div>`;
 }
+
 function renderHistYear(){
   const days=getDays(365),months={};
   days.forEach(d=>{const mk=d.date.toLocaleDateString("en",{month:"long",year:"numeric"});if(!months[mk])months[mk]=[];months[mk].push(d);});
@@ -3848,7 +5166,7 @@ function renderHistYear(){
         <div style="display:flex;flex-wrap:wrap;gap:4px">
           ${mdays.map(({key,data})=>{
             const dg=data?GRADE(data.score,data.max):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
-            return`<div onclick="openEditDay('${key}')" title="${data?`${key}: ${data.score}%`:key}" style="width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
+            return`<div role="button" tabindex="0" aria-label="Open ${key}" onclick="openEditDay('${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${data?`${key}: ${data.score}%`:key}" style="width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
               ${data?`<span style="font-family:'Bebas Neue';font-size:15px;color:${dg.c}">${esc(dg.l)}</span>`:`<span style="font-size:14px;color:#9a9ab2">·</span>`}
             </div>`;
           }).join("")}
@@ -3931,9 +5249,9 @@ function monthGrid(ym){
   const[y,m]=ym.split('-').map(Number);
   const dim=new Date(Date.UTC(y,m,0)).getUTCDate();
   const lead=new Date(Date.UTC(y,m-1,1)).getUTCDay();
-  const hh=getHistory(),out=[];
+  const out=[];
   for(let i=0;i<lead;i++)out.push(null);
-  for(let d=1;d<=dim;d++){const key=`${ym}-${String(d).padStart(2,'0')}`;out.push({key,day:d,data:hh[key]||null});}
+  for(let d=1;d<=dim;d++){const key=`${ym}-${String(d).padStart(2,'0')}`;out.push({key,day:d,data:getDayRecord(key)});}
   return out;
 }
 function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)||[...C.L1,...C.L2,...C.L3].some(i=>i.id===id&&i.routine);}
@@ -4144,1133 +5462,16 @@ boot();
 
 
 
-<style>
-/* FINAL MICRO-POLISH — Today hero larger, same layout; routines collapsible on mobile */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    height:204px !important;
-    gap:20px !important;
-    max-width:900px !important;
-  }
-  #scroll .today .t-score-stack{
-    flex-basis:190px !important; width:190px !important; min-width:190px !important;
-  }
-  #scroll .today .t-score-stack > .t-ring{
-    width:168px !important; height:168px !important; flex-basis:168px !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    padding:15px 21px !important; gap:20px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:first-child{font-size:64px !important;}
-}
-@media (max-width:879px){
-  .today .t-score-hero{
-    width:100% !important; max-width:none !important; gap:10px !important;
-  }
-  .today .t-score-stack{
-    min-width:112px !important; width:112px !important;
-  }
-  .today .t-score-stack .t-ring{
-    width:110px !important; height:110px !important;
-  }
-  .today .t-score-hero .t-grade{
-    flex:1 1 0 !important; width:auto !important; max-width:none !important;
-    padding:12px 13px !important; gap:10px !important;
-  }
-  .today .t-score-hero .t-grade > div:first-child{font-size:42px !important;}
-  .today .t-rout-toggle{
-    user-select:none; -webkit-tap-highlight-color:transparent;
-    padding-bottom:2px;
-  }
-  .today .t-rout.collapsed .t-rout-body{display:none !important;}
-  .today .t-rout-arrow{display:inline-block;width:12px;font-size:11px;color:#8888a4;}
-}
 
-/* FINAL DESKTOP ROUTINES FIX
-   The routine wrapper was auto-placing its BODY as a second grid item.
-   Keep the wrapper as one full card and make its BODY the horizontal grid. */
-@media(min-width:880px){
-  #scroll .today .t-rout{
-    grid-row:3 !important;
-    grid-column:1 / span 8 !important;
-    display:block !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    padding:15px 20px !important;
-  }
-  #scroll .today .t-rout>.sec{
-    display:flex !important;
-    width:100% !important;
-    margin-bottom:10px !important;
-  }
-  #scroll .today .t-rout .t-rout-body{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:14px !important;
-    width:100% !important;
-    min-width:0 !important;
-    align-items:stretch !important;
-  }
-  #scroll .today .t-rout .t-rout-body>div{
-    width:auto !important;
-    min-width:0 !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-note{
-    grid-row:3 !important;
-    grid-column:9 / -1 !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-reset{
-    grid-row:4 !important;
-    grid-column:1 / -1 !important;
-    justify-self:center !important;
-    align-self:center !important;
-    margin:0 !important;
-  }
-}
 
-</style>
-
-<style>
-/* FINAL TOP-BAR POLISH — desktop only
-   Keep the approved LVL baseline untouched. Recompose only the top band:
-   RING → INFO → LOG, with the ring larger and the info box slightly wider. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    height:228px !important;
-    min-height:228px !important;
-    width:100% !important;
-    max-width:none !important;
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
-    justify-content:flex-start !important;
-    gap:20px !important;
-    box-sizing:border-box !important;
-  }
-
-  /* Flatten the stack only on desktop so LOG can sit to the far right. */
-  #scroll .today .t-score-stack{
-    display:contents !important;
-  }
-
-  #scroll .today .t-score-stack > .t-ring{
-    order:1 !important;
-    width:210px !important;
-    height:210px !important;
-    flex:0 0 210px !important;
-    margin:0 !important;
-  }
-
-  /* Keep the score/rating text mathematically centered inside the larger ring. */
-  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"]{
-    inset:0 !important;
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-    text-align:center !important;
-    width:auto !important;
-    height:auto !important;
-    margin:0 !important;
-  }
-
-  #scroll .today .t-score-hero .t-grade{
-    order:2 !important;
-    flex:1 1 760px !important;
-    width:auto !important;
-    max-width:760px !important;
-    min-width:0 !important;
-    padding:14px 20px !important;
-    box-sizing:border-box !important;
-  }
-
-  #scroll .today .t-score-hero .today-log-start{
-    order:3 !important;
-    flex:0 0 auto !important;
-    margin:0 0 0 auto !important;
-    align-self:center !important;
-    white-space:nowrap !important;
-  }
-}
-</style>
-
-<style>
-/* FINAL DESKTOP TODAY HERO: preserve LVL baseline; use the full top band. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    grid-row:2 !important;
-    grid-column:1 / -1 !important;
-    width:100% !important;
-    max-width:none !important;
-    height:214px !important;
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
-    justify-content:stretch !important;
-    gap:20px !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-  /* Flatten only the desktop stack so the visual order is Ring → Info → Log. */
-  #scroll .today .t-score-stack{
-    display:contents !important;
-  }
-  #scroll .today .t-score-stack > .t-ring{
-    order:1 !important;
-    flex:0 0 196px !important;
-    width:196px !important;
-    height:196px !important;
-    margin:0 !important;
-    transform:none !important;
-  }
-  /* Center the score text precisely inside the enlarged ring. */
-  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"]{
-    inset:0 !important;
-    width:auto !important;
-    height:auto !important;
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-    text-align:center !important;
-    margin:0 !important;
-    transform:none !important;
-  }
-  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"] > div:first-child{
-    font-size:58px !important;
-    line-height:1 !important;
-    text-align:center !important;
-  }
-  #scroll .today .t-score-stack > .t-ring > div[style*="position:absolute"] > div:last-child{
-    font-size:15px !important;
-    line-height:1.1 !important;
-    text-align:center !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    order:2 !important;
-    flex:1 1 auto !important;
-    width:auto !important;
-    max-width:none !important;
-    min-width:0 !important;
-    padding:16px 20px !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-score-stack > .today-log-start{
-    order:3 !important;
-    flex:0 0 auto !important;
-    margin:0 0 0 auto !important;
-    align-self:center !important;
-    white-space:nowrap !important;
-  }
-}
-</style>
-
-<style>
-/* FINAL DESKTOP HERO: centered scorebox with ring and log symmetrically at its sides. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    height:214px !important;
-    min-height:214px !important;
-    display:grid !important;
-    grid-template-columns:1fr auto 1fr !important;
-    align-items:center !important;
-    justify-items:center !important;
-    gap:18px !important;
-    width:100% !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-score-stack{display:contents !important;}
-  #scroll .today .t-score-hero .t-ring{
-    grid-column:1 !important;
-    justify-self:end !important;
-    width:196px !important;
-    height:196px !important;
-    flex:none !important;
-    margin:0 !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    grid-column:2 !important;
-    justify-self:center !important;
-    width:520px !important;
-    max-width:520px !important;
-    min-width:0 !important;
-    margin:0 !important;
-    padding:16px 20px !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-score-hero .today-log-start{
-    grid-column:3 !important;
-    justify-self:start !important;
-    margin:0 !important;
-    white-space:nowrap !important;
-  }
-}
-</style>
 </body>
 
-<style>
-/* FINAL CORRECTION — desktop stays open; mobile routines collapsible.
-   Enlarge the Today hero/info band without changing its layout/positions. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    height:198px !important;
-    gap:22px !important;
-  }
-  #scroll .today .t-score-stack{
-    flex:0 0 178px !important;
-    width:178px !important;
-    min-width:178px !important;
-    gap:4px !important;
-  }
-  #scroll .today .t-score-stack .t-ring{
-    width:168px !important;
-    height:168px !important;
-    flex:0 0 168px !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    padding:15px 21px !important;
-    gap:20px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:first-child{font-size:64px !important;}
-  #scroll .today .t-rout{
-    grid-row:3 !important;
-    grid-column:1 / span 8 !important;
-  }
-  #scroll .today .t-note{
-    grid-row:3 !important;
-    grid-column:9 / -1 !important;
-  }
-}
-@media (max-width:879px){
-  /* Mobile only: the routines header is interactive; desktop is not. */
-  .today .t-rout-toggle{
-    cursor:pointer !important;
-    user-select:none;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .today .t-rout.collapsed .t-rout-body{display:none !important;}
-  .today .t-rout-arrow{display:inline-block !important;width:12px;font-size:11px;color:#8888a4;}
 
-  /* Slightly larger Today ring + info band, same two-column layout. */
-  .today .t-score-hero{
-    gap:10px !important;
-  }
-  .today .t-score-stack{
-    min-width:118px !important;
-    width:118px !important;
-  }
-  .today .t-score-stack .t-ring{
-    width:115px !important;
-    height:115px !important;
-  }
-  .today .t-score-hero .t-grade{
-    padding:14px 15px !important;
-    gap:11px !important;
-  }
-}
-
-/* FINAL DESKTOP ROUTINES FIX
-   The routine wrapper was auto-placing its BODY as a second grid item.
-   Keep the wrapper as one full card and make its BODY the horizontal grid. */
-@media(min-width:880px){
-  #scroll .today .t-rout{
-    grid-row:3 !important;
-    grid-column:1 / span 8 !important;
-    display:block !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    padding:15px 20px !important;
-  }
-  #scroll .today .t-rout>.sec{
-    display:flex !important;
-    width:100% !important;
-    margin-bottom:10px !important;
-  }
-  #scroll .today .t-rout .t-rout-body{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:14px !important;
-    width:100% !important;
-    min-width:0 !important;
-    align-items:stretch !important;
-  }
-  #scroll .today .t-rout .t-rout-body>div{
-    width:auto !important;
-    min-width:0 !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-note{
-    grid-row:3 !important;
-    grid-column:9 / -1 !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-reset{
-    grid-row:4 !important;
-    grid-column:1 / -1 !important;
-    justify-self:center !important;
-    align-self:center !important;
-    margin:0 !important;
-  }
-}
-
-</style>
-
-<style>
-/* FINAL ROUTINES FIX — desktop stays open and uses the available horizontal space. */
-@media (min-width:880px){
-  #scroll .today .t-rout{
-    width:100% !important;
-    max-width:none !important;
-    pointer-events:auto;
-  }
-  #scroll .today .t-rout-toggle{
-    cursor:default !important;
-    pointer-events:none !important;
-  }
-  #scroll .today .t-rout-arrow{display:none !important;}
-  #scroll .today .t-rout-body{
-    display:grid !important;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:12px !important;
-    width:100% !important;
-  }
-  #scroll .today .t-rout-body > div{
-    width:100% !important;
-    min-width:0 !important;
-    margin-bottom:0 !important;
-    padding:14px !important;
-  }
-  #scroll .today .t-rout-body .r-lab{
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-}
-@media (max-width:879px){
-  /* Mobile: the label is gone; the input card itself is the Day Log field. */
-  .today .t-daylog{max-width:none !important;}
-  .today .t-daylog-card{width:100% !important;}
-}
-
-/* FINAL DESKTOP ROUTINES FIX
-   The routine wrapper was auto-placing its BODY as a second grid item.
-   Keep the wrapper as one full card and make its BODY the horizontal grid. */
-@media(min-width:880px){
-  #scroll .today .t-rout{
-    grid-row:3 !important;
-    grid-column:1 / span 8 !important;
-    display:block !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    padding:15px 20px !important;
-  }
-  #scroll .today .t-rout>.sec{
-    display:flex !important;
-    width:100% !important;
-    margin-bottom:10px !important;
-  }
-  #scroll .today .t-rout .t-rout-body{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:14px !important;
-    width:100% !important;
-    min-width:0 !important;
-    align-items:stretch !important;
-  }
-  #scroll .today .t-rout .t-rout-body>div{
-    width:auto !important;
-    min-width:0 !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-note{
-    grid-row:3 !important;
-    grid-column:9 / -1 !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-reset{
-    grid-row:4 !important;
-    grid-column:1 / -1 !important;
-    justify-self:center !important;
-    align-self:center !important;
-    margin:0 !important;
-  }
-}
-
-</style>
-
-<style>
-/* DESKTOP FINAL — balanced top hero
-   Keep the scorebox mathematically centered in the viewport and give the
-   ring / scorebox / LOG equal visual spacing on both sides. Mobile untouched. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    display:grid !important;
-    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) !important;
-    grid-template-rows:1fr !important;
-    align-items:center !important;
-    justify-items:stretch !important;
-    justify-content:center !important;
-    column-gap:28px !important;
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-    height:214px !important;
-    min-height:214px !important;
-    box-sizing:border-box !important;
-  }
-
-  /* The old stack is flattened on desktop so these become the three
-     intentional columns of the hero. */
-  #scroll .today .t-score-stack{
-    display:contents !important;
-  }
-
-  /* Ring: right-aligned inside the left column. */
-  #scroll .today .t-score-hero .t-ring{
-    grid-column:1 !important;
-    grid-row:1 !important;
-    justify-self:end !important;
-    align-self:center !important;
-    width:184px !important;
-    height:184px !important;
-    flex:none !important;
-    margin:0 !important;
-    transform:none !important;
-  }
-
-  /* Scorebox: its own auto-sized center column = exact viewport center. */
-  #scroll .today .t-score-hero .t-grade{
-    grid-column:2 !important;
-    grid-row:1 !important;
-    justify-self:center !important;
-    align-self:center !important;
-    width:min(720px, calc(100vw - 520px)) !important;
-    max-width:720px !important;
-    min-width:560px !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-
-  /* LOG: left-aligned inside the right column, mirroring the ring. */
-  #scroll .today .t-score-hero .today-log-start{
-    grid-column:3 !important;
-    grid-row:1 !important;
-    justify-self:start !important;
-    align-self:center !important;
-    margin:0 !important;
-    white-space:nowrap !important;
-    transform:none !important;
-  }
-}
-
-/* For medium desktop widths, reduce the side gap before shrinking the
-   center scorebox. */
-@media (min-width:880px) and (max-width:1250px){
-  #scroll .today .t-score-hero{
-    column-gap:18px !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    min-width:500px !important;
-    width:min(650px, calc(100vw - 430px)) !important;
-  }
-}
-</style>
 
 </html>
 
-<style>
-/* FINAL DESKTOP POLISH — Today hero */
-@media (min-width:880px){
-  #scroll .today{
-    max-width:1500px !important;
-    padding-left:18px !important;
-    padding-right:18px !important;
-    column-gap:16px !important;
-    row-gap:7px !important;
-  }
-  #scroll .today .t-score-hero{
-    height:192px !important;
-    gap:20px !important;
-    justify-content:flex-start !important;
-  }
-  #scroll .today .t-score-stack{
-    flex:0 0 172px !important;
-    width:172px !important;
-    min-width:172px !important;
-    gap:5px !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    justify-content:center !important;
-  }
-  /* Explicit order: ring FIRST, LOG BELOW it. */
-  #scroll .today .t-score-stack > .t-ring{
-    order:1 !important;
-    width:152px !important;
-    height:152px !important;
-    flex:0 0 152px !important;
-    transform:none !important;
-    margin:0 !important;
-  }
-  #scroll .today .t-score-stack > .today-log-start{
-    order:2 !important;
-    margin:0 !important;
-    align-self:center !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    flex:1 1 auto !important;
-    min-width:0 !important;
-    max-width:none !important;
-    width:auto !important;
-    padding:14px 20px !important;
-    gap:20px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:first-child{
-    font-size:58px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:first-child,
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(2),
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3){
-    font-size:14.5px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3){
-    flex-wrap:nowrap !important;
-    white-space:nowrap !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
-    font-size:14.5px !important;
-  }
-  #scroll .today .t-lvl .row{
-    padding-top:7px !important;
-    padding-bottom:7px !important;
-  }
 
-  /* FINAL +5% SIZE: keep the exact same grid/layout and anchor positions.
-     Grow the visual elements inside the existing bands, while tightening
-     their internal gaps so nothing is pushed to a new row. */
-  #scroll .today .t-score-stack{
-    flex-basis:180px !important;
-    width:180px !important;
-    min-width:180px !important;
-    gap:3px !important;
-  }
-  #scroll .today .t-score-stack > .t-ring{
-    width:160px !important;
-    height:160px !important;
-    flex-basis:160px !important;
-  }
-  #scroll .today .t-score-hero{
-    gap:18px !important;
-  }
-  #scroll .today .today-log-start{
-    transform:scale(1.05);
-    transform-origin:center top;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    padding:13px 19px !important;
-    gap:18px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:first-child{
-    font-size:61px !important;
-  }
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:first-child,
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(2),
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:nth-child(3),
-  #scroll .today .t-score-hero .t-grade > div:last-child > div:last-child{
-    font-size:15px !important;
-  }
-}
 
-/* FINAL DESKTOP ROUTINES FIX
-   The routine wrapper was auto-placing its BODY as a second grid item.
-   Keep the wrapper as one full card and make its BODY the horizontal grid. */
-@media(min-width:880px){
-  #scroll .today .t-rout{
-    grid-row:3 !important;
-    grid-column:1 / span 8 !important;
-    display:block !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    padding:15px 20px !important;
-  }
-  #scroll .today .t-rout>.sec{
-    display:flex !important;
-    width:100% !important;
-    margin-bottom:10px !important;
-  }
-  #scroll .today .t-rout .t-rout-body{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:14px !important;
-    width:100% !important;
-    min-width:0 !important;
-    align-items:stretch !important;
-  }
-  #scroll .today .t-rout .t-rout-body>div{
-    width:auto !important;
-    min-width:0 !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-note{
-    grid-row:3 !important;
-    grid-column:9 / -1 !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-reset{
-    grid-row:4 !important;
-    grid-column:1 / -1 !important;
-    justify-self:center !important;
-    align-self:center !important;
-    margin:0 !important;
-  }
-}
 
-</style>
 
-<style>
-/* MOBILE TODAY — compact Day Log field, between habits and Day Note. */
-@media(max-width:879px){
-  .today .t-score-stack .t-ring{width:104px !important;height:104px !important;}
-  /* Mobile: the desktop quick-log button must not render under the ring. */
-  .today .t-score-stack > .today-log-start,
-  .today .today-log-start{display:none !important;visibility:hidden !important;}
-  /* Mobile Today order: routines → core → habits → bonus → day log → day note. */
-  .today .t-score-hero{order:1;}
-  .today .t-rout{order:2;}
-  .today .t-lvl1{order:3;}
-  .today .t-lvl2{order:4;}
-  .today .t-lvl3{order:5;}
-  .today .t-daylog{order:6 !important;}
-  .today .t-note{order:7;}
-  .today .t-reset{order:8;}
-  .today .t-daylog-card{background:#0b0b16;border:1px solid #17172a;border-radius:14px;padding:10px 11px;}
-  .today .t-daylog-row{display:flex;align-items:center;gap:7px;}
-  .today .t-daylog-row #dayLogInput{min-width:0;flex:1;border:1px solid #202033;border-radius:9px;padding:9px 10px;background:#0f0f1d;color:#e2e2e2;font:inherit;font-size:13px;outline:none;}
-  .today .t-daylog-row #dayLogStartBtn{flex:0 0 auto;border:1px solid #303047;border-radius:9px;padding:8px 11px;background:#e2e2e2;color:#080810;font-size:11px;font-weight:800;letter-spacing:.08em;cursor:pointer;}
-  .today .t-daylog-card.running .t-daylog-row #dayLogStartBtn{background:#f87171;}
-  .today .t-daylog-meta{font-size:9.5px;color:#66667d;letter-spacing:.05em;margin-top:6px;}
-}
-@media(min-width:880px){
-  .today .t-daylog{display:none !important;}
-}
 
-/* FINAL DESKTOP ROUTINES FIX
-   The routine wrapper was auto-placing its BODY as a second grid item.
-   Keep the wrapper as one full card and make its BODY the horizontal grid. */
-@media(min-width:880px){
-  #scroll .today .t-rout{
-    grid-row:3 !important;
-    grid-column:1 / span 8 !important;
-    display:block !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-    padding:15px 20px !important;
-  }
-  #scroll .today .t-rout>.sec{
-    display:flex !important;
-    width:100% !important;
-    margin-bottom:10px !important;
-  }
-  #scroll .today .t-rout .t-rout-body{
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    gap:14px !important;
-    width:100% !important;
-    min-width:0 !important;
-    align-items:stretch !important;
-  }
-  #scroll .today .t-rout .t-rout-body>div{
-    width:auto !important;
-    min-width:0 !important;
-    margin:0 !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-note{
-    grid-row:3 !important;
-    grid-column:9 / -1 !important;
-    width:auto !important;
-    max-width:none !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-reset{
-    grid-row:4 !important;
-    grid-column:1 / -1 !important;
-    justify-self:center !important;
-    align-self:center !important;
-    margin:0 !important;
-  }
-}
-
-</style>
-
-<style>
-/* FINAL TODAY DESKTOP — 2a: RING → INFO BAR → LOG ACTIVITY
-   Keep the lower layout untouched. The score hero uses the full width so the
-   information bar can breathe, while the ring and Log button stay on one line. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    grid-row:2 !important;
-    grid-column:1 / -1 !important;
-    width:100% !important;
-    max-width:none !important;
-    height:190px !important;
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
-    justify-content:flex-start !important;
-    gap:20px !important;
-    box-sizing:border-box !important;
-  }
-
-  /* Flatten the old vertical stack: ring and button become flex items of the hero. */
-  #scroll .today .t-score-stack{
-    display:contents !important;
-  }
-
-  #scroll .today .t-score-hero .t-ring{
-    order:1 !important;
-    flex:0 0 180px !important;
-    width:180px !important;
-    height:180px !important;
-    margin:0 !important;
-    zoom:1 !important;
-  }
-
-  #scroll .today .t-score-hero .t-grade{
-    order:2 !important;
-    flex:1 1 auto !important;
-    width:auto !important;
-    max-width:none !important;
-    min-width:0 !important;
-    height:auto !important;
-    margin:0 !important;
-    padding:17px 22px !important;
-    box-sizing:border-box !important;
-  }
-
-  #scroll .today .t-score-hero .today-log-start{
-    order:3 !important;
-    flex:0 0 auto !important;
-    margin:0 !important;
-    white-space:nowrap !important;
-  }
-}
-</style>
-
-<style>
-/* FINAL DESKTOP TOP-BAR REPAIR
-   Keep the Today hero ABOVE the levels. The global mobile ordering rules must
-   never reorder the desktop grid; explicit rows/columns are authoritative here. */
-@media (min-width:880px){
-  #scroll .today > *{order:0 !important;}
-  #scroll .today .t-score-hero{
-    order:1 !important;
-    grid-row:1 !important;
-    grid-column:1 / -1 !important;
-  }
-  #scroll .today .t-lvl1{order:2 !important;grid-row:2 !important;grid-column:1 / span 4 !important;}
-  #scroll .today .t-lvl2{order:3 !important;grid-row:2 !important;grid-column:5 / span 4 !important;}
-  #scroll .today .t-lvl3{order:4 !important;grid-row:2 !important;grid-column:9 / span 4 !important;}
-  #scroll .today .t-rout{order:5 !important;grid-row:3 !important;grid-column:1 / span 8 !important;}
-  #scroll .today .t-note{order:6 !important;grid-row:3 !important;grid-column:9 / span 4 !important;}
-  #scroll .today .t-reset{order:7 !important;grid-row:4 !important;grid-column:1 / -1 !important;}
-
-  /* 2a: ring → info bar → LOG, all in the same top band. */
-  #scroll .today .t-score-hero{
-    height:180px !important;
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
-    justify-content:flex-start !important;
-    gap:22px !important;
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-  }
-  #scroll .today .t-score-stack{
-    display:contents !important;
-  }
-  #scroll .today .t-score-stack .t-ring{
-    order:1 !important;
-    flex:0 0 140px !important;
-    width:140px !important;
-    height:140px !important;
-    margin:0 !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    order:2 !important;
-    flex:1 1 auto !important;
-    width:auto !important;
-    max-width:none !important;
-    min-width:0 !important;
-    margin:0 !important;
-    padding:15px 21px !important;
-  }
-  #scroll .today .t-score-hero .today-log-start{
-    order:3 !important;
-    flex:0 0 auto !important;
-    margin:0 !important;
-    align-self:center !important;
-    white-space:nowrap !important;
-  }
-}
-</style>
-
-<style>
-/* FINAL TOP-BAR TUNE — desktop
-   Use the bottom edge of the tallest LVL card as the common baseline, so LVL1/2/3
-   share one clean row. This frees the top band to breathe without changing the
-   overall desktop arrangement. */
-@media (min-width:880px){
-  /* LVL3 establishes the row's natural height; the other two stretch to it. */
-  #scroll .today .t-lvl1,
-  #scroll .today .t-lvl2,
-  #scroll .today .t-lvl3{
-    align-self:end !important;
-    height:auto !important;
-    box-sizing:border-box !important;
-  }
-
-  /* Give the top band a little more vertical room for the ring. */
-  #scroll .today .t-score-hero{
-    height:214px !important;
-    min-height:214px !important;
-    gap:18px !important;
-    align-items:center !important;
-  }
-
-  /* Slightly larger ring, still inside the same top-band position. */
-  #scroll .today .t-score-stack > .t-ring{
-    width:184px !important;
-    height:184px !important;
-    flex-basis:184px !important;
-  }
-  #scroll .today .t-score-stack{
-    flex:0 0 196px !important;
-    width:196px !important;
-    min-width:196px !important;
-    gap:3px !important;
-  }
-
-  /* Trim the info box a little horizontally so the larger ring has room. */
-  #scroll .today .t-score-hero .t-grade{
-    flex:0 1 720px !important;
-    width:auto !important;
-    max-width:720px !important;
-    min-width:0 !important;
-    padding:13px 18px !important;
-    box-sizing:border-box !important;
-  }
-}
-</style>
-
-<style>
-/* FIX DEFINITIVO — hero centrado: ring · info · log en una fila, gaps iguales.
-   Va al final a propósito: misma especificidad (!important) que los parches
-   anteriores, así que por orden de cascada este es el que manda. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    display:flex !important;
-    flex-direction:row !important;
-    align-items:center !important;
-    justify-content:center !important;
-    gap:26px !important;
-    width:100% !important;
-    max-width:none !important;
-    height:214px !important;
-    min-height:214px !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-score-stack{ display:contents !important; }
-  #scroll .today .t-score-stack > .t-ring{
-    order:1 !important;
-    flex:0 0 184px !important;
-    width:184px !important;
-    height:184px !important;
-    margin:0 !important;
-    transform:none !important;
-  }
-  #scroll .today .t-score-hero .t-grade{
-    order:2 !important;
-    flex:0 1 620px !important;
-    width:auto !important;
-    max-width:620px !important;
-    min-width:0 !important;
-    margin:0 !important;
-    padding:16px 20px !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-score-stack > .today-log-start{
-    order:3 !important;
-    flex:0 0 auto !important;
-    margin:0 !important;
-    align-self:center !important;
-    white-space:nowrap !important;
-  }
-}
-</style>
-
-<style>
-/* BARRA1 — anillo/LOG desplazados 50% de su tamaño hacia afuera del centro,
-   y LOG pasa a círculo espejo del anillo con estado dinámico (idle/live). */
-@media (min-width:880px){
-  #scroll .today .t-score-hero .t-ring{transform:translateX(-50%) !important}
-  #scroll .today .t-score-hero .today-log-start{transform:translateX(50%) !important}
-
-  .today-log-start{
-    width:64px;height:64px;border-radius:50%;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:2px;padding:0;font-size:9px;letter-spacing:.04em;
-  }
-  .today-log-start span{font-size:20px;line-height:1}
-  .today-log-start.live{
-    background:#f87171;
-    box-shadow:0 0 16px rgba(248,113,113,.5);
-    animation:rzPulse 1.8s ease-in-out infinite;
-  }
-}
-</style>
-
-<style>
-/* FINAL POLISH — Today levels / card contrast / LOG size */
-@media (min-width:880px){
-  /* Move the three LVL cards slightly toward the ring and away from routines. */
-  #scroll .today .t-lvl1,
-  #scroll .today .t-lvl2,
-  #scroll .today .t-lvl3{
-    transform:translateY(-6px) !important;
-  }
-
-  /* Slightly clearer separation between cards and the page background. */
-  #scroll .today .t-lvl,
-  #scroll .today .t-rout,
-  #scroll .today .t-note{
-    background:#0d0d19 !important;
-    border-color:#1d1d33 !important;
-  }
-
-  /* Larger Today LOG button, keeping the same circular desktop treatment. */
-  #scroll .today .today-log-start{
-    width:72px !important;
-    height:72px !important;
-  }
-}
-</style>
-
-<style>
-/* FINAL NEXT MOVE LAYOUT FIX — keep the existing Today positions, but give the
-   new card enough internal room and move the circular Log button slightly right. */
-@media (min-width:880px){
-  #scroll .today .t-score-hero{
-    display:grid !important;
-    grid-template-columns:minmax(184px, 1fr) minmax(680px, 760px) minmax(110px, 1fr) !important;
-    align-items:center !important;
-    column-gap:24px !important;
-    width:100% !important;
-    max-width:none !important;
-    height:214px !important;
-    min-height:214px !important;
-    box-sizing:border-box !important;
-  }
-
-  /* Keep the ring where it was visually; remove the old artificial 50% shift. */
-  #scroll .today .t-score-stack{display:contents !important;}
-  #scroll .today .t-score-hero .t-ring{
-    grid-column:1 !important;
-    grid-row:1 !important;
-    justify-self:end !important;
-    align-self:center !important;
-    width:184px !important;
-    height:184px !important;
-    flex:none !important;
-    margin:0 !important;
-    transform:none !important;
-  }
-
-  /* The Next Move card gets the full center column instead of being squeezed
-     by the old horizontal summary layout. */
-  #scroll .today .t-score-hero .t-grade.t-nextmove{
-    grid-column:2 !important;
-    grid-row:1 !important;
-    justify-self:stretch !important;
-    align-self:center !important;
-    width:100% !important;
-    max-width:none !important;
-    min-width:0 !important;
-    height:auto !important;
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:stretch !important;
-    justify-content:center !important;
-    gap:0 !important;
-    padding:15px 20px !important;
-    box-sizing:border-box !important;
-  }
-
-  /* Restore the intended vertical structure inside NEXT MOVE. */
-  #scroll .today .t-score-hero .t-nextmove .nm-top,
-  #scroll .today .t-score-hero .t-nextmove .nm-target,
-  #scroll .today .t-score-hero .t-nextmove .nm-options,
-  #scroll .today .t-score-hero .t-nextmove .nm-footer{
-    width:100% !important;
-    min-width:0 !important;
-    box-sizing:border-box !important;
-  }
-  #scroll .today .t-score-hero .t-nextmove .nm-options{display:flex !important;flex-direction:column !important;gap:6px !important;}
-  #scroll .today .t-score-hero .t-nextmove .nm-target{white-space:normal !important;}
-  #scroll .today .t-score-hero .t-nextmove .nm-option{min-width:0 !important;}
-  #scroll .today .t-score-hero .t-nextmove .nm-label{min-width:0 !important;}
-
-  /* Log button: same circular treatment, but with a little more breathing room
-     on the right so it no longer crowds the scorebox. */
-  #scroll .today .t-score-hero .today-log-start{
-    grid-column:3 !important;
-    grid-row:1 !important;
-    justify-self:start !important;
-    align-self:center !important;
-    margin-left:12px !important;
-    transform:none !important;
-    width:72px !important;
-    height:72px !important;
-  }
-}
-
-@media (min-width:880px) and (max-width:1250px){
-  #scroll .today .t-score-hero{
-    grid-template-columns:minmax(150px, 1fr) minmax(500px, 1fr) minmax(90px, 1fr) !important;
-    column-gap:16px !important;
-  }
-  #scroll .today .t-score-hero .t-ring{width:160px !important;height:160px !important;}
-  #scroll .today .t-score-hero .t-nextmove{padding:13px 16px !important;}
-  #scroll .today .t-score-hero .today-log-start{margin-left:6px !important;width:64px !important;height:64px !important;}
-}
-
-/* History Month — single-line desktop header matching the SHAAH month-bar sketch. */
-.history-month-bar{width:100%;}
-@media(max-width:900px){
-  .history-month-bar{gap:8px!important;padding:8px 10px!important;min-height:76px!important;}
-  .history-month-bar>div:nth-child(2){gap:10px!important;overflow-x:auto!important;scrollbar-width:none;}
-  .history-month-bar>div:nth-child(2)::-webkit-scrollbar{display:none;}
-  .history-month-bar>div:nth-child(2)>div:first-child{font-size:25px!important;}
-  .history-month-best-bar{min-width:225px!important;height:54px!important;padding:6px 11px!important;}
-}
-</style>

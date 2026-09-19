@@ -4821,7 +4821,7 @@ function renderWeekReview(){
           </div>
         </div>
         <div style="flex:1;min-width:0">
-          <div style="font-family:'Bebas Neue';font-size:30px;color:${g.c};line-height:1">${esc(g.l)} · ${g.n}</div>
+          <div style="font-family:'Bebas Neue';font-size:30px;color:${g.c};line-height:1;letter-spacing:.03em">AVG ${r.avg}% · ${esc(g.l)}</div>
           <div style="font-size:13px;color:${acol};margin-top:5px">
             ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
           </div>
@@ -4942,8 +4942,6 @@ function renderStats(){
   const total=allDays.length,best=allDays.reduce((m,[,d])=>Math.max(m,dPct(d)),0);
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+dPct(d),0)/total):0,streak=getStreak();
   const bestStreak=getBestStreak(),trend=weekTrend(),review=weekReview();
-  const bestHabit=review?.best||{icon:"—",label:"No data",done:0};
-  const worstHabit=review?.worst||{icon:"—",label:"No data",done:0};
   if(total===0&&score===0){
     return`<div class="fade-up" style="height:calc(100dvh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center">
       <div style="font-size:44px;opacity:.5">📊</div>
@@ -4954,10 +4952,8 @@ function renderStats(){
   }
   return`<div class="fade-up history-compact" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
-    <div class="stats-six-grid">
+    <div class="stats-four-grid">
       ${[
-        {icon:bestHabit.icon,label:"MOST CONSISTENT",val:`${bestHabit.done}/7`,col:"#4ade80",sub:bestHabit.label},
-        {icon:worstHabit.icon,label:"NEEDS WORK",val:`${worstHabit.done}/7`,col:"#ef4444",sub:worstHabit.label},
         {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
         {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
         {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
@@ -5392,6 +5388,13 @@ boot();
 
 
 
+
+<style id="stats-four-grid-fix">
+.stats-four-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:stretch}
+.stats-four-grid .stats-metric-card{min-height:112px;box-sizing:border-box}
+@media(max-width:900px){.stats-four-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.stats-four-grid{grid-template-columns:1fr}.stats-four-grid .stats-metric-card{min-height:92px}}
+</style>
 </body>
 
 

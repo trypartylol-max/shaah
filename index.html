@@ -291,6 +291,8 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   transition:background .15s,color .15s,transform .1s;}
 .ord:active{transform:scale(.88);background:#20203a;color:#e2e2e2;}
 @media(hover:hover){.ord:hover{background:#1d1d33;color:#d0d0da;}}
+/* LOG tab readability — match the visual weight of the other dock labels */
+.nav-btn[data-tab="log"]{font-size:16px;letter-spacing:0.14em;}
 .nav-btn.active{color:#e2e2e2;border-top-color:#e2e2e2;}
 .row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;cursor:pointer;user-select:none;transition:all 0.18s;border:1px solid transparent;position:relative;overflow:hidden;}
 .row.on{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.07);}

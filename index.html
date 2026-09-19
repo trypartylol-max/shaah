@@ -5006,6 +5006,11 @@ boot();
 </style>
 
 <style>
+/* STEP 5A.2 — SAFE CSS CONSOLIDATION
+   These three final override layers are merged verbatim and in the original order.
+   No selector, property, value, media query, or !important was removed or changed.
+*/
+
 /* BARRA1 — anillo/LOG desplazados 50% de su tamaño hacia afuera del centro,
    y LOG pasa a círculo espejo del anillo con estado dinámico (idle/live). */
 @media (min-width:880px){
@@ -5024,9 +5029,8 @@ boot();
     animation:rzPulse 1.8s ease-in-out infinite;
   }
 }
-</style>
 
-<style>
+
 /* FINAL POLISH — Today levels / card contrast / LOG size */
 @media (min-width:880px){
   /* Move the three LVL cards slightly toward the ring and away from routines. */
@@ -5050,9 +5054,8 @@ boot();
     height:72px !important;
   }
 }
-</style>
 
-<style>
+
 /* FINAL NEXT MOVE LAYOUT FIX — keep the existing Today positions, but give the
    new card enough internal room and move the circular Log button slightly right. */
 @media (min-width:880px){
@@ -5139,4 +5142,5 @@ boot();
   #scroll .today .t-score-hero .t-nextmove{padding:13px 16px !important;}
   #scroll .today .t-score-hero .today-log-start{margin-left:6px !important;width:64px !important;height:64px !important;}
 }
+
 </style>

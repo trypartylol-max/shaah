@@ -1998,7 +1998,23 @@ select:focus-visible,
   #scroll .today .t-score-hero .today-log-start{margin-left:6px !important;width:64px !important;height:64px !important;}
 }
 
-</style></head>
+</style><style>
+/* STEP 5B.4 — MOBILE TODAY ORDER (authoritative)
+   Ring/score hero first, then Today's Routines, levels, Day Log, Day Note, Reset Day.
+   Routines have their own state and are not coupled to level collapses. */
+@media (max-width:879px){
+  #scroll .today .t-score-hero{order:1 !important;}
+  #scroll .today .t-rout{order:2 !important;}
+  #scroll .today .t-lvl1{order:3 !important;}
+  #scroll .today .t-lvl2{order:4 !important;}
+  #scroll .today .t-lvl3{order:5 !important;}
+  #scroll .today .t-daylog{order:6 !important;}
+  #scroll .today .t-note{order:7 !important;}
+  #scroll .today .t-reset{order:8 !important;}
+  #scroll .today .t-rout.collapsed .t-rout-body{display:none !important;}
+}
+</style>
+</head>
 <body>
 <div id="app">
 <div id="scroll"></div>
@@ -3851,6 +3867,7 @@ async function boot(){
     loadCache();
     loadLvl();
     loadSec();
+  loadTodayRoutines();
     restoreRoutine();
     if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
     render();
@@ -4240,19 +4257,28 @@ function comboBlock(key,alwaysOpen){
       </div>`;
 }
 
+let todayRoutinesOpen=true;
+function todayRoutinesKey(){return `shaah_today_routines_${USER?USER.id:'anon'}`;}
+function loadTodayRoutines(){
+  const v=get(todayRoutinesKey());
+  if(v===true||v===false) todayRoutinesOpen=v;
+}
 function toggleTodayRoutines(el){
   // ONLY mobile can collapse Today's Routines. Desktop is permanently open.
   if(window.innerWidth >= 880){
     const box=el?.closest('.t-rout');
-    if(box){ box.classList.remove('collapsed'); const body=box.querySelector('.t-rout-body'); if(body)body.style.display=''; }
+    if(box){
+      box.classList.remove('collapsed');
+      const body=box.querySelector('.t-rout-body');
+      if(body)body.style.display='';
+      const toggle=box.querySelector('.t-rout-toggle');
+      if(toggle)toggle.setAttribute('aria-expanded','true');
+    }
     return;
   }
-  const box=el?.closest('.t-rout'); if(!box)return;
-  const body=box.querySelector('.t-rout-body'), arrow=box.querySelector('.t-rout-arrow');
-  if(!body)return;
-  const collapsed=box.classList.toggle('collapsed');
-  body.style.display=collapsed?'none':'';
-  if(arrow)arrow.textContent=collapsed?'▸':'▾';
+  todayRoutinesOpen=!todayRoutinesOpen;
+  set(todayRoutinesKey(),todayRoutinesOpen);
+  render();
 }
 
 function earnedPointsForItem(item,state){
@@ -4331,9 +4357,9 @@ function renderToday(key,nested=false){
     </div>
 
     
-${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
-      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="true" onclick="toggleTodayRoutines(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">▾</span>TODAY'S ROUTINES</div>
-      <div class="t-rout-body">${L1vis.filter(i=>i.routine).map(item=>{
+${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" style="width:100%;max-width:390px">
+      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="${todayRoutinesOpen}" onclick="toggleTodayRoutines(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>TODAY'S ROUTINES</div>
+      <div class="t-rout-body" style="${todayRoutinesOpen?"":"display:none;"}">${L1vis.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
           <div style="width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0">${esc(rt.icon)}</div>

@@ -2242,7 +2242,7 @@ function dayLogEdit(id,key=todayKey()){
   const modal=document.createElement('div');
   modal.id='dayLogEditModal';
   modal.className='daylog-edit-modal';
-  modal.innerHTML=`<div class="daylog-edit-backdrop" onclick="dayLogEditClose()"></div>
+  modal.innerHTML=`<div class="daylog-edit-backdrop" role="button" tabindex="0" aria-label="Close editor" onclick="dayLogEditClose()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"></div>
     <div class="daylog-edit-card" role="dialog" aria-modal="true" aria-labelledby="daylogEditTitle">
       <div class="daylog-edit-head"><div><div class="daylog-edit-kicker">EDIT ACTIVITY</div><div id="daylogEditTitle" class="daylog-edit-title">DAY LOG</div></div><button type="button" onclick="dayLogEditClose()" aria-label="Close">×</button></div>
       <label>ACTIVITY<input id="daylogEditName" type="text" maxlength="120" value="${dayLogEsc(ev.title)}" autocomplete="off"></label>
@@ -2294,7 +2294,7 @@ function dayLogRender(key=todayKey()){
     const dur=dayLogDuration(e), running=!e.end;
     html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
       <div class="dl-time">${new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:' · NOW'}</div>
-      <div class="dl-main" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')">
+      <div class="dl-main" role="button" tabindex="0" aria-label="Edit activity" onclick="dayLogEdit('${dayLogEsc(e.id)}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
         <div class="dl-title">${dayLogEsc(e.title)} ${e.meta?.light?'<span class="dl-light">½</span>':''}</div>
         <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}${running?' · RUNNING':''}</div>
       </div>
@@ -4108,7 +4108,7 @@ function renderResume(){
 
   if(style==="circle"){
     el.innerHTML=items.map(({rt,s,step,col,t},i)=>`
-      <div class="rz-circle" onclick="openRoutine('${rt._id||liveSessions()[i]}')" style="border-color:${col}44">
+      <div class="rz-circle" role="button" tabindex="0" aria-label="Open routine" onclick="openRoutine('${rt._id||liveSessions()[i]}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="border-color:${col}44">
         <div class="rz-cdot" style="background:${col};opacity:${s.running?1:.35}"></div>
         <div class="rz-ct" style="color:${col}" id="resume-clock-${ids[i]}">${t}</div>
         <div class="rz-ci">${esc(step.icon)}</div>
@@ -4141,7 +4141,7 @@ function renderTour(){
   if(tourStep===null||!USER){t.className="";t.innerHTML="";return;}
   const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
   t.className="on";
-  t.innerHTML=`<div class="tour-scrim" onclick="tourDone()"></div>
+  t.innerHTML=`<div class="tour-scrim" role="button" tabindex="0" aria-label="Close tutorial" onclick="tourDone()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"></div>
     <div class="tour-card">
       <div class="tour-dots">${TOUR.map((_,i)=>`<div class="tour-dot ${i===tourStep?"cur":i<tourStep?"done":""}"></div>`).join("")}</div>
       <div class="tour-ico">${s.ico}</div>
@@ -4226,7 +4226,7 @@ function comboBlock(key,alwaysOpen){
           ${dSubs.map(s=>{
             const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key), corto=shortLabels(mine);
             return`<div style="border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}">
-            <div class="cb-row" onclick="toggleSub('${s.id}','${key}')" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
+            <div class="cb-row" role="button" tabindex="0" aria-pressed="${!!soc[s.id]}" onclick="toggleSub('${s.id}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
               ${chk(!!soc[s.id],"#fbbf24",18)}
               <span>${esc(s.icon)} ${esc(s.label)}</span>
               <span style="margin-left:auto;font-size:14.5px;color:#adadbf">${s.p}%</span>
@@ -4332,7 +4332,7 @@ function renderToday(key,nested=false){
 
     
 ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="width:100%;max-width:390px">
-      <div class="sec t-rout-toggle" onclick="toggleTodayRoutines(this)" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">▾</span>TODAY'S ROUTINES</div>
+      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="true" onclick="toggleTodayRoutines(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;cursor:pointer;gap:7px"><span class="t-rout-arrow">▾</span>TODAY'S ROUTINES</div>
       <div class="t-rout-body">${L1vis.filter(i=>i.routine).map(item=>{
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
         return`<div style="background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px">
@@ -4342,7 +4342,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout" style="w
             <div class="r-sub" style="font-size:15px;color:#777;margin-top:3px">${rt.steps.length} steps · ${totalMin} min</div>
             ${!done?`<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${rt.steps.slice(0,4).map(s=>`<span class="r-step" style="font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px">${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span style="font-size:14.5px;color:#adadbf">+${rt.steps.length-4} more</span>`:""}</div>`:""}
           </div>
-          ${full?`<div onclick="setHabitState('${item.id}','${key}',false)" style="font-size:23px;cursor:pointer">✅</div>`:light?`
+          ${full?`<div role="button" tabindex="0" aria-label="Clear completed routine" onclick="setHabitState('${item.id}','${key}',false)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="font-size:23px;cursor:pointer">✅</div>`:light?`
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
             <button class="r-btn" onclick="setHabitState('${item.id}','${key}',true)" title="Upgrade to full credit" style="background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px">⬆ FULL</button>
             <button class="r-btn" onclick="setHabitState('${item.id}','${key}',false)" title="Clear" style="background:none;border:1px solid #2a2a3e;color:#a4a4ba;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer">✕ CLEAR</button>

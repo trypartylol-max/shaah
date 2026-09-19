@@ -3446,7 +3446,7 @@ function renderReview(){
 function stCard(key,title,col,body,extra){
   const open=secOpen[key]!==false;
   return`<section class="st-card${extra?" "+extra:""}">
-    <div class="st-head" onclick="toggleSec('${key}')">
+    <div class="st-head" role="button" tabindex="0" aria-expanded="${open}" onclick="toggleSec('${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
       <span class="lvl-ar${open?"":" cl"}">▾</span>
       <span class="st-title" style="color:${col||"#9090aa"}">${title}</span>
     </div>
@@ -4806,7 +4806,7 @@ function renderHistMonth(){
           const isT=c.key===tk, future=c.key>tk;
           const dg=c.data?GRADE(c.data.score,c.data.max):null;
           if(future)return`<div style="aspect-ratio:1;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
-          return`<div onclick="openEditDay('${c.key}')" title="${c.key}" style="position:relative;aspect-ratio:1;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
+          return`<div role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;aspect-ratio:1;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
             <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
             ${c.data?`<span style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
           </div>`;
@@ -4838,7 +4838,7 @@ function renderHistYear(){
         <div style="display:flex;flex-wrap:wrap;gap:4px">
           ${mdays.map(({key,data})=>{
             const dg=data?GRADE(data.score,data.max):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
-            return`<div onclick="openEditDay('${key}')" title="${data?`${key}: ${data.score}%`:key}" style="width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
+            return`<div role="button" tabindex="0" aria-label="Open ${key}" onclick="openEditDay('${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${data?`${key}: ${data.score}%`:key}" style="width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer">
               ${data?`<span style="font-family:'Bebas Neue';font-size:15px;color:${dg.c}">${esc(dg.l)}</span>`:`<span style="font-size:14px;color:#9a9ab2">·</span>`}
             </div>`;
           }).join("")}

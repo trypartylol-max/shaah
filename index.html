@@ -4923,12 +4923,12 @@ function renderHistMonth(){
   const canFwd=ym<nowYM;
   const nav=(d,lab,on)=>`<button onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"} style="background:none;border:1px solid ${on?"#1e1e2e":"#111120"};color:${on?"#c0c0cd":"#23233a"};width:34px;height:34px;border-radius:9px;cursor:${on?"pointer":"default"};font-size:17px;font-family:inherit;flex-shrink:0">${lab}</button>`;
   return`<div class="history-month-wrap" style="display:flex;flex-direction:column;gap:14px">
-    <div class="history-month-head" style="display:flex;align-items:center;gap:8px;min-height:34px">
+    <div class="history-month-head" style="display:flex;align-items:center;gap:12px;min-height:68px">
       ${nav(-1,"‹",true)}
       <div style="flex:1;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;line-height:1">
         <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:0.09em;color:#e2e2e2">${title.toUpperCase()}</div>
-        <div class="history-month-meta" style="font-size:13px;color:#aaaabe;letter-spacing:.03em">${logged.length?`${logged.length}d logged`:"no days logged"}${g?` · AVG ${a}% · ${esc(g.l)}`:""}</div>
-        ${best?`<div class="history-month-best-inline" style="display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid ${GRADE(best.data.score,best.data.max).c}30;border-radius:7px;background:${GRADE(best.data.score,best.data.max).c}08">
+        <div class="history-month-meta" style="font-size:15px;color:#aaaabe;letter-spacing:.03em">${logged.length?`${logged.length}d logged`:"no days logged"}${g?` · AVG ${a}% · ${esc(g.l)}`:""}</div>
+        ${best?`<div class="history-month-best-inline" style="display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid ${GRADE(best.data.score,best.data.max).c}30;border-radius:7px;background:${GRADE(best.data.score,best.data.max).c}08">
           <span style="font-size:13px">🏆</span><span style="font-family:'Bebas Neue';font-size:12px;letter-spacing:.08em;color:#aaaabc">BEST</span><span style="font-size:12px;color:#c8c8d4">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})}</span><span style="font-family:'Bebas Neue';font-size:19px;color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</span>
         </div>`:""}
       </div>
@@ -4943,8 +4943,8 @@ function renderHistMonth(){
           if(!c)return`<div></div>`;
           const isT=c.key===tk, future=c.key>tk;
           const dg=c.data?GRADE(c.data.score,c.data.max):null;
-          if(future)return`<div class="month-day" style="height:72px;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px;box-sizing:border-box"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
-          return`<div class="month-day" role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;height:72px;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
+          if(future)return`<div class="month-day" style="height:102px;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px;box-sizing:border-box"><span style="font-size:11px;line-height:1;color:#22223a">${c.day}</span></div>`;
+          return`<div class="month-day" role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;height:102px;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
             <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
             ${c.data?`<span class="month-grade" style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span class="month-score" style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
           </div>`;

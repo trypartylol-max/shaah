@@ -1207,7 +1207,7 @@ function dayLogNormalizeSleepWake(key){
   }
   if(wake){
     wake.end=null;
-    wake.title=wake.title||'Sleep & Wake Up Early';
+    wake.title=wake.title||'Wake Up & Sleep Early';
     wake.meta={...(wake.meta||{}),sleepWake:true,sleepRole:'wake',light:true,completed:false};
   }
 
@@ -1225,7 +1225,7 @@ function dayLogNormalizeSleepWake(key){
   }
   if(sleep){
     sleep.end=null;
-    sleep.title=sleep.title||'Sleep & Wake Up Early';
+    sleep.title=sleep.title||'Wake Up & Sleep Early';
     sleep.meta={...(sleep.meta||{}),sleepWake:true,sleepRole:'sleep',light:false,completed:true};
   }
 
@@ -1291,7 +1291,7 @@ function dayLogSyncCompletion(id,key,state){
   const title=item.routine?(ROUTINES[id]?.label||item.label):item.label;
   const existing=dayLogFindLinked(type,id,key);
 
-  // Sleep & Wake Up Early is deliberately TWO independent timestamp events:
+  // Wake Up & Sleep Early is deliberately TWO independent timestamp events:
   // first tap = WAKE, second tap = SLEEP. Neither event has an end time and
   // neither is drawn as a duration block on the timeline.
   if(id==='sleep' && type==='habit'){
@@ -1498,7 +1498,7 @@ function dayLogInit(){
   dayLogRender();
 }
 
-const BUILD="20260919-daylog-timeline-sleep-wake-fix-v2";
+const BUILD="20260919-sleep-wake-checkbox-fix-v1";
 let AUTH_ERR = null;
 let USER = null;      // signed-in Supabase user
 let _state = {};      // { "YYYY-MM-DD": {checks,social,note} }
@@ -4158,15 +4158,15 @@ function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)
 function toggleHabit(id,key){
   haptic(10);const ch={...getChecked(key)};
   if(id==='sleep' && key===todayKey()){
-    // Sleep & Wake Up Early is a three-step point-event cycle:
-    // none → WAKE → SLEEP → none. The habit remains checked after WAKE so the
-    // second tap can record SLEEP without creating a running activity.
+    // Wake Up & Sleep Early is a three-step point-event cycle:
+    // none → WAKE (½ credit) → SLEEP (full credit) → none. The first tap logs wake;
+    // the second tap logs sleep and upgrades the habit to full credit.
     dayLogNormalizeSleepWake(key);
     const evs=dayLogEvents(key).filter(e=>e.type==='habit'&&e.sourceId==='sleep');
     const hasWake=evs.some(e=>e.meta?.sleepRole==='wake');
     const hasSleep=evs.some(e=>e.meta?.sleepRole==='sleep');
     if(!hasWake){
-      ch[id]=true;setChecked(key,ch);persistDay(key);dayLogSyncCompletion(id,key,true);
+      ch[id]=0.5;setChecked(key,ch);persistDay(key);dayLogSyncCompletion(id,key,0.5);
     }else if(!hasSleep){
       ch[id]=true;setChecked(key,ch);persistDay(key);dayLogSyncCompletion(id,key,true);
     }else{

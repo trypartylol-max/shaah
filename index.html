@@ -4382,16 +4382,6 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
       }).join("")}</div>
     </div>`}
 
-    <div class="t-note" style="width:100%;max-width:390px">
-      <div class="sec">✎ DAY NOTE</div>
-      <div class="notecard${getNote(key)?" filled":""}">
-        <div class="notebar"></div>
-        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
-          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
-          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
-        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
-      </div>
-    </div>
     ${!L1vis.length?"":`<div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
       <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
@@ -4452,6 +4442,16 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
         <div class="t-daylog-meta">${dayLogActiveId()?"LOGGING NOW":"Track an activity"} · ${dayLogFmt(dayLogSummary(key).tracked)} tracked</div>
       </div>
     </div>`:""}
+    <div class="t-note" style="width:100%;max-width:390px">
+      <div class="sec">✎ DAY NOTE</div>
+      <div class="notecard${getNote(key)?" filled":""}">
+        <div class="notebar"></div>
+        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
+          oninput="noteGrow(this)" onchange="setNote('${key}',this.value)"
+          style="width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text">${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+        ${getNote(key)?`<div style="position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088">SAVED</div>`:""}
+      </div>
+    </div>
     ${isToday?`<button class="t-reset" onclick="if(confirm('Clear all habits for this day?'))resetDay('${key}')" style="background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px">RESET DAY</button>`:""}
   </div>`;
 }

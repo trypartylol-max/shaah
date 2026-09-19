@@ -2070,13 +2070,28 @@ function restoreLiveTravelMode(){
     if(!raw)return false;
     let rec=null;
     try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
-    const mode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
-    if(!mode)return false;
-    CFG.travel.mode=mode;
-    CFG.travel.modeUpdatedAt=Number(rec.updatedAt)||0;
-    if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
-    return true;
-  }catch(e){return false;}
+    const localMode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
+    if(!localMode)return false;
+    const localTs=Number(rec.updatedAt)||0;
+    const serverMode=CFG.travel.mode==='vacation'?'vacation':'work';
+    const serverTs=Number(CFG.travel.modeUpdatedAt)||0;
+    // A newer explicit local choice is allowed to win (useful after an offline
+    // change). A newer server snapshot wins over stale browser state.
+    if(localTs>serverTs){
+      CFG.travel.mode=localMode;
+      CFG.travel.modeUpdatedAt=localTs;
+      if(CFG.h&&CFG.h.work)CFG.h.work.on=(localMode==='work');
+      return true;
+    }
+    // Server is equal/newer: synchronize the browser echo so travelMode() cannot
+    // resurrect a stale choice on the next render.
+    const synced={mode:serverMode,updatedAt:serverTs||localTs};
+    try{localStorage.setItem('travelMode',JSON.stringify(synced));}catch(e){}
+    CFG.travel.mode=serverMode;
+    CFG.travel.modeUpdatedAt=serverTs||localTs;
+    if(CFG.h&&CFG.h.work)CFG.h.work.on=(serverMode==='work');
+    return false;
+  }catch(e){ return false; }
 }
 
 /* =========================
@@ -2659,13 +2674,14 @@ function travelEnsure(){
 // reset the switch to Work after a reload.
 function travelMode(){
   travelEnsure();
-  // For TODAY, an explicit local switch is authoritative. Historical dates are
-  // resolved by cfgForDate() and never use this live preference.
+  // TODAY uses the explicit live preference, but restoreLiveTravelMode() first
+  // reconciles its timestamp with the server snapshot. Historical dates never
+  // use this preference; they resolve through cfgForDate()/the dated timeline.
   try{
     const raw=localStorage.getItem('travelMode');
     if(raw){
       let rec=null;
-      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw};}
+      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
       if(rec&&rec.mode==='vacation')return 'vacation';
       if(rec&&rec.mode==='work')return 'work';
     }
@@ -3261,21 +3277,13 @@ function rowToState(row){
   const d=row.data||{};
   const inc={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',
              people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]};
-  // Si esta pestaña tiene un guardado pendiente para ese día, la fila entrante viene
-  // de OTRA pestaña y sustituirla borraría lo que el usuario acaba de marcar aquí.
-  // Se fusiona (unión de lo marcado) y el guardado pendiente sube el resultado.
+  // Si esta pestaña tiene un guardado pendiente para ese día, NO fusionamos una
+  // fila remota encima: la fusión anterior solo conservaba valores truthy y podía
+  // resucitar un check/persona que el usuario acababa de quitar. El cambio local
+  // gana durante esta ventana y su upsert será la nueva base para Realtime.
   const mine=_state[row.date];
-  if(mine&&_pending[row.date]){
-    const u=(a,b)=>{const o={...(b||{})};for(const k of Object.keys(a||{}))if(a[k])o[k]=true;return o;};
-    _state[row.date]={checks:u(mine.checks,inc.checks),
-                      social:u(mine.social,inc.social),
-                      note:mine.note||inc.note,
-                      people:[...new Set([...(mine.people||[]),...inc.people])],
-                      _daylog:[...(mine._daylog||[]),...inc._daylog.filter(e=>!(mine._daylog||[]).some(m=>m.id===e.id))]};
-    persistDay(row.date);          // reprograma la subida con lo fusionado
-  }else{
-    _state[row.date]=inc;
-  }
+  if(mine&&_pending[row.date])return;
+  _state[row.date]=inc;
 }
 
 // A user with history but no saved config predates the generic defaults —
@@ -3325,7 +3333,11 @@ function subscribeRealtime(){
       {event:'*',schema:'public',table:'day_logs',filter:`user_id=eq.${USER.id}`},
       payload=>{
         if(payload.eventType==='DELETE'){
-          if(payload.old&&payload.old.date)delete _state[payload.old.date];
+          const key=payload.old&&payload.old.date;
+          // A remote DELETE must not erase a local edit that is still waiting to
+          // be written. Once the local upsert completes, the echo is authoritative.
+          if(key&&_pending[key])return;
+          if(key)delete _state[key];
         }else if(payload.new){
           rowToState(payload.new);
         }
@@ -4199,7 +4211,12 @@ function render(){
   if(sbtn)sbtn.hidden=!socialOwnTab();
   if(currentTab==="social"&&!socialOwnTab())currentTab="today";   // el ajuste se apagó estando ahí
   const bar=topbarHTML();   // scrolls away with the content
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
+  document.querySelectorAll(".nav-btn").forEach(b=>{
+    const active=b.dataset.tab===currentTab;
+    b.classList.toggle("active",active);
+    if(active)b.setAttribute('aria-current','page');
+    else b.removeAttribute('aria-current');
+  });
   if(currentTab==="social")el.innerHTML=bar+renderSocial();
   else if(currentTab==="today")el.innerHTML=bar+renderToday(todayKey());
   else if(currentTab==="log")el.innerHTML=bar+renderDayLogTab();
@@ -4383,7 +4400,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
     </div>`}
 
     ${!L1vis.length?"":`<div class="t-lvl t-lvl1" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span>${allBtn(1,C.L1)}</span></div>
+      <div class="sec lvl-h" style="display:flex;align-items:center;gap:8px"><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" onclick="toggleLvl(1)" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer"><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>⬛ LVL 1 — CORE<span class="lvl-toggle-count" style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${L1vis.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
@@ -4402,7 +4419,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
       </div>
     </div>`}
     <div class="t-lvl t-lvl2" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span>${allBtn(2,C.L2)}</span></div>
+      <div class="sec lvl-h" style="display:flex;align-items:center;gap:8px"><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[2]}" onclick="toggleLvl(2)" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer"><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>▪ LVL 2 — HABITS<span class="lvl-toggle-count" style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l2}/${dM2}</span></span></button>${allBtn(2,C.L2)}</div>
       <div class="lvl-b${lvlOpen[2]?"":" cl"}">
       ${C.L2.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5;
@@ -4417,7 +4434,7 @@ ${(nested||!isToday||!L1vis.some(i=>i.routine))?"":`<div class="t-rout${todayRou
       </div>
     </div>
     <div class="t-lvl t-lvl3" style="width:100%;max-width:390px">
-      <div class="sec lvl-h" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span>${allBtn(3,C.L3)}</span></div>
+      <div class="sec lvl-h" style="display:flex;align-items:center;gap:8px"><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[3]}" onclick="toggleLvl(3)" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer"><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>· LVL 3 — BONUS<span class="lvl-toggle-count" style="margin-left:auto;display:flex;align-items:center;gap:9px"><span class="lvl-n" style="font-size:11px;color:#7e7e97">${l3}/${dM3}</span></span></button>${allBtn(3,C.L3)}</div>
       <div class="lvl-b${lvlOpen[3]?"":" cl"}">
       ${comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>{

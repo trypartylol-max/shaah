@@ -884,23 +884,23 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 <style>
 /* RESTORE HISTORY MONTH — single-line header + rectangular month cells */
 .history-month-bar{
-  min-height:76px!important;height:76px!important;padding:10px 12px!important;box-sizing:border-box!important;
+  min-height:84px!important;height:84px!important;padding:10px 14px!important;box-sizing:border-box!important;
   border:1px solid #1c1d32!important;border-radius:14px!important;
   background:linear-gradient(180deg,#0d0d18 0%,#0a0a13 100%)!important;
   display:flex!important;align-items:center!important;gap:12px!important;
 }
-.history-month-nav{width:38px!important;height:38px!important;flex:0 0 38px!important;border-radius:10px!important;border:1px solid #24253b!important;background:#0b0b16!important;color:#c8c8d4!important;font-size:20px!important;font-family:inherit!important;line-height:1!important;cursor:pointer!important}
+.history-month-nav{width:42px!important;height:42px!important;flex:0 0 42px!important;border-radius:10px!important;border:1px solid #24253b!important;background:#0b0b16!important;color:#c8c8d4!important;font-size:20px!important;font-family:inherit!important;line-height:1!important;cursor:pointer!important}
 .history-month-nav:disabled{color:#25253a!important;border-color:#151525!important;cursor:default!important}
 .history-month-summary{flex:1 1 auto!important;min-width:0!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;white-space:nowrap!important;overflow:hidden!important;flex-wrap:nowrap!important}
-.history-month-title{font-size:22px!important;line-height:1!important;flex:0 0 auto!important}
-.history-month-divider{width:1px!important;height:26px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
-.history-month-meta{font-size:14px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
-.history-month-grade{font-family:'Bebas Neue'!important;font-size:22px!important;line-height:1!important;flex:0 0 auto!important}
-.history-month-best-inline{height:46px!important;min-height:46px!important;padding:6px 10px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:8px!important;border:1px solid #26324a!important;border-radius:10px!important;background:#0b0c16!important;flex:0 0 auto!important;white-space:nowrap!important;overflow:hidden!important}
-.history-month-best-icon{font-size:18px!important;line-height:1!important}
-.history-month-best-label{font-family:'Bebas Neue'!important;font-size:12px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
-.history-month-best-date{font-size:12px!important;color:#c8c8d4!important;line-height:1!important}
-.history-month-best-score{font-family:'Bebas Neue'!important;font-size:19px!important;line-height:1!important;margin-left:2px!important}
+.history-month-title{font-size:26px!important;line-height:1!important;flex:0 0 auto!important}
+.history-month-divider{width:1px!important;height:30px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
+.history-month-meta{font-size:16px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
+.history-month-grade{font-family:'Bebas Neue'!important;font-size:26px!important;line-height:1!important;flex:0 0 auto!important}
+.history-month-best-inline{height:52px!important;min-height:52px!important;padding:7px 12px!important;box-sizing:border-box!important;display:flex!important;align-items:center!important;gap:8px!important;border:1px solid #26324a!important;border-radius:10px!important;background:#0b0c16!important;flex:0 0 auto!important;white-space:nowrap!important;overflow:hidden!important}
+.history-month-best-icon{font-size:20px!important;line-height:1!important}
+.history-month-best-label{font-family:'Bebas Neue'!important;font-size:14px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
+.history-month-best-date{font-size:14px!important;color:#c8c8d4!important;line-height:1!important}
+.history-month-best-score{font-family:'Bebas Neue'!important;font-size:22px!important;line-height:1!important;margin-left:2px!important}
 .history-month-card{padding:10px!important}
 .history-month-card .month-weekdays{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:8px!important;margin-bottom:7px!important}
 .history-month-card .month-days{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:8px!important}
@@ -1207,7 +1207,7 @@ function dayLogNormalizeSleepWake(key){
   }
   if(wake){
     wake.end=null;
-    wake.title=wake.title||'Wake Up & Sleep Early';
+    wake.title=wake.title||'Wake Up and Sleep Early';
     wake.meta={...(wake.meta||{}),sleepWake:true,sleepRole:'wake',light:true,completed:false};
   }
 
@@ -1225,7 +1225,7 @@ function dayLogNormalizeSleepWake(key){
   }
   if(sleep){
     sleep.end=null;
-    sleep.title=sleep.title||'Wake Up & Sleep Early';
+    sleep.title=sleep.title||'Wake Up and Sleep Early';
     sleep.meta={...(sleep.meta||{}),sleepWake:true,sleepRole:'sleep',light:false,completed:true};
   }
 
@@ -1291,7 +1291,7 @@ function dayLogSyncCompletion(id,key,state){
   const title=item.routine?(ROUTINES[id]?.label||item.label):item.label;
   const existing=dayLogFindLinked(type,id,key);
 
-  // Wake Up & Sleep Early is deliberately TWO independent timestamp events:
+  // Wake Up and Sleep Early is deliberately TWO independent timestamp events:
   // first tap = WAKE, second tap = SLEEP. Neither event has an end time and
   // neither is drawn as a duration block on the timeline.
   if(id==='sleep' && type==='habit'){
@@ -1524,7 +1524,7 @@ const DEFAULT_CFG={
     wod:        {l:"Exercise",    p:20, i:"⚡", lv:1, on:true, routine:true},
     work:       {l:"Deep Work",   p:20, i:"💼", lv:1, on:true},
     production: {l:"Create",      p:15, i:"🎨", lv:1, on:true, routine:true},
-    sleep:      {l:"Wake Up & Sleep Early", p:10, i:"🌙", lv:2, on:true},
+    sleep:      {l:"Wake Up and Sleep Early", p:10, i:"🌙", lv:2, on:true},
     meditation: {l:"Meditate",    p:10, i:"🧘", lv:2, on:true},
     pray:       {l:"Read",        p:8,  i:"📖", lv:2, on:true},
     nofap:      {l:"Self-control",p:6,  i:"🔒", lv:2, on:false},
@@ -1559,7 +1559,7 @@ const LEGACY_CFG={
     work:       {l:"Work",        p:20, i:"💼", lv:1, on:true},
     production: {l:"Production",  p:20, i:"🎵", lv:1, on:true, routine:true},
     nofap:      {l:"NoFap",       p:10, i:"🔒", lv:2, on:true},
-    sleep:      {l:"Wake Up & Sleep Early", p:8,  i:"🌙", lv:2, on:true},
+    sleep:      {l:"Wake Up and Sleep Early", p:8,  i:"🌙", lv:2, on:true},
     meditation: {l:"Meditation",  p:8,  i:"🧘", lv:2, on:true},
     pray:       {l:"Pray",        p:8,  i:"🙏", lv:2, on:true},
     social:     {l:"Social Combo",p:18, i:"👥", lv:3, on:true, combo:true},
@@ -2389,6 +2389,10 @@ function saveCfg(){
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){
+  // Canonical habit name: wake happens first, sleep second.
+  if(CFG.h&&CFG.h.sleep&&/^(Sleep|Wake Up) (?:&|and) (?:Wake Up |Sleep )?Early$/i.test(String(CFG.h.sleep.l||''))){
+    CFG.h.sleep.l='Wake Up and Sleep Early';
+  }
   if(!Array.isArray(CFG.log))CFG.log=[];   // empty timeline = "never edited", scores as before
   subsEnsure();                            // parts must carry explicit points before any era is cut
   Object.values(CFG.h||{}).forEach(ensureModePts);
@@ -4158,7 +4162,7 @@ function isRoutineItem(id,key){const C=cfgForDate(key);return halfCreditItem(id)
 function toggleHabit(id,key){
   haptic(10);const ch={...getChecked(key)};
   if(id==='sleep' && key===todayKey()){
-    // Wake Up & Sleep Early is a three-step point-event cycle:
+    // Wake Up and Sleep Early is a three-step point-event cycle:
     // none → WAKE (½ credit) → SLEEP (full credit) → none. The first tap logs wake;
     // the second tap logs sleep and upgrades the habit to full credit.
     dayLogNormalizeSleepWake(key);

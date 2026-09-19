@@ -788,6 +788,26 @@ select:focus-visible,
   .today .nm-pts{font-size:12px;}
   .today .nm-footer{font-size:10.5px;margin-top:7px;}
 }
+
+/* HISTORY compact layout — keeps 7 DAYS and MONTH visible without unnecessary scrolling */
+.history-compact{gap:10px!important;padding-top:0!important}
+.history-compact .htab{min-height:34px;padding:6px 12px!important;font-size:12px!important}
+.history-compact .history-week-list{gap:5px!important}
+.history-compact .history-week-card{padding:11px 14px!important;border-radius:12px!important}
+.history-compact .h-day{font-size:13.5px!important}
+.history-compact .h-today{font-size:12px!important}
+.history-compact .h-grade{font-size:27px!important}
+.history-compact .h-edit{font-size:12.5px!important;padding:4px 8px!important}
+.history-compact .history-week-card .h-lvl{font-size:12.5px!important;margin-bottom:3px!important}
+.history-compact .history-month-wrap{gap:9px!important}
+.history-compact .history-month-card{padding:11px!important;border-radius:12px!important}
+.history-compact .history-month-card .month-weekdays{gap:3px!important;margin-bottom:4px!important}
+.history-compact .history-month-card .month-days{gap:3px!important}
+.history-compact .history-month-card .month-day{border-radius:7px!important}
+.history-compact .history-month-card .month-grade{font-size:15px!important}
+.history-compact .history-month-card .month-score{font-size:10px!important}
+.history-compact .history-month-best{padding:10px 12px!important;border-radius:12px!important}
+@media(max-width:600px){.history-compact{padding-left:10px!important;padding-right:10px!important}.history-compact .history-week-card{padding:9px 11px!important}.history-compact .history-month-card{padding:8px!important}}
 </style><style>
 /* LEVEL STATUS — compact replacement for the redundant Today stats box. */
 .t-levelstatus{overflow:hidden;}
@@ -4786,7 +4806,7 @@ function renderStats(){
       <button onclick="setTab('today')" style="margin-top:8px;background:#e2e2e2;color:#07070f;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer">START →</button>
     </div>`;
   }
-  return`<div class="fade-up" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up history-compact" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
@@ -4837,10 +4857,10 @@ function renderHistory(){
 
 function renderHistWeek(){
   const days=getDays(7).reverse(),tk=todayKey();
-  return`<div style="display:flex;flex-direction:column;gap:8px"><div class="sec">LAST 7 DAYS</div>
+  return`<div class="history-week-list" style="display:flex;flex-direction:column;gap:8px"><div class="sec" style="margin-bottom:0">LAST 7 DAYS</div>
     ${days.map(({key,date,data})=>{
       const g=data?GRADE(data.score,data.max):null,isT=key===tk,tgr=GRADE(calcScore(tk).score);
-      return`<div class="card" style="border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}">
+      return`<div class="card history-week-card" style="border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${data?14:0}px">
           <div>
             <div class="h-day" style="font-size:15px;color:${isT?"#e2e2e2":"#8a8aa0"};letter-spacing:0.06em">${date.toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
@@ -4868,7 +4888,7 @@ function renderHistMonth(){
   const best=scored.reduce((m,c)=>!m||dPct(c.data)>dPct(m.data)?c:m,null);
   const canFwd=ym<nowYM;
   const nav=(d,lab,on)=>`<button onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"} style="background:none;border:1px solid ${on?"#1e1e2e":"#111120"};color:${on?"#c0c0cd":"#23233a"};width:34px;height:34px;border-radius:9px;cursor:${on?"pointer":"default"};font-size:17px;font-family:inherit;flex-shrink:0">${lab}</button>`;
-  return`<div style="display:flex;flex-direction:column;gap:14px">
+  return`<div class="history-month-wrap" style="display:flex;flex-direction:column;gap:14px">
     <div style="display:flex;align-items:center;gap:10px">
       ${nav(-1,"‹",true)}
       <div style="flex:1;min-width:0;text-align:center">
@@ -4877,29 +4897,29 @@ function renderHistMonth(){
       </div>
       ${nav(1,"›",canFwd)}
     </div>
-    <div class="card">
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
-        ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em">${d}</div>`).join("")}
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
-        ${cells.map(c=>{
-          if(!c)return`<div></div>`;
-          const isT=c.key===tk, future=c.key>tk;
-          const dg=c.data?GRADE(c.data.score,c.data.max):null;
-          if(future)return`<div style="aspect-ratio:1;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
-          return`<div role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;aspect-ratio:1;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
-            <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
-            ${c.data?`<span style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
-          </div>`;
-        }).join("")}
-      </div>
-    </div>
     ${best?`<div class="card" style="display:flex;align-items:center;justify-content:space-between">
       <div style="font-size:14.5px;color:#9a9ab2;letter-spacing:.08em">BEST DAY</div>
       <div style="display:flex;align-items:center;gap:10px">
         <div style="font-size:14.5px;color:#c0c0cd">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",timeZone:"UTC"})}</div>
         <div style="font-family:'Bebas Neue';font-size:19px;color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</div>
       </div></div>`:""}
+    <div class="card history-month-card">
+      <div class="month-weekdays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
+        ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em">${d}</div>`).join("")}
+      </div>
+      <div class="month-days" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+        ${cells.map(c=>{
+          if(!c)return`<div></div>`;
+          const isT=c.key===tk, future=c.key>tk;
+          const dg=c.data?GRADE(c.data.score,c.data.max):null;
+          if(future)return`<div class="month-day" style="aspect-ratio:1;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
+          return`<div class="month-day" role="button" tabindex="0" aria-label="Open ${c.key}" onclick="openEditDay('${c.key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="${c.key}" style="position:relative;aspect-ratio:1;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
+            <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
+            ${c.data?`<span class="month-grade" style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span class="month-score" style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
   </div>`;
 }
 

@@ -2669,6 +2669,21 @@ function travelEnsure(){
   if(!CFG.travel||typeof CFG.travel!=='object')
     CFG.travel={mode:'work',auto:false,resumeOn:''};
 }
+// Normalize legacy travel-return dates. A malformed year such as 0026 is the
+// same year 26 that the browser can display after an old date-input conversion;
+// in this app the intended modern year is 20xx. Keep valid four-digit years
+// untouched.
+function normalizeTravelResume(){
+  travelEnsure();
+  const v=String(CFG.travel.resumeOn||'');
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+  if(!m)return false;
+  const y=Number(m[1]);
+  if(y>=100)return false;
+  const fixed='20'+String(y).padStart(2,'0')+'-'+m[2]+'-'+m[3];
+  CFG.travel.resumeOn=fixed;
+  return true;
+}
 // The dated config timeline is the source of truth for the CURRENT mode.
 // CFG.travel is only the live/persistence fallback; it must never silently
 // reset the switch to Work after a reload.
@@ -2730,7 +2745,14 @@ function applyTravelMode(mode){
 }
 function setTravelMode(mode){ haptic(10); persistTravelMode(mode); applyTravelMode(mode); persistTravelMode(mode); render(); }
 function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
-function setTravelResume(v){ travelEnsure(); CFG.travel.resumeOn=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:''; saveCfg(); render(); }
+function setTravelResume(v){
+  travelEnsure();
+  const raw=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';
+  CFG.travel.resumeOn=raw;
+  normalizeTravelResume();
+  saveCfg();
+  render();
+}
 // Se llama una vez por sesión (loadAll): si está en modo automático y ya
 // llegó (o pasó) la fecha de vuelta al trabajo, cambia solo a "work". No hace
 // nada mientras el modo ya sea "work" ni si `auto` está apagado.
@@ -3315,6 +3337,8 @@ async function loadAll(){
     // Restore the user's explicit live switch AFTER the settings row has been
     // loaded, because the server row may contain an older mode snapshot.
     restoreLiveTravelMode();
+    // Repair malformed legacy dates before the automatic return check.
+    if(normalizeTravelResume())saveCfg();
     applyCfg();
     checkTravelAuto();
     recoverPeopleFromDays();

@@ -1763,7 +1763,7 @@ function nextMove(key){
 // La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
 function scoreStripHTML(key){
   const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
-  const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
+  const pct=dMax>0?Math.min(118,(score/dMax)*100):0;
   return`<div id="tb-score">
     <span class="ts-l" style="color:${gr.c};text-shadow:0 0 18px ${gr.g}">${esc(gr.l)}</span>
     <span class="ts-p">${score}%</span>
@@ -1805,17 +1805,28 @@ const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
   const C=cfgForDate(key);
-  const dSubs=C.subs, nSubs=dSubs.length||1;
-  const tickedPts=dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0);
-  const activeSubs=dSubs.filter(x=>soc[x.id]).length;
-  const l1=C.L1.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
-  const l2=C.L2.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
-  // combo ticked but no part picked = the whole combo, same as it always behaved
-  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(tickedPts>0?tickedPts:i.pts):0):Math.round(i.pts*doneFrac(ch[i.id]))),0);
-  const m1=C.L1.reduce((a,i)=>a+i.pts,0),m2=C.L2.reduce((a,i)=>a+i.pts,0),m3=C.L3.reduce((a,i)=>a+i.pts,0);
-  const max=m1+m2+m3, score=l1+l2+l3;
-  return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,
-         pct:max>0?Math.round((score/max)*100):0,
+
+  // Scoring is deliberately pure: date -> historical config -> checked state.
+  // No current-mode values are read here, so editing an old day cannot change
+  // its rules. Each component is also bounded by its own historical maximum.
+  const tickedPts=C.subs.reduce((a,x)=>a+(soc[x.id]?safePts(x.p):0),0);
+  const l1=C.L1.reduce((a,i)=>a+Math.min(safePts(i.pts),Math.round(safePts(i.pts)*doneFrac(ch[i.id]))),0);
+  const l2=C.L2.reduce((a,i)=>a+Math.min(safePts(i.pts),Math.round(safePts(i.pts)*doneFrac(ch[i.id]))),0);
+  // A checked combo with no selected sub-item still earns the combo's full
+  // historical value. Selected parts can never exceed that combo maximum.
+  const l3=C.L3.reduce((a,i)=>{
+    if(!i.combo)return a+Math.min(safePts(i.pts),Math.round(safePts(i.pts)*doneFrac(ch[i.id])));
+    if(!ch[i.id])return a;
+    return a+Math.min(safePts(i.pts),tickedPts>0?tickedPts:safePts(i.pts));
+  },0);
+
+  const m1=C.L1.reduce((a,i)=>a+safePts(i.pts),0);
+  const m2=C.L2.reduce((a,i)=>a+safePts(i.pts),0);
+  const m3=C.L3.reduce((a,i)=>a+safePts(i.pts),0);
+  const max=m1+m2+m3;
+  const score=Math.min(max,l1+l2+l3);
+  const pct=max>0?Math.min(118,Math.max(0,Math.round((score/max)*100))):0;
+  return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,pct,
          done:Object.values(ch).filter(Boolean).length};
 }
 

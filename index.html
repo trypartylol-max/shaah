@@ -912,6 +912,22 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 }
 
 </style>
+<style id="step5E14-history-calendar-stats-fix">
+/* Step 5E14 — remove the accidental duplicate Stats review row and restore
+   Month calendar cells as wide rectangles (not 1:1 squares). */
+.history-month-grid .history-month-grid-day{
+  height:102px!important;
+  min-height:102px!important;
+  aspect-ratio:auto!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+  .history-month-grid .history-month-grid-day{
+    height:72px!important;
+    min-height:72px!important;
+  }
+}
+</style>
 <style id="step5E13-restore-calendar-stats">
 /* Step 5E13 — restore the previously approved Month calendar proportions.
    Keep the new single-line month bar from 5E12 untouched. */
@@ -3582,18 +3598,6 @@ function renderWeekReview(){
             <div style="font-size:10px;color:#8888a4">${keyToDate(x.key).toLocaleDateString("en-US",{weekday:"narrow"})}</div>
           </div>`}).join("")}
       </div>
-      <div style="display:flex;gap:9px">
-        <div style="flex:1;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:11px;padding:11px 12px">
-          <div style="font-size:10px;letter-spacing:.1em;color:#4ade80;margin-bottom:5px">MOST CONSISTENT</div>
-          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.best.icon)} ${esc(r.best.label)}</div>
-          <div style="font-size:12px;color:#4ade80;margin-top:3px">${r.best.done}/7 days</div>
-        </div>
-        <div style="flex:1;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:11px;padding:11px 12px">
-          <div style="font-size:10px;letter-spacing:.1em;color:#ef4444;margin-bottom:5px">NEEDS WORK</div>
-          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.worst.icon)} ${esc(r.worst.label)}</div>
-          <div style="font-size:12px;color:#ef4444;margin-top:3px">${r.worst.done}/7 days</div>
-        </div>
-      </div>
     </div>
   </div>`;
 }
@@ -3813,13 +3817,13 @@ function renderHistMonth(){
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px">
         ${["S","M","T","W","T","F","S"].map(d=>`<div style="text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em">${d}</div>`).join("")}
       </div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+      <div class="history-month-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
         ${cells.map(c=>{
           if(!c)return`<div></div>`;
           const isT=c.key===tk, future=c.key>tk;
           const dg=c.data?GRADE(c.data.score,c.data.max):null;
-          if(future)return`<div style="aspect-ratio:1;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
-          return`<div onclick="openEditDay('${c.key}')" title="${c.key}" style="position:relative;aspect-ratio:1;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
+          if(future)return`<div class="history-month-grid-day" style="border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px"><span style="font-size:10.5px;line-height:1;color:#22223a">${c.day}</span></div>`;
+          return`<div onclick="openEditDay('${c.key}')" title="${c.key}" class="history-month-grid-day" style="position:relative;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer">
             <span style="position:absolute;top:2px;left:5px;font-size:10.5px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}">${c.day}</span>
             ${c.data?`<span style="font-family:'Bebas Neue';font-size:17px;color:${dg.c};line-height:1;margin-top:9px">${esc(dg.l)}</span><span style="font-size:11px;color:#9a9ab2;line-height:1.2">${c.data.score}</span>`:`<span style="font-size:15px;color:#9a9ab2;margin-top:7px">+</span>`}
           </div>`;

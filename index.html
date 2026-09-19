@@ -1157,6 +1157,53 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 }
 </style>
 
+<style id="log-final-desktop-scale">
+/* LOG TAB — final desktop scale + wider working area. Mobile layout unchanged. */
+@media (min-width:880px){
+  .logdesk-grid{grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+
+  .logdesk-timeline-card{padding:22px 22px 18px}
+  .logdesk-card-title{font-size:20px}
+  .logdesk-ticks{font-size:12px;margin-bottom:6px}
+  .logdesk-timeline{height:72px;margin:16px 0 6px;border-radius:13px}
+  .logdesk-seg{top:18px;height:34px;border-radius:10px}
+  .logdesk-legend{gap:22px;margin-top:12px;font-size:13px}
+  .logdesk-legend i{width:10px;height:10px;margin-right:8px}
+
+  .logdesk-list-card{margin-top:16px;padding:21px 22px 13px}
+  .logdesk-list-head{margin-bottom:12px}
+  .logdesk-sort{padding:10px 12px;font-size:13px}
+  .logdesk-table-head,.logdesk-row{grid-template-columns:175px minmax(220px,1.35fr) 118px 92px 40px;gap:13px}
+  .logdesk-table-head{padding:0 11px 10px;font-size:11px}
+  .logdesk-row{min-height:72px;padding:8px 11px}
+  .logdesk-time{font-size:14px}
+  .logdesk-activity-name{font-size:17px}
+  .logdesk-activity-sub{font-size:11px;margin-top:5px}
+  .logdesk-type{padding:7px 10px;border-radius:9px;font-size:11px}
+  .logdesk-duration{font-size:14px}
+  .logdesk-edit{font-size:20px;padding:8px}
+
+  .logdesk-editor-top{padding:16px}
+  .logdesk-new{padding:14px 15px;font-size:14px;border-radius:12px}
+  .logdesk-editor-body{padding:23px 20px 22px;min-height:500px}
+  .logdesk-editor-head{margin-bottom:22px}
+  .logdesk-editor-title{font-size:24px}
+  .logdesk-editor-kicker{font-size:11px;margin-bottom:7px}
+  .logdesk-identity{gap:13px;margin-bottom:21px}
+  .logdesk-icon{width:50px;height:50px;font-size:23px}
+  .logdesk-identity-name{font-size:17px}
+  .logdesk-badge{font-size:11px;padding:5px 8px}
+  .logdesk-field{margin-bottom:18px}
+  .logdesk-field>label{font-size:11px;margin-bottom:8px}
+  .logdesk-input,.logdesk-select{border-radius:10px;padding:14px 13px;font-size:15px}
+  .logdesk-times{gap:11px}
+  .logdesk-duration-line{padding:5px 0 20px;font-size:12px}
+  .logdesk-duration-line b{font-size:15px}
+  .logdesk-actions{gap:11px;padding-top:19px}
+  .logdesk-actions button{border-radius:10px;padding:14px 13px;font-size:13px}
+  .logdesk-note{font-size:11px;line-height:1.55;margin-top:14px}
+}
+</style>
 </head>
 <body>
 <div id="app">

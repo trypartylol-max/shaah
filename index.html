@@ -2342,20 +2342,28 @@ function persistDay(key){
   if(!DATE_RE.test(key))return;
   saveCache();
   if(!USER)return;
-  clearTimeout(_pending[key]);
-  _pending[key]=setTimeout(async()=>{
-    delete _pending[key];          // ya no hay guardado pendiente: el próximo eco de Realtime no debe re-fusionar-y-reprogramar
+  const prev=_pending[key];
+  if(prev&&prev.timer)clearTimeout(prev.timer);
+  const token=Symbol(key);
+  const pending={timer:null,token};
+  _pending[key]=pending;
+  pending.timer=setTimeout(async()=>{
+    // Keep the pending marker alive for the entire network request. A Realtime
+    // echo can arrive before the upsert/delete resolves; clearing it here would
+    // let that echo overwrite a newer local edit or schedule another save.
+    pending.timer=null;
     const ch=getChecked(key),soc=getSocial(key);
     const{score,l1,l2,l3,done,max,pct}=calcScore(key);
     const ppl=getPeople(key);
-    // `_social` cuenta: un día importado con solo partes del combo se autoborraba.
     const dl=Array.isArray(_state[key]?._daylog)?_state[key]._daylog:[];
     const anything=Object.values(ch).some(Boolean)||Object.values(soc).some(Boolean)
                    ||!!getNote(key)||ppl.length>0||dl.length>0;
     try{
       if(!anything){
-        await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
-        delete _state[key];saveCache();
+        const r=await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
+        if(r&&r.error)throw r.error;
+        // Do not delete a newer local edit that was made while this request was in flight.
+        if(_pending[key]===pending){delete _state[key];saveCache();}
       }else{
         const r=await sb.from('day_logs').upsert({
           user_id:USER.id,date:key,
@@ -2365,6 +2373,11 @@ function persistDay(key){
       }
       if(_live)setStatus('LIVE','#4ade80');
     }catch(e){ setStatus('SAVE FAILED','#ef4444'); }
+    finally{
+      // Only the request that owns the current marker may clear it. A newer
+      // edit has already installed a different token and remains protected.
+      if(_pending[key]===pending)delete _pending[key];
+    }
   },250);
 }
 

@@ -2067,6 +2067,83 @@ select:focus-visible,
   #scroll .today .t-reset{order:8 !important;}
   #scroll .today .t-rout.collapsed .t-rout-body{display:none !important;}
 }
+
+/* E10 — enlarge MONTH header chrome, keep month title size */
+.history-compact .history-month-head{min-height:88px!important}
+.history-compact .history-month-head>button{width:44px!important;height:44px!important;border-radius:10px!important;font-size:22px!important}
+.history-compact .history-month-head>div{gap:12px!important}
+.history-compact .history-month-head>div>div:first-child{font-size:32px!important}
+.history-compact .history-month-meta{font-size:18px!important}
+.history-compact .history-month-best-inline{padding:10px 15px!important;border-radius:11px!important;gap:9px!important}
+.history-compact .history-month-best-inline span:nth-child(2){font-size:15px!important}
+.history-compact .history-month-best-inline span:nth-child(3){font-size:15px!important}
+.history-compact .history-month-best-inline span:nth-child(4){font-size:25px!important}
+@media(max-width:600px){
+  .history-compact .history-month-head{min-height:64px!important}
+  .history-compact .history-month-head>button{width:34px!important;height:34px!important;font-size:18px!important}
+  .history-compact .history-month-head>div{gap:6px!important}
+  .history-compact .history-month-head>div>div:first-child{font-size:24px!important}
+  .history-compact .history-month-meta{font-size:11.5px!important}
+  .history-compact .history-month-best-inline{padding:7px 10px!important;gap:6px!important}
+  .history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
+  .history-compact .history-month-best-inline span:nth-child(3){font-size:11.5px!important}
+  .history-compact .history-month-best-inline span:nth-child(4){font-size:18px!important}
+}
+
+/* E11 — MONTH header: unified sketch-style bar */
+.history-compact .history-month-bar{
+  min-height:86px!important;
+  padding:12px 14px!important;
+  box-sizing:border-box!important;
+  border:1px solid #1c1d32!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#0d0d18 0%,#0a0a13 100%)!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:16px!important;
+}
+.history-compact .history-month-nav{
+  width:42px!important;height:42px!important;flex:0 0 42px!important;
+  border-radius:10px!important;border:1px solid #24253b!important;
+  background:#0b0b16!important;color:#c8c8d4!important;
+  font-size:22px!important;font-family:inherit!important;line-height:1!important;
+  cursor:pointer!important;
+}
+.history-compact .history-month-nav:disabled{color:#25253a!important;border-color:#151525!important;cursor:default!important}
+.history-compact .history-month-summary{
+  flex:1!important;min-width:0!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:16px!important;white-space:nowrap!important;overflow:hidden!important;
+}
+.history-compact .history-month-title{font-size:30px!important;line-height:1!important;flex:0 0 auto!important}
+.history-compact .history-month-divider{width:1px!important;height:28px!important;background:#27283d!important;display:block!important;flex:0 0 1px!important}
+.history-compact .history-month-meta{font-size:17px!important;color:#aaaabe!important;letter-spacing:.03em!important;flex:0 0 auto!important}
+.history-compact .history-month-grade{font-family:'Bebas Neue'!important;font-size:27px!important;line-height:1!important;flex:0 0 auto!important}
+.history-compact .history-month-best-inline{
+  min-height:62px!important;padding:8px 16px!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:auto auto!important;grid-template-rows:auto auto!important;
+  align-items:center!important;column-gap:11px!important;row-gap:0!important;
+  border:1px solid #26324a!important;border-radius:11px!important;background:#0b0c16!important;
+  flex:0 0 auto!important;min-width:190px!important;
+}
+.history-compact .history-month-best-icon{grid-row:1 / span 2!important;font-size:25px!important;line-height:1!important}
+.history-compact .history-month-best-label{font-family:'Bebas Neue'!important;font-size:14px!important;letter-spacing:.08em!important;color:#c7c7d2!important;line-height:1!important}
+.history-compact .history-month-best-date{font-size:13px!important;color:#c8c8d4!important;line-height:1!important}
+.history-compact .history-month-best-score{font-family:'Bebas Neue'!important;font-size:23px!important;line-height:1!important;grid-column:2!important;grid-row:1 / span 2!important;align-self:center!important;margin-left:8px!important}
+@media(max-width:900px){
+  .history-compact .history-month-bar{min-height:76px!important;padding:9px 10px!important;gap:9px!important}
+  .history-compact .history-month-nav{width:36px!important;height:36px!important;flex-basis:36px!important;font-size:19px!important}
+  .history-compact .history-month-summary{gap:9px!important;overflow:visible!important;flex-wrap:wrap!important;justify-content:center!important}
+  .history-compact .history-month-title{font-size:24px!important}
+  .history-compact .history-month-divider{height:22px!important}
+  .history-compact .history-month-meta{font-size:12px!important}
+  .history-compact .history-month-grade{font-size:20px!important}
+  .history-compact .history-month-best-inline{min-width:145px!important;min-height:54px!important;padding:6px 9px!important;column-gap:6px!important}
+  .history-compact .history-month-best-icon{font-size:19px!important}
+  .history-compact .history-month-best-label{font-size:11px!important}
+  .history-compact .history-month-best-date{font-size:10.5px!important}
+  .history-compact .history-month-best-score{font-size:18px!important;margin-left:3px!important}
+}
 </style>
 </head>
 <body>
@@ -2082,59 +2159,6 @@ select:focus-visible,
 <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
 </nav>
 </div>
-<style>
-/* Step 5I — Stats metric cards + History month header polish */
-.stats-six-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:600px){.stats-six-grid{grid-template-columns:1fr;gap:8px}}
-.stats-metric-card{
-  min-height:92px!important;
-  padding:12px 18px!important;
-  box-sizing:border-box!important;
-  display:grid!important;
-  grid-template-columns:44px minmax(90px,auto) 1fr!important;
-  grid-template-rows:1fr!important;
-  column-gap:14px!important;
-  align-items:center!important;
-  overflow:hidden!important;
-}
-.stats-metric-icon{
-  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
-  font-size:24px;border-radius:10px;background:#0b0b15;border:1px solid #ffffff08;
-}
-.stats-metric-main{min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:nowrap}
-.stats-metric-value{font-family:'Bebas Neue';font-size:30px;line-height:1;white-space:nowrap}
-.stats-metric-label{font-size:12px;color:#c0c0cd;letter-spacing:.12em;line-height:1.15;white-space:nowrap}
-.stats-metric-sub{min-width:0;font-size:13px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
-@media(max-width:600px){
-  .stats-metric-card{min-height:88px!important;padding:11px 12px!important;grid-template-columns:38px 1fr!important;grid-template-rows:auto auto!important;column-gap:10px!important;row-gap:3px!important}
-  .stats-metric-icon{grid-row:1 / span 2;width:34px;height:34px;font-size:20px;border-radius:8px}
-  .stats-metric-main{gap:8px}
-  .stats-metric-value{font-size:26px}
-  .stats-metric-label{font-size:10px}
-  .stats-metric-sub{grid-column:2;text-align:left;font-size:11px}
-}
-/* History: keep month title at its established size; enlarge the supporting header + Best Day. */
-.history-compact .history-month-head{min-height:72px!important}
-.history-compact .history-month-head>button{width:42px!important;height:42px!important;font-size:21px!important;border-radius:10px!important}
-.history-compact .history-month-head>div>div:first-child{font-size:24px!important;letter-spacing:.08em!important}
-.history-compact .history-month-meta{font-size:16px!important}
-.history-compact .history-month-best-inline{padding:10px 15px!important;border-radius:11px!important;gap:9px!important;min-height:48px!important}
-.history-compact .history-month-best-inline span:nth-child(1){font-size:17px!important}
-.history-compact .history-month-best-inline span:nth-child(2){font-size:15px!important}
-.history-compact .history-month-best-inline span:nth-child(3){font-size:15px!important}
-.history-compact .history-month-best-inline span:nth-child(4){font-size:25px!important}
-@media(max-width:600px){
-  .history-compact .history-month-head{min-height:60px!important}
-  .history-compact .history-month-head>button{width:36px!important;height:36px!important;font-size:19px!important}
-  .history-compact .history-month-head>div>div:first-child{font-size:24px!important}
-  .history-compact .history-month-meta{font-size:11.5px!important}
-  .history-compact .history-month-best-inline{padding:7px 10px!important;gap:6px!important;min-height:40px!important}
-  .history-compact .history-month-best-inline span:nth-child(1){font-size:13px!important}
-  .history-compact .history-month-best-inline span:nth-child(2){font-size:11px!important}
-  .history-compact .history-month-best-inline span:nth-child(3){font-size:11.5px!important}
-  .history-compact .history-month-best-inline span:nth-child(4){font-size:18px!important}
-}
-</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -4780,7 +4804,18 @@ function renderWeekReview(){
             <div style="font-size:10px;color:#8888a4">${keyToDate(x.key).toLocaleDateString("en-US",{weekday:"narrow"})}</div>
           </div>`}).join("")}
       </div>
-
+      <div style="display:flex;gap:9px">
+        <div style="flex:1;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);border-radius:11px;padding:11px 12px">
+          <div style="font-size:10px;letter-spacing:.1em;color:#4ade80;margin-bottom:5px">MOST CONSISTENT</div>
+          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.best.icon)} ${esc(r.best.label)}</div>
+          <div style="font-size:12px;color:#4ade80;margin-top:3px">${r.best.done}/7 days</div>
+        </div>
+        <div style="flex:1;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:11px;padding:11px 12px">
+          <div style="font-size:10px;letter-spacing:.1em;color:#ef4444;margin-bottom:5px">NEEDS WORK</div>
+          <div style="font-size:13.5px;color:#e2e2e2">${esc(r.worst.icon)} ${esc(r.worst.label)}</div>
+          <div style="font-size:12px;color:#ef4444;margin-top:3px">${r.worst.done}/7 days</div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -4884,15 +4919,8 @@ function renderStats(){
   }
   return`<div class="fade-up history-compact" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
-    <div class="stats-six-grid">
-      ${[
-        {icon:r.best.icon,label:"MOST CONSISTENT",val:`${r.best.done}/7`,col:"#4ade80",sub:r.best.label},
-        {icon:r.worst.icon,label:"NEEDS WORK",val:`${r.worst.done}/7`,col:"#ef4444",sub:r.worst.label},
-        {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
-        {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
-        {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
-        {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
-      ].map(m=>`<div class="card stats-metric-card" style="border:1px solid ${m.col}20;background:${m.col}08"><div class="stats-metric-icon">${esc(m.icon)}</div><div class="stats-metric-main"><div class="stats-metric-value" style="color:${m.col}">${m.val}</div><div class="stats-metric-label">${esc(m.label)}</div></div><div class="stats-metric-sub" style="color:${m.col}">${esc(m.sub)}</div></div>`).join("")}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}
     </div>
     ${renderConsistency()}
     ${renderWeekday()}
@@ -4970,17 +4998,22 @@ function renderHistMonth(){
   const g=a>0?GRADE(a,100):null;
   const best=scored.reduce((m,c)=>!m||dPct(c.data)>dPct(m.data)?c:m,null);
   const canFwd=ym<nowYM;
-  const nav=(d,lab,on)=>`<button onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"} style="background:none;border:1px solid ${on?"#1e1e2e":"#111120"};color:${on?"#c0c0cd":"#23233a"};width:34px;height:34px;border-radius:9px;cursor:${on?"pointer":"default"};font-size:17px;font-family:inherit;flex-shrink:0">${lab}</button>`;
+  const nav=(d,lab,on)=>`<button class="history-month-nav" onclick="${on?`histMonthShift(${d})`:""}" ${on?"":"disabled"}>${lab}</button>`;
   return`<div class="history-month-wrap" style="display:flex;flex-direction:column;gap:14px">
-    <div class="history-month-head" style="display:flex;align-items:center;gap:12px;min-height:68px">
+    <div class="history-month-head history-month-bar">
       ${nav(-1,"‹",true)}
-      <div style="flex:1;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;line-height:1">
-        <div style="font-family:'Bebas Neue';font-size:26px;letter-spacing:0.09em;color:#e2e2e2">${title.toUpperCase()}</div>
-        <div class="history-month-meta" style="font-size:15px;color:#aaaabe;letter-spacing:.03em">${logged.length?`${logged.length}d logged`:"no days logged"}${g?` · AVG ${a}% · ${esc(g.l)}`:""}</div>
-        ${best?`<div class="history-month-best-inline" style="display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid ${GRADE(best.data.score,best.data.max).c}30;border-radius:7px;background:${GRADE(best.data.score,best.data.max).c}08">
-          <span style="font-size:13px">🏆</span><span style="font-family:'Bebas Neue';font-size:12px;letter-spacing:.08em;color:#aaaabc">BEST</span><span style="font-size:12px;color:#c8c8d4">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})}</span><span style="font-family:'Bebas Neue';font-size:19px;color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</span>
-        </div>`:""}
+      <div class="history-month-summary">
+        <div class="history-month-title" style="font-family:'Bebas Neue';letter-spacing:0.09em;color:#e2e2e2">${title.toUpperCase()}</div>
+        <span class="history-month-divider"></span>
+        <div class="history-month-meta">${logged.length?`${logged.length}d logged`:"no days logged"}</div>
+        ${g?`<span class="history-month-divider"></span><div class="history-month-meta">AVG ${a}%</div><span class="history-month-divider"></span><div class="history-month-grade" style="color:${g.c}">${esc(g.l)}</div>`:""}
       </div>
+      ${best?`<div class="history-month-best-inline">
+        <span class="history-month-best-icon">🏆</span>
+        <span class="history-month-best-label">BEST DAY</span>
+        <span class="history-month-best-date">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"UTC"})}</span>
+        <span class="history-month-best-score" style="color:${GRADE(best.data.score,best.data.max).c}">${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</span>
+      </div>`:""}
       ${nav(1,"›",canFwd)}
     </div>
     <div class="card history-month-card">

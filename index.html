@@ -959,15 +959,32 @@ function dayLogFmt(mins){
   const h=Math.floor(mins/60),m=mins%60;
   return h?`${h}h${m?` ${m}m`:''}`:`${m}m`;
 }
+function dayLogTz(){return CFG.tz&&CFG.tz!=='device'?CFG.tz:Intl.DateTimeFormat().resolvedOptions().timeZone;}
 function dayLogDateTime(key,minutes){
-  const d=new Date(`${key}T00:00:00`);
-  d.setMinutes(Math.max(0,Math.min(1439,minutes)));
-  return d;
+  const mins=Math.max(0,Math.min(1439,minutes));
+  const [y,m,d]=key.split('-').map(Number);
+  const hh=Math.floor(mins/60), mm=mins%60;
+  const tz=dayLogTz();
+  // Convert a wall-clock date/time in SHAAH's configured timezone to an instant.
+  // The second pass handles DST transitions around the target date.
+  let guess=new Date(Date.UTC(y,m-1,d,hh,mm));
+  for(let i=0;i<2;i++){
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(guess);
+    const get=t=>Number(parts.find(x=>x.type===t)?.value||0);
+    const shown=Date.UTC(get('year'),get('month')-1,get('day'),get('hour'),get('minute'));
+    const target=Date.UTC(y,m-1,d,hh,mm);
+    guess=new Date(guess.getTime()+(target-shown));
+  }
+  return guess;
 }
 function dayLogMinutes(iso){
   if(!iso)return null;
   const d=new Date(iso);
-  return d.getHours()*60+d.getMinutes();
+  if(isNaN(d))return null;
+  const tz=dayLogTz();
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d);
+  const get=t=>Number(parts.find(x=>x.type===t)?.value||0);
+  return get('hour')*60+get('minute');
 }
 function dayLogNowISO(){
   const d=new Date();d.setSeconds(0,0);return d.toISOString();
@@ -1090,9 +1107,13 @@ function dayLogAddManual(){
 function dayLogEdit(id,key=todayKey()){
   const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
   const title=prompt('Activity',ev.title);if(title==null)return;
-  const sm=prompt('Start time (HH:MM)',new Date(ev.start).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}));
+  const fmtTime=iso=>{
+    const d=new Date(iso),tz=dayLogTz();
+    return new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(d);
+  };
+  const sm=prompt('Start time (HH:MM)',fmtTime(ev.start));
   if(sm==null)return;
-  const em=ev.end?prompt('End time (HH:MM)',new Date(ev.end).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false})):null;
+  const em=ev.end?prompt('End time (HH:MM)',fmtTime(ev.end)):null;
   const valid=/^\d{1,2}:\d{2}$/.test(sm)&&(em==null||/^\d{1,2}:\d{2}$/.test(em));
   if(!valid){alert('Use HH:MM.');return;}
   const parse=s=>{const [h,m]=s.split(':').map(Number);return h*60+m;};
@@ -1763,7 +1784,7 @@ function nextMove(key){
 // La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
 function scoreStripHTML(key){
   const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
-  const pct=dMax>0?Math.min(118,(score/dMax)*100):0;
+  const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
   return`<div id="tb-score">
     <span class="ts-l" style="color:${gr.c};text-shadow:0 0 18px ${gr.g}">${esc(gr.l)}</span>
     <span class="ts-p">${score}%</span>
@@ -1805,28 +1826,17 @@ const getSocial=k=>(_state[k]&&_state[k].social)||blankSocial();
 function calcScore(key){
   const ch=getChecked(key),soc=getSocial(key);
   const C=cfgForDate(key);
-
-  // Scoring is deliberately pure: date -> historical config -> checked state.
-  // No current-mode values are read here, so editing an old day cannot change
-  // its rules. Each component is also bounded by its own historical maximum.
-  const tickedPts=C.subs.reduce((a,x)=>a+(soc[x.id]?safePts(x.p):0),0);
-  const l1=C.L1.reduce((a,i)=>a+Math.min(safePts(i.pts),Math.round(safePts(i.pts)*doneFrac(ch[i.id]))),0);
-  const l2=C.L2.reduce((a,i)=>a+Math.min(safePts(i.pts),Math.round(safePts(i.pts)*doneFrac(ch[i.id]))),0);
-  // A checked combo with no selected sub-item still earns the combo's full
-  // historical value. Selected parts can never exceed that combo maximum.
-  const l3=C.L3.reduce((a,i)=>{
-    if(!i.combo)return a+Math.min(safePts(i.pts),Math.round(safePts(i.pts)*doneFrac(ch[i.id])));
-    if(!ch[i.id])return a;
-    return a+Math.min(safePts(i.pts),tickedPts>0?tickedPts:safePts(i.pts));
-  },0);
-
-  const m1=C.L1.reduce((a,i)=>a+safePts(i.pts),0);
-  const m2=C.L2.reduce((a,i)=>a+safePts(i.pts),0);
-  const m3=C.L3.reduce((a,i)=>a+safePts(i.pts),0);
-  const max=m1+m2+m3;
-  const score=Math.min(max,l1+l2+l3);
-  const pct=max>0?Math.min(118,Math.max(0,Math.round((score/max)*100))):0;
-  return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,pct,
+  const dSubs=C.subs, nSubs=dSubs.length||1;
+  const tickedPts=dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0);
+  const activeSubs=dSubs.filter(x=>soc[x.id]).length;
+  const l1=C.L1.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
+  const l2=C.L2.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
+  // combo ticked but no part picked = the whole combo, same as it always behaved
+  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(tickedPts>0?tickedPts:i.pts):0):Math.round(i.pts*doneFrac(ch[i.id]))),0);
+  const m1=C.L1.reduce((a,i)=>a+i.pts,0),m2=C.L2.reduce((a,i)=>a+i.pts,0),m3=C.L3.reduce((a,i)=>a+i.pts,0);
+  const max=m1+m2+m3, score=l1+l2+l3;
+  return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,
+         pct:max>0?Math.round((score/max)*100):0,
          done:Object.values(ch).filter(Boolean).length};
 }
 
@@ -2020,32 +2030,20 @@ function bakRestore(i){
   CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);
   haptic([30,40,30]); applyCfg(); saveCfg(); render();
 }
-let _cfgSaveChain=Promise.resolve();
-let _cfgSavePending=false;
-let _cfgSyncStamp=0;
-function queueCfgServerSave(){
-  if(!USER||!_cfgReady)return;
-  _cfgSavePending=true;
-  _cfgSaveChain=_cfgSaveChain.then(async()=>{
-    const snapshot=JSON.parse(JSON.stringify(CFG));
-    const stamp=Number(snapshot._syncAt)||Date.now();
-    snapshot._syncAt=stamp;
-    const r=await sb.from('day_logs').upsert({
-      user_id:USER.id,date:'settings',data:{_cfg:snapshot}
-    },{onConflict:'user_id,date'});
-    if(r&&r.error)throw r.error;
-  }).catch(e=>{ setStatus('SAVE FAILED','#ef4444'); })
-    .finally(()=>{ _cfgSavePending=false; });
-}
 function saveCfg(){
   const prev=get(cfgKey());           // lo que había ANTES de este guardado
   if(prev)bakBefore(prev);
-  _cfgSyncStamp=Date.now();
-  CFG._syncAt=_cfgSyncStamp;
   set(cfgKey(),CFG); applyCfg();
-  // Los guardados de settings se serializan: nunca dejamos que dos upserts
-  // salgan en paralelo y terminen aplicándose en orden inverso.
-  queueCfgServerSave();
+  // Guardar antes de haber leído del servidor sobreescribe la config buena con la
+  // que haya en memoria (posiblemente la genérica). Pasó el 13/09 y borró personas.
+  if(USER&&_cfgReady){
+    Promise.resolve()
+      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
+      .then(r=>{ const e=r&&r.error;
+        if(e)setStatus('SAVE FAILED','#ef4444');
+      })
+      .catch(e=>{ setStatus('SAVE FAILED','#ef4444'); });
+  }
   bakPush(CFG);                       // y también el estado nuevo
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
@@ -2074,13 +2072,6 @@ function rowToState(row){
   if(row.date==='cfgbak')return;
   if(row.date==='settings'){
     if(row.data&&row.data._cfg){
-      const incomingStamp=Number(row.data._cfg._syncAt)||0;
-      // Un eco/realtime viejo no puede pisar una edición local que todavía se
-      // está guardando. Si ambas versiones ya están sincronizadas, gana la más
-      // reciente; las filas antiguas sin sello siguen siendo compatibles.
-      if(_cfgSavePending && incomingStamp < _cfgSyncStamp)return;
-      if(!_cfgSavePending && incomingStamp && _cfgSyncStamp && incomingStamp < _cfgSyncStamp)return;
-      _cfgSyncStamp=Math.max(_cfgSyncStamp,incomingStamp);
       const local=get(cfgKey());
       const prevLog=Array.isArray(CFG.log)?CFG.log:(local&&Array.isArray(local.log)?local.log:[]);
       const prevV={subsV:CFG.subsV,junkV:CFG.junkV};
@@ -2802,12 +2793,12 @@ function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
 // Preferencia de interfaz: se guarda sin pasar por saveCfg() para no tocar el
 // anillo de respaldos (5 huecos; una copia buena vale mas que un plegado).
 function saveCfgPref(){
-  _cfgSyncStamp=Date.now();
-  CFG._syncAt=_cfgSyncStamp;
   set(cfgKey(),CFG);
-  // Las preferencias de UI usan el mismo canal serializado de settings, pero no
-  // generan una copia de backup adicional.
-  queueCfgServerSave();
+  if(USER&&_cfgReady){
+    Promise.resolve()
+      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
+      .catch(()=>{});
+  }
 }
 // La config manda; localStorage es solo el eco local (y la migracion de quien ya
 // tenia niveles plegados antes de que esto viajara al servidor).

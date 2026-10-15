@@ -2196,12 +2196,8 @@ function cfgForDate(key){
 
   let m=liveToday ? travelMode() : modeKey(e.mode||(e.h&&e.h.work&&e.h.work.on===false?'vacation':'work'));
 
-  // Defense-in-depth: the historical vacation boundary is a migration invariant.
-  // If an old/corrupt timeline still says Work for a completed date in this
-  // interval, scoring must not resurrect Work or its points.
-  const HIST_VAC_START="2026-09-08";
-  const HIST_VAC_END=keyMinus(todayKey(),1);
-  if(!liveToday && key>=HIST_VAC_START && key<=HIST_VAC_END)m='vacation';
+  // Past dates retain the last mode explicitly recorded for that date.
+  // The current live switch must not override historical scoring.
 
   let H=e.h,O=e.order,S0=e.subs;
   if(liveToday){
@@ -2704,8 +2700,8 @@ async function loadAll(){
     adoptLegacyIfVeteran(hadSettings,dayRows);
     _cfgReady=true;                       // a partir de aquí ya es seguro escribir
     ensureBaseline();
-    if(setVacationStartOnce())saveCfg();
-    if(repairHistoricalVacationTimeline())saveCfg();
+    // Historical modes come from the dated configuration timeline.
+    // Do not rewrite completed days to Vacation on every load.
     widenBaseline();
     addFamilyOnce();addJunkFoodOnce();rebalanceOnce();
     // Restore the user's explicit live switch AFTER the settings row has been

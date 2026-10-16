@@ -1993,12 +1993,13 @@ function applyTravelMode(mode){
   // Keep the live config in the selected mode, but DO NOT touch later eras.
   CFG.travel.mode=mode;
   if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
-  CFG.travelV=6;
+  // Do not reset the one-time 2026 return migration on manual switches.
+  CFG.travelV=Math.max(Number(CFG.travelV)||0,10);
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
 function setTravelMode(mode){ haptic(10); persistTravelMode(mode); CFG.travel.auto=false; applyTravelMode(mode); render(); }
-function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
+function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=false; haptic(8); saveCfg(); render(); }
 function setTravelResume(v){
   travelEnsure();
   const raw=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';

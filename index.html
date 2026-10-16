@@ -1239,36 +1239,38 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 
-/* Travel mode persistence hardening
-   The live switch is separate from the historical config timeline.  The timeline
-   decides how PAST dates are scored; this value decides what the switch shows TODAY.
-   A timestamp lets the browser's most recent explicit choice win over an older
-   settings snapshot arriving from Supabase during refresh. */
-function persistTravelMode(mode){
-  try{
-    travelEnsure();
-    mode=mode==='vacation'?'vacation':'work';
-    const rec={mode,updatedAt:Date.now()};
-    localStorage.setItem('travelMode',JSON.stringify(rec));
-    CFG.travel.mode=mode;
-    CFG.travel.modeUpdatedAt=rec.updatedAt;
-    return mode;
-  }catch(e){ return mode==='vacation'?'vacation':'work'; }
+/* Travel mode: server settings are authoritative; localStorage is a cache.
+   Never let an old device-local Vacation preference override a newer saved mode. */
+function persistTravelMode(mode, updatedAt=Date.now()){
+  travelEnsure();
+  mode=mode==='vacation'?'vacation':'work';
+  const stamp=Number(updatedAt)||Date.now();
+  CFG.travel.mode=mode;
+  CFG.travel.modeUpdatedAt=stamp;
+  try{localStorage.setItem('travelMode',JSON.stringify({mode,updatedAt:stamp}));}catch(e){}
+  return mode;
 }
 function restoreLiveTravelMode(){
+  travelEnsure();
+  let rec=null;
   try{
-    travelEnsure();
     const raw=localStorage.getItem('travelMode');
-    if(!raw)return false;
-    let rec=null;
-    try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
-    const mode=rec&&rec.mode==='vacation'?'vacation':rec&&rec.mode==='work'?'work':null;
-    if(!mode)return false;
-    CFG.travel.mode=mode;
-    CFG.travel.modeUpdatedAt=Number(rec.updatedAt)||0;
-    if(CFG.h&&CFG.h.work)CFG.h.work.on=(mode==='work');
+    if(raw){try{rec=JSON.parse(raw);}catch(e){rec={mode:raw,updatedAt:0};}}
+  }catch(e){}
+  const localMode=rec&&(rec.mode==='vacation'||rec.mode==='work')?rec.mode:null;
+  const localStamp=Number(rec&&rec.updatedAt)||0;
+  const serverMode=CFG.travel.mode==='vacation'?'vacation':'work';
+  const serverStamp=Number(CFG.travel.modeUpdatedAt)||0;
+  // Legacy server records without timestamps still take precedence over
+  // legacy browser records; a newer explicit offline choice may win.
+  if(localMode&&localStamp>serverStamp){
+    persistTravelMode(localMode,localStamp);
+    if(CFG.h&&CFG.h.work)CFG.h.work.on=(localMode==='work');
     return true;
-  }catch(e){return false;}
+  }
+  persistTravelMode(serverMode,serverStamp||Date.now());
+  if(CFG.h&&CFG.h.work)CFG.h.work.on=(serverMode==='work');
+  return false;
 }
 
 /* =========================
@@ -1956,31 +1958,11 @@ function normalizeTravelResume(){
   CFG.travel.resumeOn=fixed;
   return true;
 }
-// The dated config timeline is the source of truth for the CURRENT mode.
-// CFG.travel is only the live/persistence fallback; it must never silently
-// reset the switch to Work after a reload.
+// The saved live mode controls today; dated entries control completed days.
+// Browser storage is only a synchronized cache, never a competing authority.
 function travelMode(){
   travelEnsure();
-  // TODAY uses the explicit live preference, but restoreLiveTravelMode() first
-  // reconciles its timestamp with the server snapshot. Historical dates never
-  // use this preference; they resolve through cfgForDate()/the dated timeline.
-  try{
-    const raw=localStorage.getItem('travelMode');
-    if(raw){
-      let rec=null;
-      try{rec=JSON.parse(raw)}catch(e){rec={mode:raw,updatedAt:0};}
-      if(rec&&rec.mode==='vacation')return 'vacation';
-      if(rec&&rec.mode==='work')return 'work';
-    }
-  }catch(e){}
-  const tk=todayKey(),lg=cfgLog();
-  if(lg.length){
-    let e=lg[0];
-    for(const x of lg){ if(x.from<=tk)e=x; else break; }
-    if(e&&e.mode)return modeKey(e.mode);
-    if(e&&e.h&&e.h.work&&e.h.work.on===false)return 'vacation';
-  }
-  return modeKey(CFG.travel.mode);
+  return CFG.travel.mode==='vacation'?'vacation':'work';
 }
 // Switch ONLY the current era. Never rewrite an already-configured future era:
 // that future era is the boundary where the next Work/Vacation period starts.
@@ -2015,7 +1997,7 @@ function applyTravelMode(mode){
   _dayCfgCache={};
   applyCfg(); saveCfg();
 }
-function setTravelMode(mode){ haptic(10); persistTravelMode(mode); applyTravelMode(mode); persistTravelMode(mode); render(); }
+function setTravelMode(mode){ haptic(10); persistTravelMode(mode); CFG.travel.auto=false; applyTravelMode(mode); render(); }
 function setTravelAuto(v){ travelEnsure(); CFG.travel.auto=!!v; haptic(8); saveCfg(); render(); }
 function setTravelResume(v){
   travelEnsure();
@@ -2028,10 +2010,40 @@ function setTravelResume(v){
 // Se llama una vez por sesión (loadAll): si está en modo automático y ya
 // llegó (o pasó) la fecha de vuelta al trabajo, cambia solo a "work". No hace
 // nada mientras el modo ya sea "work" ni si `auto` está apagado.
-function checkTravelAuto(){
+function checkTravelAuto(){ /* Automatic mode changes disabled: only explicit user actions switch modes. */ }
+// One-time, idempotent repair of the confirmed return on 2026-10-08.
+// Preserve every dated habit configuration and check-in; only repair modes.
+function ensureWorkReturn2026(){
+  const RETURN='2026-10-08', START='2026-09-08';
+  if(todayKey()<RETURN)return false;
   travelEnsure();
-  const t=CFG.travel;
-  if(t.auto&&t.mode==='vacation'&&t.resumeOn&&todayKey()>=t.resumeOn) applyTravelMode('work');
+  if(Number(CFG.travelV)>=10)return false;
+  const lg=cfgLog();
+  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
+  let at=-1;
+  for(let i=0;i<lg.length;i++)if(lg[i].from<=RETURN)at=i;
+  if(at<0)at=0;
+  if(lg[at].from<RETURN){
+    const e=lg[at];
+    lg.splice(at+1,0,{from:RETURN,h:JSON.parse(JSON.stringify(e.h)),
+      order:(e.order||[]).slice(),subs:JSON.parse(JSON.stringify(e.subs||[])),mode:'work'});
+  }
+  for(const e of lg){
+    if(e.from>=START&&e.from<RETURN){
+      e.mode='vacation';
+      if(e.h&&e.h.work)e.h.work.on=false;
+    }else if(e.from>=RETURN){
+      e.mode='work';
+      if(e.h&&e.h.work)e.h.work.on=true;
+    }
+  }
+  CFG.travel.auto=false;
+  CFG.travel.resumeOn='';
+  persistTravelMode('work');
+  if(CFG.h&&CFG.h.work)CFG.h.work.on=true;
+  CFG.travelV=10;
+  _dayCfgCache={};
+  return true;
 }
 // One-time repair: Vacation Mode officially starts on 2026-09-08.
 // Historical scores must use the mode that was active on that date, even if the
@@ -2707,6 +2719,7 @@ async function loadAll(){
     // Restore the user's explicit live switch AFTER the settings row has been
     // loaded, because the server row may contain an older mode snapshot.
     restoreLiveTravelMode();
+    if(ensureWorkReturn2026())saveCfg();
     // Repair malformed legacy dates before the automatic return check.
     if(normalizeTravelResume())saveCfg();
     applyCfg();

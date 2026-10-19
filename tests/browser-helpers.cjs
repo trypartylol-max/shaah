@@ -11,14 +11,15 @@ before(async () => {
 });
 after(async () => { await browser?.close(); });
 
-async function openApp(t, data = fixture(), viewport = { width: 1440, height: 1000 }) {
+async function openApp(t, data = fixture(), viewport = { width: 1440, height: 1000 }, options = {}) {
   const context = await browser.newContext({ viewport, timezoneId: 'UTC', serviceWorkers: 'block' });
   t.after(() => context.close());
   const unexpectedRequests = [];
   const errors = [];
   await context.route('**/*', async route => {
     const url = route.request().url();
-    if (url === 'http://shaah.test/') return route.fulfill({ contentType: 'text/html', body: html });
+    const parsed = new URL(url);
+    if (parsed.origin === 'http://shaah.test' && parsed.pathname === '/') return route.fulfill({ contentType: 'text/html', body: html });
     if (url.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')) {
       return route.fulfill({ contentType: 'application/javascript', body: '/* Supabase is replaced by the local test double. */' });
     }
@@ -26,7 +27,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     if (!url.startsWith('https://fonts.')) unexpectedRequests.push(url);
     return route.abort();
   });
-  await context.addInitScript(({ rows }) => {
+  await context.addInitScript(({ rows, loggedOut }) => {
     const copy = value => JSON.parse(JSON.stringify(value));
     if (!localStorage.getItem('shaah_test_seed')) {
       localStorage.setItem('shaah_test_seed', '1');
@@ -40,7 +41,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
       window.__mockClientCreated = true;
       return {
         auth: {
-          getSession: async () => ({ data: { session: { user: { id: 'regression-user', email: 'synthetic@example.invalid' } } } }),
+          getSession: async () => ({ data: { session: loggedOut ? null : { user: { id: 'regression-user', email: 'synthetic@example.invalid' } } } }),
           onAuthStateChange() {}
         },
         async rpc(name,args){
@@ -93,14 +94,17 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
         }
       };
     } };
-  }, { rows: serverRows(data) });
+  }, { rows: serverRows(data), loggedOut: !!options.loggedOut });
   const page = await context.newPage();
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => errors.push(error.message));
   await page.clock.setFixedTime(new Date('2026-10-16T12:00:00Z'));
-  await page.goto('http://shaah.test/');
-  await page.waitForFunction(() => typeof _cfgReady !== 'undefined' && _cfgReady && _live);
-  await page.locator('.nav-btn[data-tab="social"]').click();
+  await page.goto(options.url || 'http://shaah.test/');
+  if (options.loggedOut) await page.getByRole('button', { name: 'Continue with Google' }).waitFor();
+  else {
+    await page.waitForFunction(() => typeof _cfgReady !== 'undefined' && _cfgReady && _live);
+    await page.locator('.nav-btn[data-tab="social"]').click();
+  }
   t.after(() => {
     assert.deepEqual(errors, [], 'No browser runtime exceptions');
     assert.deepEqual(unexpectedRequests, [], 'No unmocked network request, including Supabase');

@@ -62,7 +62,7 @@ function temporaryHtml(source, key) {
   const replacements = [
     [/const SUPABASE_URL="[^"]*";/g, `const SUPABASE_URL=${JSON.stringify(QA_ORIGIN)};`],
     [/const SUPABASE_KEY="[^"]*";/g, `const SUPABASE_KEY=${JSON.stringify(key)};`],
-    [/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2\.118\.0"><\/script>/g, '<script src="/sdk.js"></script>']
+    [/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2\.118\.0(?:\/dist\/umd\/supabase\.js)?"(?: integrity="sha384-[A-Za-z0-9+/=]+" crossorigin="anonymous")?><\/script>/g, '<script src="/sdk.js"></script>']
   ];
   let html = source;
   for (const [pattern, replacement] of replacements) {

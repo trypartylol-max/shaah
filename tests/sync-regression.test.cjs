@@ -14,6 +14,28 @@ function appFor(server,id=owner){
 function server(){return syncBackend(serverRows(locationFixture()).map(r=>({...r,user_id:owner})));}
 const settings=s=>s.rows.find(r=>r.user_id===owner&&r.date==='settings').data._cfg;
 
+test('legacy HTTP 500 / SQLSTATE 40001 retries the revision read and preserves both writers without upsert',async()=>{
+  const s=server(),normal=s.clientFor;let attempts=0;
+  s.clientFor=id=>{
+    const client=normal(id),rpc=client.rpc;
+    client.rpc=async(name,args)=>{
+      attempts++;
+      if(attempts===1){
+        const row=s.rows.find(r=>r.user_id===owner&&r.date==='settings');
+        row.data._cfg.people[1].every=99;row.settings_revision++;
+        return {data:null,error:{code:'40001',message:'SHAAH_REVISION_CONFLICT'}};
+      }
+      return rpc(name,args);
+    };return client;
+  };
+  const app=appFor(s);app.run('personSet("pold01","name","Local edit retained");');
+  await app.run('flushCfgSaves()');
+  assert.equal(attempts,2);assert.equal(settings(s).people[0].name,'Local edit retained');
+  assert.equal(settings(s).people[1].every,99);
+  assert.equal(s.writes.length,1);assert.equal(s.writes[0].rpc,'shaah_save_settings_v1');
+  assert.equal(app.read('_cfgDraft'),null);assert.equal(app.read('_cfgSaveFailed'),false);
+});
+
 test('opaque DELETE reconciliation removes only absent own days and preserves pending/offline edits',async()=>{
   const s=server(),app=appFor(s);
   s.rows=s.rows.filter(r=>!['2026-09-07','2026-09-08','2026-09-15'].includes(r.date));

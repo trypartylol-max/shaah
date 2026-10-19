@@ -29,6 +29,14 @@ sin cambios parciales verificados. La ejecución usa cuatro transacciones
 soportadas: adaptador inicial, núcleo compatible, PT409, sobre de propietario.
 El backend se completa antes de publicar el HTML.
 
+Una operación del conector que responda `status=declined` no está aprobada,
+aunque `isError` sea false. Se comprueba el cuerpo instalado antes de continuar.
+El cliente es compatible tanto con PT409/HTTP 409 como con el 40001/HTTP 500
+del núcleo: relee la revisión, fusiona cambios independientes y mantiene el borrador
+si no puede guardar. Una prueba específica fuerza 40001 y otro escritor; confirma
+ambos cambios y ausencia de fallback a upsert. La clasificación HTTP 409 puede
+quedar pendiente de aprobación del conector sin desactivar las guardas de datos.
+
 ## Corrección de Realtime para el original
 
 Los eventos DELETE pueden contener solamente `id`. INSERT y UPDATE mantienen
@@ -61,7 +69,8 @@ ejecuta directamente sobre datos reales.
 
 ## Verificación y límites
 
-La suite final contiene 120 pruebas locales, con cero fallos u omisiones.
+La última ejecución completa aprobó 120 pruebas locales, sin fallos u omisiones.
+La batería posterior de sincronización aprobó 30, incluida la nueva regresión 40001.
 La compatibilidad se ensaya con Auth/JWT/API/Realtime reales en una tabla
 independiente de SHAAH-TEST que reproduce el original; no toca los perfiles
 publicados ni utiliza la cuenta personal. Sus informes quedan en

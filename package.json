@@ -1,0 +1,25 @@
+{
+  "name": "shaah-regression",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/*.test.cjs",
+    "test:unit": "node --test --test-isolation=none tests/*regression.test.cjs",
+    "test:browser": "node --test --test-isolation=none tests/*browser.test.cjs",
+    "test:locations": "node --test --test-isolation=none tests/location-*.test.cjs",
+    "test:sync:safety": "node --test --test-isolation=none tests/supabase-*.test.cjs",
+    "test:sync:check": "node qa/supabase/run-sync.cjs --check",
+    "test:sync:probe": "node --use-env-proxy qa/supabase/probe.cjs",
+    "test:sync:public": "node --use-env-proxy qa/supabase/public-preflight.cjs",
+    "test:sync": "node --use-env-proxy qa/supabase/run-sync.cjs --run",
+    "test:sync:diagnose-local": "node qa/supabase/diagnose-local-risks.cjs"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.118.0",
+    "https-proxy-agent": "9.1.0",
+    "playwright": "1.62.1",
+    "ws": "8.22.0"
+  }
+}

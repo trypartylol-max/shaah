@@ -1,0 +1,8 @@
+node_modules/
+test-results/
+.env
+.env.*
+!.env.example
+qa/supabase/.runtime/
+supabase/.temp/
+supabase/.branches/

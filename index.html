@@ -1220,7 +1220,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,select:focu
     <button class="nav-btn" data-tab="history" onclick="setTab('history')"><span style="font-size:18px">◈</span>HISTORY</button>
   </nav>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 //  SHAAH — Supabase Auth + Realtime data layer
@@ -1241,20 +1241,21 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 /* Travel mode: server settings are authoritative; localStorage is a cache.
    Never let an old device-local Vacation preference override a newer saved mode. */
+const travelModeKey=()=>USER?'travelMode:'+USER.id:'travelMode';
 function persistTravelMode(mode, updatedAt=Date.now()){
   travelEnsure();
   mode=mode==='vacation'?'vacation':'work';
   const stamp=Number(updatedAt)||Date.now();
   CFG.travel.mode=mode;
   CFG.travel.modeUpdatedAt=stamp;
-  try{localStorage.setItem('travelMode',JSON.stringify({mode,updatedAt:stamp}));}catch(e){}
+  try{localStorage.setItem(travelModeKey(),JSON.stringify({mode,updatedAt:stamp}));}catch(e){}
   return mode;
 }
 function restoreLiveTravelMode(){
   travelEnsure();
   let rec=null;
   try{
-    const raw=localStorage.getItem('travelMode');
+    const raw=localStorage.getItem(travelModeKey());
     if(raw){try{rec=JSON.parse(raw);}catch(e){rec={mode:raw,updatedAt:0};}}
   }catch(e){}
   const localMode=rec&&(rec.mode==='vacation'||rec.mode==='work')?rec.mode:null;
@@ -1791,9 +1792,11 @@ function ensureModePts(x){
 function resolveSubs(list,comboPts,mode){
   const n=list.length||1;
   return list.map(x=>{
-    const y={...x}; ensureModePts(y);
-    if(y.pWork==null)y.pWork=Math.round(comboPts/n);
-    if(y.pVacation==null)y.pVacation=Math.round(comboPts/n);
+    const y={...x};
+    // Resolve an absent legacy price before normalization can turn it into zero.
+    // Explicit zeroes and per-mode prices must keep their original meaning.
+    if(y.pWork==null)y.pWork=y.p!=null?safePts(y.p):Math.round(comboPts/n);
+    if(y.pVacation==null)y.pVacation=y.p!=null?safePts(y.p):Math.round(comboPts/n);
     y.p=modePts(y,mode);
     return y;
   });
@@ -2318,7 +2321,12 @@ const loadCache=()=>{_state=get(cacheKey())||{};};
 const saveCache=()=>set(cacheKey(),_state);
 
 function statusEl(){return document.getElementById('sync-status');}
-function setStatus(text,color){const e=statusEl();if(e&&color)e.querySelector('span')?.style.setProperty('background',color);}
+var _syncText='SYNC…',_syncColor='#f59e0b';
+function setStatus(text,color){
+  _syncText=text;if(color)_syncColor=color;
+  const e=statusEl();if(e){e.title=text;e.setAttribute('aria-label',text);if(color)e.querySelector('span')?.style.setProperty('background',color);}
+  const notice=document.getElementById('sync-notice');if(notice)notice.outerHTML=syncNoticeHTML();
+}
 
 // ── Data accessors — all derive from _state ────────────────
 const blankSocial=()=>{const o={};for(const x of subsList())o[x.id]=false;return o;};
@@ -2334,7 +2342,7 @@ function calcScore(key){
   const l1=C.L1.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
   const l2=C.L2.reduce((a,i)=>a+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0);
   // combo ticked but no part picked = the whole combo, same as it always behaved
-  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(tickedPts>0?tickedPts:i.pts):0):Math.round(i.pts*doneFrac(ch[i.id]))),0);
+  const l3=C.L3.reduce((a,i)=>a+(i.combo?(ch[i.id]?(activeSubs>0?tickedPts:i.pts):0):Math.round(i.pts*doneFrac(ch[i.id]))),0);
   const m1=C.L1.reduce((a,i)=>a+i.pts,0),m2=C.L2.reduce((a,i)=>a+i.pts,0),m3=C.L3.reduce((a,i)=>a+i.pts,0);
   const max=m1+m2+m3, score=l1+l2+l3;
   return{score,l1,l2,l3,l1max:m1,l2max:m2,l3max:m3,max,
@@ -2369,45 +2377,72 @@ function getDayRecord(key){
 // ── Writes — optimistic local, then push to server ─────────
 const _pending={};
 const _offlineKey='shaah-offline-day-writes';
-let _offlineQueue={};
-try{_offlineQueue=JSON.parse(localStorage.getItem(_offlineKey)||'{}')||{};}catch(e){_offlineQueue={};}
-function saveOfflineQueue(){try{localStorage.setItem(_offlineKey,JSON.stringify(_offlineQueue));}catch(e){}}
+let _offlineQueue={},_offlineOwner=null;
+const _offlineFlushing=new Set();
+function readOfflineQueue(owner){
+  try{const q=JSON.parse(localStorage.getItem(_offlineKey+':'+owner)||'{}');return q&&typeof q==='object'&&!Array.isArray(q)?q:{};}catch(e){return {};}
+}
+function selectOfflineOwner(){
+  const owner=USER&&USER.id;
+  if(owner!==_offlineOwner){_offlineOwner=owner;_offlineQueue=owner?readOfflineQueue(owner):{};}
+  // The old shared key has no trustworthy owner. Keep it untouched for recovery.
+  return owner;
+}
+function saveOfflineQueue(owner=_offlineOwner,queue=_offlineQueue){
+  if(owner)try{localStorage.setItem(_offlineKey+':'+owner,JSON.stringify(queue));}catch(e){}
+}
+function acknowledgeOfflineDay(owner,key,item,queue){
+  if(queue[key]===item)delete queue[key];
+  const stored=readOfflineQueue(owner);
+  if(stored[key]?._id===item._id){delete stored[key];saveOfflineQueue(owner,stored);}
+  if(_offlineOwner===owner&&_offlineQueue[key]?._id===item._id)delete _offlineQueue[key];
+}
 function queueOfflineDay(key){
-  if(!DATE_RE.test(key))return;
+  const owner=selectOfflineOwner();
+  if(!owner||!DATE_RE.test(key))return;
   const st=_state[key]||{};
   const ch=getChecked(key),soc=getSocial(key),ppl=getPeople(key);
   const dl=Array.isArray(st._daylog)?st._daylog:[];
   const anything=Object.values(ch).some(Boolean)||Object.values(soc).some(Boolean)
                  ||!!getNote(key)||ppl.length>0||dl.length>0;
-  _offlineQueue[key]=anything?{delete:false,data:{score:calcScore(key).score,grade:GRADE(calcScore(key).score,calcScore(key).max).l,l1:calcScore(key).l1,l2:calcScore(key).l2,l3:calcScore(key).l3,done:calcScore(key).done,max:calcScore(key).max,pct:calcScore(key).pct,_checks:ch,_social:soc,_people:ppl,_note:(st&&st.note)||'',_daylog:dl}}:{delete:true};
-  saveOfflineQueue();
+  const {score,l1,l2,l3,done,max,pct}=calcScore(key);
+  const item=JSON.parse(JSON.stringify(anything?{delete:false,data:{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,_checks:ch,_social:soc,_people:ppl,_note:st.note||'',_daylog:dl}}:{delete:true}));
+  item._id=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+  _offlineQueue[key]=item;
+  const stored=readOfflineQueue(owner);stored[key]=item;saveOfflineQueue(owner,stored);
+  return item;
+}
+async function sendDayItem(owner,key,item){
+  const r=item.delete
+    ?await sb.from('day_logs').delete().eq('user_id',owner).eq('date',key)
+    :await sb.from('day_logs').upsert({user_id:owner,date:key,data:item.data},{onConflict:'user_id,date'});
+  if(r&&r.error)throw r.error;
 }
 async function flushOfflineQueue(){
-  if(!USER||!navigator.onLine)return;
-  const entries=Object.entries(_offlineQueue);
-  for(const [key,item] of entries){
+  const owner=selectOfflineOwner(),queue=_offlineQueue;
+  if(!owner||!navigator.onLine||_offlineFlushing.has(owner))return;
+  _offlineFlushing.add(owner);
+  try{for(const [key,item] of Object.entries(queue)){
+    if(USER?.id!==owner||_offlineQueue!==queue)break;
+    if(!DATE_RE.test(key)||!item||(!item.delete&&!item.data)||_pending[key])continue;
     const token=Symbol(key),pending={timer:null,token};
     _pending[key]=pending;
     try{
-      if(item&&item.delete){
-        const r=await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
-        if(r&&r.error)throw r.error;
-        delete _state[key];
-      }else if(item&&item.data){
-        const r=await sb.from('day_logs').upsert({user_id:USER.id,date:key,data:item.data},{onConflict:'user_id,date'});
-        if(r&&r.error)throw r.error;
+      await sendDayItem(owner,key,item);
+      if(item.delete&&USER?.id===owner&&_pending[key]===pending){
+        delete _state[key];saveCache();
       }
-      delete _offlineQueue[key];
-      saveOfflineQueue();
+      acknowledgeOfflineDay(owner,key,item,queue);
     }catch(e){
       break;
     }finally{
       if(_pending[key]===pending)delete _pending[key];
     }
-  }
-  if(!Object.keys(_offlineQueue).length)setStatus(_live?'LIVE':'✓','#4ade80');
+  }}finally{_offlineFlushing.delete(owner);}
+  if(USER?.id===owner&&!Object.keys(queue).length)setStatus(_live?'LIVE':'✓','#4ade80');
 }
 function restoreOfflineQueue(){
+  if(!selectOfflineOwner())return;
   for(const [key,item] of Object.entries(_offlineQueue)){
     if(!DATE_RE.test(key))continue;
     if(item&&item.delete){delete _state[key];continue;}
@@ -2415,11 +2450,12 @@ function restoreOfflineQueue(){
     _state[key]={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]};
   }
 }
-window.addEventListener('online',()=>{setStatus('SYNC…','#f59e0b');flushOfflineQueue();render();});
+window.addEventListener('online',()=>{setStatus('SYNC…','#f59e0b');flushOfflineQueue();if(_cfgReady)flushCfgSaves();else if(USER)loadAll();render();});
 function persistDay(key){
   if(!DATE_RE.test(key))return;
   saveCache();
   if(!USER)return;
+  const owner=USER.id,epoch=_syncEpoch,item=queueOfflineDay(key),queue=_offlineQueue;
   const prev=_pending[key];
   if(prev&&prev.timer)clearTimeout(prev.timer);
   const token=Symbol(key);
@@ -2430,29 +2466,17 @@ function persistDay(key){
     // echo can arrive before the upsert/delete resolves; clearing it here would
     // let that echo overwrite a newer local edit or schedule another save.
     pending.timer=null;
-    const ch=getChecked(key),soc=getSocial(key);
-    const{score,l1,l2,l3,done,max,pct}=calcScore(key);
-    const ppl=getPeople(key);
-    const dl=Array.isArray(_state[key]?._daylog)?_state[key]._daylog:[];
-    const anything=Object.values(ch).some(Boolean)||Object.values(soc).some(Boolean)
-                   ||!!getNote(key)||ppl.length>0||dl.length>0;
+    if(USER?.id!==owner||_syncEpoch!==epoch){if(_pending[key]===pending)delete _pending[key];return;}
     try{
-      if(!anything){
-        const r=await sb.from('day_logs').delete().eq('user_id',USER.id).eq('date',key);
-        if(r&&r.error)throw r.error;
+      await sendDayItem(owner,key,item);
+      if(USER?.id===owner&&_syncEpoch===epoch&&item.delete){
         // Do not delete a newer local edit that was made while this request was in flight.
         if(_pending[key]===pending){delete _state[key];saveCache();}
-      }else{
-        const r=await sb.from('day_logs').upsert({
-          user_id:USER.id,date:key,
-          data:{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,_checks:ch,_social:soc,_people:ppl,_note:(_state[key]&&_state[key].note)||'',_daylog:dl}
-        },{onConflict:'user_id,date'});
-        if(r&&r.error)throw r.error;
       }
-      if(_live)setStatus('LIVE','#4ade80');
+      acknowledgeOfflineDay(owner,key,item,queue);
+      if(USER?.id===owner&&_syncEpoch===epoch&&_live)setStatus('LIVE','#4ade80');
     }catch(e){
-      queueOfflineDay(key);
-      setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');
+      if(USER?.id===owner&&_syncEpoch===epoch)setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');
     }
     finally{
       // Only the request that owns the current marker may clear it. A newer
@@ -2468,6 +2492,111 @@ function setChecked(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial()
 // config timeline entirely.
 function peopleList(){ return Array.isArray(CFG.people)?CFG.people:(CFG.people=[]); }
 function personById(id){ return peopleList().find(x=>x.id===id)||null; }
+// Location groups only affect people discovery, never scoring or stored day logs.
+function locationGroups(){return Array.isArray(CFG.locationGroups)?CFG.locationGroups:[];}
+function selectedLocation(){return locationGroups().some(g=>g.id===CFG.selectedLocation)?CFG.selectedLocation:'all';}
+// Stale memberships remain stored for recovery, but cannot hide an unassigned contact.
+function personLocations(p){
+  const known=new Set(locationGroups().map(g=>g.id));
+  return Array.isArray(p.locations)?p.locations.filter(id=>known.has(id)):[];
+}
+function personVisible(p){
+  if(p.inactive===true)return false;
+  const loc=selectedLocation(),locations=personLocations(p);
+  return loc==='all'||locations.length===0||locations.includes(loc);
+}
+function visiblePeople(){return peopleList().filter(personVisible);}
+// Settings filter only; never changes activity scoring or historical logs.
+var peopleSettingsFilter='active';
+function setPeopleSettingsFilter(v){if(!['active','inactive','all'].includes(v))return;peopleSettingsFilter=v;bulkPeopleSelection=[];render();}
+function settingsPeople(){return peopleList().filter(p=>peopleSettingsFilter==='all'||(peopleSettingsFilter==='inactive'?p.inactive===true:p.inactive!==true));}
+function settingsOrphanPeople(){const ids=new Set(settingsPeople().map(p=>p.id));return orphanPeople().filter(p=>ids.has(p.id));}
+function locationSelect(id){if(id!=='all'&&!locationGroups().some(g=>g.id===id))return;CFG.selectedLocation=id;saveCfg();render();}
+function locationAdd(){
+  const name=(window.prompt('Location group name (e.g. Israel)')||'').trim().slice(0,40);
+  if(!name)return;
+  const id='loc'+Math.random().toString(36).slice(2,10);
+  CFG.locationGroups=locationGroups().concat([{id,name}]);CFG.selectedLocation=id;saveCfg();render();
+}
+function locationRename(id){
+  const g=locationGroups().find(x=>x.id===id);if(!g)return;
+  const name=window.prompt('Rename location group',g.name);
+  if(name===null||!name.trim())return;g.name=name.trim().slice(0,40);saveCfg();render();
+}
+function locationTogglePerson(id,loc){
+  if(!locationGroups().some(g=>g.id===loc))return;
+  const p=personById(id);if(!p)return;
+  const list=Array.isArray(p.locations)?p.locations:[];
+  p.locations=list.includes(loc)?list.filter(x=>x!==loc):list.concat(loc);
+  saveCfg();render();
+}
+// Bulk location assignment is additive by default; removal is an explicit action.
+var bulkPeopleSelection=[];
+var bulkPeopleQuery='';
+var bulkPeopleScope='all';
+function bulkPeopleCandidates(){
+  const q=bulkPeopleQuery.trim().toLocaleLowerCase();
+  return settingsPeople().filter(p=>{
+    if(bulkPeopleScope==='unassigned'&&personLocations(p).length)return false;
+    return !q||String(p.name||'').toLocaleLowerCase().includes(q);
+  });
+}
+function bulkPeopleSearch(v){
+  const input=document.getElementById('bulk-people-search');
+  const focused=!!input&&document.activeElement===input,start=input?.selectionStart,end=input?.selectionEnd;
+  bulkPeopleQuery=String(v||'');bulkPeopleSelection=[];render();
+  const next=document.getElementById('bulk-people-search');
+  if(focused&&next){next.focus();if(start!=null&&end!=null)next.setSelectionRange(start,end);}
+}
+function bulkPeopleSetScope(v){if(!['all','unassigned'].includes(v))return;bulkPeopleScope=v;bulkPeopleSelection=[];render();}
+function bulkPeopleToggle(id,checked){
+  if(!personById(id))return;
+  bulkPeopleSelection=checked?[...new Set([...bulkPeopleSelection,id])]:bulkPeopleSelection.filter(x=>x!==id);
+  render();
+}
+function bulkPeopleSelectVisible(checked){
+  const ids=bulkPeopleCandidates().map(p=>p.id);
+  bulkPeopleSelection=checked?[...new Set([...bulkPeopleSelection,...ids])]:bulkPeopleSelection.filter(id=>!ids.includes(id));
+  render();
+}
+function bulkPeopleApply(locationId,action){
+  if(!locationGroups().some(g=>g.id===locationId)||!['add','remove'].includes(action))return;
+  const eligible=new Set(bulkPeopleCandidates().map(p=>p.id));
+  const ids=new Set(bulkPeopleSelection.filter(id=>eligible.has(id)));
+  if(!ids.size)return;
+  for(const p of peopleList()){
+    if(!ids.has(p.id))continue;
+    const current=Array.isArray(p.locations)?p.locations:[];
+    p.locations=action==='add'?[...new Set([...current,locationId])]:current.filter(id=>id!==locationId);
+  }
+  bulkPeopleSelection=[];
+  saveCfg();render();
+}
+function bulkPeoplePanel(){
+  const candidates=bulkPeopleCandidates(), selected=bulkPeopleSelection.length;
+  return `<div style="margin:12px 0 16px;padding:12px;background:#151523;border:1px solid #34344a;border-radius:12px">
+    <div class="sec">BULK ASSIGN LOCATIONS</div>
+    <div style="font-size:12px;color:#adadbf;margin:7px 0">Select contacts below, then add or remove one location. Other location memberships are preserved.</div>
+    <input id="bulk-people-search" aria-label="Search contacts for bulk assignment" placeholder="Search contacts" value="${esc(bulkPeopleQuery)}" oninput="bulkPeopleSearch(this.value)" style="width:100%;box-sizing:border-box;background:#10101c;border:1px solid #34344a;color:#e2e2e2;border-radius:7px;padding:9px;margin:5px 0"/>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:7px 0">
+      <button onclick="bulkPeopleSetScope('all')" style="color:#ddd;background:${bulkPeopleScope==='all'?'#34344a':'#171725'};border:1px solid #34344a;border-radius:7px;padding:6px">All contacts</button>
+      <button onclick="bulkPeopleSetScope('unassigned')" style="color:#ddd;background:${bulkPeopleScope==='unassigned'?'#34344a':'#171725'};border:1px solid #34344a;border-radius:7px;padding:6px">Unassigned</button>
+      <button onclick="bulkPeopleSelectVisible(true)" style="color:#ddd;background:#171725;border:1px solid #34344a;border-radius:7px;padding:6px">Select visible</button>
+      <button onclick="bulkPeopleSelectVisible(false)" style="color:#ddd;background:#171725;border:1px solid #34344a;border-radius:7px;padding:6px">Deselect visible</button>
+    </div>
+    <div style="max-height:220px;overflow:auto;margin:8px 0">${candidates.map(p=>`<label style="display:flex;align-items:center;gap:8px;padding:6px 2px;color:#e2e2e2;font-size:13px"><input type="checkbox" ${bulkPeopleSelection.includes(p.id)?'checked':''} onchange="bulkPeopleToggle('${p.id}',this.checked)"/><span style="flex:1">${esc(p.name)}</span><span style="color:#8888a4;font-size:11px">${personLocations(p).map(id=>locationGroups().find(g=>g.id===id).name).map(esc).join(', ')||'Unassigned'}</span></label>`).join('')||'<span style="color:#8888a4;font-size:12px">No matching contacts</span>'}</div>
+    <div style="color:#adadbf;font-size:12px;margin-bottom:7px">${selected} selected</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${locationGroups().map(g=>`<button ${!selected?'disabled':''} onclick="bulkPeopleApply('${g.id}','add')" style="padding:8px;border:1px solid #34344a;border-radius:8px;background:#25253a;color:#e2e2e2">+ ${esc(g.name)}</button><button ${!selected?'disabled':''} onclick="bulkPeopleApply('${g.id}','remove')" style="padding:8px;border:1px solid #34344a;border-radius:8px;background:#171725;color:#adadbf">− ${esc(g.name)}</button>`).join('')||'<span style="color:#8888a4;font-size:12px">Add a location group first</span>'}</div>
+  </div>`;
+}
+function personSetInactive(id,val){const p=personById(id);if(!p)return;p.inactive=!!val;saveCfg();render();}
+function locationSelector(){return `<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:8px 0 12px">
+  <span style="font-size:12px;color:#adadbf">LOCATION</span>
+  <select aria-label="Current social location" onchange="locationSelect(this.value)" style="background:#111120;color:#e2e2e2;border:1px solid #34344a;border-radius:8px;padding:7px;font:inherit;font-size:13px">
+    <option value="all" ${selectedLocation()==='all'?'selected':''}>All locations</option>
+    ${locationGroups().map(g=>`<option value="${esc(g.id)}" ${selectedLocation()===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}
+  </select></div>`;}
+
 // Las pastillas del combo se leen de un vistazo; el nombre completo vive en
 // WHO TO SEE. "uri {bajur}" -> "uri". Si dos del mismo grupo colisionan, las dos
 // vuelven al nombre entero: mejor largo que ambiguo.
@@ -2510,7 +2639,7 @@ function personAdd(sub,key){
   if(raw===null)return;                                     // cancelar aborta el alta entera
   const every=Math.max(1,Math.min(3650,parseInt(raw,10)||14));
   let id; do{ id='p'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(personById(id));
-  peopleList().push({id,name,sub,every});
+  peopleList().push({id,name,sub,every,locations:selectedLocation()==='all'?[]:[selectedLocation()],inactive:false});
   saveCfg();
   if(key)togglePerson(id,key); else render();
 }
@@ -2537,7 +2666,7 @@ function peopleStatus(){
     if(!DATE_RE.test(k))continue;
     for(const id of getPeople(k)) if(!seen[id]||k>seen[id])seen[id]=k;
   }
-  return peopleList().map(p=>{
+  return visiblePeople().map(p=>{
     const last=seen[p.id]||null;
     const every=Math.max(1,p.every||14);
     const days=last?Math.round((keyToDate(tk)-keyToDate(last))/86400000):null;
@@ -2552,6 +2681,145 @@ function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),
 
 // ── Server load + realtime ─────────────────────────────────
 var _cfgReady=false;   // ¿ya leímos la config del servidor en esta sesión?
+var _syncEpoch=0,_cfgBase=null,_cfgDraft=null,_cfgDraftBase=null,_cfgConflict=false,_cfgSaveFailed=false,_cfgFlushPromise=null;
+var _realtimeChannel=null;
+const cfgPendingKey=()=>`shaah_cfg_pending_${USER?USER.id:'anon'}`;
+const cfgCopy=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
+function cfgEqual(a,b){
+  if(a===b)return true;
+  if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
+  const ak=Object.keys(a),bk=Object.keys(b);
+  return ak.length===bk.length&&ak.every(k=>Object.prototype.hasOwnProperty.call(b,k)&&cfgEqual(a[k],b[k]));
+}
+// Merge independent edits against their original base; never guess at a conflict.
+function mergeCfg(base,local,remote,field=''){
+  if(cfgEqual(local,base))return cfgCopy(remote);
+  if(cfgEqual(remote,base)||cfgEqual(local,remote))return cfgCopy(local);
+  if(Array.isArray(local)&&Array.isArray(remote)){
+    const old=Array.isArray(base)?base:[];
+    if(field==='locations'&&[...old,...local,...remote].every(x=>typeof x==='string')){
+      return [...new Set([...remote.filter(x=>!old.includes(x)||local.includes(x)),...local.filter(x=>!old.includes(x))])];
+    }
+    const key=field==='log'?'from':['people','locationGroups','subs'].includes(field)?'id':null;
+    if(key&&[old,local,remote].every(a=>a.every(x=>x&&typeof x[key]==='string')&&new Set(a.map(x=>x[key])).size===a.length)){
+      const maps=[old,local,remote].map(a=>new Map(a.map(x=>[x[key],x])));
+      const ids=[...new Set([...remote,...local,...old].map(x=>x[key]))];
+      const result=ids.map(id=>mergeCfg(maps[0].get(id),maps[1].get(id),maps[2].get(id))).filter(x=>x!==undefined);
+      return field==='log'?result.sort((a,b)=>a.from.localeCompare(b.from)):result;
+    }
+  }
+  const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
+  if(object(local)&&object(remote)&&(object(base)||base===undefined)){
+    const result=Object.create(null);
+    for(const key of new Set([...Object.keys(base||{}),...Object.keys(local),...Object.keys(remote)])){
+      const v=mergeCfg(base?.[key],local[key],remote[key],key);
+      if(v!==undefined)result[key]=v;
+    }
+    return result;
+  }
+  throw new Error('CFG_CONFLICT');
+}
+function keepCfgDraft(){if(_cfgDraft)set(cfgPendingKey(),{base:_cfgDraftBase,draft:_cfgDraft});}
+function queueCfgSave(){
+  if(!USER)return;
+  if(!_cfgDraft)_cfgDraftBase=cfgCopy(_cfgBase?._cfg||DEFAULT_CFG);
+  _cfgDraft=cfgCopy(CFG);keepCfgDraft();
+  if(_cfgReady)Promise.resolve().then(flushCfgSaves);
+}
+function cfgSyncStatus(){
+  if(_cfgConflict)setStatus('SAVE CONFLICT — CHANGES KEPT ON THIS DEVICE','#f59e0b');
+  else if(_cfgSaveFailed)setStatus('SAVE FAILED — CHANGES KEPT ON THIS DEVICE','#ef4444');
+  else setStatus(_live?'LIVE':'✓','#4ade80');
+}
+function flushCfgSaves(){
+  if(_cfgFlushPromise)return _cfgFlushPromise;
+  if(!USER||!_cfgReady||!_cfgDraft)return Promise.resolve();
+  const owner=USER.id,epoch=_syncEpoch;
+  const current=()=>USER?.id===owner&&_syncEpoch===epoch;
+  const task=(async()=>{
+    try{while(current()&&_cfgDraft){
+      const draft=_cfgDraft,base=_cfgDraftBase;
+      let saved=false;
+      for(let attempt=0;attempt<4&&!saved;attempt++){
+        const read=await sb.from('day_logs').select('data,settings_revision').eq('user_id',owner).eq('date','settings');
+        if(!current())return;
+        if(read.error||!Array.isArray(read.data)||read.data.length>1)throw new Error('CFG_READ_FAILED');
+        const row=read.data[0],remote=row?.data;
+        const merged=row?mergeCfg(base,draft,remote?._cfg||{}):cfgCopy(draft);
+        const data={...(remote||{}),_cfg:merged};
+        // The server binds ownership to the JWT, checks a numeric revision and
+        // archives both versions atomically. Direct legacy settings writes are
+        // denied there; never fall back to upsert or a JSONB filter in the URL.
+        if(row&&!Number.isSafeInteger(row.settings_revision))throw new Error('CFG_PROTOCOL_UNAVAILABLE');
+        const result=await sb.rpc('shaah_save_settings_v1',{
+          p_expected_revision:row?row.settings_revision:null,p_data:{owner_id:owner,data}
+        });
+        if(!current())return;
+        if(result.error){if(['23505','40001','PT409'].includes(result.error.code))continue;throw new Error('CFG_WRITE_FAILED');}
+        if(!result.data||!Number.isSafeInteger(result.data.settings_revision)||result.data.settings_revision<1||!cfgEqual(result.data.data,data))throw new Error('CFG_WRITE_UNCONFIRMED');
+        _cfgBase=cfgCopy(result.data.data);_cfgConflict=false;_cfgSaveFailed=false;saved=true;
+        if(_cfgDraft===draft){
+          _cfgDraft=null;_cfgDraftBase=null;localStorage.removeItem(cfgPendingKey());
+          CFG=Object.assign(cfgCopy(DEFAULT_CFG),merged);
+        }else{
+          _cfgDraft=mergeCfg(draft,_cfgDraft,merged);_cfgDraftBase=cfgCopy(merged);
+          CFG=Object.assign(cfgCopy(DEFAULT_CFG),_cfgDraft);keepCfgDraft();
+        }
+        applyCfg();set(cfgKey(),CFG);render();
+      }
+      if(!saved)throw new Error('CFG_RETRY_LIMIT');
+    }
+    if(current())cfgSyncStatus();
+    }catch(e){if(current()){
+      _cfgConflict=e.message==='CFG_CONFLICT';_cfgSaveFailed=!_cfgConflict;keepCfgDraft();cfgSyncStatus();
+    }}
+  })();
+  const done=task.finally(()=>{if(_cfgFlushPromise===done)_cfgFlushPromise=null;});
+  _cfgFlushPromise=done;return done;
+}
+function changeSyncUser(user){
+  if(USER?.id===user?.id){USER=user;return;}
+  _syncEpoch++;_cfgReady=false;_cfgBase=null;_cfgDraft=null;_cfgDraftBase=null;_cfgConflict=false;_cfgSaveFailed=false;_cfgFlushPromise=null;
+  for(const [key,p] of Object.entries(_pending)){if(p.timer)clearTimeout(p.timer);delete _pending[key];}
+  clearTimeout(_bakT);_bakT=null;_bak=[];
+  if(_realtimeChannel){sb.removeChannel?.(_realtimeChannel);_realtimeChannel=null;}
+  USER=user;_live=false;_state={};CFG=cfgCopy(DEFAULT_CFG);_dayCfgCache={};selectOfflineOwner();
+}
+async function resolveCfgConflict(choice){
+  if(!USER||!_cfgConflict||!['server','local'].includes(choice))return;
+  if(!confirm(choice==='local'?'Use this device’s settings for your account? Other devices will receive these settings.':'Use the settings saved on the server? Your current version will stay in local backups.'))return;
+  const owner=USER.id,epoch=_syncEpoch;
+  try{
+    const result=await sb.from('day_logs').select('data').eq('user_id',owner).eq('date','settings');
+    if(USER?.id!==owner||_syncEpoch!==epoch)return;
+    const remote=result.data?.[0]?.data;
+    if(result.error||!remote?._cfg)throw new Error('CFG_READ_FAILED');
+    bakPush(CFG);bakPush(remote._cfg);_cfgBase=cfgCopy(remote);_cfgConflict=false;_cfgSaveFailed=false;
+    if(choice==='server'){
+      _cfgDraft=null;_cfgDraftBase=null;localStorage.removeItem(cfgPendingKey());
+      CFG=Object.assign(cfgCopy(DEFAULT_CFG),remote._cfg);applyCfg();set(cfgKey(),CFG);
+    }else{_cfgDraftBase=cfgCopy(remote._cfg);_cfgDraft=cfgCopy(CFG);keepCfgDraft();await flushCfgSaves();}
+    if(USER?.id===owner&&_syncEpoch===epoch){cfgSyncStatus();render();}
+  }catch(e){if(USER?.id===owner&&_syncEpoch===epoch){_cfgSaveFailed=true;cfgSyncStatus();}}
+}
+function unownedOfflineQueue(){
+  try{const q=JSON.parse(localStorage.getItem(_offlineKey)||'{}');return q&&typeof q==='object'&&!Array.isArray(q)?q:{};}catch(e){return {};}
+}
+function exportUnownedOffline(){
+  const writes=unownedOfflineQueue();if(!Object.keys(writes).length)return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({app:'SHAAH',owner:null,offlineWrites:writes},null,2)],{type:'application/json'}));
+  a.download='shaah-unassigned-unsynced.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function syncNoticeHTML(){
+  const button=(text,action)=>`<button onclick="${action}" style="background:none;border:1px solid #66552a;color:inherit;border-radius:7px;padding:7px;font:inherit;cursor:pointer">${text}</button>`;
+  let body='';
+  if(_cfgConflict||_cfgSaveFailed)body+=`<div style="padding:12px;border:1px solid #66552a;border-radius:10px;margin:10px 16px;color:#fbbf24;font-size:14px;line-height:1.5">
+    ${_cfgConflict?'Settings changed on another device. Your edits are kept on this device. Choose which version to use.':'Settings could not be saved. Your edits are kept on this device.'}
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">${_cfgConflict?button('Use saved settings',"resolveCfgConflict('server')")+button('Keep this device’s settings',"resolveCfgConflict('local')"):button('Retry saving','flushCfgSaves()')}${button('Export my changes','exportData()')}</div></div>`;
+  if(Object.keys(unownedOfflineQueue()).some(k=>DATE_RE.test(k)))body+=`<div style="padding:12px;margin:10px 16px;border:1px solid #66552a;border-radius:10px;color:#fbbf24;font-size:14px;line-height:1.5">Older unsynced entries are kept on this device. Their account could not be verified, so they have not been uploaded. ${button('Export unsynced entries','exportUnownedOffline()')}</div>`;
+  return `<div id="sync-notice" role="status" aria-live="polite">${body}</div>`;
+}
 // ── Respaldo automático ───────────────────────────────────
 // La config vive en una sola fila; si se pisa, se pisa en el teléfono y en el
 // servidor a la vez y no queda nada. Esto guarda las últimas versiones buenas en
@@ -2591,7 +2859,8 @@ function bakBefore(prev){
   if(!_cfgReady)return;
   if(!bakPush(prev))return;
   clearTimeout(_bakT);
-  _bakT=setTimeout(()=>{ try{ if(USER)sb.from('day_logs').upsert({user_id:USER.id,date:'cfgbak',data:{_bak}},{onConflict:'user_id,date'}); }catch(e){} },2000);
+  const owner=USER&&USER.id,epoch=_syncEpoch;
+  _bakT=setTimeout(()=>{ try{ if(owner&&USER?.id===owner&&_syncEpoch===epoch)Promise.resolve(sb.from('day_logs').upsert({user_id:owner,date:'cfgbak',data:{_bak}},{onConflict:'user_id,date'})).catch(()=>{}); }catch(e){} },2000);
 }
 function bakSnapshot(){ bakBefore(CFG); }
 function bakList(){
@@ -2615,14 +2884,7 @@ function saveCfg(){
   set(cfgKey(),CFG); applyCfg();
   // Guardar antes de haber leído del servidor sobreescribe la config buena con la
   // que haya en memoria (posiblemente la genérica). Pasó el 13/09 y borró personas.
-  if(USER&&_cfgReady){
-    Promise.resolve()
-      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
-      .then(r=>{ const e=r&&r.error;
-        if(e)setStatus('SAVE FAILED','#ef4444');
-      })
-      .catch(e=>{ setStatus('SAVE FAILED','#ef4444'); });
-  }
+  queueCfgSave();
   bakPush(CFG);                       // y también el estado nuevo
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
@@ -2649,16 +2911,27 @@ function migrateCfg(){
 }
 function loadCfgLocal(){
   const c=get(cfgKey());
-  if(c){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),c);applyCfg();migrateCfg();}
+  const pending=get(cfgPendingKey());
+  if(c)_cfgBase={_cfg:cfgCopy(c)};
+  if(pending&&pending.base&&pending.draft){_cfgDraftBase=cfgCopy(pending.base);_cfgDraft=cfgCopy(pending.draft);}
+  if(c||_cfgDraft){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),_cfgDraft||c);applyCfg();migrateCfg();}
 }
 function rowToState(row){
   if(row.date==='cfgbak')return;
   if(row.date==='settings'){
     if(row.data&&row.data._cfg){
       const local=get(cfgKey());
+      const pending=_cfgDraft?{base:_cfgDraftBase,draft:_cfgDraft}:get(cfgPendingKey());
+      let incoming=cfgCopy(row.data._cfg);
+      _cfgBase=cfgCopy(row.data);
+      if(pending&&pending.base&&pending.draft){
+        _cfgDraftBase=cfgCopy(pending.base);_cfgDraft=cfgCopy(pending.draft);
+        try{incoming=mergeCfg(_cfgDraftBase,_cfgDraft,incoming);_cfgConflict=false;}
+        catch(e){incoming=cfgCopy(_cfgDraft);_cfgConflict=true;}
+      }
       const prevLog=Array.isArray(CFG.log)?CFG.log:(local&&Array.isArray(local.log)?local.log:[]);
       const prevV={subsV:CFG.subsV,junkV:CFG.junkV};
-      CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),row.data._cfg);
+      CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),incoming);
       // La línea de tiempo es historia, no estado: una config entrante sin `log`
       // (dispositivo con versión vieja, o restauración) no puede borrar el pasado.
       if((!Array.isArray(CFG.log)||CFG.log.length<prevLog.length)&&prevLog.length)CFG.log=prevLog;
@@ -2670,9 +2943,10 @@ function rowToState(row){
         if(!Array.isArray(CFG.people))CFG.people=[];
         let back=0;
         for(const q of local.people) if(q&&q.id&&!CFG.people.some(x=>x.id===q.id)){CFG.people.push(q);back++;}
-        if(back&&USER&&_cfgReady){try{sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'});}catch(e){}}
+        if(back&&USER){if(!_cfgDraft){_cfgDraftBase=cfgCopy(row.data._cfg);_cfgDraft=cfgCopy(CFG);keepCfgDraft();}}
       }
       applyCfg();migrateCfg();set(cfgKey(),CFG);
+      if(_cfgDraft&&!_cfgConflict&&_cfgReady)Promise.resolve().then(flushCfgSaves);
       loadLvl();   // el plegado viene dentro de la config: boot() la leyo antes que esta
     }
     return;
@@ -2699,9 +2973,11 @@ function adoptLegacyIfVeteran(hadSettingsRow,rowCount){
 }
 async function loadAll(){
   if(!USER)return;
+  const owner=USER.id,epoch=_syncEpoch;
   setStatus('SYNC…','#f59e0b');
   try{
-    const{data,error}=await sb.from('day_logs').select('date,data').eq('user_id',USER.id);
+    const{data,error}=await sb.from('day_logs').select('date,data').eq('user_id',owner);
+    if(USER?.id!==owner||_syncEpoch!==epoch)return;
     if(error)throw error;
     const rows=data||[];
     const hadSettings=rows.some(r=>r.date==='settings');
@@ -2727,36 +3003,66 @@ async function loadAll(){
     checkTravelAuto();
     recoverPeopleFromDays();
     saveCache();
-    setStatus(_live?'LIVE':'✓','#4ade80');
+    cfgSyncStatus();
+    if(_cfgDraft&&!_cfgConflict){_cfgDraft=cfgCopy(CFG);keepCfgDraft();flushCfgSaves();}
     if(Object.keys(_offlineQueue).length)flushOfflineQueue();
   }catch(e){
+    if(USER?.id!==owner||_syncEpoch!==epoch)return;
     setStatus('OFFLINE','#ef4444');
   }
   render();
 }
 
+async function reconcileDeletedDays(owner,epoch){
+  // Older schemas may expose only an opaque primary key in DELETE events.
+  // Re-read this account through RLS; an unscoped event never supplies an owner.
+  const before={..._state};
+  try{
+    const {data,error}=await sb.from('day_logs').select('date').eq('user_id',owner);
+    if(USER?.id!==owner||_syncEpoch!==epoch||error||!Array.isArray(data))return;
+    const present=new Set(data.map(row=>row.date));
+    for(const key of Object.keys(before)){
+      if(/^\d{4}-\d{2}-\d{2}$/.test(key)&&!present.has(key)&&
+         _state[key]===before[key]&&!_pending[key]&&!_offlineQueue[key])delete _state[key];
+    }
+    saveCache();render();cfgSyncStatus();
+  }catch{}
+}
+
 function subscribeRealtime(){
   if(!USER)return;
-  sb.channel('shaah-'+USER.id)
-    .on('postgres_changes',
-      {event:'*',schema:'public',table:'day_logs',filter:`user_id=eq.${USER.id}`},
-      payload=>{
+  const owner=USER.id,epoch=_syncEpoch;
+  if(_realtimeChannel)sb.removeChannel?.(_realtimeChannel);
+  const onChange=payload=>{
+        if(USER?.id!==owner||_syncEpoch!==epoch)return;
         if(payload.eventType==='DELETE'){
+          // DELETE filters are not an ownership guarantee in Realtime.
+          if(payload.old?.user_id&&payload.old.user_id!==owner)return;
           const key=payload.old&&payload.old.date;
+          if(payload.old?.user_id!==owner||!key)return reconcileDeletedDays(owner,epoch);
           // A remote DELETE must not erase a local edit that is still waiting to
           // be written. Once the local upsert completes, the echo is authoritative.
           if(key&&_pending[key])return;
           if(key)delete _state[key];
         }else if(payload.new){
+          if(payload.new.user_id!==owner)return;
           rowToState(payload.new);
         }
         saveCache();
         render();
-        setStatus('LIVE','#4ade80');
-      })
+        cfgSyncStatus();
+      };
+  const owned={schema:'public',table:'day_logs',filter:`user_id=eq.${owner}`};
+  _realtimeChannel=sb.channel('shaah-'+owner)
+    .on('postgres_changes',{...owned,event:'INSERT'},onChange)
+    .on('postgres_changes',{...owned,event:'UPDATE'},onChange)
+    // DELETE payloads may lack user_id, so this subscription cannot filter on
+    // it. The handler validates explicit owners or re-reads our own rows by RLS.
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'day_logs'},onChange)
     .subscribe(s=>{
+      if(USER?.id!==owner||_syncEpoch!==epoch)return;
       _live=(s==='SUBSCRIBED');
-      if(_live)setStatus('LIVE','#4ade80');
+      if(_live)cfgSyncStatus();
     });
 }
 
@@ -2927,6 +3233,7 @@ function renderSettings(){
       <div style="margin-left:auto;font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(68px + env(safe-area-inset-bottom))">
+      ${syncNoticeHTML()}
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
@@ -2969,13 +3276,21 @@ function renderSettings(){
         </div>`}).join("")}`,"st-col-b")}
             ${stCard("ppl","PEOPLE","#9090aa",`
       <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px">Who you spend time with, and how often you want to. Never affects your score — it only drives WHO TO SEE in Stats.</div>
+      <div style="margin-bottom:14px"><div class="sec">LOCATION GROUPS</div>
+        ${locationSelector()}
+        <button onclick="locationAdd()" style="background:#171725;color:#e2e2e2;border:1px solid #34344a;border-radius:8px;padding:8px 12px;cursor:pointer">+ ADD LOCATION</button>
+        ${locationGroups().map(g=>`<button onclick="locationRename('${g.id}')" style="margin:5px;background:none;color:#adadbf;border:1px solid #34344a;border-radius:8px;padding:7px;cursor:pointer">✎ ${esc(g.name)}</button>`).join('')}
+      </div>
+      ${bulkPeoplePanel()}
+      <div style="font-size:12px;color:#8888a4;margin-bottom:8px">Assign people to locations; unassigned people show in every location. Inactive people are excluded from recommendations but can be reactivated here.</div>
+      <div style="display:flex;gap:7px;margin-bottom:12px">${['active','inactive','all'].map(f=>`<button onclick="setPeopleSettingsFilter('${f}')" style="background:${peopleSettingsFilter===f?'#34344a':'#171725'};color:#e2e2e2;border:1px solid #34344a;border-radius:8px;padding:7px 10px;cursor:pointer">${f==='active'?'Active':f==='inactive'?'Inactive':'All people'}</button>`).join('')}</div>
       ${subsOn(subsList()).map(sb=>`
         <div style="margin-bottom:14px">
           <div class="sec" style="color:#fbbf24">${esc(sb.icon)} ${esc(sb.label)}</div>
-          ${peopleList().filter(x=>x.sub===sb.id).map(x=>`
-          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);margin-bottom:5px">
+          ${settingsPeople().filter(x=>x.sub===sb.id).map(x=>`
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);margin-bottom:5px">
             <input value="${esc(x.name)}" onchange="personSet('${x.id}','name',this.value)"
-              style="flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
+              style="flex:1 1 120px;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0"/>
             <select onchange="personSet('${x.id}','sub',this.value)" style="flex-shrink:0;max-width:96px;background:#111120;border:1px solid #222;border-radius:6px;color:#adadbf;font-family:inherit;font-size:13px;padding:5px 3px">
               ${subsOn(subsList()).map(o=>`<option value="${o.id}" ${x.sub===o.id?'selected':''}>${esc(o.label)}</option>`).join("")}
               ${orphanPeople().some(o=>o.id===x.id)?`<option value="${esc(x.sub)}" selected>${esc(x.sub)} (?)</option>`:""}
@@ -2984,21 +3299,28 @@ function renderSettings(){
             <input type="number" min="1" max="3650" value="${esc(x.every||14)}" onchange="personSet('${x.id}','every',this.value)"
               style="width:52px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:15px;padding:5px 4px;text-align:center"/>
             <span style="font-size:13px;color:#7e7e97;flex-shrink:0">d</span>
+            <label style="font-size:12px;color:#adadbf;white-space:nowrap"><input type="checkbox" ${x.inactive?'checked':''} onchange="personSetInactive('${x.id}',this.checked)"/> Inactive</label>
             <button onclick="personDel('${x.id}')" title="Remove" style="background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0">✕</button>
-          </div>`).join("")}
+          <div style="display:flex;flex-wrap:wrap;flex-basis:100%;min-width:0;overflow-wrap:anywhere;gap:7px;padding:0 10px 9px;font-size:12px;color:#adadbf">
+            ${locationGroups().map(g=>`<label><input type="checkbox" ${Array.isArray(x.locations)&&x.locations.includes(g.id)?'checked':''} onchange="locationTogglePerson('${x.id}','${g.id}')"/> ${esc(g.name)}</label>`).join('')}
+          </div></div>`).join("")}
           <button onclick="personAdd('${sb.id}')" style="width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px">+ ADD PERSON</button>
         </div>`).join("")}
-      ${orphanPeople().length?`<div style="margin-bottom:6px">
-        <div class="sec" style="color:#f59e0b">⚠ WITHOUT A GROUP — ${orphanPeople().length}</div>
+      ${settingsOrphanPeople().length?`<div style="margin-bottom:6px">
+        <div class="sec" style="color:#f59e0b">⚠ WITHOUT A GROUP — ${settingsOrphanPeople().length}</div>
         <div style="font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:8px">Their group no longer exists or is paused, so they don't show in the combo. Pick a group above to bring them back.</div>
-        ${orphanPeople().map(x=>`
-        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(245,158,11,0.06);margin-bottom:5px">
+        ${settingsOrphanPeople().map(x=>`
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(245,158,11,0.06);margin-bottom:5px">
           <div style="flex:1;min-width:0;font-size:15px;color:#e2e2e2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</div>
           <select onchange="personSet('${x.id}','sub',this.value)" style="flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#e2e2e2;font-family:inherit;font-size:13px;padding:5px 3px">
             <option value="${esc(x.sub)}" selected>— ${esc(x.sub)} —</option>
             ${subsOn(subsList()).map(o=>`<option value="${o.id}">${esc(o.label)}</option>`).join("")}
           </select>
+          <label style="font-size:12px;color:#adadbf;white-space:nowrap"><input type="checkbox" ${x.inactive?'checked':''} onchange="personSetInactive('${x.id}',this.checked)"/> Inactive</label>
           <button onclick="personDel('${x.id}')" style="background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0">✕</button>
+          <div style="display:flex;flex-wrap:wrap;flex-basis:100%;min-width:0;overflow-wrap:anywhere;gap:7px;padding:0 10px 9px;font-size:12px;color:#adadbf">
+            ${locationGroups().map(g=>`<label><input type="checkbox" ${Array.isArray(x.locations)&&x.locations.includes(g.id)?'checked':''} onchange="locationTogglePerson('${x.id}','${g.id}')"/> ${esc(g.name)}</label>`).join('')}
+          </div>
         </div>`).join("")}
       </div>`:""}`,"st-col-b")}
             ${stCard("trav","MODE","#9090aa",`
@@ -3174,8 +3496,11 @@ function importApply(j){
       if(!q||!q.name)continue;
       const id=q.id||('p'+Math.random().toString(36).slice(2,7).padEnd(5,'0'));
       if(CFG.people.some(x=>x.id===id||x.name===q.name))continue;
-      CFG.people.push({id,name:String(q.name).slice(0,40),sub:q.sub||"friends",
-                       every:Math.max(1,Math.min(3650,parseInt(q.every,10)||14))});
+      const contact={id,name:String(q.name).slice(0,40),sub:q.sub||"friends",
+                     every:Math.max(1,Math.min(3650,parseInt(q.every,10)||14))};
+      if(Array.isArray(q.locations))contact.locations=[...new Set(q.locations.filter(x=>typeof x==='string'))];
+      if(typeof q.inactive==='boolean')contact.inactive=q.inactive;
+      CFG.people.push(contact);
       added++;
     }
     alert(`${added} added.`);
@@ -3276,7 +3601,7 @@ async function boot(){
     }
   }catch(e){AUTH_ERR=e.message;}
 
-  USER=session?session.user:null;
+  changeSyncUser(session?session.user:null);
 
   // Clean auth params out of the URL once handled
   if(USER&&(location.search||location.hash)){
@@ -3292,8 +3617,9 @@ async function boot(){
     restoreRoutine();
     if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
     render();
+    const owner=USER.id,epoch=_syncEpoch;
     await loadAll();
-    subscribeRealtime();
+    if(USER?.id===owner&&_syncEpoch===epoch)subscribeRealtime();
   }else{
     render();
   }
@@ -3301,12 +3627,13 @@ async function boot(){
 
 sb.auth.onAuthStateChange((event,session)=>{
   const wasUser=USER?USER.id:null;
-  USER=session?session.user:null;
+  changeSyncUser(session?session.user:null);
   if(USER&&USER.id!==wasUser){
     // loadCfgLocal() PRIMERO: sin esto se pintaba un frame con la config genérica
     // (p.ej. "No Junk Food") antes de que llegara la del usuario ("No Smoking").
     loadCfgLocal();loadCache();render();
-    loadAll().then(subscribeRealtime);
+    const owner=USER.id,epoch=_syncEpoch;
+    loadAll().then(()=>{if(USER?.id===owner&&_syncEpoch===epoch)subscribeRealtime();});
   }else if(!USER){
     _state={};render();
   }
@@ -3380,11 +3707,7 @@ function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
 // anillo de respaldos (5 huecos; una copia buena vale mas que un plegado).
 function saveCfgPref(){
   set(cfgKey(),CFG);
-  if(USER&&_cfgReady){
-    Promise.resolve()
-      .then(()=>sb.from('day_logs').upsert({user_id:USER.id,date:'settings',data:{_cfg:CFG}},{onConflict:'user_id,date'}))
-      .catch(()=>{});
-  }
+  queueCfgSave();
 }
 // La config manda; localStorage es solo el eco local (y la migracion de quien ya
 // tenia niveles plegados antes de que esto viajara al servidor).
@@ -3595,7 +3918,7 @@ function renderTour(){
 function topbarHTML(){
   const d=keyToDate(todayKey()),hr=new Date().getHours();
   const greet=hr<12?"MORNING":hr<18?"AFTERNOON":"EVENING";
-  const dot=_live?"#4ade80":"#f59e0b";
+  const dot=_cfgConflict?'#f59e0b':_cfgSaveFailed?'#ef4444':_live?"#4ade80":"#f59e0b";
   return`<div id="topbar">
     <button id="gear" onclick="openSettings()" aria-label="Settings">⚙</button>
     <div id="tb-date">
@@ -3604,8 +3927,9 @@ function topbarHTML(){
       <span class="tb-gr">${greet}</span>
     </div>
     <div id="mode-status" title="Current mode">${travelMode()==='vacation'?'VACATION':'WORK'}</div>
-    <div id="sync-status" title="${travelMode()==="vacation"?"Vacation mode":"Work mode"}"><span style="background:${dot}"></span></div>
+    <div id="sync-status" title="${esc(_syncText)}" aria-label="${esc(_syncText)}"><span style="background:${dot}"></span></div>
   </div>
+  ${syncNoticeHTML()}
   ${currentTab==="today"?scoreStripHTML(todayKey()):""}`;
 }
 function render(){
@@ -3649,7 +3973,7 @@ function comboBlock(key,alwaysOpen){
   const dSubs=C.subs, nSubs=dSubs.length||1;
   const activeSubs=dSubs.filter(x=>soc[x.id]).length;
   const comboPts=(C.L3.find(x=>x.combo)||{pts:18}).pts;
-  const socialPts=ch.social?(dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0)||comboPts):0;
+  const socialPts=ch.social?(activeSubs>0?dSubs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0):comboPts):0;
   const expanded=alwaysOpen?true:socialExpanded;   // let de nivel superior, no window
   return`      <div style="border-radius:13px;border:1px solid ${ch.social||expanded?"rgba(251,191,36,0.18)":"transparent"};background:${ch.social||expanded?"rgba(251,191,36,0.04)":"transparent"};margin-bottom:3px">
         <div role="button" tabindex="0" aria-label="Toggle social activity" style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer" onclick="handleSocial('${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
@@ -3662,12 +3986,12 @@ function comboBlock(key,alwaysOpen){
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0" onclick="event.stopPropagation()">
             ${alwaysOpen?"":`<button class="edit-btn" onclick="event.stopPropagation();toggleSocialExpand('${key}')">${expanded?"✕":"EDIT"}</button>`}
-            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#8a8aa0"};min-width:38px;text-align:right">${socialPts||comboPts}%</span>
+            <span style="font-size:15px;color:${ch.social?"#fbbf2499":"#8a8aa0"};min-width:38px;text-align:right">${ch.social?socialPts:comboPts}%</span>
           </div>
         </div>
-        ${expanded?`<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
+        ${expanded?`${locationSelector()}<div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:2px">
           ${dSubs.map(s=>{
-            const mine=peopleList().filter(x=>x.sub===s.id), tag=getPeople(key), corto=shortLabels(mine);
+            const mine=visiblePeople().filter(x=>x.sub===s.id), tag=getPeople(key), corto=shortLabels(mine);
             return`<div style="border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}">
             <div class="cb-row" role="button" tabindex="0" aria-pressed="${!!soc[s.id]}" onclick="toggleSub('${s.id}','${key}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none">
               ${chk(!!soc[s.id],"#fbbf24",18)}
@@ -4071,8 +4395,9 @@ function renderWeekReview(){
 // más el registro de personas. El scoring no cambia — el combo sigue contando en LVL 3.
 function renderSocial(){
   const tk=socialKey(), hoy=todayKey(), esHoy=tk===hoy;
-  const cb=(cfgForDate(tk).L3.find(x=>x.combo)||{pts:0}).pts;
-  const got=getChecked(tk).social?(cfgForDate(tk).subs.reduce((a,x)=>a+(getSocial(tk)[x.id]?x.p:0),0)||cb):0;
+  const C=cfgForDate(tk),soc=getSocial(tk);
+  const cb=(C.L3.find(x=>x.combo)||{pts:0}).pts;
+  const got=getChecked(tk).social?(C.subs.some(x=>soc[x.id])?C.subs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0):cb):0;
   const d=keyToDate(tk);
   const etiqueta=esHoy?"TODAY":d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
   const nav=(paso,txt,on)=>`<button class="sd-nav" onclick="${on?`socialShift(${paso})`:""}" ${on?"":"disabled"}>${txt}</button>`;
@@ -4191,13 +4516,13 @@ function renderStats(){
 // WHO TO SEE — sorted by how far past each person's own target you are.
 function renderWhoToSee(){
   const st=peopleStatus();
-  if(!st.length)return`<div><div class="sec">WHO TO SEE</div><div class="card" style="text-align:center;padding:22px 18px">
+  if(!st.length)return`<div>${locationSelector()}<div class="sec">WHO TO SEE</div><div class="card" style="text-align:center;padding:22px 18px">
     <div style="font-size:15px;color:#adadbf;line-height:1.6;max-width:280px;margin:0 auto">Tick a part of the Social Combo in <b style="color:#d0d0da">TODAY</b> and tap <b style="color:#fbbf24">+ who?</b> to start tracking who you spend time with.</div></div></div>`;
   const late=st.filter(p=>p.ratio>1).length;
   const col=p=>p.ratio===Infinity?"#8888a4":p.ratio>1.5?"#ef4444":p.ratio>1?"#f59e0b":"#4ade80";
   const when=p=>p.days==null?"never logged":p.days===0?"today":p.days===1?"yesterday":`${p.days} days ago`;
   const due=p=>p.days==null?`every ${p.every}d`:p.overdue>0?`${p.overdue}d over`:p.overdue===0?"due today":`${-p.overdue}d left`;
-  return`<div><div class="sec" style="display:flex;align-items:center;gap:8px">WHO TO SEE
+  return`<div>${locationSelector()}<div class="sec" style="display:flex;align-items:center;gap:8px">WHO TO SEE
       <span style="margin-left:auto;font-size:11px;color:${late?"#f59e0b":"#4ade80"}">${late?`${late} OVERDUE`:"ALL CURRENT"}</span></div>
     <div class="card" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px 22px">
       ${st.map(p=>{const c=col(p),sb=subsList().find(x=>x.id===p.sub);
@@ -4450,10 +4775,10 @@ function toggleSub(id,key){
   const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);
   // Una sola persona en esta parte = no hay a quien elegir: se marca sola.
   // Con dos o mas, decide el usuario. Al apagar la parte se sueltan sus personas.
-  const mine=peopleList().filter(x=>x.sub===id);
+  const mine=visiblePeople().filter(x=>x.sub===id);
   let ppl=getPeople(key);
   if(soc[id]){ if(mine.length===1&&!ppl.includes(mine[0].id))ppl=ppl.concat([mine[0].id]); }
-  else ppl=ppl.filter(pid=>!mine.some(x=>x.id===pid));
+  else ppl=ppl.filter(pid=>!peopleList().some(x=>x.id===pid&&x.sub===id));
   setPeople(key,ppl);
   const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
   persistDay(key);render();

@@ -2,11 +2,14 @@ const { before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 const { html, htmlPath, fixture, serverRows } = require('./helpers.cjs');
 
 let browser;
 before(async () => {
+  if(process.env.SHAAH_BROWSER_ENGINE==='webkit'){
+    browser=await webkit.launch({headless:true,executablePath:process.env.SHAAH_WEBKIT_EXECUTABLE||undefined});return;
+  }
   const executablePath = process.env.CHROMIUM_PATH || (fs.existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined);
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
 });
@@ -40,6 +43,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     if (!url.startsWith('https://fonts.')) unexpectedRequests.push(url);
     return route.abort();
   });
+  await context.routeWebSocket('**/*',socket=>{unexpectedRequests.push('Unmocked WebSocket');socket.close();});
   await context.addInitScript(({ rows, loggedOut }) => {
     const copy = value => JSON.parse(JSON.stringify(value));
     if (!localStorage.getItem('shaah_test_seed')) {
@@ -109,7 +113,14 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
           return query;
         },
         channel() {
-          return { on() { return this; }, subscribe(fn) { fn('SUBSCRIBED'); return this; } };
+          const handlers=[];
+          return { on(_event,filter,callback) { handlers.push({filter,callback});return this; }, subscribe(fn) {
+            window.__emitMockRealtime=payload=>{
+              const handler=handlers.find(h=>h.filter.event===payload.eventType);
+              return handler?.callback(payload);
+            };
+            fn('SUBSCRIBED');return this;
+          } };
         }
       };
     } };

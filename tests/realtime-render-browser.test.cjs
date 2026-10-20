@@ -1,11 +1,12 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
 const {openApp}=require('./browser-helpers.cjs');
 const {locationFixture}=require('./location-fixtures.cjs');
 const {clone}=require('./helpers.cjs');
 async function open(t,viewport={width:1440,height:1000}){
   const data=locationFixture();data.days['2026-10-16']=clone(data.days['2026-10-15']);
-  const page=await openApp(t,data,viewport,{});
+  const page=await openApp(t,data,viewport);
   await page.locator('.nav-btn[data-tab="today"]').click();
   return page;
 }
@@ -16,7 +17,7 @@ async function watch(page){
   });
 }
 
-for(const skin of ['classic','matrix','minimal'])test(`${skin}: desktop Today and its typing stay stable during duplicate notifications from an independent mobile context (synthetic notifications)`,async t=>{
+for(const skin of ['classic','matrix','minimal'])test(`${skin}: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context`,async t=>{
   const desktop=await open(t),mobile=await open(t,{width:390,height:844});
   assert.notEqual(desktop.context(),mobile.context());
   await desktop.evaluate(skin=>setSkin(skin),skin);await watch(desktop);

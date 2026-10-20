@@ -29,13 +29,13 @@ test('stored contact IDs with punctuation still support edits, bulk groups, tagg
   const page = await openApp(t, data);
   const before = await page.evaluate(() => JSON.stringify({ days: Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())), scores: Object.keys(_state).filter(k => k !== todayKey()).map(k => calcScore(k)) }));
   await page.evaluate(() => openSettings());
-  const target = page.locator('input[onchange^="personSet("]').filter({ visible: true });
+  const target = page.locator('input[data-ui-change="personSet"]').filter({ visible: true });
   const index = await target.evaluateAll(nodes => nodes.findIndex(el => el.value === '<b>Ana & Bo</b>'));
   assert.ok(index >= 0);
   await target.nth(index).fill('Ana renamed');
   await target.nth(index).press('Tab');
   assert.equal(await page.evaluate(id => personById(id).name, id), 'Ana renamed');
-  const box = page.locator('input[onchange^="bulkPeopleToggle("]').first();
+  const box = page.locator('input[data-ui-change="bulkPeopleToggle"]').first();
   await box.check();
   await page.getByRole('button', { name: '+ Local & nearby', exact: true }).click();
   assert.deepEqual(await page.evaluate(id => personById(id).locations, id), [data.config.locationGroups[0].id]);
@@ -60,7 +60,7 @@ test('people import displays ordinary markup as text and keeps the imported iden
   await page.evaluate(id => { importApply({ people: [{ id, name: '<em>Imported & new</em>', sub: 'friends', every: 14 }] }); openSettings(); }, id);
   assert.equal(dialogs.length, 2);
   assert.equal(await page.locator('#scroll em').count(), 0);
-  const target = page.locator('input[onchange^="personSet("]').filter({ visible: true });
+  const target = page.locator('input[data-ui-change="personSet"]').filter({ visible: true });
   const index = await target.evaluateAll(nodes => nodes.findIndex(el => el.value === '<em>Imported & new</em>'));
   await target.nth(index).fill('Imported renamed');
   await target.nth(index).press('Tab');

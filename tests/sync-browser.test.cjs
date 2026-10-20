@@ -8,8 +8,10 @@ test('browser: disjoint edits merge; a real conflict survives reload and resolve
   const b=await a.context().newPage();
   const errors=[];b.on('pageerror',e=>errors.push(e.message));t.after(()=>assert.deepEqual(errors,[]));
   b.on('dialog',d=>d.accept());
-  await b.clock.setFixedTime(new Date('2026-10-16T12:00:00Z'));
+  // The context already owns the fixed clock installed by openApp. WebKit's
+  // initial about:blank page has no controller until its first navigation.
   await b.goto('http://shaah.test/');await b.waitForFunction(()=>_cfgReady&&_live);
+  assert.equal(await b.evaluate(()=>new Date().toISOString()),'2026-10-16T12:00:00.000Z');
   await a.evaluate(async()=>{personSet('pold01','name','First shared edit');await flushCfgSaves();});
   await b.evaluate(async()=>{personSet('pold02','every',77);await flushCfgSaves();});
   let remote=await b.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg);

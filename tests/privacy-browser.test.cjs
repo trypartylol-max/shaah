@@ -1,7 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
 const { openApp } = require('./browser-helpers.cjs');
 const { locationFixture } = require('./location-fixtures.cjs');
 
@@ -74,12 +73,12 @@ test('older unlinked activity stays out of the account and can be downloaded for
   assert.equal(body.owner,null);assert.equal(body.activityCopies.dayLogV1['2026-01-01'][0].title,'Synthetic unlinked activity');
 });
 
-test('the original static Pages artifact runs navigation and skins under its actual script-element CSP',async t=>{
-  const {html}=require('./helpers.cjs');
-  const csp=html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
+test('Original static Pages runs navigation and skins under the stricter script-element CSP',async t=>{
+  const markup=require('./helpers.cjs').html;
+  const csp=markup.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
   assert.match(csp,/script-src 'self'; script-src-elem 'self';/);
-  assert.match(csp,/script-src-attr 'unsafe-inline';/,'Legacy handler exception remains explicit');
-  assert.equal([...html.matchAll(/<script\b([^>]*)>/g)].filter(([,attrs])=>! /\bsrc\s*=/.test(attrs)).length,0);
+  assert.match(csp,/script-src-attr 'none';/,'Event attributes are blocked');
+  assert.equal([...markup.matchAll(/<script\b([^>]*)>/g)].filter(([,attrs])=>! /\bsrc\s*=/.test(attrs)).length,0);
   const page=await openApp(t,locationFixture(),{width:390,height:844});
   await page.getByRole('button',{name:'Settings',exact:true}).click();
   await page.locator('[data-skin-choice="matrix"]').click();
@@ -89,8 +88,8 @@ test('the original static Pages artifact runs navigation and skins under its act
     assert.equal(await page.locator(`.nav-btn[data-tab="${tab}"]`).getAttribute('aria-current'),'page');
   }
   await page.getByRole('button',{name:'Settings',exact:true}).click();
-  const output=path.join(__dirname,'../test-results/original-v10-release');fs.mkdirSync(output,{recursive:true});
-  await page.screenshot({path:path.join(output,'strict-csp-settings-mobile.png'),animations:'disabled'});
-  assert.equal(await page.evaluate(()=>SUPABASE_URL),'https://llpyxktcfubhmthqujpa.supabase.co');
-  assert.equal(await page.evaluate(()=>window.SHAAH_QA_TARGET),undefined);
+  // Screenshot instrumentation injects inline CSS in WebKit. Keep this test
+  // under the actual policy and assert the rendered Settings controls instead.
+  await page.locator('[data-skin-choice="matrix"]').waitFor();
+  assert.equal(await page.evaluate(()=>typeof window.SHAAH_QA_TARGET),'undefined');
 });

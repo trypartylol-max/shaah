@@ -3,9 +3,10 @@ const assert = require('node:assert/strict');
 const { openApp } = require('./browser-helpers.cjs');
 const { locationFixture } = require('./location-fixtures.cjs');
 
-const bulkBox = (page, id) => page.locator(`input[onchange="bulkPeopleToggle('${id}',this.checked)"]`);
-const membership = (page, id, loc) => page.locator(`input[onchange="locationTogglePerson('${id}','${loc}')"]`);
-const inactive = (page, id) => page.locator(`input[onchange="personSetInactive('${id}',this.checked)"]`);
+const changeControl = (page, action, args) => page.locator(`input[data-ui-change="${action}"][data-ui-change-args=${JSON.stringify(JSON.stringify(args))}]`);
+const bulkBox = (page, id) => changeControl(page, 'bulkPeopleToggle', [id]);
+const membership = (page, id, loc) => changeControl(page, 'locationTogglePerson', [id, loc]);
+const inactive = (page, id) => changeControl(page, 'personSetInactive', [id]);
 const history = page => page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey()))));
 
 for (const [name, viewport] of [['desktop', { width: 1440, height: 1000 }], ['mobile', { width: 390, height: 844 }]]) {
@@ -19,7 +20,7 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 1000 }], ['mo
     await page.getByRole('button', { name: '+ Panamá', exact: true }).click();
     assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['il', 'pa']);
     assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['pa']);
-    assert.equal(await page.locator('input[onchange^="bulkPeopleToggle("]:checked').count(), 0);
+    assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]:checked').count(), 0);
     await membership(page, 'pold01', 'il').check();
     await membership(page, 'pold02', 'il').uncheck();
     assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['pa']);
@@ -34,7 +35,7 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 1000 }], ['mo
     await bulkBox(page, 'pold01').check();
     await page.getByRole('button', { name: '− Panamá', exact: true }).click();
     assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['il']);
-    const row = page.locator('input[onchange="personSet(\'pold01\',\'name\',this.value)"]').locator('..');
+    const row = changeControl(page, 'personSet', ['pold01', 'name']).locator('..');
     assert.equal(await row.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'Contact controls fit the row');
     await page.waitForFunction(() => window.__mockWrites.some(r => r.date === 'settings' && r.data._cfg.people.find(p => p.id === 'pold01').locations.join() === 'il'));
     await page.reload();
@@ -55,7 +56,7 @@ test('bulk search filters while typing, retains keyboard focus, and clears stale
   const search = page.getByRole('textbox', { name: 'Search contacts for bulk assignment' });
   await search.click();
   await search.pressSequentially('lUiS');
-  assert.equal(await page.locator('input[onchange^="bulkPeopleToggle("]').count(), 1);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 1);
   assert.equal(await search.evaluate(el => el === document.activeElement), true);
   assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
   await page.getByRole('button', { name: 'Select visible', exact: true }).click();
@@ -69,17 +70,17 @@ test('Unassigned, Active, Inactive and All people filters reset bulk selection',
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await bulkBox(page, 'pold02').check();
   await page.getByRole('button', { name: 'Unassigned', exact: true }).click();
-  assert.equal(await page.locator('input[onchange^="bulkPeopleToggle("]').count(), 2);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 2);
   assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
   await page.getByRole('button', { name: 'All contacts', exact: true }).click();
   await bulkBox(page, 'pold02').check();
   await page.getByRole('button', { name: 'Inactive', exact: true }).click();
   assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
-  assert.equal(await page.locator('input[onchange^="bulkPeopleToggle("]').count(), 2);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 2);
   await page.getByRole('button', { name: 'All people', exact: true }).click();
-  assert.equal(await page.locator('input[onchange^="bulkPeopleToggle("]').count(), 7);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 7);
   await page.getByRole('button', { name: 'Active', exact: true }).click();
-  assert.equal(await page.locator('input[onchange^="bulkPeopleToggle("]').count(), 5);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 5);
 });
 
 test('WHO TO SEE and Social suggestions follow the location without changing recorded scores', async t => {

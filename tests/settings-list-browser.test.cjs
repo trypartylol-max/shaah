@@ -39,7 +39,6 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
     for (const skin of ['matrix', 'minimal', 'classic']) {
       await page.evaluate(skin => setSkin(skin), skin);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.getElementById('scroll').scrollWidth <= innerWidth), true);
-      if (device === 'mobile' || skin === 'matrix') await page.screenshot({ path: path.join(output, `settings-${skin}-${device}.png`), animations: 'disabled' });
     }
     await page.reload();
     await page.waitForFunction(() => _cfgReady && _live);

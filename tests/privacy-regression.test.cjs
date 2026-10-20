@@ -51,6 +51,14 @@ test('an in-memory pending edit blocks removal even before it reaches storage',a
   assert.equal(await app.run('signOut(true)'),false);assert.equal(app.calls.length,0);assert.equal(app.values.has('shaah_cache_A'),true);
 });
 
+test('a live routine blocks removal even when browser storage could not retain its copy',async()=>{
+  const app=privacyApp();app.run('sessions={synthetic:{q:[0],done:{},secs:60,running:true}}');
+  assert.equal(app.values.has('shaah_routine_A'),false);
+  assert.equal(await app.run('signOut(true)'),false);assert.equal(app.calls.length,0);
+  assert.equal(app.values.has('shaah_cache_A'),true);
+  assert.match(app.read('_signOutStatus'),/Sync your pending changes/);
+});
+
 test('cancelling removal leaves the session and all saved copies intact',async()=>{
   const app=privacyApp();app.run('confirm=()=>false');const before=new Map(app.values);
   assert.equal(await app.run('signOut(true)'),false);assert.deepEqual(app.values,before);assert.equal(app.calls.length,0);

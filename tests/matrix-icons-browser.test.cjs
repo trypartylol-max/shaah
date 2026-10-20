@@ -33,7 +33,6 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.getElementById('scroll').scrollWidth <= innerWidth), true);
       if (['today', 'social', 'stats'].includes(tab)) {
         fs.mkdirSync(output, { recursive: true });
-        await page.screenshot({ path: path.join(output, `matrix-${tab}-${device}.png`), animations: 'disabled' });
       }
     }
     assert.deepEqual(await page.locator('#nav button').allTextContents(), navNames, 'Original names remain intact');
@@ -42,7 +41,6 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
     while (await page.locator('.st-head[aria-expanded="true"]').count()) await page.locator('.st-head[aria-expanded="true"]').first().click();
     await page.evaluate(() => document.getElementById('scroll').scrollTo(0, 0));
     assert.equal(await page.getByRole('heading', { name: 'Settings', exact: true }).isVisible(), true);
-    await page.screenshot({ path: path.join(output, `matrix-settings-${device}.png`), animations: 'disabled' });
     await page.getByRole('button', { name: 'Back', exact: true }).click();
     for (const skin of ['minimal', 'classic']) {
       await page.evaluate(skin => setSkin(skin), skin);

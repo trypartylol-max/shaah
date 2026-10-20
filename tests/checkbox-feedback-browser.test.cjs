@@ -2,6 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');
 const {locationFixture}=require('./location-fixtures.cjs');
+const fs=require('node:fs');
 
 async function open(t,skin='classic',viewport={width:1440,height:1000}){
   const data=locationFixture();

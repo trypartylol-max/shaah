@@ -50,11 +50,11 @@ test('rapid three-state changes persist the final state without replacing Today 
   const page=await open(t,'matrix',{width:390,height:640});
   await page.evaluate(()=>{
     window.__todayNode=document.querySelector('.today');
-    document.getElementById('scroll').scrollTop=120;window.__scrollBefore=document.getElementById('scroll').scrollTop;
+    document.getElementById('scroll').scrollTo({top:120,behavior:'instant'});window.__scrollBefore=document.getElementById('scroll').scrollTop;
     for(const expected of [0.5,true,false]){toggleHabit('work',todayKey());if(getChecked(todayKey()).work!==expected)throw Error('Invalid cycle');}
   });
   assert.equal(await page.evaluate(()=>__todayNode===document.querySelector('.today')),true);
-  assert.equal(await page.evaluate(()=>document.getElementById('scroll').scrollTop===__scrollBefore),true);
+  assert.equal(await page.evaluate(()=>document.getElementById('scroll').scrollTop),await page.evaluate(()=>__scrollBefore));
   await page.waitForFunction(()=>!_pending[todayKey()]);
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date===todayKey()).data._checks.work),false);
   assert.equal(await page.evaluate(()=>__mockWrites.filter(r=>r.date===todayKey()).length),1);

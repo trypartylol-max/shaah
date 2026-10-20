@@ -12,7 +12,7 @@ async function open(t,viewport={width:1440,height:1000}){
 async function watch(page){
   await page.evaluate(()=>{
     window.__todayNode=document.querySelector('.today');window.__renderCount=0;
-    const priorRender=render;render=(...args)=>{window.__renderCount++;return priorRender(...args);};
+    const priorRender=renderDayChange;renderDayChange=(...args)=>{window.__renderCount++;return priorRender(...args);};
   });
 }
 

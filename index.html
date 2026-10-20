@@ -29,7 +29,7 @@ input,textarea{-webkit-user-select:text;user-select:text;}
 button:focus-visible,[role=button]:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid rgba(var(--skin-rgb-7aa2ff,122,162,255),1);outline-offset:2px;}
 
 #app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
-#scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:smooth;}
+#scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:auto;}
 #scroll::-webkit-scrollbar{display:none;}
 /* El hueco que cada vista reserva abajo es calc(68px + safe-area): el dock mide
    66 px reales (46 de boton + 18 de padding + borde), no 58. Con 58 el boton
@@ -316,7 +316,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
 /* LOG tab readability — match the visual weight of the other dock labels */
 .nav-btn[data-tab="log"]{font-size:16px;letter-spacing:0.14em;}
 .nav-btn.active{color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);border-top-color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);}
-.row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;cursor:pointer;user-select:none;transition:all 0.18s;border:1px solid transparent;position:relative;overflow:hidden;}
+.row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:13px;cursor:pointer;user-select:none;transition:background-color .12s ease-out,border-color .12s ease-out,box-shadow .12s ease-out,transform .08s ease-out;border:1px solid transparent;position:relative;overflow:hidden;}
 .row.on{background:rgba(var(--skin-rgb-ffffff,255,255,255),0.05);border-color:rgba(var(--skin-rgb-ffffff,255,255,255),0.07);}
 .row:active{transform:scale(0.975);}
 .sec{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1);margin-bottom:13px;padding-left:2px;font-weight:500;}
@@ -326,7 +326,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
 .edit-btn{background:none;border:1px solid rgba(var(--skin-rgb-1e1e2e,30,30,46),1);color:rgba(var(--skin-rgb-aaaabe,170,170,190),1);font-size:14.5px;padding:3px 10px;border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:0.06em;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pop{0%{transform:scale(0) rotate(-20deg);opacity:0}55%{transform:scale(1.5) rotate(6deg);opacity:1}100%{transform:scale(0.9) rotate(0);opacity:0}}
-.fade-up{animation:fadeUp 0.35s ease;}
+.fade-up{animation:none;}
 .qtile{transition:transform .12s ease,background .2s,border-color .2s;}
 .qtile:active{transform:scale(.96);}
 .notecard{position:relative;background:linear-gradient(180deg,rgba(var(--skin-rgb-0d0d1a,13,13,26),1) 0%,rgba(var(--skin-rgb-0b0b16,11,11,22),1) 100%);
@@ -1254,7 +1254,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
   </nav>
 </div>
 <script src="./assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-<script data-shaah-app src="./assets/app.0f9ed4b9e08df802.js" integrity="sha384-bRs/6dQCievlLzTldihuY8d4kPzaUYZ5n53KCPwYLxQkZ3F9pJjv+Tnc1yRTfZbd" crossorigin="anonymous"></script>
+<script data-shaah-app src="./assets/app.61a8c85e20af96fc.js" integrity="sha384-n/nUOtUFDfmduW4Bj5Pc23oV09lvO+JxoRhkAlJgfu575a6ml56saMaltwKOanuE" crossorigin="anonymous"></script>
 
 
 

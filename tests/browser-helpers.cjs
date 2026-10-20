@@ -1,8 +1,9 @@
 const { before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 const { chromium } = require('playwright');
-const { html, fixture, serverRows } = require('./helpers.cjs');
+const { html, htmlPath, fixture, serverRows } = require('./helpers.cjs');
 
 let browser;
 before(async () => {
@@ -19,7 +20,19 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
   await context.route('**/*', async route => {
     const url = route.request().url();
     const parsed = new URL(url);
+    if (options.worker && parsed.origin === 'http://shaah.test') {
+      if (route.request().method() !== 'GET') { unexpectedRequests.push('Unmocked method: ' + route.request().method()); return route.abort(); }
+      if (parsed.pathname === '/sdk.js') return route.fulfill({ contentType: 'application/javascript', body: '/* local SDK test double already installed */' });
+      const response = await options.worker.fetch(new Request(url), options.workerEnv);
+      return route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) });
+    }
     if (parsed.origin === 'http://shaah.test' && parsed.pathname === '/') return route.fulfill({ contentType: 'text/html', body: html });
+    if (parsed.origin === 'http://shaah.test' && parsed.pathname === '/assets/supabase-2.118.0.js') {
+      return route.fulfill({ contentType: 'application/javascript', body: '/* SDK test double installed before the page. */' });
+    }
+    if (parsed.origin === 'http://shaah.test' && /^\/assets\/app\.[a-f0-9]{16}\.js$/.test(parsed.pathname)) {
+      return route.fulfill({ contentType: 'application/javascript', body: fs.readFileSync(path.join(path.dirname(htmlPath), parsed.pathname.slice(1)), 'utf8') });
+    }
     if (url.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')) {
       return route.fulfill({ contentType: 'application/javascript', body: '/* Supabase is replaced by the local test double. */' });
     }
@@ -41,7 +54,13 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
       window.__mockClientCreated = true;
       return {
         auth: {
-          getSession: async () => ({ data: { session: loggedOut ? null : { user: { id: 'regression-user', email: 'synthetic@example.invalid' } } } }),
+          getSession: async () => ({ data: { session: loggedOut || sessionStorage.getItem('shaah_mock_signedout') ? null : { user: { id: 'regression-user', email: 'synthetic@example.invalid' } } } }),
+          signOut: async options => {
+            const calls = JSON.parse(sessionStorage.getItem('shaah_mock_signout_calls') || '[]'); calls.push(options);
+            sessionStorage.setItem('shaah_mock_signout_calls', JSON.stringify(calls));
+            if (window.__mockSignOutError) return { error: { message: 'Synthetic signout failure' } };
+            sessionStorage.setItem('shaah_mock_signedout', '1'); return { error: null };
+          },
           onAuthStateChange() {}
         },
         async rpc(name,args){

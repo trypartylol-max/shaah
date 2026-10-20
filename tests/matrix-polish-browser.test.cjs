@@ -53,13 +53,13 @@ test('all five dock tabs exist in the same order before a delayed SDK finishes l
   assert.deepEqual(await tabs(), expected);
   let release, entered;
   const intercepted = new Promise(resolve => { entered = resolve; });
-  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js', async route => {
+  await page.route('http://shaah.test/assets/supabase-2.118.0.js', async route => {
     await new Promise(resolve => { release = resolve; entered(); });
     await route.fulfill({ contentType: 'application/javascript', body: '/* local SDK test double */' });
   });
   t.after(() => release?.());
   await page.reload({ waitUntil: 'commit' });
-  await intercepted;
+  await Promise.race([intercepted, new Promise((_, reject) => setTimeout(() => reject(new Error('Local SDK request was not intercepted')), 5000))]);
   try {
     await page.locator('#nav .nav-btn').last().waitFor({ state: 'visible' });
     assert.deepEqual(await tabs(), expected);

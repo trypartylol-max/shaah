@@ -6,8 +6,10 @@ const htmlPath = process.env.SHAAH_HTML || path.join(__dirname, '..', 'index.htm
 const html = fs.readFileSync(htmlPath, 'utf8');
 const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
   .filter(([, attrs]) => !/\bsrc\s*=/.test(attrs)).map(([, , script]) => script);
-if (scripts.length !== 1) throw new Error('Expected one inline application script');
-const source = scripts[0];
+const externalApp = html.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)"[^>]*><\/script>/);
+if (scripts.length !== 0 || !externalApp) throw new Error('Expected the versioned external application script');
+const appPath = path.resolve(path.dirname(htmlPath), externalApp[1]);
+const source = fs.readFileSync(appPath, 'utf8');
 const clone = value => JSON.parse(JSON.stringify(value));
 
 function fixture() {

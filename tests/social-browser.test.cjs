@@ -58,10 +58,10 @@ test('changing a contact category and name in Settings keeps its historical ID a
   const page = await openApp(t);
   const before = await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') }));
   await page.evaluate(() => openSettings());
-  const name = page.locator('input[onchange*="personSet(\'pold03\',\'name\'"]');
+  const name = page.locator(`input[data-ui-change="personSet"][data-ui-change-args=${JSON.stringify(JSON.stringify(['pold03','name']))}]`);
   await name.fill('Alex Renamed');
   await name.press('Tab');
-  await page.locator('select[onchange*="personSet(\'pold03\',\'sub\'"]').selectOption('friends');
+  await page.locator(`select[data-ui-change="personSet"][data-ui-change-args=${JSON.stringify(JSON.stringify(['pold03','sub']))}]`).selectOption('friends');
   assert.equal(await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') })), before);
   assert.equal(await page.evaluate(() => personById('pold03').name), 'Alex Renamed');
 });

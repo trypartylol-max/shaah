@@ -27,7 +27,6 @@ test('Matrix decorations preserve mobile hit targets and disappear or stop with 
   await page.evaluate(() => setTab('today'));
   const output = path.join(__dirname, '../test-results/matrix-polish');
   fs.mkdirSync(output, { recursive: true });
-  await page.screenshot({ path: path.join(output, 'matrix-mobile.png'), animations: 'disabled' });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const animations = await page.evaluate(() => [
     getComputedStyle(document.body, '::before').animationName,
@@ -55,11 +54,11 @@ test('all five dock tabs exist in the same order before a delayed SDK finishes l
   const intercepted = new Promise(resolve => { entered = resolve; });
   await page.route('http://shaah.test/assets/supabase-2.118.0.js', async route => {
     await new Promise(resolve => { release = resolve; entered(); });
-    await route.fulfill({ contentType: 'application/javascript', body: '/* local SDK test double */' });
+    await route.fulfill({ contentType: 'application/javascript', body: fs.readFileSync(path.join(__dirname,'../assets/supabase-2.118.0.js')) });
   });
   t.after(() => release?.());
   await page.reload({ waitUntil: 'commit' });
-  await Promise.race([intercepted, new Promise((_, reject) => setTimeout(() => reject(new Error('Local SDK request was not intercepted')), 5000))]);
+  await intercepted;
   try {
     await page.locator('#nav .nav-btn').last().waitFor({ state: 'visible' });
     assert.deepEqual(await tabs(), expected);

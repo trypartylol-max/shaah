@@ -13,7 +13,9 @@ test('Chromium loads the actual local SDK and blocks production HTTP/WS before f
     const context = await browser.newContext({ serviceWorkers: 'block' });
     const audit = { blocked: [], allowedHttp: 0, allowedWebSockets: 0 };
     const sdk = fs.readFileSync(path.join(path.dirname(require.resolve('@supabase/supabase-js')), 'umd/supabase.js'), 'utf8');
-    await installBrowserGuard(context, { html: temporaryHtml(html, 'sb_publishable_synthetic'), sdk, audit });
+    // Exercise the request guard independently of application CSP, which can
+    // reject a forbidden destination before a request reaches that guard.
+    await installBrowserGuard(context, { html:'<!doctype html><html><head><script src="/sdk.js"></script></head><body>Isolated request guard</body></html>', sdk, audit });
     const page = await context.newPage();
     await page.goto(LOCAL_ORIGIN + '/');
     assert.equal(await page.evaluate(() => typeof window.supabase.createClient), 'function');

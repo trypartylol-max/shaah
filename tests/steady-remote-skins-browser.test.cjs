@@ -2,6 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');
 const {fixture}=require('./helpers.cjs');
+const fs=require('node:fs');
 
 for(const skin of ['matrix','minimal'])test(`${skin}: real incoming changes keep the screen and clean/dirty notes consistent`,async t=>{
   const page=await openApp(t,fixture(),{width:390,height:844});

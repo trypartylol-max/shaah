@@ -82,10 +82,10 @@ test('all result grades stay distinct, readable and numerically identical in eac
       setSkin(id);
       let probe = document.getElementById('skin-grade-probe');
       if (!probe) { probe = document.createElement('div'); probe.id = 'skin-grade-probe'; document.body.append(probe); }
-      probe.innerHTML = [0, 15, 30, 45, 72, 85, 95].map(n => {
+      uiHTML(probe, [0, 15, 30, 45, 72, 85, 95].map(n => {
         const g = GRADE(n, 100);
-        return `<span style="color:${g.c}" data-grade="${g.l}">${g.l} ${n}%</span><svg><circle stroke="${g.c}" /></svg>`;
-      }).join('');
+        return `<span ${uiStyle('color:'+g.c)} data-grade="${g.l}">${g.l} ${n}%</span><svg><circle stroke="${g.c}" /></svg>`;
+      }).join(''));
     }, id);
     const grades = await page.locator('#skin-grade-probe span').evaluateAll(nodes => nodes.map(el => ({ label: el.textContent, color: getComputedStyle(el).color })));
     assert.deepEqual(grades.map(g => g.label), ['F 0%', 'D 15%', 'C 30%', 'B 45%', 'A 72%', 'S 85%', 'S+ 95%']);

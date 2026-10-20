@@ -59,10 +59,20 @@ function guardedFetch(fetchImpl = fetch) {
 
 function temporaryHtml(source, key) {
   validateKey(key);
+  // Reconstruct an isolated QA fixture from the versioned static Pages assets.
+  // This does not alter the deployed original or its enforced meta CSP.
+  const external=source.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)" integrity="([^"]+)"[^>]*><\/script>/);
+  if(external){
+    const path=require('node:path');
+    const app=fs.readFileSync(path.join(__dirname,'../..',external[1]),'utf8');
+    if(external[2]!=='sha384-'+crypto.createHash('sha384').update(app).digest('base64'))throw new Error('Unexpected application integrity; abort');
+    source=source.replace(external[0],'<script>'+app+'</script>')
+      .replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\n?/,'');
+  }
   const replacements = [
     [/const SUPABASE_URL="[^"]*";/g, `const SUPABASE_URL=${JSON.stringify(QA_ORIGIN)};`],
     [/const SUPABASE_KEY="[^"]*";/g, `const SUPABASE_KEY=${JSON.stringify(key)};`],
-    [/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2\.118\.0(?:\/dist\/umd\/supabase\.js)?"(?: integrity="sha384-[A-Za-z0-9+/=]+" crossorigin="anonymous")?><\/script>/g, '<script src="/sdk.js"></script>']
+    [/<script src="(?:https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2\.118\.0(?:\/dist\/umd\/supabase\.js)?|\.\/assets\/supabase-2\.118\.0\.js)"(?: integrity="sha384-[A-Za-z0-9+/=]+" crossorigin="anonymous")?><\/script>/g, '<script src="/sdk.js"></script>']
   ];
   let html = source;
   for (const [pattern, replacement] of replacements) {

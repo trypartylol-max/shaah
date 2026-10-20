@@ -6,11 +6,12 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { html } = require('./helpers.cjs');
 
-test('the pinned SDK has matching SRI, anonymous CORS and an explicit static version URL', () => {
-  const script = html.match(/<script src="(https:[^"]*supabase-js[^"]*)" integrity="([^"]+)" crossorigin="anonymous"><\/script>/);
+test('the same-origin pinned SDK has matching SRI, anonymous CORS and the exact package bytes', () => {
+  const script = html.match(/<script src="(\.\/assets\/supabase-[^"]+)" integrity="([^"]+)" crossorigin="anonymous"><\/script>/);
   assert.ok(script);
-  assert.equal(script[1], 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js');
+  assert.equal(script[1], './assets/supabase-2.118.0.js');
   const bytes = fs.readFileSync(path.join(path.dirname(require.resolve('@supabase/supabase-js')), 'umd/supabase.js'));
+  assert.deepEqual(fs.readFileSync(path.join(__dirname, '..', script[1])), bytes);
   assert.equal(script[2], 'sha384-' + crypto.createHash('sha384').update(bytes).digest('base64'));
 });
 

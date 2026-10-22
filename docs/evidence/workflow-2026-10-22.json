@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-22",
+  "timezone": "Asia/Jerusalem",
+  "base_commit": "18ab112808550bd8abdf6ee6ddae25d0ab6371aa",
+  "scope": "Public GET comparison only; no authenticated runtime or backend validation",
+  "public_assets": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "ab2e2d333d4696b0512b059c397a5d6d62ab89c34a4b3cb43d74f81dab37b990",
+      "matches_main": true
+    },
+    {
+      "path": "assets/fonts.f979be2919756976.css",
+      "status": 200,
+      "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201",
+      "matches_main": true
+    },
+    {
+      "path": "assets/app.1431cceee0caf605.css",
+      "status": 200,
+      "sha256": "1431cceee0caf605548b005fbff5909c260c6a7063aac34cbf6960748ff4e096",
+      "matches_main": true
+    },
+    {
+      "path": "assets/supabase-2.118.0.js",
+      "status": 200,
+      "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3",
+      "matches_main": true
+    },
+    {
+      "path": "assets/app.c51bff856d74cd60.js",
+      "status": 200,
+      "sha256": "c51bff856d74cd608df8a87b4dc160e123b1134519f2e3c41b9bb7830f675953",
+      "matches_main": true
+    }
+  ]
+}

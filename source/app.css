@@ -2518,3 +2518,15 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 #scroll .today.sf-today-v27 .t-rout-body .r-sub{font-size:13px!important}
 #scroll .today.sf-today-v27 .t-rout-body .r-step{font-size:12px!important;padding:2px 5px!important}
 #scroll .today.sf-today-v27 .t-rout-body .r-btn{font-size:14px!important;min-height:36px!important;padding:8px 10px!important}
+
+/* One tactile Work control, with three visual segments and no duplicate chips. */
+#scroll .today.sf-today-v27 .t-rout-body>.sf-work-segmented{align-items:center!important;row-gap:10px!important}
+.sf-work-meter{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;border-radius:9px}
+.sf-work-meter-part{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:64px;border-radius:8px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);background:rgba(var(--skin-rgb-171725,23,23,37),1);color:rgba(var(--skin-rgb-8888a4,136,136,164),1);transition:background .2s,border-color .2s,color .2s}
+.sf-work-meter-amount{font-size:15px;line-height:1.2;white-space:nowrap}.sf-work-meter-part small{font-size:11px;line-height:1.2;opacity:.8}
+.sf-work-meter-part.is-next{border-color:rgba(var(--skin-rgb-fbbf24,251,191,36),.55);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1)}
+.sf-work-meter-part.is-done{background:rgba(var(--skin-rgb-fbbf24,251,191,36),.14);border-color:rgba(var(--skin-rgb-fbbf24,251,191,36),.7);color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}
+.sf-work-hint{grid-column:1/-1;font-size:12px;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);text-align:center;line-height:1.3}
+.sf-work-hint.is-complete{color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}
+.sf-work-meter:hover .is-next{background:rgba(var(--skin-rgb-fbbf24,251,191,36),.08)}
+@media(prefers-reduced-motion:reduce){.sf-work-meter-part{transition:none}}

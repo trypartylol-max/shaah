@@ -865,6 +865,7 @@ const UI_ACTIONS=Object.freeze({
   socialRomanticLimitSet:uiRule('change',[],n=>socialRomanticLimitSet(n.value)),
   socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
   socialNewCategory:uiRule('click',['string','string'],(n,e,k,id)=>socialNew(k,id),true),
+  workPhaseAdvance:uiRule('click',['string'],(n,e,k)=>workPhaseAdvance(k),true),
   workPhaseToggle:uiRule('click',['string'],(n,e,k)=>workPhaseToggle(k)),
   workPhaseSet:uiRule('click',['string','number'],(n,e,k,v)=>workPhaseSet(k,v),true),
   socialDraftLocation:uiRule('change',['string'],(n,e,id)=>socialDraftLocation(id,n.checked)),
@@ -4518,7 +4519,7 @@ function socialDirectoryRows(){
  return list.map(p=>socialTile(p,socialKeyForView(),true)).join('')||'<p class="sf-muted">Sin resultados.</p>';
 }
 function socialPeople(){return `<section aria-label="People & Groups"><div class="sf-heading"><h2 class="sec">People & Groups</h2>${socialButton('+ Persona','socialNew',[''],true)}</div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory">${socialDirectoryRows()}</div><details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>${socialGroups()}</section>`;}
-function socialGroups(){return `<section class="card"><div class="sec">LUGARES</div><p class="sf-muted">Una persona puede estar en varios lugares. Cambiar el lugar de consulta solo filtra sugerencias.</p>${locationGroups().map(g=>`<div class="sf-person"><strong>${esc(g.name)}</strong>${socialButton('Renombrar','locationRename',[g.id])}</div>`).join('')}${socialButton('+ Añadir lugar','locationAdd')}${socialGroupEditor()}<p class="sf-muted">Panamá e Israel son lugares; las categorías del Social Combo conservan sus reglas de puntos.</p></section>`;}
+function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div>${socialGroupEditor()}<p class="sf-muted">El foco de grupo solo filtra sugerencias de Friends; todos siguen disponibles para registrar encuentros.</p></section>`;}
 function socialSuggestions(){
   const list=peopleStatus().filter(p=>p.days==null||p.overdue>=0);
   return `<div class="sec">A QUIÉN TE TOCA VER</div><div class="sf-grid">${list.map(p=>socialTile(p,socialKeyForView())).join('')||'<p class="sf-muted">Sin encuentros pendientes en este lugar.</p>'}</div>`;
@@ -4599,11 +4600,17 @@ function socialGroupEditor(){return socialGroupDraft?`<section class="sf-editor"
 // Presentation-only controls; stored checks and Work phase scoring stay unchanged.
 var workPhaseOpenKey=null;
 function workPhaseToggle(key){workPhaseOpenKey=workPhaseOpenKey===key?null:key;renderDayChange(key);}
+function workPhaseAdvance(key){
+ const fraction=doneFrac(getChecked(key).work);
+ workPhaseSet(key,fraction>=1?0:fraction>=.8?3:fraction>=.4?2:1);
+}
 function workPhaseCard(key,item){
- const state=getChecked(key).work,fraction=doneFrac(state),open=workPhaseOpenKey===key;
- const phases=[[1,'₪400',10,.4],[2,'₪650',20,.8],[3,'₪800+',25,1]];
- const completed=phases.filter(p=>fraction>=p[3]).length,points=Math.round(item.pts*fraction);
- return `<section class="sf-core-routine sf-work" aria-label="Work"><div class="sf-work-head"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work</div><div class="r-sub">${completed}/3 hitos · meta ₪800+</div></div><span class="sf-work-points">${points} / ${item.pts} pts</span></div><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction>=p[3]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[1]}</span>`).join('')}</div><div class="sf-core-actions"><button type="button" class="r-btn sf-button sf-work-register" aria-expanded="${open}" ${ui('click','workPhaseToggle',key)}>${completed?'Editar avance':'Registrar avance'}</button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${phases.map(([n,label,pts,f])=>`<button type="button" class="sf-button${fraction>=f?' sf-selected':''}" aria-pressed="${fraction>=f}" ${ui('click','workPhaseSet',key,n)}>${label} · ${pts} pts</button>`).join('')}<button type="button" class="sf-button" ${ui('click','workPhaseSet',key,0)}>Clear</button></div><div class="sf-muted">Metas acumuladas del día · 10 + 10 + 5</div></div></div></section>`;
+ const fraction=doneFrac(getChecked(key).work);
+ const phases=[['₪400',10,.4],['₪650',20,.8],['₪800+',25,1]];
+ const completed=phases.filter(p=>fraction>=p[2]).length,points=Math.round(item.pts*fraction);
+ const next=phases[completed],legacy=![0,.4,.8,1].includes(fraction);
+ const label=next?'Registrar '+next[0]+' · '+next[1]+' pts':'✓ ₪800+ · Deshacer';
+ return `<section class="sf-core-routine sf-work" aria-label="Work"><div class="sf-work-head"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work</div><div class="r-sub">${legacy?'Avance previo conservado':completed+'/3 hitos · meta ₪800+'}</div></div><span class="sf-work-points">${points} / ${item.pts} pts</span></div><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}<small>${p[1]} pts</small></span>`).join('')}</div><div class="sf-core-actions"><button type="button" class="r-btn sf-button sf-work-register" ${ui('click','workPhaseAdvance',key)}>${label}</button></div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

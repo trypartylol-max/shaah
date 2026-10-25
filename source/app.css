@@ -2465,3 +2465,35 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 @media(prefers-reduced-motion:reduce){.sf-reveal,.sf-work-segment{transition:none!important}}
 
 .sf-work{gap:0}.sf-work-head{margin-bottom:10px}.sf-work-progress{margin-bottom:6px}.sf-work-targets{margin-bottom:10px}.sf-work .sf-reveal-inner>.sf-buttons{padding-top:10px}
+
+/* Consistent Today rhythm: no legacy vertical shifts or capped column widths. */
+#scroll .today.sf-today-v27>.t-rout,#scroll .today.sf-today-v27>.t-lvl,#scroll .today.sf-today-v27>.t-note{margin:0!important;transform:none!important;width:100%!important;max-width:none!important;box-sizing:border-box}
+#scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine{border:1px solid rgba(var(--skin-rgb-8888a4,136,136,164),.42)!important;box-shadow:0 1px 4px #00000014}
+#scroll .today.sf-today-v27>.t-rout{border-color:rgba(var(--skin-rgb-8888a4,136,136,164),.32)!important}
+.sf-work-targets small{display:block;font-size:10px;opacity:.8;margin-top:3px}
+.sf-work-register{min-height:42px}
+@media(min-width:880px){
+ #scroll .today.sf-today-v27{row-gap:16px!important;column-gap:16px!important}
+ #scroll .today.sf-today-v27>.t-lvl{align-self:stretch!important;height:100%;justify-self:stretch!important}
+ #scroll .today.sf-today-v27 .t-rout-body{margin-bottom:0!important}
+}
+/* Compact directory and groups; editing stays direct and all filters remain. */
+.sf-directory{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:8px}
+.sf-directory .sf-managed{display:flex;flex-direction:column;gap:5px;padding:12px;min-width:0}
+.sf-directory .sf-heading{position:static;flex-wrap:nowrap;gap:6px}
+.sf-directory .sf-category{font-size:11px;flex:1;min-width:0;overflow-wrap:anywhere}
+.sf-directory .sf-heading .sf-button{font-size:12px;min-height:32px;padding:5px 8px;border:1px solid #34344a}
+.sf-directory .sf-name{line-height:1.35;margin-top:1px}
+.sf-directory .sf-managed>.sf-muted{font-size:12px;line-height:1.45;margin:0}
+.sf-directory-filters{gap:8px}.sf-directory-filters>.sf-field{margin:8px 0}
+.sf-group-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:8px;margin:10px 0}
+.sf-group-tile{display:flex;flex-direction:column;gap:4px;border:1px solid #34344a;border-radius:8px;padding:10px;min-width:0}
+.sf-group-tile strong{font-size:14px;overflow-wrap:anywhere}.sf-group-tile .sf-muted{margin:0}
+.sf-group-tile .sf-button{align-self:flex-start;min-height:32px;font-size:12px;padding:5px 8px;margin-top:auto}
+.sf-group-add{border-style:dashed;min-height:86px}
+@media(max-width:480px){.sf-directory,.sf-group-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Social tab person labels match Who to See; Today stays compact. */
+.soc .sf-combo-category .sf-buttons .sf-button{font-size:14px;min-height:48px;padding:10px 14px;line-height:1.35}
+
+@media(min-width:880px){.soc .sf-combo-category .sf-buttons .sf-button{font-size:19px}}

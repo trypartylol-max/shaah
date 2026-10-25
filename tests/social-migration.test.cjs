@@ -97,4 +97,5 @@ test('contact capsule follows the 10-day example and empties at nonnegative bala
  assert.equal(a.read('socialTimePill({every:7,days:9}).color'),'#f59e0b');
  assert.equal(a.read('socialTimePill({every:7,days:10}).color'),'#ef4444');
  assert.equal(a.read('socialTimePill({every:10,days:null}).color'),'#8888a4');
+ for(const [days,label] of [[6,'-4d'],[9,'-1d'],[10,'0d'],[13,'+3d']])assert.equal(a.read(`socialTimePill({every:10,days:${days}}).label`),label);
 });

@@ -844,6 +844,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
+  socialPeopleToggle:uiRule('click',[],()=>{socialPeopleOpen=!socialPeopleOpen;render();}),
   socialRecord:uiRule('click',['string','string'],(n,e,id,key)=>socialRecord(id,key),true),
   socialViewSet:uiRule('click',['string'],(n,e,v)=>socialViewSet(v)),
   socialGroupName:uiRule('input',[],n=>socialGroupName(n.value)),
@@ -2053,7 +2054,7 @@ function resetAccountView(){
   currentTab='today';histTab='week';histMonth=null;tourStep=null;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
+  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
   bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
   dayLogEditClose();_lastY=0;tuckNav(false);
@@ -4518,7 +4519,8 @@ function socialDirectoryRows(){
  const list=peopleList().filter(p=>String(p.name).toLocaleLowerCase().includes(q)&&(socialDirectoryGroup==='all'||personLocations(p).includes(socialDirectoryGroup))&&(socialDirectoryCategory==='all'||p.sub===socialDirectoryCategory));
  return list.map(p=>socialTile(p,socialKeyForView(),true)).join('')||'<p class="sf-muted">Sin resultados.</p>';
 }
-function socialPeople(){return `<section aria-label="People & Groups"><div class="sf-heading"><h2 class="sec">People & Groups</h2>${socialButton('+ Persona','socialNew',[''],true)}</div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory">${socialDirectoryRows()}</div><details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>${socialGroups()}</section>`;}
+var socialPeopleOpen=false;
+function socialPeople(){return `<section class="card sf-people-box" aria-label="People & Groups"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} People &amp; Groups <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading">${socialButton('+ Persona','socialNew',[''],true)}</div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory">${socialDirectoryRows()}</div><details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>${socialGroups()}</div></div></section>`;}
 function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div>${socialGroupEditor()}<p class="sf-muted">El foco de grupo solo filtra sugerencias de Friends; todos siguen disponibles para registrar encuentros.</p></section>`;}
 function socialSuggestions(){
   const list=peopleStatus().filter(p=>p.days==null||p.overdue>=0);
@@ -4528,7 +4530,7 @@ function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section a
 function socialComboPanel(key){return comboBlock(key,true);}
 function socialDashboard(key){
  const list=socialSuggestionList();
- return `<div class="sd-toolbar">${locationSelector()}</div><div class="sf-muted">Sugerencias de Friends y Family según su frecuencia. El foco de lugar solo filtra Friends; Family y los demás contactos siguen disponibles.</div><section class="card sd-grid" aria-label="Contactos sugeridos">${list.map(p=>socialDenseContact(p,key)).join('')||'<p class="sf-muted">Sin contactos en este foco.</p>'}</section>`;
+ return `<div class="sd-toolbar">${locationSelector()}</div><section class="card sd-grid" aria-label="Contactos sugeridos">${list.map(p=>socialDenseContact(p,key)).join('')||'<p class="sf-muted">Sin contactos en este foco.</p>'}</section>`;
 }
 function socialSuggestionList(){
  const tk=todayKey(),loc=selectedLocation();
@@ -4544,7 +4546,7 @@ function socialTimePill(p){
  // Negative balance: time remains and the pill has fill. Zero/positive: empty.
  const fill=Math.max(0,Math.min(100,-overdue/every*100));
  const color=overdue<0?'#4ade80':overdue*10>=every*3?'#ef4444':'#f59e0b';
- return {fill,color,label:remaining>0?'in '+remaining+'d':remaining===0?'today':(-remaining)+'d ago',description:remaining>0?'Próximo encuentro en '+remaining+' días':remaining===0?'Toca hoy':'Pendiente desde hace '+(-remaining)+' días'};
+ return {fill,color,label:overdue===0?'0d':(overdue>0?'+':'')+overdue+'d',description:remaining>0?'Próximo encuentro en '+remaining+' días':remaining===0?'Toca hoy':'Pendiente desde hace '+(-remaining)+' días'};
 }
 function socialDenseContact(p,key){
  const on=getPeople(key).includes(p.id),category=socialCategoryName(p),sub=subsList().find(s=>s.id===p.sub);
@@ -4610,7 +4612,7 @@ function workPhaseCard(key,item){
  const completed=phases.filter(p=>fraction>=p[2]).length,points=Math.round(item.pts*fraction);
  const next=phases[completed],legacy=![0,.4,.8,1].includes(fraction);
  const label=next?'Registrar '+next[0]+' · '+next[1]+' pts':'✓ ₪800+ · Deshacer';
- return `<section class="sf-core-routine sf-work" aria-label="Work"><div class="sf-work-head"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work</div><div class="r-sub">${legacy?'Avance previo conservado':completed+'/3 hitos · meta ₪800+'}</div></div><span class="sf-work-points">${points} / ${item.pts} pts</span></div><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}<small>${p[1]} pts</small></span>`).join('')}</div><div class="sf-core-actions"><button type="button" class="r-btn sf-button sf-work-register" ${ui('click','workPhaseAdvance',key)}>${label}</button></div></section>`;
+ return `<section class="sf-core-routine sf-work" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points} / ${item.pts} pts</span></div><div class="r-sub">${legacy?'Avance previo conservado':completed+'/3 hitos'}</div><div class="sf-work-phases">${phases.map(p=>`<span class="sf-work-phase${fraction>=p[2]?' is-done':''}">${p[0]}<small>${p[1]} pts</small></span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="r-btn sf-button sf-work-register" ${ui('click','workPhaseAdvance',key)}>${label}</button></div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

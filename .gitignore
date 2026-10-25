@@ -6,3 +6,5 @@ test-results/
 qa/supabase/.runtime/
 supabase/.temp/
 supabase/.branches/
+
+.runtime/

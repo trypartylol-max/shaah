@@ -70,9 +70,10 @@ function loadApp(data = fixture(), options = {}) {
   });
   // Keep every application function intact; suppress only automatic boot and Day Log startup.
   const marker = '\nboot();';
-  const end = source.lastIndexOf(marker);
+  const testedSource=options.source||source;
+  const end = testedSource.lastIndexOf(marker);
   if (end < 0) throw new Error('Application boot marker missing');
-  vm.runInContext(source.slice(0, end), context, { filename: htmlPath });
+  vm.runInContext(testedSource.slice(0, end), context, { filename: htmlPath });
   const run = code => vm.runInContext(code, context);
   const read = code => clone(run(code));
   context.fixtureData = clone(data);

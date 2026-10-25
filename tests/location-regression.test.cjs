@@ -55,12 +55,12 @@ test('bulk apply rejects unknown locations/actions and rechecks current filter e
   assert.deepEqual(app.read('CFG.people'), before);
 });
 
-test('All people, Inactive and Unassigned are independent settings scopes', () => {
+test('direct management keeps every contact available; bulk Unassigned remains independent', () => {
   const app = make();
   app.run('bulkPeopleSetScope("unassigned")');
   assert.deepEqual(app.read('bulkPeopleCandidates().map(p=>p.id)'), ['pold01', 'plegacy']);
   app.run('bulkPeopleSetScope("all");setPeopleSettingsFilter("inactive");');
-  assert.deepEqual(app.read('settingsPeople().map(p=>p.id)'), ['pinactive', 'porphan']);
+  assert.equal(app.read('settingsPeople().length'),7); // Legacy status must not hide people from direct management.
   assert.deepEqual(app.read('settingsOrphanPeople().map(p=>p.id)'), ['porphan']);
   app.run('setPeopleSettingsFilter("all")');
   assert.equal(app.run('settingsPeople().length'), 7);

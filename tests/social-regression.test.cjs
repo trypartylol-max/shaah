@@ -175,7 +175,8 @@ for (const mode of ['work', 'vacation']) {
     app.run(`setTravelMode("${mode}"); toggleSub("strangers",todayKey());`);
     assert.equal(app.run('getChecked(todayKey()).social'), true);
     assert.equal(app.run('calcScore(todayKey()).l3'), 0);
-    assert.ok(app.run('comboBlock(todayKey(),true)').includes('1/3 active · 0%'));
+    assert.match(app.run('comboBlock(todayKey(),true)'), /0 \/ (18|24) pts/);
+    assert.ok(app.run('comboBlock(todayKey(),true)').includes('aria-pressed="true"'));
     assert.ok(app.run('renderSocial()').includes(`<span class="sd-pts"`));
     assert.match(app.run('renderSocial()'), mode === 'work' ? />0\/18%<\/span>/ : />0\/24%<\/span>/);
   });

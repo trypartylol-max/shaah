@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "channel": "stable",
+  "enabled": false,
+  "latest_version": null,
+  "check_interval_hours": 72,
+  "automatic_download": false,
+  "automatic_install": false,
+  "notes": "No release published yet; do not notify or download until a verified manifest and artifact exist."
+}

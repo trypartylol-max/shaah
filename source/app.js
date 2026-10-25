@@ -844,7 +844,6 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
-  socialSettingsOpen:uiRule('click',[],()=>socialSettingsOpen()),
   socialPeopleToggle:uiRule('click',[],()=>{socialPeopleOpen=!socialPeopleOpen;render();}),
   socialRecord:uiRule('click',['string','string'],(n,e,id,key)=>socialRecord(id,key),true),
   socialViewSet:uiRule('click',['string'],(n,e,v)=>socialViewSet(v)),
@@ -4499,7 +4498,7 @@ function socialSuggestions(){
   const list=peopleStatus().filter(p=>p.days==null||p.overdue>=0);
   return `<div class="sec">A QUIÉN TE TOCA VER</div><div class="sf-grid">${list.map(p=>socialTile(p,socialKeyForView())).join('')||'<p class="sf-muted">Sin encuentros pendientes en este lugar.</p>'}</div>`;
 }
-function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="Who to See"><h2 class="sec">Who to See</h2>${socialDashboard(key)}</section><section aria-label="Social Combo"><div class="sf-heading"><h2 class="sec">Social Combo</h2>${socialButton('⚙ Social Settings','socialSettingsOpen')}</div>${socialComboPanel(key)}</section>${socialPeople()}`;}
+function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="Who to See"><h2 class="sec">Who to See</h2>${socialDashboard(key)}</section><section aria-label="Social Combo"><h2 class="sec">Social Combo</h2>${socialComboPanel(key)}</section>${socialPeople()}`;}
 function socialComboPanel(key){return comboBlock(key,true);}
 function socialDashboard(key){
  const list=socialSuggestionList();
@@ -4619,7 +4618,6 @@ function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px
         </div>`).join("")}
         <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>+ ADD TO COMBO</button>
       </div>${socialRulesHTML()}<details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>`;}
-function socialSettingsOpen(){settingsOpen=true;for(const k of Object.keys(secOpen))secOpen[k]=false;secOpen.ppl=true;render();}
 
 
 boot();

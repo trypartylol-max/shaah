@@ -2,9 +2,9 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {loadApp}=require('./helpers.cjs');
 function app(){const a=loadApp();a.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','synthetic-A').config;_dayCfgCache={};applyCfg()");return a;}
-test('one Work control cycles 400/650/800 with cumulative 10/20/25 then undo of the last level only',()=>{
+test('one Work control cycles 400/650/800 with cumulative 10/20/25 then resets to zero on the fourth tap',()=>{
  const a=app(),history=a.read("_state['2026-10-15']");
- for(const [phase,points,label] of [[0,0,'Completar ₪400'],[1,10,'Completar ₪650'],[2,20,'Completar ₪800+'],[3,25,'Deshacer último nivel'],[4,20,'Completar ₪800+']]){
+ for(const [phase,points,label] of [[0,0,'Completar ₪400'],[1,10,'Completar ₪650'],[2,20,'Completar ₪800+'],[3,25,'Reiniciar avance'],[4,0,'Completar ₪400'],[5,10,'Completar ₪650']]){
   if(phase)a.run("workPhaseAdvance('2026-10-16')");
   assert.equal(a.read("calcScore('2026-10-16').l1"),points);
   const html=a.run("workPhaseCard('2026-10-16',cfgForDate('2026-10-16').L1.find(i=>i.id==='work'))");

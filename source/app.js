@@ -3301,6 +3301,7 @@ function topbarHTML(){
   ${currentTab==="today"?scoreStripHTML(todayKey()):""}`;
 }
 function render(){
+  socialGroupDialogSync();
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
   if(!USER){uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
@@ -4492,8 +4493,8 @@ function socialDirectoryRows(){
  return list.map(p=>socialTile(p,socialKeyForView(),true)).join('')||'<p class="sf-muted">Sin resultados.</p>';
 }
 var socialPeopleOpen=false;
-function socialPeople(){return `<section class="card sf-people-box" aria-label="People & Groups"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} People &amp; Groups <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading">${socialButton('+ Persona','socialNew',[''],true)}</div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory">${socialDirectoryRows()}</div><details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>${socialGroups()}</div></div></section>`;}
-function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div>${socialGroupEditor()}<p class="sf-muted">El foco de grupo solo filtra sugerencias de Friends; todos siguen disponibles para registrar encuentros.</p></section>`;}
+function socialPeople(){return `<section class="card sf-people-box" aria-label="People & Groups"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} People &amp; Groups <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading">${socialButton('+ Persona','socialNew',[''],true)}</div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory">${socialDirectoryRows()}</div>${socialGroups()}</div></div></section>`;}
+function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div><p class="sf-muted">El foco de grupo solo filtra sugerencias de Friends; todos siguen disponibles para registrar encuentros.</p></section>`;}
 function socialSuggestions(){
   const list=peopleStatus().filter(p=>p.days==null||p.overdue>=0);
   return `<div class="sec">A QUIÉN TE TOCA VER</div><div class="sf-grid">${list.map(p=>socialTile(p,socialKeyForView())).join('')||'<p class="sf-muted">Sin encuentros pendientes en este lugar.</p>'}</div>`;
@@ -4515,10 +4516,10 @@ function socialTimePill(p){
  const every=Math.max(1,Number(p.every)||14);
  if(p.days==null)return {fill:0,color:'#8888a4',label:'—',description:'Sin encuentros registrados'};
  const overdue=Math.max(0,Number(p.days)||0)-every,remaining=-overdue;
- // Negative balance: time remains and the pill has fill. Zero/positive: empty.
- const fill=Math.max(0,Math.min(100,-overdue/every*100));
- const color=overdue<0?'#4ade80':overdue*10>=every*3?'#ef4444':'#f59e0b';
- return {fill,color,label:overdue===0?'0d':(overdue>0?'+':'')+overdue+'d',description:remaining>0?'Próximo encuentro en '+remaining+' días':remaining===0?'Toca hoy':'Pendiente desde hace '+(-remaining)+' días'};
+ // Remaining days drain to zero; overdue days refill until one full interval late.
+ const fill=Math.min(100,Math.abs(remaining)/every*100);
+ const color=remaining>0?'#4ade80':overdue*10>every*4?'#ef4444':'#f59e0b';
+ return {fill,color,label:remaining===0?'0d':(remaining>0?'+':'')+remaining+'d',description:remaining>0?'Próximo encuentro en '+remaining+' días':remaining===0?'Toca hoy':'Pendiente desde hace '+(-remaining)+' días'};
 }
 function socialDenseContact(p,key){
  const on=getPeople(key).includes(p.id),category=socialCategoryName(p),sub=subsList().find(s=>s.id===p.sub);
@@ -4569,7 +4570,16 @@ function socialGroupSave(){
  else{let id;do{id='loc'+Math.random().toString(36).slice(2,10);}while(locationGroups().some(g=>g.id===id));CFG.locationGroups=locationGroups().concat({id,name});}
  socialGroupDraft=null;socialGroupError='';saveCfg();render();
 }
-function socialGroupEditor(){return socialGroupDraft?`<section class="sf-editor" aria-label="Editar grupo"><label class="sf-field">Nombre del grupo<input maxlength="40" value="${esc(socialGroupDraft.name)}" ${ui('input','socialGroupName')}></label>${socialGroupError?`<p role="alert">${esc(socialGroupError)}</p>`:''}<div class="sf-buttons">${socialButton('Guardar grupo','socialGroupSave',[],true)}${socialButton('Cancelar','socialGroupCancel')}</div></section>`:'';}
+function socialGroupEditor(){return socialGroupDraft?`<section class="sf-group-dialog-card"><h2 id="sf-group-dialog-title">${socialGroupDraft.id?'Renombrar grupo':'Añadir grupo'}</h2><label class="sf-field">Nombre del grupo<input autofocus maxlength="40" value="${esc(socialGroupDraft.name)}" ${ui('input','socialGroupName')}></label>${socialGroupError?`<p role="alert">${esc(socialGroupError)}</p>`:''}<div class="sf-buttons">${socialButton('Cancelar','socialGroupCancel')}${socialButton('Guardar grupo','socialGroupSave',[],true)}</div></section>`:'';}
+function socialGroupDialogSync(){
+ let dialog=document.getElementById('sf-group-dialog');if(dialog?.tagName!=='DIALOG')dialog=null;
+ if(!socialGroupDraft||!USER){if(dialog){dialog.close();dialog.remove();}return;}
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='sf-group-dialog';dialog.className='sf-group-dialog';dialog.setAttribute('aria-labelledby','sf-group-dialog-title');document.body.appendChild(dialog);dialog.addEventListener('cancel',e=>{e.preventDefault();socialGroupCancel();});dialog.addEventListener('click',e=>{if(e.target===dialog)socialGroupCancel();});}
+ const focused=dialog.contains(document.activeElement),start=focused?document.activeElement.selectionStart:null,end=focused?document.activeElement.selectionEnd:null;
+ uiHTML(dialog,socialGroupEditor());if(!dialog.open)dialog.showModal();
+ const input=dialog.querySelector('input');input?.focus();if(focused&&start!=null)input?.setSelectionRange(start,end);
+}
+
 
 // Presentation-only controls; stored checks and Work phase scoring stay unchanged.
 var workPhaseOpenKey=null;
@@ -4608,8 +4618,9 @@ function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px
           ${subsList().length>1?`<button ${ui('click','subDel' ,i)} title="Remove" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
         </div>`).join("")}
         <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>+ ADD TO COMBO</button>
-      </div>${socialRulesHTML()}`;}
+      </div>${socialRulesHTML()}<details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>`;}
 function socialSettingsOpen(){settingsOpen=true;for(const k of Object.keys(secOpen))secOpen[k]=false;secOpen.ppl=true;render();}
+
 
 boot();
   try{dayLogInit();}catch(e){console.warn('Day Log init',e);}

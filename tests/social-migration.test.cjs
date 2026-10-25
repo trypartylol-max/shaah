@@ -89,13 +89,13 @@ test('Family and legacy family remain recommended across friend location focus w
  data.config.people=[{id:'fam1',name:'Family synthetic',sub:'family',every:30,locations:['panama']},{id:'fam2',name:'Legacy family',sub:'friends',relationship:'family',every:180,locations:['panama']},{id:'friend1',name:'Friend synthetic',sub:'friends',every:7,locations:['panama']}];
  const a=upgraded(data);assert.deepEqual(a.read('socialSuggestionList().map(p=>[p.id,p.every])'),[['fam1',30],['fam2',180]]);assert.equal(a.read("socialCategory(personById('fam2'))"),'friends');
 });
-test('contact capsule follows the 10-day example and empties at nonnegative balance',()=>{
+test('contact capsule drains to due, refills overdue, turns red after 40 percent and caps at double frequency',()=>{
  const a=loadApp();
- for(const [days,color,fill] of [[0,'#4ade80',100],[6,'#4ade80',40],[9,'#4ade80',10],[10,'#f59e0b',0],[12,'#f59e0b',0],[13,'#ef4444',0],[20,'#ef4444',0]]){
+ for(const [days,color,fill] of [[0,'#4ade80',100],[6,'#4ade80',40],[9,'#4ade80',10],[10,'#f59e0b',0],[12,'#f59e0b',20],[13,'#f59e0b',30],[14,'#f59e0b',40],[15,'#ef4444',50],[20,'#ef4444',100],[30,'#ef4444',100]]){
   const pill=a.read(`socialTimePill({every:10,days:${days}})`);assert.equal(pill.color,color,`day ${days}`);assert.ok(Math.abs(pill.fill-fill)<0.000001,`fill on day ${days}`);
  }
  assert.equal(a.read('socialTimePill({every:7,days:9}).color'),'#f59e0b');
  assert.equal(a.read('socialTimePill({every:7,days:10}).color'),'#ef4444');
  assert.equal(a.read('socialTimePill({every:10,days:null}).color'),'#8888a4');
- for(const [days,label] of [[6,'-4d'],[9,'-1d'],[10,'0d'],[13,'+3d']])assert.equal(a.read(`socialTimePill({every:10,days:${days}}).label`),label);
+ for(const [days,label] of [[6,'+4d'],[9,'+1d'],[10,'0d'],[13,'-3d']])assert.equal(a.read(`socialTimePill({every:10,days:${days}}).label`),label);
 });

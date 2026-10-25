@@ -38,7 +38,7 @@ settings revisions; excludes Auth and infrastructure. Server fingerprint:
 
 ## Validation
 
-178 local automated tests pass, zero failures/skips. Includes config CAS,
+179 local automated tests pass, zero failures/skips. Includes config CAS,
 Realtime echo/conflicts, ownership/account switches, settings, import/export,
 Work/Vacation, Social behavior, effective dating and source/CSP separation.
 All 67 historical days in the three production backup accounts retained their

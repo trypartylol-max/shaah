@@ -4483,7 +4483,7 @@ function socialSave(){
   }
   let p=d.id?personById(d.id):null;
   if(d.id&&!p){socialCancel();return;}
-  if(d.sub==='flirt'&&p?.sub!=='flirt'&&peopleList().filter(x=>x.sub==='flirt').length>=socialRomanticLimit()){socialFormError='Flirting alcanzó el límite. Cambia la categoría de otra persona o aumenta el límite en Settings.';render();return;}
+  if(d.sub==='flirt'&&p?.sub!=='flirt'&&peopleList().filter(x=>x.sub==='flirt').length>=socialRomanticLimit()){socialFormError=(subsList().find(s=>s.id==='flirt')?.label||'Flirting')+' alcanzó el límite. Cambia la categoría de otra persona o aumenta el límite en Settings.';render();return;}
   const fresh=!p;
   if(fresh){let id;do{id='p'+Math.random().toString(36).slice(2,10);}while(personById(id));p={id};peopleList().push(p);}
   // Keep unknown location references so editing cannot silently lose legacy data.
@@ -4576,7 +4576,7 @@ function comboBlock(key,alwaysOpen){
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
 function socialRomanticLimitSet(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>1000)return;CFG.socialRules={...(CFG.socialRules||{}),romanticLimit:n};saveCfg();render();}
-function socialRulesHTML(){const count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">Flirting · máximo de personas asignadas<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${count} asignadas · límite ${socialRomanticLimit()}. ${count>socialRomanticLimit()?'Se conservan todas las personas existentes; las nuevas asignaciones requieren liberar un lugar o aumentar el límite.':''} No afecta puntos ni sugerencias.</p>`;}
+function socialRulesHTML(){const label=subsList().find(s=>s.id==='flirt')?.label||'Flirting',count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · máximo de personas asignadas<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${count} asignadas · límite ${socialRomanticLimit()}. ${count>socialRomanticLimit()?'Se conservan todas las personas existentes; las nuevas asignaciones requieren liberar un lugar o aumentar el límite.':''} No afecta puntos ni sugerencias.</p>`;}
 function settingsPeople(){return peopleList();}
 
 function bonusSummary(key){const C=cfgForDate(key),ch=getChecked(key);return {earned:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+Math.round(i.pts*doneFrac(ch[i.id])),0),max:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+i.pts,0)};}

@@ -866,6 +866,7 @@ const UI_ACTIONS=Object.freeze({
   socialRomanticLimitSet:uiRule('change',[],n=>socialRomanticLimitSet(n.value)),
   socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
   socialNewCategory:uiRule('click',['string','string'],(n,e,k,id)=>socialNew(k,id),true),
+  workMilestonesSave:uiRule('click',[],()=>workMilestonesSave(),true),
   workPhaseAdvance:uiRule('click',['string'],(n,e,k)=>workPhaseAdvance(k),true),
   workPhaseToggle:uiRule('click',['string'],(n,e,k)=>workPhaseToggle(k)),
   workPhaseSet:uiRule('click',['string','number'],(n,e,k,v)=>workPhaseSet(k,v),true),
@@ -2581,7 +2582,7 @@ function renderSettings(){
           ${x.combo
             ?`<span title="Sum of the active parts below" ${uiStyle(`width:96px;flex-shrink:0;color:${col};font-size:12px;text-align:center;line-height:1.25`)}>W ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'work'),0)}% · V ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'vacation'),0)}%</span>`
             :`<div ${uiStyle(`display:flex;gap:4px;flex-shrink:0`)}>
-              <input type="number" min="0" max="60" value="${esc(modePts(x,'work'))}" ${ui('change','cfgSet' ,id,'pWork')} title="Work Mode" aria-label="Work Mode points"
+              <input type="number" min="0" max="60" value="${esc(modePts(x,'work'))}" ${id==='work'&&CFG.shaahSocialCoreMigration?'readonly title="Configurar en Routines → Work"':ui('change','cfgSet' ,id,'pWork')} title="Work Mode" aria-label="Work Mode points"
                 ${uiStyle(`width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
               <input type="number" min="0" max="60" value="${esc(modePts(x,'vacation'))}" ${ui('change','cfgVacationPoints' ,id)} title="Vacation Mode" aria-label="Vacation Mode points"
                 ${uiStyle(`width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
@@ -2644,7 +2645,7 @@ function renderSettings(){
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
 `,"st-col-a")}
-            ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).filter(rid=>rid!=="work"||!CFG.shaahSocialCoreMigration).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
+            ${stCard("rout","ROUTINES","#9090aa",`${CFG.shaahSocialCoreMigration?workMilestonesSettings():''}${Object.keys(ROUTINES).filter(rid=>rid!=="work"||!CFG.shaahSocialCoreMigration).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" ${uiStyle(`margin-bottom:10px;padding:14px`)}>
           <div ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:10px`)}>
             <span ${uiStyle(`font-size:17px`)}>${esc(r.icon)}</span>
@@ -3524,7 +3525,7 @@ function renderToday(key,nested=false){
 
     
 ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')} ${ui('keydown','activate')} ${uiStyle(`display:flex;align-items:center;cursor:pointer;gap:7px`)}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${core?'CORE ROUTINES':"TODAY'S ROUTINES"}</div>
+      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')} ${ui('keydown','activate')} ${uiStyle(`display:flex;align-items:center;cursor:pointer;gap:7px`)}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${core?'▪ CORE ROUTINES':"TODAY'S ROUTINES"}${core?`<span class="sf-core-total">${l1}/${dM1}</span>`:''}</div>
       <div class="t-rout-body" ${uiStyle(`${todayRoutinesOpen?"":"display:none;"}`)}>${L1vis.filter(i=>core||(i.routine&&ROUTINES[i.id])).map(item=>{
         if(core&&item.id==='work')return workPhaseCard(key,item);
         if(core&&!item.routine)return coreHabitCard(key,item);
@@ -3532,19 +3533,19 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         return`<div class="sf-core-routine" ${uiStyle(`background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px`)}>
           <div ${uiStyle(`width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0`)}>${esc(rt.icon)}</div>
           <div ${uiStyle(`flex:1;min-width:0`)}>
-            <div class="r-lab" ${uiStyle(`font-size:17px;color:${full?"#555":light?"#c0c0cd":"#e2e2e2"};font-weight:500;${full?"text-decoration:line-through":""}`)}>${esc(rt.label)}${light?` <span ${uiStyle(`font-size:13px;color:#f59e0b;font-weight:400`)}>· LIGHT · ${Math.round(item.pts*0.5)}%</span>`:""}</div>
+            <div class="r-lab" ${uiStyle(`font-size:17px;color:${full?"#555":light?"#c0c0cd":"#e2e2e2"};font-weight:500;${full?"text-decoration:line-through":""}`)}>${esc(rt.label)}${light?` <span ${uiStyle(`font-size:13px;color:#f59e0b;font-weight:400`)}>· LIGHT · ${Math.round(item.pts*0.5)}%</span>`:""}${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:""}</div>
             <div class="r-sub" ${uiStyle(`font-size:15px;color:#777;margin-top:3px`)}>${rt.steps.length} steps · ${totalMin} min</div>
             ${!done?`<div ${uiStyle(`display:flex;gap:4px;margin-top:8px;flex-wrap:wrap`)}>${rt.steps.slice(0,4).map(s=>`<span class="r-step" ${uiStyle(`font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px`)}>${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span ${uiStyle(`font-size:14.5px;color:#adadbf`)}>+${rt.steps.length-4} more</span>`:""}</div>`:""}
           </div>
           ${full?`<div role="button" tabindex="0" aria-label="Clear completed routine" ${ui('click','setHabitState' ,item.id,key,false)} ${ui('keydown','activate')} ${uiStyle(`font-size:23px;cursor:pointer`)}>✅</div>`:light?`
           <div ${uiStyle(`display:flex;flex-direction:column;gap:6px;flex-shrink:0`)}>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,true)} title="Upgrade to full credit" ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px`)}>⬆ FULL</button>
+            <button class="r-btn sf-routine-primary" ${ui('click','setHabitState' ,item.id,key,true)} title="Upgrade to full credit" ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px`)}>⬆ FULL</button>
             <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,false)} title="Clear" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#a4a4ba;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer`)}>✕ CLEAR</button>
           </div>`:`
           <div ${uiStyle(`display:flex;flex-direction:column;gap:6px;flex-shrink:0`)}>
             <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,0.5)} title="Light version — half credit" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#f59e0b;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer`)}>½ LIGHT</button>
             <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,true)} title="Mark done without the timer" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px`)}>✓ DONE</button>
-            <button class="r-btn" ${ui('click','startRoutine' ,item.id)} ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap`)}>▶ START</button>
+            <button class="r-btn sf-routine-primary" ${ui('click','startRoutine' ,item.id)} ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap`)}>▶ START</button>
           </div>`}
         </div>`;
       }).join("")}</div>
@@ -3593,7 +3594,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         return `
       <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
         <div ${uiStyle(`display:flex;align-items:center;gap:13px`)}>
-          ${chk(!!st,"#fbbf24")}
+          ${chk(!!st,core?"#a78bfa":"#fbbf24")}
           <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450}`)}>${esc(item.icon)} ${esc(item.label)}</span>
         </div>
         <span ${uiStyle(`font-size:15px;color:${st?"#fbbf2499":"#8a8aa0"}`)}>${pointsLabel(item,st)}</span>
@@ -4405,7 +4406,8 @@ function coreLayoutFor(key){return !!CFG.shaahSocialCoreMigration&&key>=CFG.shaa
 function workPhaseSet(key,phase){
   if(!coreLayoutFor(key)||![0,1,2,3].includes(phase)||cfgForDate(key).inVacation)return;
   const item=cfgForDate(key).L1.find(i=>i.id==='work');if(!item)return;
-  setHabitState('work',key,[false,0.4,0.8,true][phase]);
+  const phases=workMilestonesFor(key);
+  setHabitState('work',key,phase===0?false:phase===3?true:phases[phase-1][2]);
 }
 
 // Social integration: same CFG.people and day logs, no new scoring model.
@@ -4547,7 +4549,7 @@ function comboBlock(key,alwaysOpen){
  if(socialDraft&&socialDraft.key===key&&currentTab!=='social')return socialEditor();
  const C=cfgForDate(key),soc=getSocial(key),checked=getChecked(key).social;
  const total=C.subs.reduce((n,s)=>n+s.p,0),earned=checked?(C.subs.some(s=>soc[s.id])?C.subs.reduce((n,s)=>n+(soc[s.id]?s.p:0),0):total):0;
- return `<section class="card sf-compact-combo" aria-label="Social Combo"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>👥 Social Combo</strong><span>${earned} / ${total} pts</span></div>${C.subs.map(s=>`<div class="sf-combo-category"><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${!!soc[s.id]}" ${ui('click','socialCategoryToggle',s.id,key)}><span>${soc[s.id]?'✓':'○'} ${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span></button><div class="sf-reveal${soc[s.id]?' is-open':''}" aria-hidden="${!soc[s.id]}" ${soc[s.id]?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton('+ Persona','socialNewCategory',[key,s.id])}</div></div></div></div>`).join('')}</section>`;
+ return `<section class="card sf-compact-combo" aria-label="Social Combo"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>👥 Social Combo</strong><span>${alwaysOpen?earned+' / '+total+' pts':earned+'/'+total}</span></div>${C.subs.map(s=>`<div class="sf-combo-category"><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${!!soc[s.id]}" ${ui('click','socialCategoryToggle',s.id,key)}><span>${soc[s.id]?'✓':'○'} ${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span></button><div class="sf-reveal${soc[s.id]?' is-open':''}" aria-hidden="${!soc[s.id]}" ${soc[s.id]?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton('+ Persona','socialNewCategory',[key,s.id])}</div></div></div></div>`).join('')}</section>`;
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
 function socialRomanticLimitSet(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>1000)return;CFG.socialRules={...(CFG.socialRules||{}),romanticLimit:n};saveCfg();render();}
@@ -4581,20 +4583,53 @@ function socialGroupDialogSync(){
 
 
 // Presentation-only controls; stored checks and Work phase scoring stay unchanged.
+// Per-account, dated Work targets. The default keeps existing 10/10/5 scoring.
+function workMilestoneRules(key){
+ let rules=[{amount:400,points:10},{amount:650,points:10},{amount:800,points:5}];
+ for(const era of (CFG.workMilestones||[]).slice().sort((a,b)=>a.from.localeCompare(b.from))){
+  if(era.from<=key&&Array.isArray(era.steps)&&era.steps.length===3)rules=era.steps;
+ }
+ return rules;
+}
+function workMilestonesFor(key){
+ const rules=workMilestoneRules(key),total=rules.reduce((n,p)=>n+p.points,0);let cumulative=0;
+ return rules.map((p,i)=>{cumulative+=p.points;return ['₪'+p.amount+(i===2?'+':''),cumulative,cumulative/total];});
+}
+function workMilestonesSettings(){
+ const rules=workMilestoneRules(todayKey());
+ return `<div class="card sf-work-settings"><div class="sec">💼 Work · 3 milestones</div><p class="sf-muted">Puntos adicionales por hito. Se aplican desde hoy; los días anteriores conservan sus reglas. El cuarto toque vuelve a cero.</p>${rules.map((p,i)=>`<div class="sf-work-settings-row"><span>${i+1}</span><label>Monto ₪<input id="work-amount-${i}" type="number" min="1" step="1" value="${esc(p.amount)}"></label><label>Puntos +<input id="work-points-${i}" type="number" min="1" max="1000" step="1" value="${esc(p.points)}"></label></div>`).join('')}<p class="sf-muted">Máximo actual: ${rules.reduce((n,p)=>n+p.points,0)} puntos.</p><p id="work-settings-error" role="alert"></p><button class="sf-button sf-primary" ${ui('click','workMilestonesSave')}>Guardar milestones</button></div>`;
+}
+function workMilestonesSave(){
+ const steps=[0,1,2].map(i=>({amount:Number(document.getElementById('work-amount-'+i)?.value),points:Number(document.getElementById('work-points-'+i)?.value)}));
+ if(!steps.every(p=>Number.isSafeInteger(p.amount)&&p.amount>0&&p.amount<=1000000000&&Number.isInteger(p.points)&&p.points>0&&p.points<=1000)||steps.some((p,i)=>i&&p.amount<=steps[i-1].amount)){
+  const error=document.getElementById('work-settings-error');if(error)error.textContent='Usa montos enteros crecientes y entre 1 y 1000 puntos por hito.';return false;
+ }
+ workMilestonesApply(steps);return true;
+}
+function workMilestonesApply(steps){
+ const key=todayKey();
+ cfgEdit(()=>{
+  CFG.workMilestones=(CFG.workMilestones||[]).filter(e=>e.from!==key);
+  CFG.workMilestones.push({from:key,steps:JSON.parse(JSON.stringify(steps))});
+  CFG.workMilestones.sort((a,b)=>a.from.localeCompare(b.from));
+  ensureModePts(CFG.h.work);CFG.h.work.pWork=steps.reduce((n,p)=>n+p.points,0);CFG.h.work.p=modePts(CFG.h.work,travelMode());
+ });
+}
 var workPhaseOpenKey=null;
 function workPhaseToggle(key){workPhaseOpenKey=workPhaseOpenKey===key?null:key;renderDayChange(key);}
 function workPhaseAdvance(key){
  const fraction=doneFrac(getChecked(key).work);
- workPhaseSet(key,fraction>=1?0:fraction>=.8?3:fraction>=.4?2:1);
+ const completed=workMilestonesFor(key).filter(p=>fraction+1e-9>=p[2]).length;
+ workPhaseSet(key,completed>=3?0:completed+1);
 }
 function workPhaseCard(key,item){
  const fraction=doneFrac(getChecked(key).work);
- const phases=[['₪400',10,.4],['₪650',20,.8],['₪800+',25,1]];
- const completed=phases.filter(p=>fraction>=p[2]).length,points=Math.round(item.pts*fraction);
- const next=phases[completed],legacy=![0,.4,.8,1].includes(fraction);
+ const phases=workMilestonesFor(key);
+ const completed=phases.filter(p=>fraction+1e-9>=p[2]).length,points=Math.round(item.pts*fraction);
+ const next=phases[completed],legacy=![0,...phases.map(p=>p[2])].some(v=>Math.abs(v-fraction)<1e-9);
  const action=next?'Completar '+next[0]+' · '+next[1]+' puntos':'Reiniciar avance · volver a 0 de 3 y 0 puntos';
- const status=legacy?'Avance previo conservado':completed===3?'✓ Completado':completed+'/3 hitos · meta ₪800+';
- return `<section class="sf-core-routine sf-work sf-work-reference" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points} / ${item.pts} pts</span></div><div class="r-sub">${status}</div></div><div class="sf-work-track"><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}</span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]:'Reiniciar avance'}</button></div></section>`;
+ const status=legacy?'Avance previo conservado':completed===3?'✓ Completado':completed+'/3 hitos · meta '+phases[2][0];
+ return `<section class="sf-core-routine sf-work sf-work-reference" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts}</span></div><div class="r-sub">${status}</div></div><div class="sf-work-track"><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction+1e-9>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}</span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]:'Reiniciar avance'}</button></div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

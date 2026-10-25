@@ -844,6 +844,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
+  socialSettingsOpen:uiRule('click',[],()=>socialSettingsOpen()),
   socialPeopleToggle:uiRule('click',[],()=>{socialPeopleOpen=!socialPeopleOpen;render();}),
   socialRecord:uiRule('click',['string','string'],(n,e,id,key)=>socialRecord(id,key),true),
   socialViewSet:uiRule('click',['string'],(n,e,v)=>socialViewSet(v)),
@@ -900,7 +901,6 @@ const UI_ACTIONS=Object.freeze({
   cfgAdd:uiRule('click',['integer'],(n,e,level)=>cfgAdd(level)),
   closeSettings:uiRule('click',[],()=>closeSettings()),
   cfgTz:uiRule('change',[],n=>cfgTz(n.value)),
-  cfgSocialTab:uiRule('click',['boolean'],(n,e,on)=>cfgSocialTab(on)),
   cfgPill:uiRule('click',['string'],(n,e,id)=>cfgPill(id)),
   startTour:uiRule('click',[],()=>startTour()),
   exportData:uiRule('click',[],()=>exportData()),
@@ -2544,7 +2544,7 @@ function settingsRowInfo(key){
     trav:{label:'Modes',detail:'Work / Vacation',icon:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.5"/><circle cx="15" cy="17" r="2.5"/>'},
     hab:{label:'Habits & weights',icon:'<path d="m3 6 1.5 1.5L7 4.5M10 6h11M3 12h4M10 12h11M3 18h4M10 18h11"/>'},
     rout:{label:'Routines',icon:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M19 5l1.5-1.5"/>'},
-    ppl:{label:'Social',icon:'<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-4-5.65"/>'},
+    ppl:{label:'Social Settings',icon:'<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-4-5.65"/>'},
     bak:{label:'Data & backup',icon:'<path d="M5 8H3v13h18V8h-2M12 3v12m-4-4 4 4 4-4M7 3h10"/>'},
     appearance:{label:'Appearance',icon:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/>'}
   };
@@ -2567,9 +2567,9 @@ function renderSettings(){
   const tot=MAX;
   const lvlBlock=(n,title,col)=>`
     <div ${uiStyle(`margin-bottom:20px`)}>
-      <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${buildLevel(n).reduce((a,i)=>a+i.pts,0)}%</div>
+      <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${buildLevel(n).filter(i=>!i.combo).reduce((a,i)=>a+i.pts,0)}%</div>
       <div ${uiStyle(`display:flex;justify-content:flex-end;gap:4px;margin:-7px 10px 5px;padding-right:42px;font-size:9px;letter-spacing:.06em;color:#66667d`)}><span ${uiStyle(`width:44px;text-align:center`)}>WORK</span><span ${uiStyle(`width:44px;text-align:center`)}>VACATION</span></div>
-      ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n).map(id=>{const x=CFG.h[id];return `
+      ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&!CFG.h[id].combo).map(id=>{const x=CFG.h[id];return `
         <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}`)}>
           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
             <button ${ui('click','cfgMove' ,id,-1)} class="ord">▲</button>
@@ -2606,15 +2606,7 @@ function renderSettings(){
       </select>
       <div ${uiStyle(`font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5`)}>The day rolls over at midnight in this zone. Today is <b ${uiStyle(`color:#d0d0da`)}>${todayKey()}</b>.</div>
 <div class="st-div"></div>
-<div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:9px`)}>Where the Social Combo lives. Your score is the same either way — only where you tap it changes.</div>
-<div ${uiStyle(`display:flex;gap:7px;margin-bottom:22px`)}>
-        ${[[true,"Own tab","SOCIAL in the bottom bar"],[false,"In TODAY","Compact block in Today"]].map(([v,lbl,sub])=>`
-          <button ${ui('click','cfgSocialTab' ,v)} ${uiStyle(`flex:1;background:${socialOwnTab()===v?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${socialOwnTab()===v?'#3a3a55':'#222'};color:${socialOwnTab()===v?'#e2e2e2':'#7e7e97'};font-family:inherit;padding:10px 6px;border-radius:10px;cursor:pointer`)}>
-            <div ${uiStyle(`font-size:13px`)}>${lbl}</div>
-            <div ${uiStyle(`font-size:10px;color:#7e7e97;margin-top:3px`)}>${sub}</div>
-          </button>`).join("")}
-      </div>
-<div class="st-div"></div>
+
 <div ${uiStyle(`display:flex;gap:7px;margin-bottom:16px`)}>
         ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
           <button ${ui('click','cfgPill' ,id)} ${uiStyle(`flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer`)}>
@@ -2652,26 +2644,7 @@ function renderSettings(){
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
-      <div ${uiStyle(`margin-bottom:4px`)}>
-        <div class="sec" ${uiStyle(`color:#fbbf24`)}>👥 SOCIAL COMBO — ${subsOn(subsList()).length} ACTIVE${subsOn(subsList()).length<subsList().length?` · ${subsList().length-subsOn(subsList()).length} PAUSED`:""}</div>
-        <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:8px`)}>Each part is worth its own points and the combo is their sum — <b ${uiStyle(`color:#fbbf24`)}>${subsOn(subsList()).reduce((a,y)=>a+safePts(y.p),0)}%</b> right now. Adding or pausing a part changes the combo from today on; past days keep what they were scored with.</div>
-        ${subsList().map((x,i)=>`
-        <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};opacity:${x.on!==false?1:.45};margin-bottom:5px`)}>
-          <input value="${esc(x.icon)}" ${ui('change','subSet' ,i,'icon')} aria-label="icon"
-            ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
-          <input value="${esc(x.label)}" ${ui('change','subSet' ,i,'label')}
-            ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0`)}/>
-          <input type="number" min="0" max="99" value="${esc(modePts(x,'work'))}" ${ui('change','subSet' ,i,'pWork')}
-             title="Work Mode" aria-label="Work Mode points"
-             ${uiStyle(`width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
-          <input type="number" min="0" max="99" value="${esc(modePts(x,'vacation'))}" ${ui('change','subSet' ,i,'pVacation')}
-             title="Vacation Mode" aria-label="Vacation Mode points"
-             ${uiStyle(`width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
-          <button ${ui('click','subToggle' ,i)} title="${x.on!==false?"Pause this part":"Resume this part"}" ${uiStyle(`background:none;border:1px solid #222;color:${x.on!==false?"#fbbf24":"#555"};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer;flex-shrink:0`)}>${x.on!==false?"✓":"○"}</button>
-          ${subsList().length>1?`<button ${ui('click','subDel' ,i)} title="Remove" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
-        </div>`).join("")}
-        <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>+ ADD TO COMBO</button>
-      </div>${socialRulesHTML()}`,"st-col-a")}
+`,"st-col-a")}
             ${stCard("rout","ROUTINES","#9090aa",`${Object.keys(ROUTINES).filter(rid=>rid!=="work"||!CFG.shaahSocialCoreMigration).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" ${uiStyle(`margin-bottom:10px;padding:14px`)}>
           <div ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:10px`)}>
@@ -2689,7 +2662,7 @@ function renderSettings(){
               <span ${uiStyle(`font-size:14.5px;color:#a2a2b6`)}>m</span>
             </div>`).join("")}
         </div>`}).join("")}`,"st-col-b")}
-            ${stCard("ppl","SOCIAL","#9090aa",`<p class="sf-muted">Personas, grupos y frecuencias se administran en Social. Las reglas generales están en Habits &amp; Weights.</p><button class="sf-button" ${ui('click','socialManage')}>Administrar Social →</button>`,"st-col-b")}
+            ${stCard("ppl","SOCIAL SETTINGS","#9090aa",`${socialGeneralSettings()}<p class="sf-muted">Personas, grupos y frecuencias se administran en Social.</p><button class="sf-button" ${ui('click','socialManage')}>Abrir Social →</button>`,"st-col-b")}
             ${stCard("bak","BACKUPS","#9090aa",`
       <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px`)}>Your settings are saved automatically on every change. Restore any version here — your daily logs are never touched.</div>
       ${bakList().length?bakList().map(b=>`
@@ -2744,8 +2717,7 @@ function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 // Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
 // Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.
-function socialOwnTab(){ return CFG.socialTab!==false; }
-function cfgSocialTab(v){ CFG.socialTab=!!v; haptic(10); if(!v&&currentTab==="social")currentTab="today"; saveCfg(); render(); }
+function socialOwnTab(){ return true; }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x,pWork:6,pVacation:6}));
   const cid=comboIdIn(CFG.h);
@@ -4526,7 +4498,7 @@ function socialSuggestions(){
   const list=peopleStatus().filter(p=>p.days==null||p.overdue>=0);
   return `<div class="sec">A QUIÉN TE TOCA VER</div><div class="sf-grid">${list.map(p=>socialTile(p,socialKeyForView())).join('')||'<p class="sf-muted">Sin encuentros pendientes en este lugar.</p>'}</div>`;
 }
-function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="Who to See"><h2 class="sec">Who to See</h2>${socialDashboard(key)}</section><section aria-label="Social Combo"><h2 class="sec">Social Combo</h2>${socialComboPanel(key)}</section>${socialPeople()}`;}
+function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="Who to See"><h2 class="sec">Who to See</h2>${socialDashboard(key)}</section><section aria-label="Social Combo"><div class="sf-heading"><h2 class="sec">Social Combo</h2>${socialButton('⚙ Social Settings','socialSettingsOpen')}</div>${socialComboPanel(key)}</section>${socialPeople()}`;}
 function socialComboPanel(key){return comboBlock(key,true);}
 function socialDashboard(key){
  const list=socialSuggestionList();
@@ -4616,6 +4588,28 @@ function workPhaseCard(key,item){
  return `<section class="sf-core-routine sf-work sf-work-segmented" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts} pts</span></div>${legacy?'<div class="r-sub">Avance previo conservado</div>':''}</div><button type="button" class="sf-work-meter" aria-label="${esc(action)}" title="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${phases.map((p,i)=>`<span class="sf-work-meter-part${fraction>=p[2]?' is-done':i===completed?' is-next':''}" aria-hidden="true"><span class="sf-work-meter-amount">${fraction>=p[2]?'✓ ':''}${p[0]}</span><small>${p[1]} pts</small></span>`).join('')}</button><div class="sf-work-hint${next?'':' is-complete'}">${hint}</div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
+
+function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px`)}>
+        <div class="sec" ${uiStyle(`color:#fbbf24`)}>👥 SOCIAL COMBO — ${subsOn(subsList()).length} ACTIVE${subsOn(subsList()).length<subsList().length?` · ${subsList().length-subsOn(subsList()).length} PAUSED`:""}</div>
+        <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:8px`)}>Each part is worth its own points and the combo is their sum — <b ${uiStyle(`color:#fbbf24`)}>${subsOn(subsList()).reduce((a,y)=>a+safePts(y.p),0)}%</b> right now. Adding or pausing a part changes the combo from today on; past days keep what they were scored with.</div>
+        ${subsList().map((x,i)=>`
+        <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};opacity:${x.on!==false?1:.45};margin-bottom:5px`)}>
+          <input value="${esc(x.icon)}" ${ui('change','subSet' ,i,'icon')} aria-label="icon"
+            ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
+          <input value="${esc(x.label)}" ${ui('change','subSet' ,i,'label')}
+            ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0`)}/>
+          <input type="number" min="0" max="99" value="${esc(modePts(x,'work'))}" ${ui('change','subSet' ,i,'pWork')}
+             title="Work Mode" aria-label="Work Mode points"
+             ${uiStyle(`width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
+          <input type="number" min="0" max="99" value="${esc(modePts(x,'vacation'))}" ${ui('change','subSet' ,i,'pVacation')}
+             title="Vacation Mode" aria-label="Vacation Mode points"
+             ${uiStyle(`width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
+          <button ${ui('click','subToggle' ,i)} title="${x.on!==false?"Pause this part":"Resume this part"}" ${uiStyle(`background:none;border:1px solid #222;color:${x.on!==false?"#fbbf24":"#555"};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer;flex-shrink:0`)}>${x.on!==false?"✓":"○"}</button>
+          ${subsList().length>1?`<button ${ui('click','subDel' ,i)} title="Remove" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
+        </div>`).join("")}
+        <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>+ ADD TO COMBO</button>
+      </div>${socialRulesHTML()}`;}
+function socialSettingsOpen(){settingsOpen=true;for(const k of Object.keys(secOpen))secOpen[k]=false;secOpen.ppl=true;render();}
 
 boot();
   try{dayLogInit();}catch(e){console.warn('Day Log init',e);}

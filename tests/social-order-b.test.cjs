@@ -39,3 +39,11 @@ test('location focus cannot hide people from encounter category selection',()=>{
  assert.ok(!renderer.includes('${locationSelector()}'));
  assert.ok(renderer.includes('peopleList().filter(x=>!x.inactive&&x.sub===s.id)'));
 });
+test('legacy optional-tab preference cannot hide Social or rewrite history',()=>{
+ const a=loadApp();a.run('CFG.socialTab=false');
+ const before=a.read('_state');
+ assert.equal(a.read('socialOwnTab()'),true);
+ assert.ok(a.read('tabsOrder()').includes('social'));
+ assert.equal(a.read('CFG.socialTab'),false);
+ assert.deepEqual(a.read('_state'),before);
+});

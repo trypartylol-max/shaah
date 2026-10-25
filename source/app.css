@@ -2545,3 +2545,12 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 .sf-work-meter-part.is-done{background:rgba(var(--skin-rgb-e2e2e2,226,226,226),.12);color:var(--skin-copy);border-color:var(--skin-edge)}
 .sf-work-meter-part.is-next{color:var(--skin-copy);border-color:var(--skin-edge);box-shadow:inset 0 -2px 0 rgba(var(--skin-rgb-e2e2e2,226,226,226),.5)}
 .sf-work-meter:hover .is-next{background:rgba(var(--skin-rgb-e2e2e2,226,226,226),.05)}.sf-work-hint.is-complete{color:var(--skin-copy)}
+
+/* Work follows the approved compact reference: thin progress, one button. */
+.sf-work-reference{align-items:center}.sf-work-reference .sf-work-info .r-sub{margin-top:4px}
+.sf-work-track{grid-column:1/-1;width:100%;margin:2px 0 6px}
+.sf-work-reference .sf-work-progress{margin:0 0 7px;gap:5px}.sf-work-reference .sf-work-segment{height:5px;background:rgba(var(--skin-rgb-8888a4,136,136,164),.2)}
+.sf-work-reference .sf-work-segment.is-done{background:var(--skin-copy)}
+.sf-work-reference .sf-work-targets{margin:0;font-size:12px;color:var(--skin-muted)}
+.sf-work-reference .sf-core-actions{margin-top:2px;align-self:end}
+.sf-work-next{font:inherit;font-size:14px;line-height:1.3;padding:10px 14px;min-height:42px;border:0;border-radius:10px;background:var(--skin-copy);color:var(--skin-panel);cursor:pointer}

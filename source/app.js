@@ -937,8 +937,8 @@ const UI_ACTIONS=Object.freeze({
   toggleLevelAll:uiRule('click',['integer','string'],(n,e,level,key)=>toggleLevelAll(level,key),true),
   openDayLogStart:uiRule('click',[],()=>openDayLogStart()),
   toggleTodayRoutines:uiRule('click',[],n=>toggleTodayRoutines(n)),
-  setHabitState:uiRule('click',['string','string','mark'],(n,e,id,key,value)=>setHabitState(id,key,value)),
-  startRoutine:uiRule('click',['string'],(n,e,id)=>startRoutine(id)),
+  setHabitState:uiRule('click',['string','string','mark'],(n,e,id,key,value)=>setHabitState(id,key,value),true),
+  startRoutine:uiRule('click',['string'],(n,e,id)=>startRoutine(id),true),
   startRoutineNested:uiRule('click',['string'],(n,e,id)=>startRoutine(id),true),
   toggleLvl:uiRule('click',['integer'],(n,e,level)=>toggleLvl(level)),
   toggleHabit:uiRule('click',['string','string'],(n,e,id,key)=>toggleHabit(id,key)),
@@ -4593,8 +4593,8 @@ function workPhaseCard(key,item){
  const completed=phases.filter(p=>fraction>=p[2]).length,points=Math.round(item.pts*fraction);
  const next=phases[completed],legacy=![0,.4,.8,1].includes(fraction);
  const action=next?'Completar '+next[0]+' · '+next[1]+' puntos':'Deshacer último nivel · volver a ₪650 y 20 puntos';
- const hint=next?'Siguiente: '+next[0]:'✓ Completado';
- return `<section class="sf-core-routine sf-work sf-work-segmented" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts} pts</span></div>${legacy?'<div class="r-sub">Avance previo conservado</div>':''}</div><button type="button" class="sf-work-meter" aria-label="${esc(action)}" title="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${phases.map((p,i)=>`<span class="sf-work-meter-part${fraction>=p[2]?' is-done':i===completed?' is-next':''}" aria-hidden="true"><span class="sf-work-meter-amount">${fraction>=p[2]?'✓ ':''}${p[0]}</span><small>${p[1]} pts</small></span>`).join('')}</button><div class="sf-work-hint${next?'':' is-complete'}">${hint}</div></section>`;
+ const status=legacy?'Avance previo conservado':completed===3?'✓ Completado':completed+'/3 hitos · meta ₪800+';
+ return `<section class="sf-core-routine sf-work sf-work-reference" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points} / ${item.pts} pts</span></div><div class="r-sub">${status}</div></div><div class="sf-work-track"><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}</span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]:'Deshacer último nivel'}</button></div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

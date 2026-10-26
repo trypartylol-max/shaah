@@ -2636,3 +2636,13 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
  .soc section[aria-label="Who to See"]>h2{display:flex;align-items:center;height:36px;margin-top:0}
  .soc>div:first-child:has(.sd-hoy) section[aria-label="Who to See"]>h2{margin-bottom:42px}
 }
+
+/* Social desktop header: match the centered mobile header layout. */
+@media(min-width:880px){
+ .soc>div:first-child{position:relative}
+ .soc .sd-bar{position:absolute;top:0;left:50%;transform:translateX(-50%);margin:0;height:36px;white-space:nowrap}
+ .soc .sd-bar .sd-pts{display:none}
+ .soc .sd-bar .sd-hoy{position:absolute;top:36px;left:50%;transform:translateX(-50%);margin:0}
+ .soc section[aria-label="Who to See"]>h2{display:flex;align-items:center;height:36px;margin-top:0}
+ .soc>div:first-child:has(.sd-hoy) section[aria-label="Who to See"]>h2{margin-bottom:42px}
+}

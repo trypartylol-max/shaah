@@ -2611,3 +2611,8 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
  #scroll .today.history-day-editor>.t-reset{grid-row:5!important;grid-column:1/-1!important}
 }
 .sf-work-reference .sf-core-actions{align-items:center;justify-content:space-between;gap:10px}.sf-work-weekly{display:flex;flex-direction:column;gap:3px;text-align:right;margin-left:auto;min-width:0}.sf-work-weekly>span{font-size:9px;letter-spacing:.07em;color:var(--skin-muted)}.sf-work-weekly>strong{font-size:18px;line-height:1.2;font-weight:500;color:var(--today-accent,var(--skin-copy));font-variant-numeric:tabular-nums}
+
+/* OG: Core Routines is a plain heading above independently framed cards. */
+#scroll .today.sf-today-v27>.t-rout{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+#scroll .today.sf-today-v27>.t-rout>.t-rout-toggle{background:transparent!important;border:0!important;box-shadow:none!important;flex-wrap:nowrap}
+#scroll .today.sf-today-v27>.t-rout>.t-rout-toggle>.sf-core-total{margin-left:0}

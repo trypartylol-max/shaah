@@ -20,7 +20,7 @@ test('romantic capacity blocks only new assignments and permits editing existing
  a.run("socialRomanticLimitSet('3');socialEdit('pold02');socialDraftField('sub','flirt');socialSave()");
  assert.equal(a.read("personById('pold02').sub"),'flirt');assert.equal(a.read('CFG.people.length'),3);
 });
-test('focus changes only Friends suggestions; combo keeps all contacts',()=>{
+test('focus filters Friends suggestions; combo keeps all contacts',()=>{
  const data=fixture();data.config.locationGroups=[{id:'israel',name:'Israel'},{id:'panama',name:'Panamá'}];data.config.selectedLocation='israel';
  data.config.people[0].locations=['israel'];data.config.people[1].locations=['panama'];data.config.people[2].locations=['panama'];
  const a=upgraded(data);assert.deepEqual(a.read('socialSuggestionList().map(p=>p.id).sort()'),['pold01','pold03']);
@@ -33,6 +33,21 @@ test('Work phases earn 10,20,25; previous days keep original weights; Vacation s
  for(const [n,p] of [[1,10],[2,20],[3,25],[0,0]]){a.run(`workPhaseSet('2026-10-16',${n})`);assert.equal(a.read("calcScore('2026-10-16').l1"),p);}
  a.run("CFG.travel.mode='vacation';persistTravelMode('vacation');_dayCfgCache={};workPhaseSet('2026-10-16',3)");
  assert.ok(!a.read("cfgForDate('2026-10-16').L1").some(i=>i.id==='work'));
+});
+test('Strangers suggestions respect memberships, retaining unassigned contacts without changing history',()=>{
+ const a=upgraded();
+ a.run(`CFG.locationGroups=[{id:'here',name:'Here'},{id:'away',name:'Away'}];CFG.selectedLocation='here';CFG.people=[
+ {id:'here',name:'Here',sub:'strangers',locations:['here']},
+ {id:'away',name:'Away',sub:'strangers',locations:['away']},
+ {id:'both',name:'Both',sub:'strangers',locations:['here','away']},
+ {id:'none',name:'Unassigned',sub:'strangers'}];`);
+ const before=a.read('({people:CFG.people,log:CFG.log,days:_state})');
+ assert.deepEqual(a.read('socialSuggestionList().map(p=>p.id)'),['here','both','none']);
+ a.run("CFG.selectedLocation='away'");
+ assert.deepEqual(a.read('socialSuggestionList().map(p=>p.id)'),['away','both','none']);
+ a.run("CFG.selectedLocation='all'");
+ assert.equal(a.read('socialSuggestionList().length'),4);
+ assert.deepEqual(a.read('({people:CFG.people,log:CFG.log,days:_state})'),before);
 });
 test('future era ordering/modes retained; invalid timelines fail without mutation',()=>{
  const data=fixture();const future=JSON.parse(JSON.stringify(data.config.log.at(-1)));future.from='2026-12-01';future.mode='vacation';data.config.log.push(future);

@@ -1,0 +1,5 @@
+# Family on/off filter — correction
+
+Supersedes LOCATION_VISIBILITY_2026-10-26.md: user clarified that Family toggles whether family contacts appear in Who to See. Location label and dropdown stay visible and fixed. Family has constant text and dimensions; aria-pressed and color indicate on/off. Starts on and resets on account change. Filtering is transient and does not save preferences or rewrite contacts, day logs or scores. Family, pending family and legacy relationship=family all follow the toggle. Location still filters Friends/Strangers; family remains independent of location when on. Social Combo, directory and record/scoring behavior are unchanged.
+
+Base d0b5dbe6971bb10bd0aee12fbcb0b39de17d2ae1. 70 checks pass, including actual Chromium click/keyboard checks at 320/390/1440px, exact fixed toolbar geometry and selected location retention, no overflow, on/off appearance, modern/legacy family exclusion and restoration, and config/day/score/write preservation. Synthetic browser only; no real account writes. Generated assets/SRI rebuilt.

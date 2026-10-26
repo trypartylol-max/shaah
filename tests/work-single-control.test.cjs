@@ -31,3 +31,13 @@ test('custom Work milestones apply from today, preserve past scores and retain t
  const other=app();assert.equal(other.read("workMilestonesFor('2026-10-16')[2][1]"),25);
  a.run("CFG.travel.mode='vacation';persistTravelMode('vacation');workPhaseAdvance('2026-10-16')");assert.equal(a.read("getChecked('2026-10-16').work"),false);
 });
+test('weekly cash uses Sunday–Saturday, one highest milestone per day and dated amounts',()=>{
+ const a=app();a.run("_state={};setHabitState('work','2026-10-10',true);setHabitState('work','2026-10-11',true);setHabitState('work','2026-10-12',.4);setHabitState('work','2026-10-15',.8);setHabitState('work','2026-10-17',true)");
+ assert.equal(a.read("workWeeklyCash('2026-10-16').from"),'2026-10-11');
+ assert.equal(a.read("workWeeklyCash('2026-10-16').to"),'2026-10-17');
+ assert.equal(a.read("workWeeklyCash('2026-10-16').total"),1850);
+ a.run("workMilestonesApply([{amount:500,points:7},{amount:900,points:8},{amount:1200,points:15}]);workPhaseAdvance('2026-10-16')");
+ assert.equal(a.read("workWeeklyCash('2026-10-16').total"),2350);
+ a.run("CFG.travel.mode='vacation';persistTravelMode('vacation')");assert.equal(a.read("workWeeklyCash('2026-10-16').total"),1850);
+ assert.equal(app().read("workWeeklyCash('2026-10-16').total"),800);
+});

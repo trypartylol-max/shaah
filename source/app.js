@@ -4622,14 +4622,26 @@ function workPhaseAdvance(key){
  const completed=workMilestonesFor(key).filter(p=>fraction+1e-9>=p[2]).length;
  workPhaseSet(key,completed>=3?0:completed+1);
 }
+function workWeeklyCash(key){
+ const weekday=new Date(key+'T12:00:00Z').getUTCDay();
+ const from=keyMinus(key,weekday),to=keyMinus(from,-6),today=todayKey();let total=0;
+ for(let i=0;i<7;i++){
+  const day=keyMinus(from,-i);if(day>today||cfgForDate(day).inVacation)continue;
+  const fraction=doneFrac(getChecked(day).work),phases=workMilestonesFor(day);
+  let amount=0;phases.forEach((p,n)=>{if(fraction+1e-9>=p[2])amount=workMilestoneRules(day)[n].amount;});
+  total+=amount;
+ }
+ return {from,to,total};
+}
 function workPhaseCard(key,item){
  const fraction=doneFrac(getChecked(key).work);
  const phases=workMilestonesFor(key);
  const completed=phases.filter(p=>fraction+1e-9>=p[2]).length,points=Math.round(item.pts*fraction);
  const next=phases[completed],legacy=![0,...phases.map(p=>p[2])].some(v=>Math.abs(v-fraction)<1e-9);
  const action=next?'Completar '+next[0]+' · '+next[1]+' puntos':'Reiniciar avance · volver a 0 de 3 y 0 puntos';
+ const weekly=workWeeklyCash(key);
  const status=legacy?'Avance previo conservado':completed===3?'✓ Completado':completed+'/3 hitos · meta '+phases[2][0];
- return `<section class="sf-core-routine sf-work sf-work-reference" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts}</span></div><div class="r-sub">${status}</div></div><div class="sf-work-track"><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction+1e-9>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}</span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]:'Reiniciar avance'}</button></div></section>`;
+ return `<section class="sf-core-routine sf-work sf-work-reference" aria-label="Work"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts}</span></div><div class="r-sub">${status}</div></div><div class="sf-work-track"><div class="sf-work-progress" aria-label="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction+1e-9>=p[2]?' is-done':''}"></span>`).join('')}</div><div class="sf-work-targets">${phases.map(p=>`<span>${p[0]}</span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]:'Reiniciar avance'}</button><div class="sf-work-weekly" title="Estimado según el último hito de cada día · ${weekly.from} a ${weekly.to}"><span>ESTA SEMANA · DOM–SÁB</span><strong>≈ ₪${weekly.total.toLocaleString('en-US')}</strong></div></div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

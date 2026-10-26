@@ -2178,6 +2178,7 @@ function renderSettings(){
       <div style="margin-left:auto;font-size:15px;color:${tot===118?'#666':'#fbbf24'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body" style="padding:20px 16px calc(68px + env(safe-area-inset-bottom))">
+      ${stCard("appearance","APPEARANCE","#a78bfa",`<div class="aurora-picker"><button onclick="setTestSkin('classic')" class="aurora-choice" data-aurora-choice="classic">◯ Original</button><button onclick="setTestSkin('aurora')" class="aurora-choice" data-aurora-choice="aurora">✦ Aurora</button></div><p style="color:#9898ae;font-size:12px">Se guarda en este navegador. Tus puntos e historial se mantienen.</p>`)}
             ${stCard("hab","HABITS & WEIGHTS","#9090aa",`${lvlBlock(1,"⬛ LVL 1 — CORE","#e2e2e2")}
       ${lvlBlock(2,"▪ LVL 2 — HABITS","#a78bfa")}
       ${lvlBlock(3,"· LVL 3 — BONUS","#fbbf24")}
@@ -4826,6 +4827,7 @@ html.shaah-aurora #aurora-skin-toggle{background:linear-gradient(100deg,#0b5efb,
 @media(prefers-reduced-motion:reduce){html.shaah-aurora .t-ring{animation:none}}
 </style>
 <script>
-(function(){try{if(localStorage.getItem('shaah-test-skin')==='aurora')document.documentElement.classList.add('shaah-aurora')}catch(e){}
-function ready(){if(document.getElementById('aurora-skin-toggle'))return;var b=document.createElement('button');b.id='aurora-skin-toggle';b.type='button';b.setAttribute('aria-label','Toggle Aurora test skin');function label(){b.textContent=document.documentElement.classList.contains('shaah-aurora')?'✦ AURORA':'✦ SKIN'}label();b.addEventListener('click',function(){var on=document.documentElement.classList.toggle('shaah-aurora');try{localStorage.setItem('shaah-test-skin',on?'aurora':'default')}catch(e){}label()});document.body.appendChild(b)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready()})();
+(function(){var k='shaah:skin:v1';window.setTestSkin=function(id){if(id!=='aurora'&&id!=='classic')return;document.documentElement.classList.toggle('shaah-aurora',id==='aurora');try{localStorage.setItem(k,id)}catch(e){}document.querySelectorAll('[data-aurora-choice]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.auroraChoice===id))})};var saved='classic';try{saved=localStorage.getItem(k)||'classic'}catch(e){}setTestSkin(saved==='aurora'?'aurora':'classic');var obs=new MutationObserver(function(){document.querySelectorAll('[data-aurora-choice]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.auroraChoice===(document.documentElement.classList.contains('shaah-aurora')?'aurora':'classic')))})});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){obs.observe(document.body,{childList:true,subtree:true})});else obs.observe(document.body,{childList:true,subtree:true})})();
 </script>
+
+<style>.aurora-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}.aurora-choice{padding:22px 8px;border:1px solid #35334e;border-radius:14px;background:#11111e;color:#d9d9ed;font-weight:700}.aurora-choice[data-aurora-choice="aurora"]{background:linear-gradient(135deg,#112359,#371262);color:#61e9ff}.aurora-choice[aria-pressed="true"]{border-color:#a996ff;box-shadow:0 0 0 1px #a996ff,0 0 15px #7744ff55}</style>

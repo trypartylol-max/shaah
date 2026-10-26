@@ -2624,3 +2624,15 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 .sd-location-toggle:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}
 
 .sd-location-toggle[aria-pressed="true"]{background:#29200f;border-color:#fbbf24;color:#fbbf24}
+
+/* Social mobile header: keep Who to See at its existing left edge. */
+@media(max-width:879px){
+ .soc>div:first-child{position:relative}
+ .soc .sd-bar{position:absolute;top:0;left:50%;transform:translateX(-50%);margin:0;height:36px;gap:5px;white-space:nowrap}
+ .soc .sd-bar .sd-pts{display:none}
+ .soc .sd-bar .sd-day{max-width:90px;overflow:hidden;text-overflow:ellipsis}
+ .soc .sd-bar .sd-nav{padding:0;width:24px;height:30px}
+ .soc .sd-bar .sd-hoy{position:absolute;top:36px;left:50%;transform:translateX(-50%);margin:0}
+ .soc section[aria-label="Who to See"]>h2{display:flex;align-items:center;height:36px;margin-top:0}
+ .soc>div:first-child:has(.sd-hoy) section[aria-label="Who to See"]>h2{margin-bottom:42px}
+}

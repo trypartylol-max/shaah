@@ -1,0 +1,70 @@
+/* SHAAH mobile Today — reuse existing desktop LOG action, no JS/data changes. */
+@media (max-width:879px) {
+  #scroll .today:not(.history-day-editor) > .t-score-hero {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    align-items:center !important;
+    justify-items:center !important;
+    justify-content:center !important;
+    gap:12px !important;
+    width:100% !important;
+    max-width:none !important;
+    min-height:132px !important;
+    height:auto !important;
+    margin:0 !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero > .t-score-stack {
+    display:contents !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .t-ring {
+    grid-column:1 !important;
+    width:115px !important;
+    height:115px !important;
+    margin:0 auto !important;
+    transform:none !important;
+    justify-self:center !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .t-grade {
+    display:none !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start {
+    display:flex !important;
+    visibility:visible !important;
+    grid-column:2 !important;
+    width:82px !important;
+    min-width:82px !important;
+    height:82px !important;
+    min-height:82px !important;
+    padding:8px !important;
+    margin:0 auto !important;
+    border-radius:50% !important;
+    border:1px solid var(--skin-edge,#303047) !important;
+    background:var(--skin-panel,#10101c) !important;
+    color:var(--skin-copy,#ececf2) !important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.025) !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:center !important;
+    gap:4px !important;
+    font-size:11px !important;
+    letter-spacing:.12em !important;
+    text-transform:uppercase !important;
+    overflow:hidden !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start > span {
+    font-size:30px !important;
+    font-weight:400 !important;
+    line-height:1 !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start::after {
+    content:"LOG";
+    font-size:11px;
+    line-height:1;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.live {
+    border-color:#4ade80 !important;
+  }
+  #scroll .today:not(.history-day-editor) > .t-daylog {
+    display:none !important;
+  }
+}

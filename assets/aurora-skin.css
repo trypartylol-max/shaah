@@ -15,3 +15,61 @@ html.shaah-aurora .today-log-start{border-color:#22dbff!important;box-shadow:0 0
 .skin-preview-aurora{background:radial-gradient(circle at 25% 20%,#253e91,#150c36 70%,#050613)!important;border-color:#814dff!important;box-shadow:inset 0 0 14px #5b35ee66,0 0 9px #5c3bdf44}
 .skin-preview-aurora .skin-preview-ring{color:#45e6ff!important;border-color:#8a59ff!important;text-shadow:0 0 8px #21dfff;box-shadow:0 0 10px #9b3bff}
 .skin-preview-aurora .skin-preview-lines i{background:linear-gradient(90deg,#30dfff,#aa56ff)!important;box-shadow:0 0 5px #29cfff}
+
+/* Aurora palette audit: shared tokens for every screen and overlay. */
+html.shaah-aurora{
+ --skin-panel:#0d1630;--skin-edge:#2d3d62;--skin-copy:#edf4ff;
+ --skin-muted:#b0bfdd;--skin-focus:#67dfff;--skin-selected:#67dfff;
+ --skin-active-bg:#17334c;--skin-input-bg:#091226;--skin-input-border:#53658d;
+ --aurora-accent:#67dfff;--aurora-violet:#b9a2ff;--aurora-success:#68e0bb;
+ --aurora-warning:#f5c879;--aurora-danger:#ff879f;
+ color-scheme:dark;
+}
+html.shaah-aurora body{background:radial-gradient(ellipse at 50% 0%,#201847 0%,#0c1630 44%,#050b1b 85%) fixed!important;color:var(--skin-copy)}
+html.shaah-aurora #app{background:transparent!important}
+html.shaah-aurora #nav{background:linear-gradient(180deg,#101c38,#091226)!important;border-color:var(--skin-edge)!important;box-shadow:0 -4px 22px #050b1b66}
+html.shaah-aurora #nav .nav-btn{color:var(--skin-muted)}
+html.shaah-aurora #nav .nav-btn.active{color:var(--aurora-accent)!important;text-shadow:0 0 12px #67dfff40}
+html.shaah-aurora .today.sf-today-v27{
+ --today-card-bg:var(--skin-panel);--today-card-border:var(--skin-edge);
+ --today-title:var(--skin-muted);--today-copy:var(--skin-copy);--today-muted:var(--skin-muted);
+ --today-accent:var(--aurora-accent);--today-active:var(--skin-active-bg);
+}
+html.shaah-aurora .card,html.shaah-aurora .settings-list{border-color:var(--skin-edge)}
+/* Social additions previously bypassed the shared color variables. */
+html.shaah-aurora :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra){background:var(--skin-panel);border-color:var(--skin-edge)}
+html.shaah-aurora :is(.sf-button,.sd-location-toggle){background:#16213f;color:var(--skin-copy);border-color:var(--skin-edge)}
+html.shaah-aurora .sf-primary{background:var(--aurora-accent);color:#050b1b;border-color:var(--aurora-accent)}
+html.shaah-aurora :is(.sf-selected,.sf-category-toggle.sf-selected,.sd-location-toggle[aria-pressed="true"]){background:var(--skin-active-bg);border-color:var(--aurora-accent);color:var(--aurora-accent)}
+html.shaah-aurora :is(.sf-muted,.sf-field,.sf-scoring summary,.sd-caption>span:last-child,.sd-identity .w-when,.sd-edit,.sd-help,.sf-combo-heading>span,.sf-work-info .r-sub,.sf-work-points,.sf-work-targets){color:var(--skin-muted)}
+html.shaah-aurora :is(.sd-identity .w-name,.sf-work-info .r-lab){color:var(--skin-copy)}
+html.shaah-aurora :is(.sf-field input,.sf-field select){background:var(--skin-input-bg);border-color:var(--skin-input-border);color:var(--skin-copy)}
+html.shaah-aurora :is(.sf-person,.sf-locations,.sd-combo,.sf-category-toggle,.sf-directory .sf-heading .sf-button){border-color:var(--skin-edge)}
+html.shaah-aurora .sf-category-toggle{color:var(--skin-copy)}
+html.shaah-aurora .sf-seen{border-color:var(--aurora-success)}
+html.shaah-aurora .sd-done{background:#68e0bb0d}
+html.shaah-aurora .sd-done .sd-icon{color:var(--aurora-success)}
+html.shaah-aurora .sd-edit:hover{color:var(--aurora-accent);background:#67dfff10}
+html.shaah-aurora .sd-add{color:var(--skin-muted);border-color:var(--skin-edge)}
+html.shaah-aurora .sd-time-pill{background:#16213f}
+html.shaah-aurora .sf-core-icon{background:#16213f;border-color:var(--skin-edge)}
+html.shaah-aurora .sf-work-segment{background:#2d3d62}
+html.shaah-aurora .sf-work-segment.is-done{background:var(--aurora-accent)}
+html.shaah-aurora .sf-work-register{background:var(--aurora-accent);color:#050b1b}
+html.shaah-aurora :is(.sf-editor [role="alert"],.sf-group-dialog [role="alert"],#work-settings-error){color:var(--aurora-danger)}
+/* Navigation, filters and keyboard focus use one interaction accent. */
+html.shaah-aurora :is(.htab.active,.skin-option[aria-pressed="true"]){background:var(--skin-active-bg);border-color:var(--aurora-accent);color:var(--aurora-accent)}
+html.shaah-aurora :is(button,a,input,select,textarea,[tabindex]):focus-visible{outline:2px solid var(--skin-focus);outline-offset:3px}
+html.shaah-aurora :is(input,textarea)::placeholder{color:#97a9cc;opacity:1}
+html.shaah-aurora :is(input,textarea,select){accent-color:var(--aurora-accent)}
+html.shaah-aurora ::selection{background:#315f88;color:#edf4ff}
+/* Primary actions carry the same cyan fill and dark, high-contrast label. */
+html.shaah-aurora :is(.logdesk-new,.logdesk-save,.sf-routine-primary,[data-ui-click="startRoutineNested"],.sf-work-next){background:var(--aurora-accent)!important;border-color:var(--aurora-accent)!important;color:#050b1b!important;box-shadow:none!important}
+html.shaah-aurora :is(.logdesk-input,.logdesk-sort){background:var(--skin-input-bg);border-color:var(--skin-input-border);color:var(--skin-copy)}
+html.shaah-aurora :is(.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor){background:var(--skin-panel);border-color:var(--skin-edge)}
+html.shaah-aurora .logdesk-row.selected{background:var(--skin-active-bg);border-color:var(--aurora-accent)}
+html.shaah-aurora .logdesk-seg.selected{outline-color:var(--aurora-accent)}
+html.shaah-aurora .logdesk-delete{color:var(--aurora-danger);border-color:var(--aurora-danger);background:#ff879f0d}
+/* Match the mobile circular Log control's existing specificity. */
+html.shaah-aurora #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start{color:var(--aurora-accent)!important;border-color:var(--aurora-accent)!important;background:var(--skin-panel)!important;box-shadow:0 0 12px #67dfff30!important}
+html.shaah-aurora #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.live{color:var(--aurora-success)!important;border-color:var(--aurora-success)!important;box-shadow:0 0 12px #68e0bb30!important}

@@ -89,7 +89,28 @@ function skinColorParts(value){
   const parts=value.match(/[\d.]+/g).map(Number);return [...parts.slice(0,3),parts[3]??1];
 }
 function skinTone(hex,id=_skin){
-  const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic'||id==='aurora')return classic;
+  const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic')return classic;
+  // Aurora shares the same palette in CSS, generated templates and SVG charts.
+  // Keep success / warning / danger distinct from interactive cyan / violet.
+  if(id==='aurora'){
+    const semantic={fff1a8:'fff0bd',ffd700:'f6d77b','4ade80':'68e0bb','60a5fa':'75baff',
+      f59e0b:'f5c879',f97316:'f7a77c',ef4444:'ff879f',f87171:'ff879f',
+      a78bfa:'b9a2ff',fbbf24:'f5c879'};
+    let tone=semantic[hex];
+    if(!tone){
+      const high=Math.max(r,g,b),low=Math.min(r,g,b),y=.2126*r+.7152*g+.0722*b;
+      if(high-low<=Math.max(32,high*.18)||(high<100&&Math.abs(r-g)<20)){
+        const bucket=[9,20,32,55,80,115,165,205].findIndex(n=>y<=n);
+        tone=['050b1b','0d1630','16213f','2d3d62','53658d','97a9cc','b0bfdd','d1def4','edf4ff'][bucket<0?8:bucket];
+      }else if(high<100)tone='172344';
+      else if(r>g*1.35&&r>b*1.15)tone='ff879f';
+      else if(r>120&&g>r*.55&&b<g*.7)tone='f5c879';
+      else if(g>r&&g>=b)tone='68e0bb';
+      else if(b>r*1.25)tone='75baff';
+      else tone='b9a2ff';
+    }
+    return skinColorParts('#'+tone).slice(0,3);
+  }
   const grades={
     fff1a8:['dcffe8','dce2cc'],ffd700:['b4ffce','c2cbae'],
     '4ade80':['00ff41','9fbaa9'],'60a5fa':['50e68c','9bb3c6'],
@@ -242,11 +263,11 @@ function applySkin(){
   root.classList.toggle('shaah-aurora',_skin==='aurora');
   for(const hex of _skinColors){
     const key='--skin-rgb-'+hex;
-    if(_skin==='classic'||_skin==='aurora')root.style.removeProperty(key);
+    if(_skin==='classic')root.style.removeProperty(key);
     else root.style.setProperty(key,skinTone(hex).join(','));
   }
   const theme=document.querySelector('meta[name="theme-color"]');
-  if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':'#07070f';
+  if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
 }
 function setSkin(id){
@@ -259,7 +280,7 @@ function setSkin(id){
   return true;
 }
 function initSkin(){
-  _skinColors.add('171725');_skinColors.add('34344a');
+  _skinColors.add('171725');_skinColors.add('34344a');_skinColors.add('a78bfa');
   try{const id=localStorage.getItem(SKIN_KEY);_skin=SKINS.some(s=>s.id===id)?id:'classic';}catch(e){_skin='classic';}
   applySkin();
   if(typeof MutationObserver==='undefined'||!document.body)return;

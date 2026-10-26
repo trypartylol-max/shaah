@@ -844,6 +844,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
+  socialLocationToggle:uiRule('click',[],()=>{socialLocationVisible=!socialLocationVisible;render();}),
   socialPeopleToggle:uiRule('click',[],()=>{socialPeopleOpen=!socialPeopleOpen;render();}),
   socialRecord:uiRule('click',['string','string'],(n,e,id,key)=>socialRecord(id,key),true),
   socialViewSet:uiRule('click',['string'],(n,e,v)=>socialViewSet(v)),
@@ -2054,7 +2055,7 @@ function resetAccountView(){
   currentTab='today';histTab='week';histMonth=null;tourStep=null;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
+  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialLocationVisible=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
   bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
   dayLogEditClose();_lastY=0;tuckNav(false);
@@ -4494,6 +4495,7 @@ function socialDirectoryRows(){
  return list.map(p=>socialTile(p,socialKeyForView(),true)).join('')||'<p class="sf-muted">Sin resultados.</p>';
 }
 var socialPeopleOpen=false;
+var socialLocationVisible=true;
 function socialPeople(){return `<section class="card sf-people-box" aria-label="People & Groups"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} People &amp; Groups <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading">${socialButton('+ Persona','socialNew',[''],true)}</div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory">${socialDirectoryRows()}</div>${socialGroups()}</div></div></section>`;}
 function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div><p class="sf-muted">El foco de grupo filtra sugerencias de Friends y Strangers; todos siguen disponibles para registrar encuentros.</p></section>`;}
 function socialSuggestions(){
@@ -4502,9 +4504,11 @@ function socialSuggestions(){
 }
 function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="Who to See"><h2 class="sec">Who to See</h2>${socialDashboard(key)}</section><section aria-label="Social Combo"><h2 class="sec">Social Combo</h2>${socialComboPanel(key)}</section>${socialPeople()}`;}
 function socialComboPanel(key){return comboBlock(key,true);}
+// Presentation only: retain the location focus and all Family recommendations.
+function socialLocationControl(){return `<div class="sd-location-control"><div id="social-location-control"${socialLocationVisible?'':' hidden'}>${locationSelector()}</div><button type="button" class="sd-location-toggle" aria-label="${socialLocationVisible?'Hide':'Show'} Location" title="${socialLocationVisible?'Hide':'Show'} Location" aria-controls="social-location-control" aria-expanded="${socialLocationVisible}" ${ui('click','socialLocationToggle')}><span>Family</span></button></div>`;}
 function socialDashboard(key){
  const list=socialSuggestionList();
- return `<div class="sd-toolbar">${locationSelector()}</div><section class="card sd-grid" aria-label="Contactos sugeridos">${list.map(p=>socialDenseContact(p,key)).join('')||'<p class="sf-muted">Sin contactos en este foco.</p>'}</section>`;
+ return `<div class="sd-toolbar">${socialLocationControl()}</div><section class="card sd-grid" aria-label="Contactos sugeridos">${list.map(p=>socialDenseContact(p,key)).join('')||'<p class="sf-muted">Sin contactos en este foco.</p>'}</section>`;
 }
 function socialSuggestionList(){
  const tk=todayKey(),loc=selectedLocation();

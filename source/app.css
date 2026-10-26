@@ -2616,3 +2616,9 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 #scroll .today.sf-today-v27>.t-rout{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
 #scroll .today.sf-today-v27>.t-rout>.t-rout-toggle{background:transparent!important;border:0!important;box-shadow:none!important;flex-wrap:nowrap}
 #scroll .today.sf-today-v27>.t-rout>.t-rout-toggle>.sf-core-total{margin-left:0}
+/* Who to See: visibility never changes the selected location or contact data. */
+.sd-location-control{display:flex;align-items:center;gap:7px;min-width:0;max-width:100%;margin:8px 0 12px}
+.sd-location-control>div{min-width:0}.sd-location-control>div>div{margin:0!important}
+.sd-location-control select{max-width:100%}
+.sd-location-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 9px;flex:0 0 auto;min-height:36px;border:1px solid #34344a;border-radius:8px;background:#111120;color:#adadbf;font:inherit;cursor:pointer}
+.sd-location-toggle:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}

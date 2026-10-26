@@ -1,0 +1,14 @@
+/* SHAAH Aurora — opt-in production skin. Default theme unchanged. */
+html.shaah-aurora body{background:radial-gradient(ellipse at 50% 14%,#26125b 0%,#0b1239 42%,#050812 85%) fixed!important;color:#eef4ff}
+html.shaah-aurora #app{background:radial-gradient(ellipse at 50% 20%,rgba(98,42,239,.18),transparent 65%)!important}
+html.shaah-aurora .today{background:radial-gradient(ellipse at 50% 25%,rgba(25,129,255,.10),transparent 68%)}
+html.shaah-aurora .t-ring{filter:drop-shadow(0 0 12px #00d5ff) drop-shadow(0 0 23px #983bff);animation:aurora-breathe 4s ease-in-out infinite}
+html.shaah-aurora .t-ring svg{filter:drop-shadow(0 0 6px #16cfff)}
+html.shaah-aurora .t-grade{background:linear-gradient(140deg,rgba(32,20,80,.9),rgba(5,25,56,.92))!important;border:1px solid #8c4dff!important;box-shadow:0 0 19px #773bff60,inset 0 0 26px #078fff19!important;backdrop-filter:blur(14px)}
+html.shaah-aurora #nav{background:linear-gradient(180deg,#0c1239,#05091b)!important;border-top:1px solid #6f43e9!important;box-shadow:0 -4px 22px #612eff33}
+html.shaah-aurora #nav .nav-btn.active{color:#34e5ff!important;text-shadow:0 0 12px #00dfff}
+html.shaah-aurora .today-log-start{border-color:#22dbff!important;box-shadow:0 0 12px #00dfff77!important}
+#aurora-skin-toggle{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:9999;border:1px solid #7759cb;border-radius:999px;background:#0b1232;color:#e0eaff;padding:7px 11px;font:600 11px system-ui;box-shadow:0 2px 14px #0008;cursor:pointer}
+html.shaah-aurora #aurora-skin-toggle{background:linear-gradient(100deg,#0b5efb,#812fff);border-color:#2fe6ff;box-shadow:0 0 13px #1ba9ff9c;color:white}
+@keyframes aurora-breathe{0%,100%{filter:drop-shadow(0 0 9px #04d9ff) drop-shadow(0 0 16px #943dff)}50%{filter:drop-shadow(0 0 19px #04d9ff) drop-shadow(0 0 29px #943dff)}}
+@media(prefers-reduced-motion:reduce){html.shaah-aurora .t-ring{animation:none}}

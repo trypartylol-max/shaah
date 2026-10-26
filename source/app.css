@@ -2579,3 +2579,18 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 #scroll .today.sf-today-v27 .sf-work-track{align-self:center}
 #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine>.sf-core-actions{align-self:end}
 .sf-work-settings{padding:14px;margin-bottom:10px}.sf-work-settings-row{display:grid;grid-template-columns:20px 1fr 1fr;gap:10px;align-items:center;margin:10px 0}.sf-work-settings-row label{display:grid;gap:5px;color:var(--skin-muted);font-size:13px}.sf-work-settings-row input{width:100%;min-width:0;box-sizing:border-box;background:var(--skin-input-bg,#111120);border:1px solid var(--skin-input-border,#29293c);color:var(--skin-copy,#e2e2e2);border-radius:8px;padding:8px;font:inherit}#work-settings-error{color:#f87171;font-size:13px}
+
+/* History shares the renderer, but needs its own content-sized grid tracks. */
+#scroll .today.history-day-editor>.t-lvl,
+#scroll .today.history-day-editor>.t-note{transform:none!important;min-width:0!important;align-self:start!important}
+@media(min-width:880px){
+ #scroll .today.history-day-editor{align-content:start!important;align-items:start!important}
+ #scroll .today.history-day-editor>.t-score-hero{grid-row:1!important;grid-column:1/-1!important}
+ #scroll .today.history-day-editor>.t-lvl1{grid-row:2!important;grid-column:1/span 4!important}
+ #scroll .today.history-day-editor>.t-lvl2{grid-row:2!important;grid-column:5/span 4!important}
+ #scroll .today.history-day-editor>.t-lvl3{grid-row:2!important;grid-column:9/span 4!important}
+ #scroll .today.history-day-editor>.t-social-independent{grid-row:3!important;grid-column:1/span 8!important}
+ #scroll .today.history-day-editor>.t-note{grid-row:3!important;grid-column:9/span 4!important}
+ #scroll .today.history-day-editor>.t-daylog{grid-row:4!important;grid-column:1/-1!important}
+ #scroll .today.history-day-editor>.t-reset{grid-row:5!important;grid-column:1/-1!important}
+}

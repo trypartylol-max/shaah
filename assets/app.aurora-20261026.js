@@ -972,7 +972,7 @@ const UI_ACTIONS=Object.freeze({
   routineSendToEnd:uiRule('click',[],()=>routineSendToEnd())
 });
 const UI_ENUMS=Object.freeze(Object.fromEntries(Object.entries({
-  tab:['today','log','social','stats','history'],skin:['classic','matrix','minimal'],
+  tab:['today','log','social','stats','history'],skin:SKINS.map(s=>s.id),
   scope:['all','unassigned'],membership:['add','remove'],resolution:['server','local'],
   mode:['work','vacation'],habitField:['i','l','p','pWork'],socialField:['icon','label','pWork','pVacation'],
   stepField:['label','dur'],personField:['name','sub','every']

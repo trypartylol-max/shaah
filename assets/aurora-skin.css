@@ -69,23 +69,6 @@ html.shaah-aurora .t-ring{animation:none;filter:drop-shadow(0 0 9px #758dff40)}
 html.shaah-aurora .t-ring svg{filter:none}
 html.shaah-aurora .t-grade{background:linear-gradient(140deg,#191b39,#0d1930)!important;border-color:#7665a8!important;box-shadow:0 0 16px #9574ff16!important;backdrop-filter:none}
 html.shaah-aurora #nav{border-image:linear-gradient(90deg,var(--aurora-blue),var(--aurora-violet),var(--aurora-pink)) 1}
-.aurora-nav{display:none}
-html.shaah-aurora #nav .nav-btn[data-tab="log"],html.shaah-aurora #nav .nav-btn[data-tab="social"],html.shaah-aurora #nav .nav-btn[data-tab="stats"]{display:none}
-html.shaah-aurora #nav .nav-btn[data-tab="today"]{order:1}
-html.shaah-aurora #aurora-work{order:2}
-html.shaah-aurora #nav .nav-btn[data-tab="history"]{order:3}
-html.shaah-aurora #aurora-more-trigger{order:4}
-html.shaah-aurora #nav .aurora-nav{display:flex;flex:1;min-width:0;min-height:46px;padding:9px 4px;align-items:center;justify-content:center;flex-direction:column;gap:4px;background:none;border:0;border-top:2px solid transparent;color:var(--skin-muted);font:inherit;font-size:13.5px;letter-spacing:.14em;cursor:pointer}
-html.shaah-aurora #nav .aurora-nav>span{font-size:18px;line-height:normal}
-html.shaah-aurora #nav .aurora-nav:hover{color:var(--aurora-accent)}
-#aurora-more{color:#edf4ff;background:#0d1630;border:1px solid #7665a8;border-radius:20px;padding:24px;width:min(380px,calc(100vw - 32px));max-height:calc(100dvh - 48px);overflow:auto;box-sizing:border-box;box-shadow:0 12px 60px #0008}
-#aurora-more::backdrop{background:#020615b8}
-#aurora-more h2{margin:0 0 16px;font-size:22px}
-#aurora-more .aurora-nav{display:flex;width:100%;align-items:center;gap:12px;border:1px solid #2d3d62;background:#16213f;color:#edf4ff;border-radius:12px;margin:8px 0;padding:14px;font:inherit;text-align:left;cursor:pointer;min-height:48px}
-#aurora-more .aurora-nav:hover{border-color:#67dfff}
 @media(max-width:879px){html.shaah-aurora :is(input,select,textarea){font-size:16px!important}}
 @media(prefers-reduced-motion:reduce){html.shaah-aurora .t-ring,html.shaah-aurora .t-ring svg{filter:none!important;animation:none!important}html.shaah-aurora *,html.shaah-aurora *::before,html.shaah-aurora *::after{scroll-behavior:auto!important;transition:none!important}}
 @media(forced-colors:active){html.shaah-aurora #nav,html.shaah-aurora .t-grade{border:1px solid CanvasText!important}html.shaah-aurora .t-ring{filter:none}}
-html.shaah-aurora #nav:has(.nav-btn:is([data-tab="log"],[data-tab="social"],[data-tab="stats"]).active) #aurora-more-trigger{color:var(--aurora-accent);box-shadow:inset 0 2px var(--aurora-violet)}
-
-@media(max-width:879px){html.shaah-aurora #nav .aurora-nav{min-height:40px;padding:6px 4px}}

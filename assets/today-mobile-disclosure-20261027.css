@@ -1,0 +1,30 @@
+/* Mobile Today disclosure fix. Keep desktop/Social tab and scoring untouched. */
+@media(max-width:879px){
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl1:has(> .lvl-b.cl){
+    height:auto!important;min-height:0!important;align-self:start!important;
+    display:block!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl1 > .lvl-b.cl{
+    display:none!important;max-height:0!important;overflow:hidden!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-social-independent{
+    height:auto!important;min-height:0!important;align-self:start!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading{
+    cursor:pointer;user-select:none;display:flex;align-items:center;
+    min-height:40px;margin-bottom:0!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading::before{
+    content:"▾";font-size:13px;color:var(--skin-muted,#8888a4);
+    display:inline-block;transition:transform .18s ease;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed .sf-combo-heading::before{
+    transform:rotate(-90deg);
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed > .sf-combo-category{
+    display:none!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed{
+    margin-bottom:0!important;padding-bottom:0!important;
+  }
+}

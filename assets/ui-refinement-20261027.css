@@ -22,3 +22,39 @@
   #scroll .stats-page .stats-six-grid { flex:0 0 auto; }
   #scroll .stats-page > div:has(> .sec) > .card > div[style*="align-items:flex-end"] { flex:1 1 auto; min-height:100px; }
 }
+
+
+/* WORK routine: approved larger interior, unchanged heading/points and card footprint. */
+#scroll .today.sf-today-v27 .t-rout-body > .wg-card {
+  height:122px !important;
+  min-height:122px !important;
+  gap:7px !important;
+  justify-content:space-between !important;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-row {
+  grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);
+  gap:10px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-figure {
+  width:70px;
+  height:70px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-daily > span,
+#scroll .today.sf-today-v27 .wg-card .wg-weekly > span {
+  font-size:12px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-daily > strong {
+  font-size:32px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {
+  font-size:27px;
+}
+@media (max-width:380px) {
+  #scroll .today.sf-today-v27 .wg-card .wg-row {
+    grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);
+    gap:6px;
+  }
+  #scroll .today.sf-today-v27 .wg-card .wg-figure {width:58px;height:58px}
+  #scroll .today.sf-today-v27 .wg-card .wg-daily > strong {font-size:27px}
+  #scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {font-size:23px}
+}

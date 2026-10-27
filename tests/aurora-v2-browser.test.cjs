@@ -56,3 +56,20 @@ test('Aurora: cross-tab restore closes More; night layout remains within mobile 
  assert.equal(await page.locator('#aurora-more').evaluate(el=>el.open),false);
  assert.equal(await page.locator('#aurora-more-trigger').isVisible(),false);
 });
+
+for(const width of [390,1440])test(`Aurora Work ${width}: native milestones persist and leave historical scores unchanged`,async t=>{
+ const page=await openApp(t,locationFixture(),{width,height:1000});
+ await page.evaluate(async()=>{await flushCfgSaves();setSkin('aurora');setTab('today')});
+ const past=()=>page.evaluate(()=>JSON.stringify(Object.keys(_state).filter(k=>/^\d{4}-/.test(k)&&k<todayKey()).map(k=>[k,_state[k],calcScore(k)])));
+ const before=await past();
+ for(const points of [10,20,25,0]){
+   await page.locator('#aurora-work').click();
+   await page.locator('.sf-work-next').click();
+   assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);
+   await page.waitForFunction(()=>!_pending[todayKey()]);
+ }
+ assert.equal(await past(),before);
+ await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
+ assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),0);
+ assert.equal(await past(),before);
+});

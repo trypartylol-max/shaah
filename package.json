@@ -5,11 +5,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node --test --test-isolation=none tests/*.test.cjs",
-    "test:unit": "node --test --test-isolation=none tests/*regression.test.cjs",
-    "test:browser": "node --test --test-isolation=none tests/*browser.test.cjs",
-    "test:locations": "node --test --test-isolation=none tests/location-*.test.cjs",
-    "test:sync:safety": "node --test --test-isolation=none tests/supabase-*.test.cjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.cjs",
+    "test:unit": "node --test --test-concurrency=1 tests/*regression.test.cjs",
+    "test:browser": "node --test --test-concurrency=1 tests/*browser.test.cjs",
+    "test:locations": "node --test --test-concurrency=1 tests/location-*.test.cjs",
+    "test:sync:safety": "node --test --test-concurrency=1 tests/supabase-*.test.cjs",
     "test:sync:check": "node qa/supabase/run-sync.cjs --check",
     "test:sync:probe": "node --use-env-proxy qa/supabase/probe.cjs",
     "test:sync:public": "node --use-env-proxy qa/supabase/public-preflight.cjs",

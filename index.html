@@ -751,6 +751,14 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   #scroll .today .cb-row > span,
   #scroll .soc .cb-row > span { font-size:18px !important; }
 }
+
+/* Desktop Stats: occupy viewport height, mobile unchanged. */
+@media (min-width:880px) and (min-height:700px) {
+  #scroll .stats-page { min-height:calc(100dvh - 64px); padding-bottom:80px !important; justify-content:space-between; }
+  #scroll .stats-page > div:has(> .sec) { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+  #scroll .stats-page > div:has(> .sec) > .card { flex:1 1 auto; display:flex; flex-direction:column; justify-content:space-evenly; min-height:0; }
+  #scroll .stats-page > div:has(> .sec) > .card > div[style*="align-items:flex-end"] { flex:1 1 auto; min-height:100px; }
+}
 </style>
 </head>
 <body>
@@ -3391,7 +3399,7 @@ function renderStats(){
       <button onclick="setTab('today')" style="margin-top:8px;background:#e2e2e2;color:#07070f;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;font-weight:700;padding:12px 24px;border-radius:10px;cursor:pointer">START →</button>
     </div>`;
   }
-  return`<div class="fade-up" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
+  return`<div class="fade-up stats-page" style="padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px">
     ${renderWeekReview()}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       ${[{icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},{icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},{icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},{icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}].map(m=>`<div class="card" style="border:1px solid ${m.col}20;background:${m.col}08"><div style="font-size:21px;margin-bottom:8px">${esc(m.icon)}</div><div style="font-family:'Bebas Neue';font-size:28px;color:${m.col};line-height:1">${m.val}</div><div style="font-size:14px;color:#c0c0cd;margin-top:5px;letter-spacing:0.1em">${esc(m.label)}</div><div style="font-size:14.5px;color:${m.col};margin-top:3px;opacity:0.65">${m.sub}</div></div>`).join("")}

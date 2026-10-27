@@ -892,6 +892,9 @@ const UI_ACTIONS=Object.freeze({
   socialRomanticLimitSet:uiRule('change',[],n=>socialRomanticLimitSet(n.value)),
   socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
   socialNewCategory:uiRule('click',['string','string'],(n,e,k,id)=>socialNew(k,id),true),
+  workMilestonesSummary:uiRule('input',[],()=>workMilestonesSummary(),true),
+  workMilestonesAdd:uiRule('click',[],()=>workMilestonesChange(-1),true),
+  workMilestonesDelete:uiRule('click',['number'],(n,e,i)=>workMilestonesChange(i),true),
   workMilestonesSave:uiRule('click',[],()=>workMilestonesSave(),true),
   workPhaseAdvance:uiRule('click',['string'],(n,e,k)=>workPhaseAdvance(k),true),
   workPhaseToggle:uiRule('click',['string'],(n,e,k)=>workPhaseToggle(k)),
@@ -1084,10 +1087,10 @@ function subsFor(h,list,mode){
   const cp=cid&&h[cid]?modePts(h[cid],mode):18;
   return subsOn(resolveSubs(base,cp,mode));
 }
-function levelsFor(h,order,n,subs,mode){
+function levelsFor(h,order,n,subs,mode,key=todayKey()){
   return order.filter(id=>h[id]&&h[id].lv===n&&h[id].on!==false&&!(modeKey(mode)==='vacation'&&id==='work'))
     .map(id=>({id,label:h[id].l,
-               pts:(h[id].combo&&subs)?subs.reduce((a,x)=>a+x.p,0):modePts(h[id],mode),
+               pts:(id==='work'&&coreLayoutFor(key)&&modeKey(mode)==='work')?workMilestoneRules(key).reduce((n,p)=>n+p.points,0):(h[id].combo&&subs)?subs.reduce((a,x)=>a+x.p,0):modePts(h[id],mode),
                icon:h[id].i,col:LVL_COL[n],routine:!!h[id].routine,combo:!!h[id].combo}));
 }
 function buildLevel(n){ const m=travelMode(); return levelsFor(CFG.h,CFG.order,n,subsFor(CFG.h,CFG.subs,m),m); }
@@ -1477,8 +1480,8 @@ function cfgForDate(key){
     const h=JSON.parse(JSON.stringify(CFG.h));
     const subs=subsFor(h,CFG.subs,m);
     if(m==='vacation'&&h.work)h.work.on=false;
-    return {L1:levelsFor(h,CFG.order,1,subs,m),L2:levelsFor(h,CFG.order,2,subs,m),
-      L3:levelsFor(h,CFG.order,3,subs,m),subs,inVacation:m==='vacation',mode:m};
+    return {L1:levelsFor(h,CFG.order,1,subs,m,key),L2:levelsFor(h,CFG.order,2,subs,m,key),
+      L3:levelsFor(h,CFG.order,3,subs,m,key),subs,inVacation:m==='vacation',mode:m};
   }
 
   let v=liveToday?null:_dayCfgCache[key];
@@ -1501,7 +1504,7 @@ function cfgForDate(key){
   }
 
   const S=subsFor(H,S0,m);
-  v={L1:levelsFor(H,O,1,S,m),L2:levelsFor(H,O,2,S,m),L3:levelsFor(H,O,3,S,m),
+  v={L1:levelsFor(H,O,1,S,m,key),L2:levelsFor(H,O,2,S,m,key),L3:levelsFor(H,O,3,S,m,key),
      subs:S,inVacation:m==='vacation',mode:m};
   if(!liveToday)_dayCfgCache[key]=v;
   return v;
@@ -4430,10 +4433,10 @@ function runShaahSocialCoreMigration(){
 }
 function coreLayoutFor(key){return !!CFG.shaahSocialCoreMigration&&key>=CFG.shaahSocialCoreMigration.effectiveFrom;}
 function workPhaseSet(key,phase){
-  if(!coreLayoutFor(key)||![0,1,2,3].includes(phase)||cfgForDate(key).inVacation)return;
+  if(!coreLayoutFor(key)||!Number.isInteger(phase)||phase<0||phase>workMilestonesFor(key).length||!workMilestonesFor(key).length||cfgForDate(key).inVacation)return;
   const item=cfgForDate(key).L1.find(i=>i.id==='work');if(!item)return;
   const phases=workMilestonesFor(key);
-  setHabitState('work',key,phase===0?false:phase===3?true:phases[phase-1][2]);
+  setHabitState('work',key,phase===0?false:phase===phases.length?true:phases[phase-1][2]);
 }
 
 // Social integration: same CFG.people and day logs, no new scoring model.
@@ -4622,45 +4625,57 @@ function socialGroupDialogSync(){
 }
 
 
-// Presentation-only controls; stored checks and Work phase scoring stay unchanged.
+// Dated Work milestones; changing tomorrow never rewrites recorded days.
 // Per-account, dated Work targets. The default keeps existing 10/10/5 scoring.
 function workMilestoneRules(key){
  let rules=[{amount:400,points:10},{amount:650,points:10},{amount:800,points:5}];
  for(const era of (CFG.workMilestones||[]).slice().sort((a,b)=>a.from.localeCompare(b.from))){
-  if(era.from<=key&&Array.isArray(era.steps)&&era.steps.length===3)rules=era.steps;
+  if(era.from<=key&&Array.isArray(era.steps)&&era.steps.every(p=>Number.isSafeInteger(p.amount)&&p.amount>0&&Number.isInteger(p.points)&&p.points>0))rules=era.steps;
  }
  return rules;
 }
 function workMilestonesFor(key){
  const rules=workMilestoneRules(key),total=rules.reduce((n,p)=>n+p.points,0);let cumulative=0;
- return rules.map((p,i)=>{cumulative+=p.points;return ['₪'+p.amount+(i===2?'+':''),cumulative,cumulative/total];});
+ return rules.map((p,i)=>{cumulative+=p.points;return ['₪'+p.amount+(i===rules.length-1?'+':''),cumulative,cumulative/total];});
 }
-function workMilestonesSettings(){
- const rules=workMilestoneRules(todayKey());
- return `<div class="card sf-work-settings"><div class="sec">💼 Work · 3 milestones</div><p class="sf-muted">Puntos adicionales por hito. Se aplican desde hoy; los días anteriores conservan sus reglas. El cuarto toque vuelve a cero.</p>${rules.map((p,i)=>`<div class="sf-work-settings-row"><span>${i+1}</span><label>Monto ₪<input id="work-amount-${i}" type="number" min="1" step="1" value="${esc(p.amount)}"></label><label>Puntos +<input id="work-points-${i}" type="number" min="1" max="1000" step="1" value="${esc(p.points)}"></label></div>`).join('')}<p class="sf-muted">Máximo actual: ${rules.reduce((n,p)=>n+p.points,0)} puntos.</p><p id="work-settings-error" role="alert"></p><button class="sf-button sf-primary" ${ui('click','workMilestonesSave')}>Guardar milestones</button></div>`;
+function workMilestonesRead(){
+ return Array.from(document.querySelectorAll('.sf-work-settings-row')).map(row=>({amount:Number(row.querySelector('[data-work-amount]').value),points:Number(row.querySelector('[data-work-points]').value)}));
+}
+function workMilestonesSummary(){
+ const summary=document.getElementById('work-settings-max');if(summary)summary.textContent='Máximo desde mañana: '+workMilestonesRead().reduce((n,p)=>n+p.points,0)+' puntos.';
+}
+function workMilestonesChange(index){
+ const card=document.querySelector('.sf-work-settings');if(!card)return;
+ const steps=workMilestonesRead();
+ if(index<0)steps.push({amount:(steps.at(-1)?.amount||0)+100,points:5});else steps.splice(index,1);
+ uiHTML(card,workMilestonesSettings(steps).replace(/^<div class="card sf-work-settings">/,'').replace(/<\/div>$/,''));
+}
+function workMilestonesSettings(draft){
+ const rules=draft||workMilestoneRules(keyMinus(todayKey(),-1));
+ return `<div class="card sf-work-settings"><div class="sec">💼 Work Milestones · ${rules.length} milestones</div><p class="sf-muted">Puntos adicionales por hito. Los cambios se aplican desde mañana; hoy y el historial conservan sus reglas. Tras el último hito, el siguiente toque vuelve a cero.</p>${rules.map((p,i)=>`<div class="sf-work-settings-row"><span>${i+1}</span><label>Monto ₪<input data-work-amount id="work-amount-${i}" type="number" min="1" step="1" value="${esc(p.amount)}"></label><label>Puntos +<input data-work-points ${ui('input','workMilestonesSummary')} id="work-points-${i}" type="number" min="1" max="1000" step="1" value="${esc(p.points)}"></label><button type="button" class="sf-button" aria-label="Eliminar milestone ${i+1}" ${ui('click','workMilestonesDelete',i)}>🗑</button></div>`).join('')}<button type="button" class="sf-button" ${ui('click','workMilestonesAdd')}>+ Agregar milestone</button><p id="work-settings-max" class="sf-muted">Máximo desde mañana: ${rules.reduce((n,p)=>n+p.points,0)} puntos.</p><p id="work-settings-error" role="alert"></p><button class="sf-button sf-primary" ${ui('click','workMilestonesSave')}>Guardar milestones</button></div>`;
 }
 function workMilestonesSave(){
- const steps=[0,1,2].map(i=>({amount:Number(document.getElementById('work-amount-'+i)?.value),points:Number(document.getElementById('work-points-'+i)?.value)}));
+ const steps=workMilestonesRead();
  if(!steps.every(p=>Number.isSafeInteger(p.amount)&&p.amount>0&&p.amount<=1000000000&&Number.isInteger(p.points)&&p.points>0&&p.points<=1000)||steps.some((p,i)=>i&&p.amount<=steps[i-1].amount)){
   const error=document.getElementById('work-settings-error');if(error)error.textContent='Usa montos enteros crecientes y entre 1 y 1000 puntos por hito.';return false;
  }
  workMilestonesApply(steps);return true;
 }
 function workMilestonesApply(steps){
- const key=todayKey();
- cfgEdit(()=>{
-  CFG.workMilestones=(CFG.workMilestones||[]).filter(e=>e.from!==key);
-  CFG.workMilestones.push({from:key,steps:JSON.parse(JSON.stringify(steps))});
-  CFG.workMilestones.sort((a,b)=>a.from.localeCompare(b.from));
-  ensureModePts(CFG.h.work);CFG.h.work.pWork=steps.reduce((n,p)=>n+p.points,0);CFG.h.work.p=modePts(CFG.h.work,travelMode());
- });
+ const key=keyMinus(todayKey(),-1);
+ // Only the dated milestone timeline changes. Never stamp today's scoring config.
+ CFG.workMilestones=(CFG.workMilestones||[]).filter(e=>e.from!==key);
+ CFG.workMilestones.push({from:key,steps:JSON.parse(JSON.stringify(steps))});
+ CFG.workMilestones.sort((a,b)=>a.from.localeCompare(b.from));
+ _dayCfgCache={};saveCfg();render();
 }
 var workPhaseOpenKey=null;
 function workPhaseToggle(key){workPhaseOpenKey=workPhaseOpenKey===key?null:key;renderDayChange(key);}
 function workPhaseAdvance(key){
  const fraction=doneFrac(getChecked(key).work);
  const completed=workMilestonesFor(key).filter(p=>fraction+1e-9>=p[2]).length;
- workPhaseSet(key,completed>=3?0:completed+1);
+ const count=workMilestonesFor(key).length;if(!count)return;
+ workPhaseSet(key,completed>=count?0:completed+1);
 }
 function workWeeklyCash(key){
  const weekday=new Date(key+'T12:00:00Z').getUTCDay();
@@ -4678,11 +4693,10 @@ function workPhaseCard(key,item){
  const phases=workMilestonesFor(key);
  const completed=phases.filter(p=>fraction+1e-9>=p[2]).length,points=Math.round(item.pts*fraction);
  const next=phases[completed],legacy=![0,...phases.map(p=>p[2])].some(v=>Math.abs(v-fraction)<1e-9);
- const action=next?'Completar '+next[0]+' · '+next[1]+' puntos':'Reiniciar avance · volver a 0 de 3 y 0 puntos';
+ const action=next?'Completar '+next[0]+' · '+next[1]+' puntos':'Reiniciar avance · volver a 0 de '+phases.length+' y 0 puntos';
  const weekly=workWeeklyCash(key);
- const status=legacy?'Avance previo conservado':completed===3?'✓ Completado':completed+'/3 hitos · meta '+phases[2][0];
  const cash=completed?workMilestoneRules(key)[completed-1].amount:0;
- return `<section class="sf-core-routine sf-work sf-work-reference sf-work-essential" aria-label="Work${legacy?' · Avance previo conservado':''}"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts} pts</span></div></div><div class="sf-work-cash-row"><div class="sf-work-daily"><span>HOY</span><strong>₪${cash.toLocaleString('en-US')}</strong></div><div class="sf-work-cash-divider" aria-hidden="true"></div><div class="sf-work-weekly" title="Estimado según el último hito de cada día · ${weekly.from} a ${weekly.to}"><span>ESTA SEMANA</span><strong>≈ ₪${weekly.total.toLocaleString('en-US')}</strong></div></div><div class="sf-work-track"><div class="sf-work-progress" role="progressbar" aria-label="Work · meta ${phases[2][0]}" aria-valuemin="0" aria-valuemax="3" aria-valuenow="${completed}" aria-valuetext="${completed} de 3 hitos">${phases.map(p=>`<span class="sf-work-segment${fraction+1e-9>=p[2]?' is-done':''}"></span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]+' →':'Reiniciar avance'}</button></div></section>`;
+ return `<section class="sf-core-routine sf-work sf-work-reference sf-work-essential" aria-label="Work${legacy?' · Avance previo conservado':''}"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts} pts</span></div></div><div class="sf-work-cash-row"><div class="sf-work-daily"><span>HOY</span><strong>₪${cash.toLocaleString('en-US')}</strong></div><div class="sf-work-cash-divider" aria-hidden="true"></div><div class="sf-work-weekly" title="Estimado según el último hito de cada día · ${weekly.from} a ${weekly.to}"><span>ESTA SEMANA</span><strong>≈ ₪${weekly.total.toLocaleString('en-US')}</strong></div></div><div class="sf-work-track"><div class="sf-work-progress" role="progressbar" aria-label="Work · meta ${phases.at(-1)?.[0]||'Sin milestones'}" aria-valuemin="0" aria-valuemax="${phases.length}" aria-valuenow="${completed}" aria-valuetext="${completed} de ${phases.length} hitos">${phases.map(p=>`<span class="sf-work-segment${fraction+1e-9>=p[2]?' is-done':''}"></span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" ${phases.length?'':'disabled'} aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]+' →':phases.length?'Reiniciar avance':'Sin milestones'}</button></div></section>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

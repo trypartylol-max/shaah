@@ -2685,3 +2685,6 @@ html[data-skin="glow"] .sf-work-next:focus-visible{outline:2px solid #62ddec;out
 @keyframes shaah-glow-breathe{50%{opacity:.5}}
 @keyframes shaah-glow-arrive{from{opacity:.65;transform:scaleY(.8)}to{opacity:1;transform:scaleY(1)}}
 @media(prefers-reduced-motion:reduce){html[data-skin="glow"] .t-ring::before,html[data-skin="glow"] #scroll .today .sf-work-segment{animation:none!important}html[data-skin="glow"] .t-ring>svg>circle:last-child,html[data-skin="glow"] #scroll .today .sf-work-segment,html[data-skin="glow"] .sf-work-next{transition:none!important;transform:none!important}}
+
+/* Dynamic Work milestones */
+.sf-work-settings-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 44px}.sf-work-settings-row button{min-height:44px;padding:4px}.sf-work-progress{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}

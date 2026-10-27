@@ -1,0 +1,20 @@
+/* Skin parity: one WORK markup/geometry, palette-only differences. */
+html[data-skin] .today .wg-card{
+  color:var(--skin-copy,#e2e2e2);
+  background:var(--skin-panel,#0d0d1a);
+  border-color:var(--skin-edge,#26263c);
+}
+html[data-skin] .today .wg-points,
+html[data-skin] .today .wg-daily>span,
+html[data-skin] .today .wg-weekly>span{color:var(--skin-muted,#a4a4ba)}
+html[data-skin] .wg-figure{--work-geom:#9cebd5;--work-geom-dim:#303c40}
+html[data-skin="aurora"] .wg-figure{--work-geom:#67dfff;--work-geom-dim:#2d3d62}
+html[data-skin="matrix"] .wg-figure{--work-geom:#00ff41;--work-geom-dim:#20532d}
+html[data-skin="minimal"] .wg-figure{--work-geom:var(--skin-copy,#dce0e1);--work-geom-dim:var(--skin-edge,#444)}
+html[data-skin="glow"] .wg-figure{--work-geom:#4bd7ff;--work-geom-dim:#25345d}
+html[data-skin] .wg-segment{stroke:var(--work-geom-dim)}
+html[data-skin] .wg-segment.lit{stroke:var(--work-geom);filter:drop-shadow(0 0 3px var(--work-geom))}
+html[data-skin] .wg-figure circle.lit{fill:var(--work-geom)}
+html[data-skin] .wg-interior{fill:var(--work-geom)}
+html[data-skin] .wg-segment.latest{animation:none}
+html[data-skin] .wg-card:focus-visible{outline-color:var(--work-geom,#9cebd5)}

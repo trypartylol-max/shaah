@@ -74,6 +74,7 @@ function uiReplaceHTML(node,markup){node.replaceWith(uiFragment(markup));}
 const SKIN_KEY='shaah:skin:v1';
 const SKINS=[
   {id:'classic',label:'Original',detail:'El aspecto de siempre, con todos sus colores.'},
+  {id:'glow',label:'Glow',detail:'Anillo azul-violeta, Work azul-cian y brillo suave.'},
   {id:'matrix',label:'Matrix',detail:'Negro profundo, verde y detalles de terminal.'},
   {id:'minimal',label:'Bajo estímulo',detail:'Tonos neutros, sin brillos ni animaciones.'},
   {id:'aurora',label:'Aurora',detail:'Azul eléctrico, violeta y rosa, con brillo moderado.'}
@@ -89,7 +90,7 @@ function skinColorParts(value){
   const parts=value.match(/[\d.]+/g).map(Number);return [...parts.slice(0,3),parts[3]??1];
 }
 function skinTone(hex,id=_skin){
-  const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic')return classic;
+  const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic'||id==='glow')return classic;
   // Aurora shares the same palette in CSS, generated templates and SVG charts.
   // Keep success / warning / danger distinct from interactive cyan / violet.
   if(id==='aurora'){

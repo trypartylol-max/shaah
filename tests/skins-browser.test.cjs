@@ -15,7 +15,7 @@ for (const [device, viewport] of [['desktop', { width: 1440, height: 1000 }], ['
     const before = await snapshot(page);
     const writes = await page.evaluate(() => window.__mockWrites.filter(row=>row.date!=='cfgbak').length);
     const backgrounds = [];
-    for (const id of ['matrix', 'minimal', 'classic']) {
+    for (const id of ['matrix', 'minimal', 'glow', 'classic']) {
       await choose(page, id).click();
       assert.equal(await choose(page, id).getAttribute('aria-pressed'), 'true');
       assert.equal(await choose(page, id).evaluate(el => el === document.activeElement), true);
@@ -78,7 +78,7 @@ test('low stimulation disables glow and motion; Matrix respects system reduced m
 
 test('all result grades stay distinct, readable and numerically identical in each skin, including SVG', async t => {
   const page = await openApp(t, locationFixture());
-  for (const id of ['classic', 'matrix', 'minimal', 'aurora']) {
+  for (const id of ['classic', 'glow', 'matrix', 'minimal', 'aurora']) {
     await page.evaluate(id => {
       setSkin(id);
       let probe = document.getElementById('skin-grade-probe');

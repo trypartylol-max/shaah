@@ -1,0 +1,39 @@
+/* SHAAH mobile width test (2026-10-27): test-only stylesheet. */
+@media (max-width:879px) {
+  html, body, #app, #scroll { width:100%; max-width:100%; min-width:0; }
+  #scroll { overflow-x:hidden; }
+  #scroll > .fade-up { width:100%; max-width:100%; min-width:0; box-sizing:border-box; }
+  #scroll > .today, #scroll > .soc, #scroll > .stats-page,
+  #scroll > .settings-body, #scroll > .logdesk-shell, #scroll > .daylog-page {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    padding-left:8px !important; padding-right:8px !important; box-sizing:border-box !important;
+  }
+  #scroll > .fade-up:not(.today):not(.soc):not(.stats-page):not(.settings-body):not(.logdesk-shell):not(.daylog-page) {
+    padding-left:8px !important; padding-right:8px !important;
+  }
+  #scroll .today > .t-score-hero, #scroll .today > .t-rout,
+  #scroll .today > .t-lvl, #scroll .today > .t-daylog,
+  #scroll .today > .t-note, #scroll .today > .t-streak, #scroll .today > .t-head {
+    width:100% !important; max-width:none !important; min-width:0 !important; box-sizing:border-box !important;
+  }
+  #scroll .today > * { min-width:0; }
+  #scroll .today .t-score-hero .t-grade { min-width:0 !important; }
+  #scroll .today .t-rout-body, #scroll .today .t-rout-body > div,
+  #scroll .today .t-lvl .row, #scroll .today .t-daylog-row { min-width:0; max-width:100%; }
+  #scroll .today .t-rout-body > div { box-sizing:border-box; }
+  #scroll .settings-body > *, #scroll .soc > *, #scroll .stats-page > *,
+  #scroll .logdesk-shell > *, #scroll .daylog-page > * { min-width:0; max-width:100%; }
+  #scroll .cg-row { grid-template-columns:minmax(0, min(32%, 120px)) minmax(0,1fr) 40px 38px; gap:5px; }
+  #scroll .cg-strip { overflow:hidden; }
+  #scroll .history-month-bar { min-width:0; max-width:100%; }
+  #scroll .history-month-summary { min-width:0; }
+  #scroll .history-month-meta { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  #tb-score { width:100%; min-width:0; box-sizing:border-box; padding-left:8px; padding-right:8px; gap:7px; }
+  #tb-score .ts-bar { min-width:0; }
+  #tb-score .ts-nx { font-size:clamp(11px,3vw,13.5px); }
+  #topbar { width:100%; min-width:0; box-sizing:border-box; padding-left:8px; padding-right:8px; gap:6px; }
+  #tb-date { min-width:0; }
+  #nav { width:100%; min-width:0; box-sizing:border-box; }
+  #nav .nav-btn { min-width:0; padding-left:1px; padding-right:1px; letter-spacing:clamp(.04em,.25vw,.14em); font-size:clamp(10px,3vw,13.5px); }
+  #nav .nav-btn[data-tab="log"] { font-size:clamp(11px,3.3vw,16px); }
+}

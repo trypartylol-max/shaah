@@ -17,8 +17,8 @@ for(const count of [0,2,3,4,8])test(`${count} milestones: tomorrow, dynamic scor
   assert.equal(a.read("calcScore('2026-10-17').l1"),i<=count?i*(i+1)/2:0);
  }
  const html=a.run("workPhaseCard('2026-10-17',cfgForDate('2026-10-17').L1.find(i=>i.id==='work'))");
- assert.ok(html.includes(`aria-valuemax="${count}"`));assert.ok(!html.includes('undefined'));
- assert.equal((html.match(/sf-work-segment/g)||[]).length,count);
+ assert.ok(html.includes(`${count} hitos`));assert.ok(!html.includes('undefined'));
+ assert.equal((html.match(/wg-segment/g)||[]).length,count);
  if(!count)assert.ok(html.includes('disabled'));
  const b=loadApp({config:a.read('CFG'),days:a.read('_state')});
  assert.equal(b.read("workMilestonesFor('2026-10-17').length"),count);

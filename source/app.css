@@ -2688,3 +2688,25 @@ html[data-skin="glow"] .sf-work-next:focus-visible{outline:2px solid #62ddec;out
 
 /* Dynamic Work milestones */
 .sf-work-settings-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 44px}.sf-work-settings-row button{min-height:44px;padding:4px}.sf-work-progress{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+
+/* Normal / Original WORK only. A single native button owns every click. */
+#scroll .today.sf-today-v27 .t-rout-body>.wg-card{display:flex!important;flex-direction:column!important;gap:10px!important;align-self:start!important;min-height:0!important;height:auto!important;padding:12px 14px!important;text-align:left;cursor:pointer;font-family:inherit;color:#e2e2e2;touch-action:manipulation;width:100%;box-sizing:border-box}
+.wg-card .wg-head{display:flex;align-items:center;justify-content:space-between;width:100%;font-size:13px;letter-spacing:.06em}
+.wg-card .wg-points{font-size:11px;color:#a4a4ba;letter-spacing:0}
+.wg-card .wg-row{display:grid;grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);align-items:center;gap:8px;width:100%}
+.wg-card .wg-daily,.wg-card .wg-weekly{display:flex;flex-direction:column;gap:3px;min-width:0}
+.wg-card .wg-weekly{text-align:right}
+.wg-card .wg-daily>span,.wg-card .wg-weekly>span{font-size:9px;color:#a4a4ba;letter-spacing:.07em}
+.wg-card strong{font-size:24px;font-weight:500;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.wg-card .wg-weekly strong{font-size:19px}
+.wg-card:focus-visible{outline:2px solid #80e4c4;outline-offset:3px}
+.wg-card:disabled{cursor:default;opacity:.65}
+.wg-figure{width:48px;height:48px;overflow:visible}
+.wg-segment{fill:none;stroke:#303c40;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wg-segment.lit{stroke:#9cebd5;filter:drop-shadow(0 0 3px #68d9b080)}
+.wg-figure circle.lit{fill:#b6ffdf}
+.wg-interior{fill:#7de7c0;fill-opacity:0;stroke:none}
+.wg-figure.complete .wg-interior{fill-opacity:.1;filter:drop-shadow(0 0 5px #7de7c040)}
+.wg-segment.latest{animation:wg-light .55s ease-out both}
+@keyframes wg-light{from{stroke:#303c40;filter:drop-shadow(0 0 0 transparent)}to{stroke:#9cebd5;filter:drop-shadow(0 0 3px #68d9b080)}}
+@media(prefers-reduced-motion:reduce){.wg-segment.latest{animation:none}}

@@ -27,7 +27,7 @@ test('custom Work milestones apply from tomorrow, preserve past scores and retai
  assert.deepEqual(a.read("calcScore('2026-10-15')"),history);assert.deepEqual(a.read('_state'),days);
  assert.equal(a.read("cfgForDate('2026-10-17').L1.find(i=>i.id==='work').pts"),30);
  for(const points of [7,15,30,0]){a.run("workPhaseAdvance('2026-10-17')");assert.equal(a.read("calcScore('2026-10-17').l1"),points);}
- assert.ok(a.run("workPhaseCard('2026-10-17',cfgForDate('2026-10-17').L1.find(i=>i.id==='work'))").includes('₪1200+'));
+ assert.ok(a.run("workMilestonesFor('2026-10-17').at(-1)[0]").includes('₪1200+'));
  const other=app();assert.equal(other.read("workMilestonesFor('2026-10-16')[2][1]"),25);
  a.run("CFG.travel.mode='vacation';persistTravelMode('vacation');workPhaseAdvance('2026-10-17')");assert.equal(a.read("getChecked('2026-10-16').work||false"),false);
 });

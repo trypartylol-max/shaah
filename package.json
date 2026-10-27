@@ -17,6 +17,7 @@
     "test:sync:diagnose-local": "node qa/supabase/diagnose-local-risks.cjs"
   },
   "devDependencies": {
+    "@supabase/postgrest-js": "2.118.0",
     "@supabase/supabase-js": "2.118.0",
     "https-proxy-agent": "9.1.0",
     "playwright": "1.62.1",

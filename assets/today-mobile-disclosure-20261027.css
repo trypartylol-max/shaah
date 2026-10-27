@@ -28,3 +28,14 @@
     margin-bottom:0!important;padding-bottom:0!important;
   }
 }
+
+/* Core routine disclosure must outrank the mobile grid display override.
+   On migrated Today, Work and Production live in .t-rout, not .t-lvl1. */
+@media(max-width:879px){
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout.collapsed{
+    height:auto!important;min-height:0!important;align-self:start!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout.collapsed > .t-rout-body{
+    display:none!important;
+  }
+}

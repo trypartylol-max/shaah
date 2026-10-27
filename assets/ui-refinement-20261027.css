@@ -13,3 +13,12 @@
 @media (max-width:879px) {
   #scroll .sf-combo-category .sf-category-toggle > span { font-size:18px !important; }
 }
+
+/* Desktop Stats: use available viewport height without changing mobile. */
+@media (min-width:880px) and (min-height:700px) {
+  #scroll .stats-page { min-height:calc(100dvh - 64px); padding-bottom:80px !important; justify-content:space-between; }
+  #scroll .stats-page > div:has(> .sec) { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+  #scroll .stats-page > div:has(> .sec) > .card { flex:1 1 auto; display:flex; flex-direction:column; justify-content:space-evenly; min-height:0; }
+  #scroll .stats-page .stats-six-grid { flex:0 0 auto; }
+  #scroll .stats-page > div:has(> .sec) > .card > div[style*="align-items:flex-end"] { flex:1 1 auto; min-height:100px; }
+}

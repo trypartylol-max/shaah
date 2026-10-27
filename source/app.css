@@ -2646,3 +2646,7 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
  .soc section[aria-label="Who to See"]>h2{display:flex;align-items:center;height:36px;margin-top:0}
  .soc>div:first-child:has(.sd-hoy) section[aria-label="Who to See"]>h2{margin-bottom:42px}
 }
+
+/* People/Groups view switch. */
+.sf-people-box [hidden]{display:none!important}
+.sf-people-box .sf-directory-actions{justify-content:flex-start;gap:8px}

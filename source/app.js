@@ -1323,7 +1323,9 @@ function ensureWorkReturn2026(){
     if(e.from>=START&&e.from<RETURN){
       e.mode='vacation';
       if(e.h&&e.h.work)e.h.work.on=false;
-    }else if(e.from>=RETURN){
+    }else if(e.from===RETURN){
+      // The return boundary is known, but later dated eras are user history.
+      // Never convert a legitimate future Vacation or Work transition.
       e.mode='work';
       if(e.h&&e.h.work)e.h.work.on=true;
     }
@@ -2748,8 +2750,7 @@ function cfgMove(id,dir){
   const a=CFG.order.indexOf(peers[i]), b=CFG.order.indexOf(peers[j]);
   cfgEdit(()=>{ [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]]; });
 }
-function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; });
-      if(CFG.h[id].on===true) dayLogHookHabitCompletion(id); }
+function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 // Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
 // Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.

@@ -1,0 +1,20 @@
+/* Compact closed levels and readable desktop routine cards. */
+@media(min-width:880px){
+ #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl){height:auto!important;min-height:0!important;align-self:start!important;padding:12px 18px!important}
+ #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl)>.lvl-h{margin:0!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine{grid-template-columns:48px minmax(0,1fr)!important;grid-template-rows:1fr auto!important;column-gap:12px!important;row-gap:20px!important;align-items:start!important;padding:22px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine>div:first-child{width:48px!important;height:48px!important;font-size:28px!important;border-radius:12px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-lab{font-size:20px!important;line-height:1.35!important;letter-spacing:.025em!important;color:var(--today-copy)!important;align-items:baseline!important;gap:8px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .sf-routine-total{font-size:14px!important;line-height:1.4!important;color:var(--today-muted)!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub{font-size:16px!important;line-height:1.5!important;margin-top:6px!important;color:var(--today-muted)!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div{gap:6px!important;margin-top:12px!important;font-size:14px!important;line-height:1.5!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-step{font-size:14px!important;line-height:1.5!important;padding:4px 8px!important;border-radius:7px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine>div:last-child{gap:8px!important;align-self:end!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{flex:1 1 80px;font-size:15px!important;line-height:1.35!important;min-height:44px!important;padding:10px 12px!important;letter-spacing:.025em!important;white-space:nowrap}
+}
+@media(min-width:880px) and (max-width:1100px){
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine{grid-template-columns:38px minmax(0,1fr)!important;padding:16px!important;column-gap:10px!important;row-gap:14px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine>div:first-child{width:38px!important;height:38px!important;font-size:24px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-lab{font-size:18px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{flex-basis:70px;padding:9px 8px!important}
+}

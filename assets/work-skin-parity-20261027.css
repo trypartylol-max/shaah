@@ -18,3 +18,38 @@ html[data-skin] .wg-figure circle.lit{fill:var(--work-geom)}
 html[data-skin] .wg-interior{fill:var(--work-geom)}
 html[data-skin] .wg-segment.latest{animation:none}
 html[data-skin] .wg-card:focus-visible{outline-color:var(--work-geom,#9cebd5)}
+
+/* Completion: the same geometry lights up in every skin once all WORK
+   milestones are satisfied. Only the palette changes with the skin. */
+html[data-skin] .wg-figure.complete{
+  overflow:visible;
+  filter:drop-shadow(0 0 5px var(--work-geom)) drop-shadow(0 0 10px var(--work-geom));
+  animation:work-finish-aura 2.8s ease-in-out infinite;
+}
+html[data-skin] .wg-figure.complete .wg-segment.lit{
+  stroke:var(--work-geom);
+  stroke-width:3;
+  filter:drop-shadow(0 0 3px var(--work-geom));
+}
+html[data-skin] .wg-figure.complete .wg-interior{
+  fill:var(--work-geom);
+  fill-opacity:.22;
+  animation:work-finish-core 2.8s ease-in-out infinite;
+}
+html[data-skin] .wg-figure.complete circle.lit{
+  fill:var(--work-geom);
+  filter:drop-shadow(0 0 5px var(--work-geom));
+}
+@keyframes work-finish-aura{
+  0%,100%{filter:drop-shadow(0 0 3px var(--work-geom)) drop-shadow(0 0 6px var(--work-geom));}
+  50%{filter:drop-shadow(0 0 7px var(--work-geom)) drop-shadow(0 0 15px var(--work-geom));}
+}
+@keyframes work-finish-core{
+  0%,100%{fill-opacity:.12;}
+  50%{fill-opacity:.38;}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-skin] .wg-figure.complete,
+  html[data-skin] .wg-figure.complete .wg-interior{animation:none;}
+  html[data-skin] .wg-figure.complete .wg-interior{fill-opacity:.25;}
+}

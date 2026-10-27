@@ -1,0 +1,55 @@
+/* SHAAH — mobile Today arrangement, 2026-10-27.
+   Presentation only: scoring, Social data and desktop markup are unchanged. */
+@media (max-width:879px) {
+  /* The existing ring and circular LOG action are the first Today content. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-score-hero {
+    order:10 !important;
+    margin-top:0 !important;
+    margin-bottom:2px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout {order:20 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl1 {order:30 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl2 {order:40 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl3 {order:50 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-daylog {order:55 !important;}
+  /* Social remains a separately rendered LVL 3 scoring component. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-social-independent {
+    order:58 !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-note {order:60 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-reset {order:70 !important;}
+
+  /* Equal-width Work/Production routine cards, with a measured gap. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:10px !important;
+    align-items:stretch !important;
+    justify-items:stretch !important;
+    width:100% !important;
+    min-width:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body > .sf-core-routine {
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    align-self:stretch !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body > .sf-core-routine .sf-core-actions {
+    width:100%;
+    min-width:0;
+  }
+  /* Keep the two cash values balanced around their central divider. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-work-cash-row {
+    grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);
+    gap:12px !important;
+    width:100%;
+  }
+}

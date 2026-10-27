@@ -734,6 +734,23 @@ input,textarea{-webkit-user-select:text;user-select:text;}
   }
 }
 
+
+/* SHAAH UI refinement 2026-10-27: desktop Stats width and Social legibility. */
+@media (min-width:880px) {
+  #scroll .cg-row { grid-template-columns:minmax(180px,260px) minmax(0,1fr) 64px 58px; gap:16px; }
+  #scroll .cg-strip { min-width:0; }
+  #scroll .cg-strip > i { min-width:2px; }
+}
+#scroll .today .cb-row > span,
+#scroll .soc .cb-row > span { font-size:19px !important; line-height:1.35; }
+#scroll .today .cb-tit,
+#scroll .soc .cb-tit { font-size:21px !important; }
+#scroll .today .cb-pill,
+#scroll .soc .cb-pill { font-size:17px !important; }
+@media (max-width:879px) {
+  #scroll .today .cb-row > span,
+  #scroll .soc .cb-row > span { font-size:18px !important; }
+}
 </style>
 </head>
 <body>

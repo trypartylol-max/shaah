@@ -75,7 +75,8 @@ const SKIN_KEY='shaah:skin:v1';
 const SKINS=[
   {id:'classic',label:'Original',detail:'El aspecto de siempre, con todos sus colores.'},
   {id:'matrix',label:'Matrix',detail:'Negro profundo, verde y detalles de terminal.'},
-  {id:'minimal',label:'Bajo estímulo',detail:'Tonos neutros, sin brillos ni animaciones.'}
+  {id:'minimal',label:'Bajo estímulo',detail:'Tonos neutros, sin brillos ni animaciones.'},
+  {id:'aurora',label:'Aurora',detail:'Azul eléctrico, violeta y rosa, con brillo moderado.'}
 ];
 let _skin='classic',_skinObserver=null;
 const _skinColors=new Set(["000000","04040a","07070f","073b34","080810","0a0a13","0a0a14","0b0b14","0b0b15","0b0b16","0b0c16","0b3a32","0c0c16","0c0c18","0d0d18","0d0d19","0d0d1a","0d1b31","0e1020","0f0f1c","0f0f1d","10101c","10101d","10101e","111120","111124","11172b","12121f","12cfa8","141424","141426","14142a","151524","151525","15152a","151a2b","15315a","15d6ad","160d13","161626","16162a","16a98a","17172a","17172b","178ee8","18182b","1a1a2c","1b2238","1c1c30","1c1d32","1d1d33","1d2a22","1e1e2e","1e1e33","1f9c7f","202033","202036","202039","20203a","222239","22223a","23233a","24243a","24253b","25253a","26263c","26324a","27283d","29200f","2a2a3a","2a2a40","2c2615","2e2e4a","303046","303047","342263","36a5ff","38d6ad","3a3a55","3a3a5a","3b36ff","45455b","4a4a7a","4ade80","4b25f5","4b5a86","4d2bff","4f4f66","4f8dff","5268ff","556cff","57576e","5d5d75","5f5f77","60a5fa","62627a","65657d","65708d","66667d","66667e","68687e","68687f","6e5a29","6f6f87","70708a","73738c","77758e","77778f","79aaff","7aa2ff","7e7e97","8278b4","8888a4","8a8a9a","8a8aa0","8b63ff","8c8ca3","8f8da6","9090aa","9a9ab0","9a9ab2","9a9ab4","9b45e9","9d2d45","9fa9bc","a0a0b6","a4a4b7","a4a4ba","a9a1c8","aaa6c4","aaaabd","aaaabe","adadbf","b0b0bf","b0b0c0","b497ff","b58d31","b8b8c7","c0c0cd","c4c4d2","c7c7d2","c8c8d4","d0d0da","d0d0db","d5d5df","d69e2e","d8d8e1","d9d7e3","d9d9e2","dedee6","e0e0e8","e1e1e8","e2e2e2","e2e2ea","e4e4eb","e8e8ee","e8e8f0","ececf2","f2f2f2","f4b62b","f59e0b","f87171","fbbf24","ffb400","ffffff"]);
@@ -89,6 +90,27 @@ function skinColorParts(value){
 }
 function skinTone(hex,id=_skin){
   const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic')return classic;
+  // Aurora shares the same palette in CSS, generated templates and SVG charts.
+  // Keep success / warning / danger distinct from interactive cyan / violet.
+  if(id==='aurora'){
+    const semantic={fff1a8:'fff0bd',ffd700:'f6d77b','4ade80':'68e0bb','60a5fa':'75baff',
+      f59e0b:'f5c879',f97316:'f7a77c',ef4444:'ff879f',f87171:'ff879f',
+      a78bfa:'b9a2ff',fbbf24:'f5c879'};
+    let tone=semantic[hex];
+    if(!tone){
+      const high=Math.max(r,g,b),low=Math.min(r,g,b),y=.2126*r+.7152*g+.0722*b;
+      if(high-low<=Math.max(32,high*.18)||(high<100&&Math.abs(r-g)<20)){
+        const bucket=[9,20,32,55,80,115,165,205].findIndex(n=>y<=n);
+        tone=['050b1b','0d1630','16213f','2d3d62','53658d','97a9cc','b0bfdd','d1def4','edf4ff'][bucket<0?8:bucket];
+      }else if(high<100)tone='172344';
+      else if(r>g*1.35&&r>b*1.15)tone='ff879f';
+      else if(r>120&&g>r*.55&&b<g*.7)tone='f5c879';
+      else if(g>r&&g>=b)tone='68e0bb';
+      else if(b>r*1.25)tone='75baff';
+      else tone='b9a2ff';
+    }
+    return skinColorParts('#'+tone).slice(0,3);
+  }
   const grades={
     fff1a8:['dcffe8','dce2cc'],ffd700:['b4ffce','c2cbae'],
     '4ade80':['00ff41','9fbaa9'],'60a5fa':['50e68c','9bb3c6'],
@@ -238,13 +260,14 @@ function skinPaintTree(root,includeText=true){
 function applySkin(){
   const root=document.documentElement;if(!root)return;
   root.dataset.skin=_skin;
+  root.classList.toggle('shaah-aurora',_skin==='aurora');
   for(const hex of _skinColors){
     const key='--skin-rgb-'+hex;
     if(_skin==='classic')root.style.removeProperty(key);
     else root.style.setProperty(key,skinTone(hex).join(','));
   }
   const theme=document.querySelector('meta[name="theme-color"]');
-  if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':'#07070f';
+  if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
 }
 function setSkin(id){
@@ -257,7 +280,7 @@ function setSkin(id){
   return true;
 }
 function initSkin(){
-  _skinColors.add('171725');_skinColors.add('34344a');
+  _skinColors.add('171725');_skinColors.add('34344a');_skinColors.add('a78bfa');
   try{const id=localStorage.getItem(SKIN_KEY);_skin=SKINS.some(s=>s.id===id)?id:'classic';}catch(e){_skin='classic';}
   applySkin();
   if(typeof MutationObserver==='undefined'||!document.body)return;
@@ -970,7 +993,7 @@ const UI_ACTIONS=Object.freeze({
   routineSendToEnd:uiRule('click',[],()=>routineSendToEnd())
 });
 const UI_ENUMS=Object.freeze(Object.fromEntries(Object.entries({
-  tab:['today','log','social','stats','history'],skin:['classic','matrix','minimal'],
+  tab:['today','log','social','stats','history'],skin:SKINS.map(s=>s.id),
   scope:['all','unassigned'],membership:['add','remove'],resolution:['server','local'],
   mode:['work','vacation'],habitField:['i','l','p','pWork'],socialField:['icon','label','pWork','pVacation'],
   stepField:['label','dur'],personField:['name','sub','every']
@@ -3524,7 +3547,7 @@ function renderToday(key,nested=false){
     </div>
     </div>
 
-    
+
 ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')} ${ui('keydown','activate')} ${uiStyle(`display:flex;align-items:center;cursor:pointer;gap:7px`)}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${core?'▪ CORE ROUTINES':"TODAY'S ROUTINES"}${core?`<span class="sf-core-total">${l1}/${dM1}</span>`:''}</div>
       <div class="t-rout-body" ${uiStyle(`${todayRoutinesOpen?"":"display:none;"}`)}>${L1vis.filter(i=>core||(i.routine&&ROUTINES[i.id])).map(item=>{
@@ -3832,7 +3855,7 @@ function renderSocial(){
         <span class="sd-pts" ${uiStyle(`margin-left:auto;color:${got>0?"#fbbf24":"#7e7e97"}`)}>${got}/${cb}%</span></div>
       ${socialWorkspace(tk)}
     </div>
-    
+
   </div>`;
 }
 

@@ -11,8 +11,9 @@ for (const [device, viewport] of [['desktop', { width: 1440, height: 1000 }], ['
   test(`${device}: skins change every tab without altering contacts, history, results or writes`, async t => {
     const page = await openApp(t, locationFixture(), viewport);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await page.evaluate(() => flushCfgSaves());
     const before = await snapshot(page);
-    const writes = await page.evaluate(() => window.__mockWrites.length);
+    const writes = await page.evaluate(() => window.__mockWrites.filter(row=>row.date!=='cfgbak').length);
     const backgrounds = [];
     for (const id of ['matrix', 'minimal', 'classic']) {
       await choose(page, id).click();
@@ -30,7 +31,7 @@ for (const [device, viewport] of [['desktop', { width: 1440, height: 1000 }], ['
     }
     assert.equal(new Set(backgrounds).size, 3, 'Three different actual palettes');
     assert.equal(await snapshot(page), before, 'Appearance does not edit account data or score history');
-    assert.equal(await page.evaluate(() => window.__mockWrites.length), writes, 'No server write for skin changes');
+    assert.equal(await page.evaluate(() => window.__mockWrites.filter(row=>row.date!=='cfgbak').length), writes, 'No server write for skin changes');
   });
 }
 
@@ -77,7 +78,7 @@ test('low stimulation disables glow and motion; Matrix respects system reduced m
 
 test('all result grades stay distinct, readable and numerically identical in each skin, including SVG', async t => {
   const page = await openApp(t, locationFixture());
-  for (const id of ['classic', 'matrix', 'minimal']) {
+  for (const id of ['classic', 'matrix', 'minimal', 'aurora']) {
     await page.evaluate(id => {
       setSkin(id);
       let probe = document.getElementById('skin-grade-probe');

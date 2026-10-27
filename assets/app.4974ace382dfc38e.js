@@ -270,12 +270,7 @@ function applySkin(){
   const theme=document.querySelector('meta[name="theme-color"]');
   if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
-  // Only WORK has skin-specific markup. Refresh it on local and storage changes.
-  const workCard=document.querySelector('.today .sf-work');
-  if(workCard){
-    const key=editDayKey||todayKey(),item=cfgForDate(key).L1.find(i=>i.id==='work');
-    if(item){const template=document.createElement('template');uiHTML(template,workPhaseCard(key,item));skinPaintTree(template.content);workCard.replaceWith(template.content);}
-  }
+  // Skin selection changes presentation only; preserve interactive DOM and state.
 
 }
 function setSkin(id){
@@ -4713,8 +4708,7 @@ function workPhaseCard(key,item){
  const action=next?'Completar '+next[0]+' · '+next[1]+' puntos':'Reiniciar avance · volver a 0 de '+phases.length+' y 0 puntos';
  const weekly=workWeeklyCash(key);
  const cash=completed?workMilestoneRules(key)[completed-1].amount:0;
- if(_skin==='classic')return `<button type="button" class="sf-core-routine sf-work wg-card" ${phases.length?'':'disabled'} aria-label="WORK${legacy?' · Avance previo conservado':''} · ${points}/${item.pts} puntos · ${completed} de ${phases.length} hitos. ${esc(action)}" ${ui('click','workPhaseAdvance',key)}><span class="wg-head"><span>💼 WORK</span><span class="wg-points">${points}/${item.pts} pts</span></span><span class="wg-row"><span class="wg-daily"><span>HOY</span><strong>₪${cash.toLocaleString('en-US')}</strong></span>${workGeometry(phases.length,completed)}<span class="wg-weekly"><span>ESTA SEMANA</span><strong>≈ ₪${weekly.total.toLocaleString('en-US')}</strong></span></span></button>`;
- return `<section class="sf-core-routine sf-work sf-work-reference sf-work-essential" aria-label="Work${legacy?' · Avance previo conservado':''}"><div class="sf-core-icon">💼</div><div class="sf-work-info"><div class="r-lab">Work <span class="sf-work-points">${points}/${item.pts} pts</span></div></div><div class="sf-work-cash-row"><div class="sf-work-daily"><span>HOY</span><strong>₪${cash.toLocaleString('en-US')}</strong></div><div class="sf-work-cash-divider" aria-hidden="true"></div><div class="sf-work-weekly" title="Estimado según el último hito de cada día · ${weekly.from} a ${weekly.to}"><span>ESTA SEMANA</span><strong>≈ ₪${weekly.total.toLocaleString('en-US')}</strong></div></div><div class="sf-work-track"><div class="sf-work-progress" role="progressbar" aria-label="Work · meta ${phases.at(-1)?.[0]||'Sin milestones'}" aria-valuemin="0" aria-valuemax="${phases.length}" aria-valuenow="${completed}" aria-valuetext="${completed} de ${phases.length} hitos">${phases.map(p=>`<span class="sf-work-segment${fraction+1e-9>=p[2]?' is-done':''}"></span>`).join('')}</div></div><div class="sf-core-actions"><button type="button" class="sf-work-next" ${phases.length?'':'disabled'} aria-label="${esc(action)}" ${ui('click','workPhaseAdvance',key)}>${next?'Completar '+next[0]+' →':phases.length?'Reiniciar avance':'Sin milestones'}</button></div></section>`;
+ return `<button type="button" class="sf-core-routine sf-work wg-card" ${phases.length?'':'disabled'} aria-label="WORK${legacy?' · Avance previo conservado':''} · ${points}/${item.pts} puntos · ${completed} de ${phases.length} hitos. ${esc(action)}" ${ui('click','workPhaseAdvance',key)}><span class="wg-head"><span>💼 WORK</span><span class="wg-points">${points}/${item.pts} pts</span></span><span class="wg-row"><span class="wg-daily"><span>HOY</span><strong>₪${cash.toLocaleString('en-US')}</strong></span>${workGeometry(phases.length,completed)}<span class="wg-weekly"><span>ESTA SEMANA</span><strong>≈ ₪${weekly.total.toLocaleString('en-US')}</strong></span></span></button>`;
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 

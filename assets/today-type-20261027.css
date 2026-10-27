@@ -1,0 +1,10 @@
+/* Desktop typography: match level headings to Social Combo. */
+@media(min-width:880px){
+ #scroll .today.sf-today-v27>.t-lvl2>.lvl-h>.lvl-toggle,
+ #scroll .today.sf-today-v27>.t-lvl3>.lvl-h>.lvl-toggle{font-size:19px!important;line-height:1.4!important;letter-spacing:.1em!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .sf-routine-total{font-size:16px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub{font-size:17px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div,
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div>span{font-size:16px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{font-size:16px!important}
+}

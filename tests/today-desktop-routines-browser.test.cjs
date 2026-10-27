@@ -23,10 +23,12 @@ test('desktop Production/WOD are readable and closed levels are header-sized',as
     await card.locator('.lvl-toggle').click();assert.equal(await card.locator('.lvl-b').evaluate(e=>getComputedStyle(e).display!=='none'),true);
     await card.locator('.lvl-toggle').click();
    }
+   assert.equal(await page.locator('.t-lvl2 .lvl-toggle').evaluate(e=>getComputedStyle(e).fontSize),await page.locator('.sf-combo-heading strong').evaluate(e=>getComputedStyle(e).fontSize));
+   assert.equal(await page.locator('.t-lvl3 .lvl-toggle').evaluate(e=>getComputedStyle(e).fontSize),await page.locator('.sf-combo-heading strong').evaluate(e=>getComputedStyle(e).fontSize));
    const routines=page.locator('.t-rout-body>div.sf-core-routine');assert.equal(await routines.count(),2);
    for(const card of await routines.all()){
     const m=await card.evaluate(e=>({title:parseFloat(getComputedStyle(e.querySelector('.r-lab')).fontSize),meta:parseFloat(getComputedStyle(e.querySelector('.r-sub')).fontSize),step:parseFloat(getComputedStyle(e.querySelector('.r-step')).fontSize),buttons:[...e.querySelectorAll('.r-btn')].map(b=>({h:b.getBoundingClientRect().height,font:parseFloat(getComputedStyle(b).fontSize)})),overflow:e.scrollWidth>e.clientWidth+1}));
-    assert.ok(m.title>=18&&m.meta>=16&&m.step>=14,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=44&&b.font>=15));assert.equal(m.overflow,false);
+    assert.ok(m.title>=18&&m.meta>=17&&m.step>=16,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=44&&b.font>=16));assert.equal(m.overflow,false);
    }
    assert.equal(await page.evaluate(()=>document.querySelector('#scroll').scrollWidth<=innerWidth),true);
    if(width===1440&&skin==='glow'){await page.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await page.waitForTimeout(400);await page.screenshot({path:'docs/today-desktop-routines-glow.png'});}

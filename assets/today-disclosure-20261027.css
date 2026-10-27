@@ -1,0 +1,26 @@
+/* Today disclosure repair: collapsed cards must not stretch into empty boxes. */
+#scroll .today .lvl-b{max-height:none;opacity:1;overflow:visible;transition:none}
+#scroll .today .lvl-b.cl{display:none}
+#scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl),
+#scroll .today>.t-lvl:has(>.lvl-b.cl){height:auto!important;min-height:0!important;align-self:start!important}
+#scroll .today .lvl-toggle{min-height:40px;line-height:1.4}
+#scroll .today .row{min-height:44px}
+#scroll .today .row>div:first-child>span{white-space:normal!important;overflow-wrap:anywhere;line-height:1.45}
+#scroll .today .lvl-n{font-size:14px!important;color:var(--today-copy,var(--skin-muted,#adadbf))!important}
+@media(max-width:879px){
+ #scroll input,#scroll textarea,#scroll select{font-size:16px!important;line-height:1.5}
+ #scroll .today.sf-today-v27 .sec{font-size:14px!important;letter-spacing:.06em!important}
+ #scroll .today.sf-today-v27 .row span{font-size:16px!important}
+ #scroll .today.sf-today-v27 .t-rout .r-lab{font-size:15px!important;line-height:1.4!important;overflow-wrap:anywhere}
+ #scroll .today.sf-today-v27 .t-rout-body .r-sub,#scroll .today.sf-today-v27 .t-rout-body .r-step{font-size:14px!important}
+ #scroll .today.sf-today-v27 .t-rout-body .r-btn{font-size:14px!important;min-height:40px!important;letter-spacing:.04em!important}
+ #scroll .today .t-score-hero{order:10!important}
+ #scroll .today .t-rout{order:20!important}
+ #scroll .today .t-lvl1{order:30!important}
+ #scroll .today .t-lvl2{order:40!important}
+ #scroll .today .t-lvl3{order:50!important}
+ #scroll .today .t-daylog{order:55!important}
+ #scroll .today .t-note{order:60!important}
+ #scroll .today .t-reset{order:70!important}
+}
+@media(prefers-reduced-motion:reduce){.fade-up{animation:none}}

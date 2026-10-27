@@ -32,8 +32,8 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
       return route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) });
     }
     if (parsed.origin === 'http://shaah.test' && parsed.pathname === '/') return route.fulfill({ contentType: 'text/html', body: pageHtml });
-    if(parsed.origin==='http://shaah.test'&&/^\/assets\/(?:app\.[a-f0-9]{16}\.(?:js|css)|fonts\.[a-f0-9]{16}\.css|mobile-circular-log-20261026\.css|history-back-first-click-20261026\.js|supabase-2\.118\.0\.js)$/.test(parsed.pathname)){
-      return route.fulfill({contentType:parsed.pathname.endsWith('.css')?'text/css':'application/javascript',body:fs.readFileSync(path.join(pageRoot,parsed.pathname.slice(1)))});
+    if(parsed.origin==='http://shaah.test'&&/^\/assets\/[\w.-]+\.(?:js|css|woff2?)$/.test(parsed.pathname)){
+      return route.fulfill({contentType:parsed.pathname.endsWith('.css')?'text/css':/\.woff2?$/.test(parsed.pathname)?'font/woff2':'application/javascript',body:fs.readFileSync(path.join(pageRoot,parsed.pathname.slice(1)))});
     }
     if (url.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')) {
       return route.fulfill({ contentType: 'application/javascript', body: '/* Supabase is replaced by the local test double. */' });

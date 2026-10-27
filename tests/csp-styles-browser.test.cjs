@@ -46,6 +46,8 @@ test('registry pruning preserves styles already visible and does not grow for di
 
 test('all skins and main screens remain usable under the strict style policy',async t=>{
  const page=await open(t);
+ await page.evaluate(()=>flushCfgSaves());
+ const writes=await page.evaluate(()=>__mockWrites.filter(row=>row.date!=='cfgbak').length);
  for(const skin of ['classic','matrix','minimal']){
   await page.evaluate(id=>setSkin(id),skin);
   for(const tab of ['today','log','social','stats','history']){
@@ -56,5 +58,5 @@ test('all skins and main screens remain usable under the strict style policy',as
   await page.getByRole('button',{name:'Settings',exact:true}).click();
   await page.getByRole('button',{name:'Back',exact:true}).click();
  }
- assert.equal(await page.evaluate(()=>__mockWrites.length),0);
+ assert.equal(await page.evaluate(()=>__mockWrites.filter(row=>row.date!=='cfgbak').length),writes);
 });

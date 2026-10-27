@@ -1,7 +1,9 @@
 # Aurora V2 — OG release preparation (2026-10-27)
 
 User authorized proceeding with OG following the private TEST v33 review.
-Base main: 12fb367d2ace80b5b2385b5d44ce383d0ca75c70.
+Initial base main: 12fb367d2ace80b5b2385b5d44ce383d0ca75c70.
+Integrated newer main 0311318bbcc0c6f975b1bbab3be52df860855921, preserving the People/Groups toggle and its CSS.
+User explicitly approved merging PR #10 and publishing both OG deployments.
 Rollback source retained in Git history and a local ignored Git bundle.
 
 ## Scope and safety evidence
@@ -18,7 +20,7 @@ upgradeShaahSocialCoreConfig, workPhaseAdvance, socialRecord, togglePerson,
 setChecked, setPeople, setSocial, applyTravelMode, travelMode,
 restoreLiveTravelMode, checkTravelAuto, setVacationStartOnce and exportData.
 
-187/187 final OG release tests pass: all regression files, production parity,
+188/188 final OG release tests pass: all regression files, production parity,
 Aurora, checkbox feedback, skins and strict style-policy browser checks.
 67 historical days across three local backup accounts retain exact results,
 IDs, categories and records. Responsive checks cover 320/390/879/880/1440px,
@@ -31,9 +33,9 @@ functions, not a backend repair or recertification.
 
 ## Exact expected publication artifacts
 
-- HTML SHA256: b98c17bd30b6703b3e59ee681cbf9da9ce6ad0fb5fcdbe6c9db208f851fce29f
-- Application: assets/app.8849b7d224545c38.js
-- Existing application CSS: assets/app.365190975340c724.css
+- HTML SHA256: 45e8b6fb2a8589571aa1974f5c863647a7cbb55aaa05c7b574dd678ea712a6e3
+- Application: assets/app.db14f586356072b1.js
+- Existing application CSS: assets/app.8933d41e39607261.css
 - Aurora CSS version: cfa96523f4362394
 - Aurora JS version: 4bd9c9af2781fcee
 - CSP remains strict; versioned app and skin resources have SHA-384 SRI.

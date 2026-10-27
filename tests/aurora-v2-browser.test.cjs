@@ -73,3 +73,17 @@ for(const width of [390,1440])test(`Aurora Work ${width}: native milestones pers
  assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),0);
  assert.equal(await past(),before);
 });
+
+test('Aurora preserves the latest OG People / Groups switch without changing data',async t=>{
+ const page=await openApp(t,locationFixture(),{width:390,height:844});
+ await page.evaluate(async()=>{await flushCfgSaves();setSkin('aurora');setTab('social')});
+ const before=await snapshot(page);
+ await page.locator('.sf-people-toggle').click();
+ await page.locator('#social-directory-toggle').click();
+ assert.equal(await page.locator('#social-groups-view').isVisible(),true);
+ assert.equal(await page.locator('#social-directory-results').isVisible(),false);
+ await page.locator('#social-directory-toggle').click();
+ assert.equal(await page.locator('#social-directory-results').isVisible(),true);
+ assert.equal(await page.locator('#social-groups-view').isVisible(),false);
+ assert.equal(await snapshot(page),before);
+});

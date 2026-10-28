@@ -62,3 +62,26 @@
     margin-bottom:0 !important;
   }
 }
+
+/* Short iPhone viewports: keep the closed overview above the fixed dock.
+   Only applies while all three disclosures are closed. */
+@media (max-width:879px) and (max-height:740px) {
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(.sf-compact-combo.is-collapsed) {
+    row-gap:5px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(.sf-compact-combo.is-collapsed) > .t-lvl,
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(.sf-compact-combo.is-collapsed) > .t-social-independent {
+    padding-top:3px !important;
+    padding-bottom:3px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(.sf-compact-combo.is-collapsed) > .t-note {
+    padding-top:7px !important;
+    padding-bottom:7px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(.sf-compact-combo.is-collapsed) > .t-note textarea {
+    height:60px !important;
+    min-height:60px !important;
+    padding-top:6px !important;
+    padding-bottom:6px !important;
+  }
+}

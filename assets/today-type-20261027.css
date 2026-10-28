@@ -8,3 +8,45 @@
  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div>span{font-size:16px!important}
  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{font-size:16px!important}
 }
+
+/* Today typography harmonization — 2026-10-29.
+   Presentation only. Preserve intentional card-less Core Routines and layout.
+   Scoped to current Today; historical editing and Social tab are excluded. */
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout > .sec,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout > .t-rout-toggle,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .sec,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .lvl-h .lvl-toggle,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-note > .sec,
+#scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:16px!important;
+  font-weight:500!important;
+  letter-spacing:.06em!important;
+  line-height:1.35!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-lvl .lvl-n,
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-rout .sf-routine-total {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:13px!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+  font-variant-numeric:tabular-nums;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-lvl .row span:not(.lvl-n),
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-rout .r-lab {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:16px!important;
+  letter-spacing:0!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-note textarea {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:16px!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-reset {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  letter-spacing:.06em!important;
+}

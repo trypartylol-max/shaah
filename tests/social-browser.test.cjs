@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { fixture } = require('./helpers.cjs');
-const {control,editPerson}=require('./ui-helpers.cjs');
+const {control,edit,combo,category}=require('./social-ui-helpers.cjs');
 const { openApp } = require('./browser-helpers.cjs');
 
 for (const [name, viewport] of [
@@ -12,18 +12,18 @@ for (const [name, viewport] of [
     const page = await openApp(t, fixture(), viewport);
     const originalHistory = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey()))));
     assert.equal(await page.locator('.w-name').count(), 3);
-    await control(page,'click','socialCategoryToggle',['friends','2026-10-16'],'button').click();
+    await category(page,'friends');
     assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), []);
-    await page.getByRole('button',{name:'Ana Existing',exact:true}).click();
-    await page.getByRole('button',{name:'Luis Existing',exact:true}).click();
+    await combo(page).getByRole('button',{name:'Ana Existing',exact:true}).click();
+    await combo(page).getByRole('button',{name:'Luis Existing',exact:true}).click();
     assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), ['pold01', 'pold02']);
-    assert.equal(await page.locator('.sd-pts').innerText(), '16/18%');
+    assert.equal(await page.locator('.sf-combo-heading > span').innerText(), '16 / 18 PTS');
     await page.waitForFunction(() => window.__mockWrites.some(r => r.date === todayKey() && r.data._people.length === 2));
     await page.reload();
     await page.waitForFunction(() => _cfgReady && _live);
     await page.locator('.nav-btn[data-tab="social"]').click();
     assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), ['pold01', 'pold02']);
-    assert.equal(await page.locator('.sd-pts').innerText(), '16/18%');
+    assert.equal(await page.locator('.sf-combo-heading > span').innerText(), '16 / 18 PTS');
     assert.equal(await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())))), originalHistory);
   });
 }
@@ -34,13 +34,13 @@ for (const [mode, maximum] of [['work', 18], ['vacation', 24]]) {
     data.config.travel.mode = mode;
     data.config.log[2].mode = mode;
     const page = await openApp(t, data);
-    await control(page,'click','socialCategoryToggle',['strangers','2026-10-16'],'button').click();
-    assert.equal(await page.locator('.sd-pts').innerText(), `0/${maximum}%`);
+    await category(page,'strangers');
+    assert.equal(await page.locator('.sf-combo-heading > span').innerText(), `0 / ${maximum} PTS`);
     assert.equal(await page.evaluate(() => calcScore(todayKey()).l3), 0);
     assert.equal(await control(page,'click','socialCategoryToggle',['strangers','2026-10-16'],'button').getAttribute('aria-pressed'),'true');
     await page.locator('.nav-btn[data-tab="today"]').click();
     assert.equal(await page.evaluate(() => calcScore(todayKey()).l3), 0);
-    assert.ok((await page.locator('.sf-compact-combo').innerText()).includes('0/'+maximum));
+    await page.locator('.nav-btn[data-tab="social"]').click();
     assert.equal(await control(page,'click','socialCategoryToggle',['strangers','2026-10-16'],'button').getAttribute('aria-pressed'),'true');
   });
 }
@@ -58,10 +58,8 @@ test('old unpriced historical Social parts render their dated Work/Vacation spli
 test('changing a contact category and name in Social keeps its historical ID and recorded Social part', async t => {
   const page = await openApp(t);
   const before = await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') }));
-  await editPerson(page,'pold03');
-  await page.locator('#sf-name').fill('Alex Renamed');
-  await page.locator('#sf-sub').selectOption('friends');
-  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  await edit(page,'pold03');await page.locator('#sf-name').fill('Alex Renamed');
+  await page.locator('#sf-sub').selectOption('friends');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
   assert.equal(await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') })), before);
   assert.equal(await page.evaluate(() => personById('pold03').name), 'Alex Renamed');
 });

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "realChecks": 11,
+  "existingRowsPreserved": true,
+  "productionRequests": 0,
+  "originalTableWrites": 0,
+  "runtimeErrors": 0,
+  "cleanup": "passed",
+  "cleanupMigrationEntries": 0,
+  "physicalIPhone": "pending",
+  "deployment": "not_performed"
+}

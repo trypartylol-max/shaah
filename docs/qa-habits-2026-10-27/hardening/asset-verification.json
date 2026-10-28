@@ -1,0 +1,183 @@
+{
+  "base": "b0e8d7470288e1349bfb0a909b2847757868dbb9",
+  "production": {
+    "htmlSHA256": "362c5f37c670fe7b1577e3d9511d90b7ba996e889ea116ae77d6ef231216d4c5",
+    "matchesBaseHTML": true,
+    "assets": [
+      {
+        "path": "./assets/fonts.f979be2919756976.css",
+        "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/app.18d4ef4efe2f2763.css",
+        "sha256": "18d4ef4efe2f276315185559a953732d3acfc770a6d709a94879671b2330a257",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/mobile-circular-log-20261026.css",
+        "sha256": "2dc701b7fc3f5db574656de3e836229a85508f1b68ac0d021dc9a792aa8a6fe0",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/aurora-skin.css?v=797ee01cb04edf92",
+        "sha256": "797ee01cb04edf92d74e47cf6fe244e02088cbd74c2083aebbe23d941bd2ff5c",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/ui-refinement-20261027.css",
+        "sha256": "8603adb531a5468d6af14758e3b169bfe66e71dc78464ae3ebb49a2b1733aa0f",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/today-disclosure-20261027.css",
+        "sha256": "0b94ee84df2cd85b669ca38c9a8cca389b2efa44f179cac94dea181f18dc2e20",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/today-desktop-20261027.css",
+        "sha256": "b92ad68b3455da3311dec2be2cafa73e28b98b1c49d216ea0c5842aa62e16f4f",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/today-type-20261027.css",
+        "sha256": "98f73babcc1737ccc6c7fd4e7fa114946b7f00121798ab0e992be4cf46804490",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/supabase-2.118.0.js",
+        "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/app.4974ace382dfc38e.js",
+        "sha256": "4974ace382dfc38e7b5ef8f336c0ab4cbd04c03b8843f4e9056173fa507e40de",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/history-back-first-click-20261026.js",
+        "sha256": "51376aafaddc17ddb9ed165c70cc928d32397a2780e3a863f41d66fa23cb0731",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/aurora-skin.js?v=85b841c8e7ba2ff9",
+        "sha256": "85b841c8e7ba2ff9d19fa5f38ca0b5947c15a85ad57e5fda57d945bf2994a495",
+        "matchesBase": true,
+        "integrity": true,
+        "hasIntegrity": true
+      }
+    ]
+  },
+  "candidate": {
+    "htmlSHA256": "c7ee61cba5eede92e37d09123fc7e9712e0c62eb0b17b8eac6e499febd930621",
+    "matchesBaseHTML": null,
+    "assets": [
+      {
+        "path": "./assets/fonts.f979be2919756976.css",
+        "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/app.c6e54b40480c5759.css",
+        "sha256": "c6e54b40480c5759e939a232ebb2bf48d908da38f45cb2e7dceda85220e37e3a",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/mobile-circular-log-20261026.css",
+        "sha256": "2dc701b7fc3f5db574656de3e836229a85508f1b68ac0d021dc9a792aa8a6fe0",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/aurora-skin.css?v=797ee01cb04edf92",
+        "sha256": "797ee01cb04edf92d74e47cf6fe244e02088cbd74c2083aebbe23d941bd2ff5c",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/ui-refinement-20261027.css",
+        "sha256": "8603adb531a5468d6af14758e3b169bfe66e71dc78464ae3ebb49a2b1733aa0f",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/today-disclosure-20261027.css",
+        "sha256": "0b94ee84df2cd85b669ca38c9a8cca389b2efa44f179cac94dea181f18dc2e20",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/today-desktop-20261027.css",
+        "sha256": "b92ad68b3455da3311dec2be2cafa73e28b98b1c49d216ea0c5842aa62e16f4f",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/today-type-20261027.css",
+        "sha256": "98f73babcc1737ccc6c7fd4e7fa114946b7f00121798ab0e992be4cf46804490",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/supabase-2.118.0.js",
+        "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/app.7ec01d955365977a.js",
+        "sha256": "7ec01d955365977abe35db4332a4b429115484b9195a1d9d0d45b92396f9394c",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": true
+      },
+      {
+        "path": "./assets/history-back-first-click-20261026.js",
+        "sha256": "51376aafaddc17ddb9ed165c70cc928d32397a2780e3a863f41d66fa23cb0731",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": false
+      },
+      {
+        "path": "./assets/aurora-skin.js?v=85b841c8e7ba2ff9",
+        "sha256": "85b841c8e7ba2ff9d19fa5f38ca0b5947c15a85ad57e5fda57d945bf2994a495",
+        "matchesBase": null,
+        "integrity": true,
+        "hasIntegrity": true
+      }
+    ]
+  }
+}

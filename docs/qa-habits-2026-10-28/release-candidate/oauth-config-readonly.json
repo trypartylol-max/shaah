@@ -1,0 +1,27 @@
+{
+  "status": "passed_configuration_inspection",
+  "projectRef": "llpyxktcfubhmthqujpa",
+  "authorizedScope": "Read only Site URL, redirect allowlist and provider enabled status; no account list, credentials or changes",
+  "source": "Authenticated Supabase dashboard URL Configuration and Sign In / Providers",
+  "siteUrl": "https://trypartylol-max.github.io/shaah/",
+  "redirectUrls": [
+    "https://trypartylol-max.github.io/shaah/",
+    "https://trypartylol-max.github.io/shaah/**",
+    "https://shaah-control.netlify.app/",
+    "http://127.0.0.1:43821/shaah/oauth/**",
+    "https://6ae08c0d01f0180bf5c533d1--shaah-control.netlify.app/",
+    "https://deploy-preview-1--shaah-control.netlify.app/"
+  ],
+  "googleEnabled": true,
+  "emailEnabled": true,
+  "anonymousSignInsEnabled": false,
+  "confirmEmailEnabled": true,
+  "clientRedirectExpression": "location.origin+location.pathname",
+  "publishedClientRedirectAllowed": true,
+  "settingsWrites": 0,
+  "userAccountsRead": false,
+  "providerSecretsOpened": false,
+  "interactiveGoogleLoginPerformed": false,
+  "googleCloudConsoleInspected": false,
+  "notes": "Existing preview/local redirect entries were recorded, not changed. Initial navigation to the user-list route was blocked before access; the owner subsequently authorized only these configuration pages, which were inspected directly."
+}

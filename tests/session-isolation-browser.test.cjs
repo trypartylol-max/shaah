@@ -4,9 +4,8 @@ const {openApp}=require('./browser-helpers.cjs');
 const {fixture}=require('./helpers.cjs');
 async function open(t){
   const a=fixture(),b=fixture();
-  a.config.h.production={l:'Production',p:5,pWork:5,pVacation:5,lv:1,on:true,routine:true};a.config.order.push('production');
-  for(const era of a.config.log){era.h.production={...a.config.h.production};era.order.push('production');}
-  a.config.routines={production:{label:'Synthetic A routine',icon:'W',steps:[{label:'Synthetic A step',dur:1}]}};
+  a.config.h.runner={...a.config.h.work,l:'Synthetic A routine',routine:true};a.config.order.push('runner');
+  a.config.routines={runner:{label:'Synthetic A routine',icon:'W',steps:[{label:'Synthetic A step',dur:1}]}};
   b.config.routines={};b.config.people=[];
   for(const day of Object.values(b.days)){day.note='Synthetic B note';day.people=[];day._daylog=[];}
   return openApp(t,a,{width:390,height:844},{syntheticAccounts:{'synthetic-B':b}});
@@ -19,7 +18,7 @@ async function emit(page,owner,event='SIGNED_IN'){
 
 test('actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies',async t=>{
   const page=await open(t);
-  await page.evaluate(()=>{startRoutine('production');routineToggle();});
+  await page.evaluate(()=>{startRoutine('runner');routineToggle();});
   const savedA=await page.evaluate(()=>localStorage.getItem('shaah_routine_regression-user'));
   assert.ok(savedA);
   await page.evaluate(()=>{
@@ -42,22 +41,22 @@ test('actual Original artifact removes A routine and editor when B signs in, pre
 test('returning to A through the auth callback restores only A routine and A screen preferences',async t=>{
   const page=await open(t);
   await page.evaluate(()=>{
-    set(cfgKey(),CFG);startRoutine('production');routineToggle();
+    set(cfgKey(),CFG);startRoutine('runner');routineToggle();
     set(todayRoutinesKey(),false);set(secKey(),{hab:false});
   });
   await emit(page,'synthetic-B');
   assert.equal(await page.evaluate(()=>todayRoutinesOpen),true);
   await emit(page,'regression-user');
-  assert.deepEqual(await page.evaluate(()=>Object.keys(sessions)),['production']);
+  assert.deepEqual(await page.evaluate(()=>Object.keys(sessions)),['runner']);
   assert.equal(await page.evaluate(()=>routineView&&timerRunning),true);
   assert.equal(await page.evaluate(()=>todayRoutinesOpen),false);
   assert.equal(await page.evaluate(()=>secOpen.hab),false);
-  assert.equal(await page.locator('#cr-dialog #cr-title').textContent(),await page.evaluate(()=>ROUTINES.production.icon+' '+ROUTINES.production.label));
+  assert.equal(await page.locator('#cr-dialog #cr-title').textContent(),await page.evaluate(()=>ROUTINES.runner.icon+' '+ROUTINES.runner.label));
 });
 
 test('same-owner refresh keeps the live runner and signed-out state shows no account activity',async t=>{
   const page=await open(t);
-  await page.evaluate(()=>{startRoutine('production');routineToggle();});
+  await page.evaluate(()=>{startRoutine('runner');routineToggle();});
   const timer=await page.evaluate(()=>timerInterval),epoch=await page.evaluate(()=>_syncEpoch);
   await emit(page,'regression-user','TOKEN_REFRESHED');
   assert.equal(await page.evaluate(()=>timerInterval),timer);assert.equal(await page.evaluate(()=>_syncEpoch),epoch);

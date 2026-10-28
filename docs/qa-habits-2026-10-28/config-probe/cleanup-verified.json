@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "method": "Supabase SQL Editor; independent connector catalog verification",
+  "resources": [
+    {
+      "temporary_table": null,
+      "temporary_schema": null,
+      "temporary_public_functions": 0,
+      "temporary_publication_entries": 0
+    }
+  ],
+  "connectorCleanupError": "Invalid or expired requestState (execute_sql twice; apply_migration once). No successful migration application reported."
+}

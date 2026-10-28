@@ -1,0 +1,24 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {openApp}=require('./browser-helpers.cjs');
+const {loadApp}=require('./helpers.cjs');
+for(const width of [390,879])test(`integrated mobile ${width}: disclosures hide content and preserve data across rendering`,async t=>{
+ const app=loadApp();app.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config");
+ const page=await openApp(t,{config:app.read('CFG'),days:app.read('_state')},{width,height:844});
+ await page.evaluate(async()=>{await flushCfgSaves();setTab('today');});
+ const snapshot=()=>page.evaluate(()=>JSON.stringify({config:CFG,days:_state,scores:Object.keys(_state).map(k=>calcScore(k))}));
+ const before=await snapshot();
+ const core=page.locator('.today > .t-rout'),body=core.locator(':scope > .t-rout-body');
+ if(await core.evaluate(n=>n.classList.contains('collapsed')))await core.locator('.t-rout-toggle').click();
+ assert.equal(await body.isVisible(),true);
+ await core.locator('.t-rout-toggle').click();assert.equal(await body.isVisible(),false);
+ await core.locator('.t-rout-toggle').click();assert.equal(await body.isVisible(),true);
+ const combo=page.getByRole('button',{name:'Toggle Social Combo',exact:true});
+ await combo.press('Enter');assert.equal(await combo.getAttribute('aria-expanded'),'false');
+ assert.equal(await page.locator('.today > .t-social-independent .sf-combo-category').first().isVisible(),false);
+ await page.evaluate(()=>render());assert.equal(await combo.getAttribute('aria-expanded'),'false');
+ await combo.press('Space');assert.equal(await combo.getAttribute('aria-expanded'),'true');
+ assert.equal(await page.locator('.today > .t-social-independent .sf-combo-category').first().isVisible(),true);
+ assert.equal(await snapshot(),before);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.getElementById('scroll').scrollWidth<=innerWidth),true);
+});

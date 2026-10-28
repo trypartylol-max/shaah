@@ -1,0 +1,22 @@
+✔ QA configuration defaults only to the explicitly authorized project (1.173375ms)
+✔ missing credentials stop execution without substituting embedded production values (0.707917ms)
+✔ reject a project URL outside the QA allowlist: llpyxktcfubhmthqujpa.supabase.co (0.340208ms)
+✔ reject a project URL outside the QA allowlist: other.supabase.co (0.0865ms)
+✔ reject a project URL outside the QA allowlist: kpnwiwaiwnndpvtxkvva.supabase.co (0.086458ms)
+✔ reject a mismatched reference and reject duplicate test identities (0.163917ms)
+✔ accept public QA keys; reject service-role, secret and another project keys (0.364625ms)
+✔ Node HTTP guard rejects production, spoofed hosts, credentials, non-HTTPS and admin endpoints before fetch (0.4925ms)
+✔ Node HTTP guard forbids redirects even if the caller requests following them (0.24675ms)
+✔ WebSocket guard accepts only the QA Realtime endpoint (0.228792ms)
+✔ temporary QA HTML changes endpoint/key/SDK locally without mutating source (7.409667ms)
+✔ browser routes abort forbidden HTTP, redirects and WebSockets before forwarding (0.557167ms)
+✔ browser transport failures are counted without surfacing request secrets (0.214291ms)
+✔ QA fixture retargets only the known migration gate and rejects unexpected production references (10.292917ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 104.559

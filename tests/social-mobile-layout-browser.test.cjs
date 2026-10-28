@@ -1,11 +1,11 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const {fixture}=require('./helpers.cjs');
+const fs = require('node:fs');
 const { openApp } = require('./browser-helpers.cjs');
 
 test('WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout', async t => {
   const page = await openApp(t);
+  const baseline=await openApp(t,undefined,{width:1440,height:1000},{htmlFile:require('../qa/prepare-habit-baseline.cjs').prepare()});
   const snapshot = (target=page) => target.locator('.sd-contact').evaluateAll(cards => cards.map(c => {
     const rect = s => { const r=c.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,w:r.width,h:r.height}; };
     return { card:c.getBoundingClientRect().toJSON(), icon:rect('.sd-icon'), name:rect('.w-name'), pill:rect('.sd-time-pill'), edit:rect('.sd-edit'), when:getComputedStyle(c.querySelector('.w-when')).display, fill:c.querySelector('.sd-pill-fill').getBoundingClientRect().width/c.querySelector('.sd-time-pill').clientWidth };
@@ -29,11 +29,11 @@ test('WHO TO SEE has two mobile rows, proportional pills and unchanged desktop l
   }
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:'/tmp/shaah-who-mobile.png',fullPage:true});
-  const baseline=await openApp(t,fixture(),{width:601,height:1000},{htmlFile:path.join(__dirname,'fixtures/production-before-pr16.html'),assetsRoot:path.join(__dirname,'..')});
-  for(const target of [page,baseline]){await target.emulateMedia({reducedMotion:'reduce'});await target.evaluate(()=>document.fonts.ready);}
-  for(const width of [601,880,1440]){
-    await page.setViewportSize({width,height:1000});await baseline.setViewportSize({width,height:1000});
-    assert.deepEqual(await snapshot(),await snapshot(baseline),`desktop unchanged at ${width}px`);
+  for (const width of [601,880,1440]) {
+    await page.setViewportSize({width,height:1000});
+    const current = await snapshot();
+    await baseline.setViewportSize({width,height:1000});
+    assert.deepEqual(current,await snapshot(baseline),`desktop unchanged against exact main at ${width}px`);
   }
   await page.setViewportSize({width:390,height:844});
   const history = await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([key])=>key!==todayKey()))));

@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-28",
+  "status": "passed_user_reported_scope",
+  "device": "iPhone 17",
+  "os": "iOS 27",
+  "browser": "Safari",
+  "evidenceType": "User confirmation in this chat; no physical-device recording or automation",
+  "candidateCommit": "a4d98ab89c78dc5e1848d821c481e199c22cb600",
+  "candidateHtmlSha256": "c56752c95bf3f27cd89360ebd0dcf47617c824cea8039ebca1ff7b9df0ebc048",
+  "previewClockFixCommit": "f52c8b1",
+  "confirmed": [
+    "Move habit to level 3 using native selector",
+    "Level remains after reload",
+    "Repeated collapse/expand of habit settings responds",
+    "Text input and keyboard leave controls accessible",
+    "Device rotation and no lateral overflow"
+  ],
+  "notIndividuallyConfirmed": [
+    "All five skins and Work touch cycle on physical device",
+    "Physical historical-score comparison",
+    "Reduced-motion device setting",
+    "New interactive Google login"
+  ],
+  "initialIssue": "Frozen synthetic preview clock blocked subsequent taps; reproduced and fixed in preview only",
+  "supabaseConnections": false,
+  "localServer": "stopped_verified_connection_refused",
+  "deployment": "not_performed"
+}

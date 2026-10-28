@@ -23,7 +23,7 @@ test('Strangers respect location and mobile People & Groups remains reachable ab
   const box=await toggle.boundingBox(),nav=await page.locator('#nav').boundingBox();
   assert.ok(box.y>=0&&box.y+box.height<=nav.y,'toggle fully above dock');
   await toggle.click();
-  if(await page.locator('#social-directory-toggle').getAttribute('aria-pressed')!=='true')await page.locator('#social-directory-toggle').click();
+  await page.locator('#social-directory-toggle').click();
   await page.locator('.sf-group-add').scrollIntoViewIfNeeded();
   await page.waitForTimeout(350);
   await page.locator('#scroll').evaluate(e=>e.scrollTop=e.scrollHeight);
@@ -32,6 +32,7 @@ test('Strangers respect location and mobile People & Groups remains reachable ab
   await page.locator('.sf-group-add').click();
   await page.locator('dialog[open]').waitFor();
   await page.keyboard.press('Escape');
+  await page.locator('#social-directory-toggle').click();
   await toggle.click();
  }
 });

@@ -1,0 +1,37 @@
+✔ strict CSP permits bulk membership and Unicode contact editing without changing history (2544.757667ms)
+✔ strict CSP preserves separate Work/Vacation editor values and score history (1272.727459ms)
+✔ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (1189.994083ms)
+✔ strict CSP keeps Original login control usable without real Auth requests (659.759416ms)
+✔ strict CSP permits activity create, edit and delete without changing older history (1242.325792ms)
+✔ strict CSP preserves routine step editors, timer controls and session-preserving closure (1882.840833ms)
+✔ backup is read-only, checks the downloaded file, previews and round-trips the repair (168.875ms)
+✔ altered, foreign and unprepared backup files cannot enable application (22.479292ms)
+✔ local edits and remote revisions invalidate the reviewed snapshot (50.384875ms)
+✔ recovery preserves unrelated new settings and new day records but refuses conflicting period edits (74.3765ms)
+✔ recovery keeps equivalent inserted boundaries and restores their previous scoring (10.156958ms)
+✔ missing revision/count protocol, unsynced data and changing reads fail closed (11.628125ms)
+✔ rejected or unconfirmed RPCs never claim success; late local edits are preserved (89.121209ms)
+✔ a delayed read from another account cannot download or apply the former owner data (5.416333ms)
+✔ pagination exports beyond the server page limit and validates the total count (308.122834ms)
+✔ digest has a known interoperable value and dangerous JSON keys are rejected (5.414917ms)
+✔ a lost acknowledgement after a committed repair can be recovered after refresh (59.138542ms)
+✔ a missing total count cannot silently truncate a backup (17.927083ms)
+✔ desktop: bulk and individual group changes survive reload without rewriting history (4078.100666ms)
+✔ mobile: bulk and individual group changes survive reload without rewriting history (3636.988625ms)
+✔ bulk search preserves focus and clears stale selections (1549.329625ms)
+✔ Unassigned and All contacts clear bulk selection; migration retains all seven identities (1844.874916ms)
+✔ locations filter discovery while every contact remains available in the Social Combo (1225.57325ms)
+✔ an empty discovery view retains a selector while unfiltered categories remain visible (1068.177833ms)
+✔ group create/rename and new contact metadata survive reload (1829.406417ms)
+✔ stale group references remain stored but accessible as unassigned after startup (1234.617709ms)
+✔ orphan categories can edit membership while preserving category and recorded encounters (1107.8725ms)
+✔ editing legacy membership preserves unknown category, relationship, metadata and historical scoring (31.809792ms)
+✔ legacy exception never permits assigning a new invalid category to existing or new contacts (4.636792ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28895.891083

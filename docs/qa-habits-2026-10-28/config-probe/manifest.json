@@ -1,0 +1,27 @@
+{
+  "projectRef": "kpnwiwaiwnndpvtxkvva",
+  "nonce": "87e99cfaa044a0b9",
+  "table": "shaah_cfg_87e99cfaa044a0b9",
+  "schema": "shaah_cfg_87e99cfaa044a0b9_private",
+  "marker": "shaah-isolated-config:87e99cfaa044a0b9",
+  "rpc": {
+    "save": "shaah_cfg_87e99cfaa044a0b9_save_settings_v1",
+    "backup": "shaah_cfg_87e99cfaa044a0b9_settings_backup_v1",
+    "restore": "shaah_cfg_87e99cfaa044a0b9_restore_settings_v1"
+  },
+  "sources": [
+    {
+      "name": "20261018062823_protect_settings_revisions.sql",
+      "sha256": "b6ef4525478b3a001828088b236b5ed0a7071982977b38c41c8e84e324d62adf"
+    },
+    {
+      "name": "20261018063440_settings_conflict_http_status.sql",
+      "sha256": "1cbc01666ae96f9e5d468388e5c3547e9e6ab1191dd59a13a025a49853217a36"
+    },
+    {
+      "name": "20261018085531_bind_settings_request_owner.sql",
+      "sha256": "afa80d5027fa4fc2a57401299b579a39cc8318079fa58b8794b964fcb71e0627"
+    }
+  ],
+  "status": "executed_passed_and_cleaned"
+}

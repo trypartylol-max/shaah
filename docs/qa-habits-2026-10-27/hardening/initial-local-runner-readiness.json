@@ -1,0 +1,15 @@
+{
+  "projectRef": "kpnwiwaiwnndpvtxkvva",
+  "sourceSha256": "085f56bb87f44ab2388912b39f069d18a1f4ee3d796998f1428535ae7396c91c",
+  "cases": [],
+  "remoteExecuted": false,
+  "status": "blocked",
+  "missing": [
+    "SHAAH_TEST_USER_A_ID",
+    "SHAAH_TEST_USER_A_EMAIL",
+    "SHAAH_TEST_USER_A_PASSWORD",
+    "SHAAH_TEST_USER_B_ID",
+    "SHAAH_TEST_USER_B_EMAIL",
+    "SHAAH_TEST_USER_B_PASSWORD"
+  ]
+}

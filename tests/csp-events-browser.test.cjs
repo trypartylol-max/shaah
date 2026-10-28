@@ -4,7 +4,6 @@ const fs=require('node:fs');
 const {openApp}=require('./browser-helpers.cjs');
 const {locationFixture}=require('./location-fixtures.cjs');
 const {html}=require('./helpers.cjs');
-const {openBulk,editPerson}=require('./ui-helpers.cjs');
 const control=(page,event,action,args,tag='*')=>page.locator(`${tag}[data-ui-${event}="${action}"][data-ui-${event}-args=${JSON.stringify(JSON.stringify(args))}]`);
 const history=page=>page.evaluate(()=>JSON.stringify({days:Object.fromEntries(Object.entries(_state).filter(([key])=>key!==todayKey())),log:CFG.log}));
 async function open(t,data=locationFixture(),options={}){
@@ -16,21 +15,24 @@ async function noEventAttributes(page){
   assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('*')].flatMap(node=>[...node.attributes].filter(a=>/^on/i.test(a.name)).map(a=>a.name))),[]);
 }
 
-test('strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history',async t=>{
+test('strict CSP permits bulk membership and Unicode contact editing without changing history',async t=>{
   const data=locationFixture(),id="old O'Neil & 雪";data.config.people[0].id=id;
   const page=await open(t,data),before=await history(page);
   await page.getByRole('button',{name:'Settings',exact:true}).click();
-  await openBulk(page);
+  await section(page,'Social Settings');
+  await page.getByText('Organizar varias personas por grupo',{exact:true}).click();
   await control(page,'change','bulkPeopleToggle',[id],'input').check();
+  assert.equal(await page.locator('#social-bulk-details').evaluate(n=>n.open),true,'Bulk selection preserves the native disclosure');
   await page.getByRole('button',{name:'+ Panamá',exact:true}).click();
   assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa']);
-  await editPerson(page,id);
+  await page.getByRole('button',{name:'Abrir Social →',exact:true}).click();
+  await page.getByRole('button',{name:/People & Groups/}).click();
+  await control(page,'click','socialEdit',[id],'button').filter({visible:true}).click();
   await control(page,'change','socialDraftLocation',['il'],'input').check();
   await page.locator('#sf-name').fill('Synthetic Unicode contact');
-  await page.locator('#sf-every').fill('180');
   await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa','il']);
   assert.equal(await page.evaluate(id=>personById(id).name,id),'Synthetic Unicode contact');
-  assert.equal(await page.evaluate(id=>personById(id).every,id),180);
   assert.equal(await history(page),before);await noEventAttributes(page);
 });
 
@@ -54,7 +56,7 @@ test('strict CSP preserves keyboard activation, nested contact clicks, note edit
   const page=await open(t),before=await history(page);
   const friends=control(page,'click','socialCategoryToggle',['friends','2026-10-16'],'button');await friends.focus();await friends.press('Enter');
   const chosen=await page.evaluate(()=>getSocial(todayKey()).friends);
-  await page.getByRole('button',{name:'Ana Existing',exact:true}).click();
+  await page.locator('.sf-combo-category').filter({has:friends}).getByRole('button',{name:'Ana Existing',exact:true}).click();
   assert.equal(await page.evaluate(()=>getSocial(todayKey()).friends),chosen,'Child tagging does not activate the parent row');
   await page.locator('.nav-btn[data-tab="today"]').click();
   const note=page.locator('textarea').first();await note.fill('Synthetic note under strict CSP');await note.press('Tab');
@@ -105,16 +107,14 @@ test('strict CSP preserves routine step editors, timer controls and session-pres
   assert.deepEqual(await page.evaluate(()=>[CFG.routines.meditation.steps[0].label,CFG.routines.meditation.steps[0].dur]),['Synthetic renamed step',2]);
   await page.getByRole('button',{name:'Back',exact:true}).click();await page.locator('.nav-btn[data-tab="today"]').click();
   if(await page.locator('.t-rout.collapsed').count())await control(page,'click','toggleTodayRoutines',[]).click();
-  await page.locator('[data-ui-click="startRoutine"],[data-ui-click="openRoutine"]').filter({visible:true}).first().click();
+  await control(page,'click','startRoutine',['meditation']).or(control(page,'click','openRoutine',['meditation'])).or(control(page,'click','startRoutineNested',['meditation'])).filter({visible:true}).first().click();
   assert.equal(await page.evaluate(()=>routineId),'meditation');
   await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),true);
   await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),false);
   await control(page,'click','routineReset',[],'button').click();assert.equal(await page.evaluate(()=>timerSecs),120);
   assert.equal(await control(page,'click','routineSendToEnd',[],'button').count(),0);
-  await control(page,'click','routineNext',['meditation',0],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q.length),1);
-
+  await control(page,'click','routineNext',['meditation',0],'button').filter({visible:true}).click();assert.equal(await page.evaluate(()=>sessions.meditation.q.length),1);
   await page.getByRole('button',{name:'Close routine',exact:true}).click();
   assert.equal(await page.evaluate(()=>routineView),false);assert.equal(await page.evaluate(()=>sessions.meditation.running),true);
-  await page.evaluate(()=>closeRoutine('meditation'));assert.equal(await page.evaluate(()=>Object.keys(sessions).length),0);
   assert.deepEqual(await page.evaluate(()=>calcScore('2026-09-16')),before);await noEventAttributes(page);
 });

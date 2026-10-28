@@ -81,7 +81,7 @@ test('temporary QA HTML changes endpoint/key/SDK locally without mutating source
   assert.ok(result.includes(QA_ORIGIN));
   assert.ok(result.includes('<script src="/sdk.js"></script>'));
   assert.equal(result.includes(PRODUCTION_REF), false);
-  assert.ok(result.includes("SUPABASE_URL!=='https://production-migration.invalid'"), 'Production-only migration stays disabled in QA');
+  assert.ok(result.includes('SUPABASE_URL!=='+JSON.stringify(QA_ORIGIN)), 'Known gate targets only the isolated QA endpoint');
   assert.throws(() => temporaryHtml('<html>Unexpected</html>', 'sb_publishable_synthetic'));
 });
 
@@ -107,4 +107,9 @@ test('browser transport failures are counted without surfacing request secrets',
   await installBrowserGuard(context,{html:'',sdk:'',audit});
   await http({request:()=>({url:()=>QA_ORIGIN+'/rest/v1/day_logs'}),fetch:async()=>{throw new Error('synthetic-secret-value');},abort:async()=>{aborted++;}});
   assert.equal(aborted,1);assert.equal(audit.httpTransportErrors,1);assert.equal(JSON.stringify(audit).includes('synthetic-secret-value'),false);
+});
+test('QA fixture retargets only the known migration gate and rejects unexpected production references',()=>{
+ const result=temporaryHtml(html,'sb_publishable_synthetic');
+ assert.ok(result.includes('SUPABASE_URL!=='+JSON.stringify(QA_ORIGIN)));
+ assert.throws(()=>temporaryHtml(html+`<script>window.unexpected="https://${PRODUCTION_REF}.supabase.co"</script>`,'sb_publishable_synthetic'),/Production reference remains/);
 });

@@ -1,0 +1,18 @@
+{
+  "fingerprints": {
+    "js": "app.1b61b765455d97fb.js",
+    "css": "app.1d5f8be7aae6a625.css"
+  },
+  "integrityTags": [
+    "assets/fonts.f979be2919756976.css",
+    "assets/app.1d5f8be7aae6a625.css",
+    "assets/aurora-skin.css",
+    "assets/supabase-2.118.0.js",
+    "assets/app.1b61b765455d97fb.js",
+    "assets/aurora-skin.js"
+  ],
+  "sourceParity": true,
+  "cspUnchanged": true,
+  "supplementaryOrderUnchanged": true,
+  "returnRepairAccount": "trypartylol@gmail.com"
+}

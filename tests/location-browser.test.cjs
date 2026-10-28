@@ -1,163 +1,124 @@
-const { test } = require('node:test');
-const assert = require('node:assert/strict');
-const { openApp } = require('./browser-helpers.cjs');
-const { locationFixture } = require('./location-fixtures.cjs');
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {openApp}=require('./browser-helpers.cjs');
+const {locationFixture}=require('./location-fixtures.cjs');
+const {control,openBulk,editPerson,showGroups,socialPage}=require('./ui-helpers.cjs');
+const box=(page,id)=>control(page,'change','bulkPeopleToggle',[id],'input');
+const history=page=>page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([key])=>key!==todayKey()))));
 
-const changeControl = (page, action, args) => page.locator(`input[data-ui-change="${action}"][data-ui-change-args=${JSON.stringify(JSON.stringify(args))}]`);
-const bulkBox = (page, id) => changeControl(page, 'bulkPeopleToggle', [id]);
-const membership = (page, id, loc) => changeControl(page, 'locationTogglePerson', [id, loc]);
-const inactive = (page, id) => changeControl(page, 'personSetInactive', [id]);
-const history = page => page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey()))));
+for(const [device,viewport] of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]])test(`${device}: bulk and individual memberships persist without changing history`,async t=>{
+  const page=await openApp(t,locationFixture(),viewport),before=await history(page);
+  const score=await page.evaluate(()=>calcScore('2026-09-16'));
+  await openBulk(page);
+  await box(page,'pold01').check();await box(page,'pold02').check();
+  assert.equal(await page.locator('details.sf-scoring').evaluate(e=>e.open),true,'Selecting a contact keeps bulk controls open');
+  await page.getByRole('button',{name:'+ Panamá',exact:true}).click();
+  assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),['pa']);
+  assert.deepEqual(await page.evaluate(()=>personById('pold02').locations),['il','pa']);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]:checked').count(),0);
+  await editPerson(page,'pold01');
+  await control(page,'change','socialDraftLocation',['il'],'input').check();
+  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  await editPerson(page,'pold02');
+  await control(page,'change','socialDraftLocation',['il'],'input').uncheck();
+  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  await openBulk(page);await box(page,'pold01').check();
+  await page.getByRole('button',{name:'− Panamá',exact:true}).click();
+  await page.waitForFunction(()=>!_cfgDraft);
+  await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
+  assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),['il']);
+  assert.deepEqual(await page.evaluate(()=>personById('pold02').locations),['pa']);
+  assert.equal(await history(page),before);
+  assert.deepEqual(await page.evaluate(()=>calcScore('2026-09-16')),score);
+});
 
-for (const [name, viewport] of [['desktop', { width: 1440, height: 1000 }], ['mobile', { width: 390, height: 844 }]]) {
-  test(`${name}: bulk/individual memberships, removal, inactive/reactivation and reload preserve history`, async t => {
-    const page = await openApp(t, locationFixture(), viewport);
-    const original = await history(page);
-    const score = await page.evaluate(() => calcScore('2026-09-16'));
-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    await bulkBox(page, 'pold01').check();
-    await bulkBox(page, 'pold02').check();
-    await page.getByRole('button', { name: '+ Panamá', exact: true }).click();
-    assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['il', 'pa']);
-    assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['pa']);
-    assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]:checked').count(), 0);
-    await membership(page, 'pold01', 'il').check();
-    await membership(page, 'pold02', 'il').uncheck();
-    assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['pa']);
-    // The row disappears immediately when its status changes.
-    await inactive(page, 'pold01').click();
-    assert.equal(await page.evaluate(() => personById('pold01').inactive), true);
-    assert.equal(await inactive(page, 'pold01').count(), 0);
-    await page.getByRole('button', { name: 'Inactive', exact: true }).click();
-    await inactive(page, 'pold01').click();
-    assert.equal(await page.evaluate(() => personById('pold01').inactive), false);
-    await page.getByRole('button', { name: 'All people', exact: true }).click();
-    await bulkBox(page, 'pold01').check();
-    await page.getByRole('button', { name: '− Panamá', exact: true }).click();
-    assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['il']);
-    const row = changeControl(page, 'personSet', ['pold01', 'name']).locator('..');
-    assert.equal(await row.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'Contact controls fit the row');
-    await page.waitForFunction(() => window.__mockWrites.some(r => r.date === 'settings' && r.data._cfg.people.find(p => p.id === 'pold01').locations.join() === 'il'));
-    await page.reload();
-    await page.waitForFunction(() => _cfgReady && _live);
-    assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['il']);
-    assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['pa']);
-    assert.equal(await page.evaluate(() => personById('pold01').inactive), false);
-    assert.deepEqual(await page.evaluate(() => CFG.locationGroups.map(g => g.id)), ['il', 'pa', 'empty']);
-    assert.equal(await history(page), original);
-    assert.deepEqual(await page.evaluate(() => calcScore('2026-09-16')), score);
-  });
-}
-
-test('bulk search filters while typing, retains keyboard focus, and clears stale selections', async t => {
-  const page = await openApp(t, locationFixture());
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  await bulkBox(page, 'pold01').check();
-  const search = page.getByRole('textbox', { name: 'Search contacts for bulk assignment' });
-  await search.click();
+test('bulk search retains typing focus, clears selection and applies only visible contacts',async t=>{
+  const page=await openApp(t,locationFixture());await openBulk(page);
+  await box(page,'pold01').check();
+  const search=page.getByRole('textbox',{name:'Search contacts for bulk assignment'});
   await search.pressSequentially('lUiS');
-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 1);
-  assert.equal(await search.evaluate(el => el === document.activeElement), true);
-  assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
-  await page.getByRole('button', { name: 'Select visible', exact: true }).click();
-  await page.getByRole('button', { name: '+ Empty', exact: true }).click();
-  assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['il', 'pa', 'empty']);
-  assert.deepEqual(await page.evaluate(() => personById('pold01').locations), []);
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(),1);
+  assert.equal(await search.evaluate(e=>e===document.activeElement),true);
+  assert.deepEqual(await page.evaluate(()=>bulkPeopleSelection),[]);
+  await page.getByRole('button',{name:'Select visible',exact:true}).click();
+  await page.getByRole('button',{name:'+ Empty',exact:true}).click();
+  assert.deepEqual(await page.evaluate(()=>personById('pold02').locations),['il','pa','empty']);
+  assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),[]);
 });
 
-test('Unassigned, Active, Inactive and All people filters reset bulk selection', async t => {
-  const page = await openApp(t, locationFixture());
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  await bulkBox(page, 'pold02').check();
-  await page.getByRole('button', { name: 'Unassigned', exact: true }).click();
-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 2);
-  assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
-  await page.getByRole('button', { name: 'All contacts', exact: true }).click();
-  await bulkBox(page, 'pold02').check();
-  await page.getByRole('button', { name: 'Inactive', exact: true }).click();
-  assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 2);
-  await page.getByRole('button', { name: 'All people', exact: true }).click();
-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 7);
-  await page.getByRole('button', { name: 'Active', exact: true }).click();
-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 5);
+test('Unassigned and All contacts reset bulk selection; migrated contacts retain IDs and restored frequencies',async t=>{
+  const page=await openApp(t,locationFixture());await openBulk(page);
+  await box(page,'pold02').check();
+  await page.getByRole('button',{name:'Unassigned',exact:true}).click();
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(),2);
+  assert.deepEqual(await page.evaluate(()=>bulkPeopleSelection),[]);
+  await page.getByRole('button',{name:'All contacts',exact:true}).click();
+  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(),7);
+  assert.equal(await page.evaluate(()=>personById('pinactive').every),180);
+  assert.equal(await page.evaluate(()=>personById('porphan').every),180);
 });
 
-test('WHO TO SEE and Social suggestions follow the location without changing recorded scores', async t => {
-  const page = await openApp(t, locationFixture());
-  const original = await history(page);
-  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(), ['Ana Existing', 'Luis Existing', 'Alex Existing', 'Legacy Person'].sort());
-  await page.getByLabel('Current social location').first().selectOption('pa');
-  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(), ['Ana Existing', 'Luis Existing', 'Remote Person', 'Legacy Person'].sort());
-  await page.locator('.cb-row').filter({ hasText: 'Flirting' }).click();
-  assert.equal(await page.getByTitle('Alex Existing', { exact: true }).count(), 0);
-  assert.equal(await page.getByTitle('Inactive Person', { exact: true }).count(), 0);
-  assert.equal(await page.locator('.sd-pts').innerText(), '2/18%');
-  assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), []);
-  await page.getByLabel('Current social location').first().selectOption('il');
-  assert.equal(await page.getByTitle('Alex Existing', { exact: true }).count(), 1);
-  assert.equal(await page.locator('.sd-pts').innerText(), '2/18%');
-  assert.equal(await history(page), original);
+test('location filters Friends suggestions while all categories stay recordable in Combo',async t=>{
+  const page=await openApp(t,locationFixture()),before=await history(page);
+  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(),['Ana Existing','Luis Existing','Alex Existing','Legacy Person','Inactive Person','Orphan Person'].sort());
+  await page.getByLabel('Current social location').selectOption('pa');
+  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(),['Ana Existing','Luis Existing','Alex Existing','Remote Person','Legacy Person','Inactive Person','Orphan Person'].sort());
+  await control(page,'click','socialCategoryToggle',['flirt','2026-10-16'],'button').click();
+  assert.equal(await page.getByRole('button',{name:'Alex Existing',exact:true}).count(),1,'Combo has contacts from every location');
+  assert.deepEqual(await page.evaluate(()=>getPeople(todayKey())),[]);
+  assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),2);
+  await page.getByLabel('Current social location').selectOption('il');
+  assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),2);
+  assert.equal(await history(page),before);
 });
 
-test('an empty WHO TO SEE retains a working selector to recover recommendations', async t => {
-  const data = locationFixture();
-  data.config.people = data.config.people.filter(p => p.locations?.length);
-  data.config.selectedLocation = 'empty';
-  const page = await openApp(t, data);
-  assert.equal(await page.locator('.w-name').count(), 0);
-  await page.getByLabel('Current social location').last().selectOption('il');
-  assert.equal(await page.locator('.w-name').count(), 2);
+test('an empty discovery list retains a working location selector',async t=>{
+  const data=locationFixture();data.config.people=data.config.people.filter(p=>['pold02','paway'].includes(p.id));data.config.selectedLocation='empty';for(const day of Object.values(data.days))day.people=[];
+  const page=await openApp(t,data);
+  assert.equal(await page.locator('.w-name').count(),0);
+  await page.getByLabel('Current social location').selectOption('il');
+  assert.equal(await page.locator('.w-name').count(),1);
 });
 
-test('creation and rename dialogs preserve selected-location metadata across reload', async t => {
-  const page = await openApp(t, locationFixture());
-  const original = await history(page);
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  page.once('dialog', d => d.accept('Madrid'));
-  await page.getByRole('button', { name: '+ ADD LOCATION', exact: true }).click();
-  const loc = await page.evaluate(() => selectedLocation());
-  page.once('dialog', d => d.accept('España'));
-  await page.getByRole('button', { name: '✎ Madrid', exact: true }).click();
-  const answers = ['New Synthetic Person', '21'];
-  const onDialog = d => d.accept(answers.shift());
-  page.on('dialog', onDialog);
-  await page.getByRole('button', { name: '+ ADD PERSON', exact: true }).first().click();
-  page.off('dialog', onDialog);
-  const person = await page.evaluate(() => peopleList().find(p => p.name === 'New Synthetic Person'));
-  assert.deepEqual(person.locations, [loc]);
-  assert.equal(person.inactive, false);
-  assert.equal(person.every, 21);
-  await page.waitForFunction(() => window.__mockWrites.some(r => r.date === 'settings' && r.data._cfg.people.some(p => p.name === 'New Synthetic Person')));
-  await page.reload();
-  await page.waitForFunction(() => _cfgReady && _live);
-  assert.equal(await page.evaluate(() => locationGroups().find(g => g.id === selectedLocation()).name), 'España');
-  assert.deepEqual(await page.evaluate(id => personById(id), person.id), person);
-  assert.equal(await history(page), original);
+test('group create/rename and contact editing persist through reload',async t=>{
+  const page=await openApp(t,locationFixture()),before=await history(page);
+  await showGroups(page);await page.getByRole('button',{name:'+ Añadir grupo',exact:true}).click();
+  await page.getByRole('dialog').getByRole('textbox').fill('Madrid');
+  await page.getByRole('button',{name:'Guardar grupo',exact:true}).click();
+  const id=await page.evaluate(()=>locationGroups().find(g=>g.name==='Madrid').id);
+  await control(page,'click','locationRename',[id],'button').click();
+  await page.getByRole('dialog').getByRole('textbox').fill('España');
+  await page.getByRole('button',{name:'Guardar grupo',exact:true}).click();
+  await page.getByLabel('Current social location').selectOption(id);
+  await page.getByRole('button',{name:'+ Persona',exact:true}).click();
+  await page.locator('#sf-name').fill('New Synthetic Person');await page.locator('#sf-every').fill('21');
+  await page.getByRole('button',{name:'Guardar persona',exact:true}).click();
+  const person=await page.evaluate(()=>peopleList().find(p=>p.name==='New Synthetic Person'));
+  assert.deepEqual(person.locations,[id]);assert.equal(person.every,21);
+  await page.waitForFunction(()=>!_cfgDraft);await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
+  assert.equal(await page.evaluate(id=>locationGroups().find(g=>g.id===id).name,id),'España');
+  assert.deepEqual(await page.evaluate(id=>personById(id),person.id),person);
+  assert.equal(await history(page),before);
 });
 
-test('stale selected groups and deleted memberships remain accessible after full startup', async t => {
-  const data = locationFixture();
-  data.config.selectedLocation = 'deleted';
-  data.config.people[0].locations = ['deleted'];
-  const page = await openApp(t, data);
-  assert.equal(await page.getByLabel('Current social location').first().inputValue(), 'all');
-  assert.equal(await page.evaluate(() => selectedLocation()), 'all');
-  assert.equal(await page.locator('.w-name').count(), 5);
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  await page.getByRole('button', { name: 'Unassigned', exact: true }).click();
-  assert.equal(await bulkBox(page, 'pold01').count(), 1);
+test('deleted locations remain accessible as unassigned after startup',async t=>{
+  const data=locationFixture();data.config.selectedLocation='deleted';data.config.people[0].locations=['deleted'];
+  const page=await openApp(t,data);
+  assert.equal(await page.getByLabel('Current social location').inputValue(),'all');
+  assert.equal(await page.locator('.w-name').count(),7);
+  await openBulk(page);await page.getByRole('button',{name:'Unassigned',exact:true}).click();
+  assert.equal(await box(page,'pold01').count(),1);
 });
 
-test('contacts with an orphan Social category retain individual location editing', async t => {
-  const data = locationFixture();
-  data.days['2026-09-16'].people.push('porphan');
-  const page = await openApp(t, data, { width: 390, height: 844 });
-  const original = await history(page);
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  await page.getByRole('button', { name: 'Inactive', exact: true }).click();
-  assert.equal(await membership(page, 'porphan', 'pa').count(), 1);
-  await membership(page, 'porphan', 'pa').check();
-  assert.deepEqual(await page.evaluate(() => personById('porphan').locations), ['il', 'pa']);
-  assert.equal(await history(page), original);
+test('a contact with a saved orphan category can change locations without losing history or category',async t=>{
+  const data=locationFixture();data.days['2026-09-16'].people.push('porphan');data.config.people.find(p=>p.id==='porphan').relationship='family';
+  const page=await openApp(t,data,{width:390,height:844}),before=await history(page);
+  await editPerson(page,'porphan');
+  assert.equal(await page.locator('#sf-sub').inputValue(),'archived');
+  await control(page,'change','socialDraftLocation',['pa'],'input').check();
+  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  assert.deepEqual(await page.evaluate(()=>personById('porphan').locations),['il','pa']);
+  assert.equal(await page.evaluate(()=>personById('porphan').sub),'archived');
+  assert.equal(await page.evaluate(()=>personById('porphan').relationship),'family');
+  assert.equal(await history(page),before);
 });

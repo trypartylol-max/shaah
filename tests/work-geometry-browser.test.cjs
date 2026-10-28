@@ -19,7 +19,8 @@ test('WORK geometry, exact activation, dated points, persistence and skins',asyn
  }
  await page.locator('.wg-card').press('Space');assert.equal(await page.locator('.wg-segment.lit').count(),1);
  await page.reload();await page.locator('.nav-btn[data-tab="today"]').click();assert.ok(await page.evaluate(()=>doneFrac(getChecked(todayKey()).work)>0));
- for(const skin of ['glow','aurora']){await page.evaluate(s=>setSkin(s),skin);assert.equal(await page.locator('.wg-card').count(),0);assert.equal(await page.locator('.sf-work-next').count(),1);}
+ await page.evaluate(()=>window.__workCard=document.querySelector('.wg-card'));
+ for(const skin of ['matrix','minimal','glow','aurora']){await page.evaluate(s=>setSkin(s),skin);assert.equal(await page.locator('.wg-card').count(),1);assert.equal(await page.locator('.sf-work-next').count(),0);assert.equal(await page.evaluate(()=>__workCard===document.querySelector('.wg-card')),true,'skin changes keep the live control');}
  await page.evaluate(()=>setSkin('classic'));assert.deepEqual(await page.locator('.sf-core-routine:not(.sf-work)').evaluateAll(es=>es.map(e=>e.outerHTML)),others);
  await page.evaluate(()=>{setHabitState('work',todayKey(),false);workPhaseAdvance(todayKey());});await page.emulateMedia({reducedMotion:'reduce'});assert.equal(await page.locator('.wg-segment.latest').evaluate(e=>getComputedStyle(e).animationName),'none');
  await page.setViewportSize({width:390,height:844});
@@ -27,6 +28,6 @@ test('WORK geometry, exact activation, dated points, persistence and skins',asyn
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+24,y:box.y+24}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  assert.equal(await page.locator('.wg-segment.lit').count(),before+1);await cdp.detach();
  assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),history);
- await page.locator('.wg-card').screenshot({path:root+'/docs/work-geometry-mobile.png'});
- await page.setViewportSize({width:1440,height:1000});await page.locator('.wg-card').screenshot({path:root+'/docs/work-geometry-desktop.png'});
+ await page.locator('.wg-card').screenshot({path:root+'/test-results/work-geometry-mobile.png'});
+ await page.setViewportSize({width:1440,height:1000});await page.locator('.wg-card').screenshot({path:root+'/test-results/work-geometry-desktop.png'});
 });

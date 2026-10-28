@@ -1,0 +1,19 @@
+✔ Settings 390: pause/resume persists without completions (2315.608375ms)
+✔ Settings 1440: pause/resume persists without completions (705.136709ms)
+✔ loadAll preserves a later live Vacation era and scheduling through reload (553.085333ms)
+✔ loadAll: unstamped legacy live mode repairs despite cache timestamp (399.399583ms)
+✔ loadAll: newer explicit choice survives (387.508625ms)
+✔ a newer offline Vacation choice survives restoration and the return migration (496.464334ms)
+✔ loadAll leaves another account historical modes and migration version unchanged (405.43375ms)
+✔ switching from the confirmed account cannot run its repair against another owner (427.35025ms)
+✔ mobile: compact settings list preserves editors, keyboard order, collapse state and synthetic data (1530.709208ms)
+✔ desktop: compact settings list preserves editors, keyboard order, collapse state and synthetic data (1120.270958ms)
+✔ an initially open Appearance section closes on the first click even without a stored flag (632.700667ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9534.409584

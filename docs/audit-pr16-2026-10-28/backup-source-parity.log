@@ -1,0 +1,14 @@
+✔ classic/mobile: preserves production layout and styles outside the Matrix palette correction (5747.61575ms)
+✔ classic/desktop: preserves production layout and styles outside the Matrix palette correction (4950.465917ms)
+✔ matrix/mobile: preserves production layout and styles outside the Matrix palette correction (4618.11175ms)
+✔ matrix/desktop: preserves production layout and styles outside the Matrix palette correction (4368.434875ms)
+✔ minimal/mobile: preserves production layout and styles outside the Matrix palette correction (4341.592542ms)
+✔ minimal/desktop: preserves production layout and styles outside the Matrix palette correction (4398.594958ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28962.134791

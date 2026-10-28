@@ -1,0 +1,836 @@
+✔ Aurora V2 320: navigation, CSP, data, appearance and focus (1294.769875ms)
+✔ Aurora V2 390: navigation, CSP, data, appearance and focus (1083.749208ms)
+✔ Aurora V2 879: navigation, CSP, data, appearance and focus (784.355167ms)
+✔ Aurora V2 880: navigation, CSP, data, appearance and focus (861.562625ms)
+✔ Aurora V2 1440: navigation, CSP, data, appearance and focus (1305.434875ms)
+✔ Aurora: cross-tab skin restore preserves native navigation and mobile night layout (579.798375ms)
+✔ Aurora Work 390: native milestones persist and leave historical scores unchanged (1677.531791ms)
+✔ Aurora Work 1440: native milestones persist and leave historical scores unchanged (1704.344708ms)
+✔ Aurora preserves the latest OG People / Groups switch without changing data (493.464416ms)
+✔ classic/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1089.397542ms)
+✔ classic/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (698.907625ms)
+✔ matrix/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (722.875959ms)
+✔ matrix/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (685.140375ms)
+✔ minimal/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (732.5755ms)
+✔ minimal/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (720.032542ms)
+✔ aurora/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (727.493708ms)
+✔ aurora/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (664.95625ms)
+✔ rapid three-state changes persist the final state without replacing Today or losing scroll (670.586167ms)
+✔ a failed save keeps the checked state and draft locally, then retries through the existing queue (798.640667ms)
+✔ Social checkboxes and people update within the same screen and keep their score consistent (588.777334ms)
+✔ editing a historical day and checking a level preserves that screen and other days (436.133416ms)
+✖ Core Routines is plain text with independent cards; responsive controls and state are preserved (836.814458ms)
+✖ strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history (10847.166541ms)
+✖ strict CSP preserves separate Work/Vacation editor values and score history (10529.401416ms)
+✖ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (10433.848917ms)
+✔ strict CSP keeps Original login control usable without real Auth requests (285.419334ms)
+✔ strict CSP permits activity create, edit and delete without changing older history (722.562292ms)
+✖ strict CSP preserves routine step editors, timer controls and discard confirmation (10517.669417ms)
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (390.844208ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (479.4545ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (379.222292ms)
+✔ all skins and main screens remain usable under the strict style policy (1200.570291ms)
+node:internal/test_runner/harness:124
+      throw err;
+      ^
+
+Error: ENOENT: no such file or directory, open '/workspace/shaah-original-steady/index.html'
+    at Object.openSync (node:fs:621:18)
+    at Object.readFileSync (node:fs:487:35)
+    at Object.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/csp-styles-parity-browser.test.cjs:6:68)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/workspace/shaah-original-steady/index.html'
+}
+
+Node.js v24.22.1
+✖ tests/csp-styles-parity-browser.test.cjs (188.409209ms)
+✖ Glow 320: native layout, persistence, Work and reduced motion (10764.209125ms)
+✖ Glow 390: native layout, persistence, Work and reduced motion (10419.577458ms)
+✖ Glow 600: native layout, persistence, Work and reduced motion (10428.654333ms)
+✖ Glow 879: native layout, persistence, Work and reduced motion (10417.045875ms)
+✖ Glow 880: native layout, persistence, Work and reduced motion (10429.125875ms)
+✖ Glow 1440: native layout, persistence, Work and reduced motion (10454.869958ms)
+✔ History cards never overlap at 390px (2565.307083ms)
+✔ History cards never overlap at 879px (2015.646583ms)
+✔ History cards never overlap at 880px (2190.197ms)
+✔ History cards never overlap at 1440px (2133.180542ms)
+✖ desktop: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (10834.391708ms)
+✖ mobile: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (10476.58875ms)
+✖ bulk search filters while typing, retains keyboard focus, and clears stale selections (10643.947209ms)
+✖ Unassigned, Active, Inactive and All people filters reset bulk selection (10531.064667ms)
+✖ WHO TO SEE and Social suggestions follow the location without changing recorded scores (510.144667ms)
+✖ an empty WHO TO SEE retains a working selector to recover recommendations (480.282ms)
+✖ creation and rename dialogs preserve selected-location metadata across reload (10553.712ms)
+✖ stale selected groups and deleted memberships remain accessible after full startup (440.308291ms)
+✖ contacts with an orphan Social category retain individual location editing (10468.872041ms)
+✔ 320px: Family filters recommendations only, with fixed toolbar and unchanged Location (1064.025833ms)
+✔ 390px: Family filters recommendations only, with fixed toolbar and unchanged Location (740.194625ms)
+✔ 1440px: Family filters recommendations only, with fixed toolbar and unchanged Location (786.912584ms)
+✔ mobile: Matrix icons cover navigation and content, preserve names and restore other skins (1468.107875ms)
+✔ desktop: Matrix icons cover navigation and content, preserve names and restore other skins (1140.127208ms)
+✔ dynamic custom icons remain safe text and editable fields retain their values and focus (456.058167ms)
+✖ Matrix keeps rendered controls and result charts within its green and neutral palette (718.937834ms)
+✔ Matrix decorations preserve mobile hit targets and disappear or stop with reduced motion and other skins (1004.190667ms)
+✔ all five dock tabs exist in the same order before a delayed SDK finishes loading (538.150042ms)
+✔ shared-device removal signs out locally, clears only that account and leaves synthetic online rows unchanged (1078.686166ms)
+✔ pending drafts prevent shared-device removal without signing out or losing the draft (551.47575ms)
+✔ sign-out failure keeps the app session and displays a safe retry message (497.363ms)
+✔ account editors pause while sign-out waits and become usable again after a failure (532.865042ms)
+✔ older unlinked activity stays out of the account and can be downloaded for recovery (623.141584ms)
+✔ Original static Pages runs navigation and skins under the stricter script-element CSP (785.178083ms)
+✔ classic: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (1281.824667ms)
+✔ matrix: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (989.007209ms)
+✔ minimal: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (931.574167ms)
+✔ a real remote change refreshes Today without restarting its entrance animation or sending writes (464.8765ms)
+✔ background visibility changes coalesce remote updates into one repaint on return (434.378417ms)
+✔ login handles query text as readable text and still boots (611.252125ms)
+✔ login handles hash text as readable text and still boots (267.709959ms)
+✔ login handles incomplete percent as readable text and still boots (254.595292ms)
+✔ login handles encoded percent as readable text and still boots (256.427667ms)
+✖ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (438.958042ms)
+✖ people import displays ordinary markup as text and keeps the imported identifier editable (10504.30025ms)
+✖ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (692.424583ms)
+✖ malformed stored routine definitions do not break startup or rewrite metadata (495.373458ms)
+✔ adopting valid settings without a currently open routine keeps the app usable and its saved session (468.163625ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (1038.646375ms)
+✖ returning to A through the auth callback restores only A routine and A screen preferences (484.32525ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (449.513333ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (838.832458ms)
+✔ mobile: compact settings list preserves editors, keyboard order, collapse state and synthetic data (1378.063917ms)
+✔ desktop: compact settings list preserves editors, keyboard order, collapse state and synthetic data (1094.4185ms)
+✔ an initially open Appearance section closes on the first click even without a stored flag (620.461708ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (1914.986875ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (1564.332375ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (753.084875ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (457.643417ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (428.661833ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (642.626583ms)
+✖ desktop: existing contacts render, can be tagged individually, and survive reload through the fake server (10784.883708ms)
+✖ mobile: existing contacts render, can be tagged individually, and survive reload through the fake server (10376.542042ms)
+✖ work: zero-point activity shows zero consistently in Social, Today and the calculated score (10436.689584ms)
+✖ vacation: zero-point activity shows zero consistently in Social, Today and the calculated score (10402.632208ms)
+✔ old unpriced historical Social parts render their dated Work/Vacation split (511.400833ms)
+✖ changing a contact category and name in Settings keeps its historical ID and recorded Social part (10391.827791ms)
+✔ Social header geometry and navigation at mobile and desktop widths (1678.127834ms)
+✖ Strangers respect location and mobile People & Groups remains reachable above the dock (10954.504583ms)
+✖ WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout (939.611583ms)
+✔ classic/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (1142.702666ms)
+✔ classic/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (751.336083ms)
+✔ matrix/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (729.1995ms)
+✔ matrix/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (702.244ms)
+✔ minimal/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (720.838708ms)
+✔ minimal/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (721.883459ms)
+✔ real remote day changes preserve the screen and update a clean note without sending writes (465.450959ms)
+✔ habit and score feedback is immediate and uses short motion without moving the whole page (446.014208ms)
+✖ matrix: real incoming changes keep the screen and clean/dirty notes consistent (776.709708ms)
+✖ minimal: real incoming changes keep the screen and clean/dirty notes consistent (445.236583ms)
+✔ Chromium loads the actual local SDK and blocks production HTTP/WS before forwarding (596.243084ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (1376.603167ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (479.619209ms)
+✔ desktop Production/WOD are readable and closed levels are header-sized (4777.028083ms)
+
+Interrupted while running:
+
+⚠ tests/today-disclosure-browser.test.cjs (tests/today-disclosure-browser.test.cjs:1:1)
+✖ tests/today-disclosure-browser.test.cjs (64778.969625ms)
+✖ tests/work-essential-browser.test.cjs
+✖ tests/work-geometry-browser.test.cjs
+✖ tests/work-milestones-browser.test.cjs
+ℹ tests 121
+ℹ suites 0
+ℹ pass 81
+ℹ fail 36
+ℹ cancelled 4
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 397315.787292
+
+✖ failing tests:
+
+test at tests/core-unboxed-browser.test.cjs:6:1
+✖ Core Routines is plain text with independent cards; responsive controls and state are preserved (836.814458ms)
+  AssertionError [ERR_ASSERTION]: unrelated cards keep style and dimensions
+  + actual - expected
+  
+    {
+      bg: 'rgb(13, 13, 25)',
+      border: '1px',
+  +   h: 148.375,
+  -   h: 146.96875,
+      pad: '14px',
+      shadow: 'none',
+      w: 304,
+      x: 8,
+      y: 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/core-unboxed-browser.test.cjs:29:49)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { bg: 'rgb(13, 13, 25)', border: '1px', pad: '14px', shadow: 'none', x: 8, y: 0, w: 304, h: 148.375 },
+    expected: { bg: 'rgb(13, 13, 25)', border: '1px', pad: '14px', shadow: 'none', x: 8, y: 0, w: 304, h: 146.96875 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/csp-events-browser.test.cjs:18:1
+✖ strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history (10847.166541ms)
+  locator.getAttribute: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: /^People(?:$|\s)/ })[22m
+  
+      at section (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/csp-events-browser.test.cjs:13:123)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/csp-events-browser.test.cjs:22:9) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: /^People(?:$|\\s)/ })" ]
+  }
+
+test at tests/csp-events-browser.test.cjs:36:1
+✖ strict CSP preserves separate Work/Vacation editor values and score history (10529.401416ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="cfgSet"][data-ui-change-args="[\\"meditation\\",\\"p\\"]"]')[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/csp-events-browser.test.cjs:39:84) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="cfgSet"][data-ui-change-args="[\\\\"meditation\\\\",\\\\"p\\\\"]"]')` ]
+  }
+
+test at tests/csp-events-browser.test.cjs:52:1
+✖ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (10433.848917ms)
+  locator.focus: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/csp-events-browser.test.cjs:54:83) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })" ]
+  }
+
+test at tests/csp-events-browser.test.cjs:96:1
+✖ strict CSP preserves routine step editors, timer controls and discard confirmation (10517.669417ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="stepSet"][data-ui-change-args="[\\"work\\",0,\\"label\\"]"]')[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/csp-events-browser.test.cjs:102:87) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="stepSet"][data-ui-change-args="[\\\\"work\\\\",0,\\\\"label\\\\"]"]')` ]
+  }
+
+test at tests/csp-styles-parity-browser.test.cjs:1:1
+✖ tests/csp-styles-parity-browser.test.cjs (188.409209ms)
+  'test failed'
+
+test at tests/glow-browser.test.cjs:6:47
+✖ Glow 320: native layout, persistence, Work and reduced motion (10764.209125ms)
+  locator.evaluate: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.sf-work-reference')[22m
+  
+      at geometry (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:11:56)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:12:21) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.sf-work-reference')" ]
+  }
+
+test at tests/glow-browser.test.cjs:6:47
+✖ Glow 390: native layout, persistence, Work and reduced motion (10419.577458ms)
+  locator.evaluate: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.sf-work-reference')[22m
+  
+      at geometry (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:11:56)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:12:21) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.sf-work-reference')" ]
+  }
+
+test at tests/glow-browser.test.cjs:6:47
+✖ Glow 600: native layout, persistence, Work and reduced motion (10428.654333ms)
+  locator.evaluate: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.sf-work-reference')[22m
+  
+      at geometry (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:11:56)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:12:21) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.sf-work-reference')" ]
+  }
+
+test at tests/glow-browser.test.cjs:6:47
+✖ Glow 879: native layout, persistence, Work and reduced motion (10417.045875ms)
+  locator.evaluate: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.sf-work-reference')[22m
+  
+      at geometry (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:11:56)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:12:21) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.sf-work-reference')" ]
+  }
+
+test at tests/glow-browser.test.cjs:6:47
+✖ Glow 880: native layout, persistence, Work and reduced motion (10429.125875ms)
+  locator.evaluate: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.sf-work-reference')[22m
+  
+      at geometry (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:11:56)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:12:21) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.sf-work-reference')" ]
+  }
+
+test at tests/glow-browser.test.cjs:6:47
+✖ Glow 1440: native layout, persistence, Work and reduced motion (10454.869958ms)
+  locator.evaluate: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.sf-work-reference')[22m
+  
+      at geometry (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:11:56)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/glow-browser.test.cjs:12:21) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.sf-work-reference')" ]
+  }
+
+test at tests/location-browser.test.cjs:13:3
+✖ desktop: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (10834.391708ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold01\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:18:35) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold01\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:13:3
+✖ mobile: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (10476.58875ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold01\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:18:35) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold01\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:52:1
+✖ bulk search filters while typing, retains keyboard focus, and clears stale selections (10643.947209ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold01\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:55:33) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold01\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:68:1
+✖ Unassigned, Active, Inactive and All people filters reset bulk selection (10531.064667ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold02\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold02"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:71:33) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold02\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold02"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:86:1
+✖ WHO TO SEE and Social suggestions follow the location without changing recorded scores (510.144667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'Alex Existing',
+      'Ana Existing',
+  +   'Inactive Person',
+      'Legacy Person',
+      'Luis Existing',
+  +   'Orphan Person'
+    ]
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:89:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Alex Existing', 'Ana Existing', 'Inactive Person', 'Legacy Person', 'Luis Existing', 'Orphan Person' ],
+    expected: [ 'Alex Existing', 'Ana Existing', 'Legacy Person', 'Luis Existing' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:103:1
+✖ an empty WHO TO SEE retains a working selector to recover recommendations (480.282ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  3 !== 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:108:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 3,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:113:1
+✖ creation and rename dialogs preserve selected-location metadata across reload (10553.712ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: '+ ADD LOCATION', exact: true })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:118:75) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: '+ ADD LOCATION', exact: true })" ]
+  }
+
+test at tests/location-browser.test.cjs:139:1
+✖ stale selected groups and deleted memberships remain accessible after full startup (440.308291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  7 !== 5
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:146:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 7,
+    expected: 5,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:152:1
+✖ contacts with an orphan Social category retain individual location editing (10468.872041ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: 'Inactive', exact: true })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/location-browser.test.cjs:158:69) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: 'Inactive', exact: true })" ]
+  }
+
+test at tests/matrix-icons-browser.test.cjs:77:1
+✖ Matrix keeps rendered controls and result charts within its green and neutral palette (718.937834ms)
+  AssertionError [ERR_ASSERTION]: today
+  + actual - expected
+  
+  + [
+  +   {
+  +     class: 'sf-core-icon',
+  +     color: 'rgb(22, 22, 38)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'DIV'
+  +   },
+  +   {
+  +     class: 'sf-core-icon',
+  +     color: 'rgb(22, 22, 38)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'DIV'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   }
+  + ]
+  - []
+  
+      at check (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/matrix-icons-browser.test.cjs:101:12)
+      at async TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/matrix-icons-browser.test.cjs:105:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { tag: 'DIV', id: '', class: 'sf-core-icon', property: 'borderTopColor', color: 'rgb(22, 22, 38)' }, { tag: 'DIV', id: '', class: 'sf-core-icon', property: 'borderBottomColor', color: 'rgb(22, 22, 38)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/security-browser.test.cjs:22:1
+✖ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (438.958042ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(index >= 0)
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/security-browser.test.cjs:34:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/security-browser.test.cjs:55:1
+✖ people import displays ordinary markup as text and keeps the imported identifier editable (10504.30025ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="personSet"]').filter({ visible: true }).last()[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/security-browser.test.cjs:65:27) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="personSet"]').filter({ visible: true }).last()` ]
+  }
+
+test at tests/security-browser.test.cjs:70:1
+✖ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (692.424583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '#e2e2e2'
+  - '#9090aa'
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/security-browser.test.cjs:82:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '#e2e2e2',
+    expected: '#9090aa',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/security-browser.test.cjs:108:1
+✖ malformed stored routine definitions do not break startup or rewrite metadata (495.373458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '{"work":{"label":"Work","icon":"💼","col":"#e2e2e2","steps":[{"id":"w400","label":"₪400 · +10 pts","dur":1},{"id":"w650","label":"₪650 · +10 pts","dur":1},{"id":"w800","label":"₪800+ · +5 pts","dur":1}]},"empty":{"steps":{}},"invalid":{"steps":[null]}}'
+  - '{"work":null,"empty":{"steps":{}},"invalid":{"steps":[null]}}'
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/security-browser.test.cjs:116:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{"work":{"label":"Work","icon":"💼","col":"#e2e2e2","steps":[{"id":"w400","label":"₪400 · +10 pts","dur":1},{"id":"w650","label":"₪650 · +10 pts","dur":1},{"id":"w800","label":"₪800+ · +5 pts","dur":1}]},"empty":{"steps":{}},"invalid":{"steps":[null]}}',
+    expected: '{"work":null,"empty":{"steps":{}},"invalid":{"steps":[null]}}',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/session-isolation-browser.test.cjs:40:1
+✖ returning to A through the auth callback restores only A routine and A screen preferences (484.32525ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/session-isolation-browser.test.cjs:53:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/social-browser.test.cjs:10:3
+✖ desktop: existing contacts render, can be tagged individually, and survive reload through the fake server (10784.883708ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-browser.test.cjs:14:66) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })" ]
+  }
+
+test at tests/social-browser.test.cjs:10:3
+✖ mobile: existing contacts render, can be tagged individually, and survive reload through the fake server (10376.542042ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-browser.test.cjs:14:66) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })" ]
+  }
+
+test at tests/social-browser.test.cjs:31:3
+✖ work: zero-point activity shows zero consistently in Social, Today and the calculated score (10436.689584ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-browser.test.cjs:36:68) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })" ]
+  }
+
+test at tests/social-browser.test.cjs:31:3
+✖ vacation: zero-point activity shows zero consistently in Social, Today and the calculated score (10402.632208ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-browser.test.cjs:36:68) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })" ]
+  }
+
+test at tests/social-browser.test.cjs:57:1
+✖ changing a contact category and name in Settings keeps its historical ID and recorded Social part (10391.827791ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="personSet"][data-ui-change-args="[\\"pold03\\",\\"name\\"]"]')[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-browser.test.cjs:62:14) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="personSet"][data-ui-change-args="[\\\\"pold03\\\\",\\\\"name\\\\"]"]')` ]
+  }
+
+test at tests/social-location-access-browser.test.cjs:6:1
+✖ Strangers respect location and mobile People & Groups remains reachable above the dock (10954.504583ms)
+  locator.scrollIntoViewIfNeeded: Timeout 9997.285ms exceeded.
+  Call log:
+  [2m  - attempting scroll into view action[22m
+  [2m    2 × waiting for element to be stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying scroll into view action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying scroll into view action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying scroll into view action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-location-access-browser.test.cjs:26:39) {
+    name: 'TimeoutError',
+    log: [ '  - attempting scroll into view action', '    2 × waiting for element to be stable', '      - element is not visible', '    - retrying scroll into view action', '    - waiting 20ms', '    2 × waiting for element to be stable', '      - element is not visible', '    - retrying scroll into view action', '      - waiting 100ms', '    19 × waiting for element to be stable', '       - element is not visible', '     - retrying scroll into view action', '       - waiting 500ms' ]
+  }
+
+test at tests/social-mobile-layout-browser.test.cjs:6:1
+✖ WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout (939.611583ms)
+  page.waitForFunction: ReferenceError: _cfgReady is not defined
+      at eval (eval at predicate (eval at evaluate (:311:30)), <anonymous>:1:14)
+      at predicate (eval at evaluate (:311:30), <anonymous>:7:27)
+      at next (eval at evaluate (:311:30), <anonymous>:29:33)
+      at eval (eval at evaluate (:311:30), <anonymous>:42:13)
+      at UtilityScript.evaluate (<anonymous>:313:16)
+      at UtilityScript.<anonymous> (<anonymous>:1:44)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/social-mobile-layout-browser.test.cjs:40:16) {
+    log: []
+  }
+
+test at tests/steady-remote-skins-browser.test.cjs:7:40
+✖ matrix: real incoming changes keep the screen and clean/dirty notes consistent (776.709708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/steady-remote-skins-browser.test.cjs:17:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/steady-remote-skins-browser.test.cjs:7:40
+✖ minimal: real incoming changes keep the screen and clean/dirty notes consistent (445.236583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-audit-pr16/tests/steady-remote-skins-browser.test.cjs:17:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/today-disclosure-browser.test.cjs:1:1
+✖ tests/today-disclosure-browser.test.cjs (64778.969625ms)
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/work-essential-browser.test.cjs:1:1
+✖ tests/work-essential-browser.test.cjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/work-geometry-browser.test.cjs:1:1
+✖ tests/work-geometry-browser.test.cjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/work-milestones-browser.test.cjs:1:1
+✖ tests/work-milestones-browser.test.cjs
+  'Promise resolution is still pending but the event loop has already resolved'

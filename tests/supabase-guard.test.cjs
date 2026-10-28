@@ -1,6 +1,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { html } = require('./helpers.cjs');
+const { htmlPath } = require('./helpers.cjs');
+// Exercise the actual artifact and its SRI even when other tests use SHAAH_SOURCE.
+const html = require('node:fs').readFileSync(htmlPath, 'utf8');
 const { QA_REF, QA_ORIGIN, PRODUCTION_REF, REQUIRED, assertQaUrl, validateKey,
   configFromEnv, guardedFetch, temporaryHtml, installBrowserGuard } = require('../qa/supabase/guard.cjs');
 
@@ -79,6 +81,7 @@ test('temporary QA HTML changes endpoint/key/SDK locally without mutating source
   assert.ok(result.includes(QA_ORIGIN));
   assert.ok(result.includes('<script src="/sdk.js"></script>'));
   assert.equal(result.includes(PRODUCTION_REF), false);
+  assert.ok(result.includes("SUPABASE_URL!=='https://production-migration.invalid'"), 'Production-only migration stays disabled in QA');
   assert.throws(() => temporaryHtml('<html>Unexpected</html>', 'sb_publishable_synthetic'));
 });
 

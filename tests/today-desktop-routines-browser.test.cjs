@@ -31,7 +31,7 @@ test('desktop Production/WOD are readable and closed levels are header-sized',as
     assert.ok(m.title>=18&&m.meta>=17&&m.step>=16,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=44&&b.font>=16));assert.equal(m.overflow,false);
    }
    assert.equal(await page.evaluate(()=>document.querySelector('#scroll').scrollWidth<=innerWidth),true);
-   if(width===1440&&skin==='glow'){await page.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await page.waitForTimeout(400);await page.screenshot({path:'docs/today-desktop-routines-glow.png'});}
+   if(width===1440&&skin==='glow'){await page.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await page.waitForTimeout(400);await page.screenshot({path:'test-results/today-desktop-routines-glow.png'});}
   }
  }
  for(const id of ['production','wod']){

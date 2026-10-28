@@ -2710,3 +2710,23 @@ html[data-skin="glow"] .sf-work-next:focus-visible{outline:2px solid #62ddec;out
 .wg-segment.latest{animation:wg-light .55s ease-out both}
 @keyframes wg-light{from{stroke:#303c40;filter:drop-shadow(0 0 0 transparent)}to{stroke:#9cebd5;filter:drop-shadow(0 0 3px #68d9b080)}}
 @media(prefers-reduced-motion:reduce){.wg-segment.latest{animation:none}}
+
+/* New Social/Core controls follow the Matrix palette too. */
+html[data-skin="matrix"] .sf-button{background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy)}
+html[data-skin="matrix"] .sf-core-icon{border-color:var(--skin-edge)}
+html[data-skin="matrix"] .sd-location-toggle{color:var(--skin-muted);border-color:var(--skin-edge);background:var(--skin-panel)}
+html[data-skin="matrix"] .sd-location-toggle[aria-pressed="true"]{color:var(--skin-selected);border-color:var(--skin-selected);background:var(--skin-active-bg)}
+html[data-skin="matrix"] :is(.w-when,.sd-category,.sd-edit){color:var(--skin-muted)}
+html[data-skin="matrix"] .sd-time-pill{background:var(--skin-panel)}
+html[data-skin="matrix"] .sf-combo-heading>span{color:var(--skin-muted)}
+html[data-skin="matrix"] .sf-category-toggle{color:var(--skin-muted);border-color:var(--skin-edge)}
+html[data-skin="matrix"] .sf-category-toggle.sf-selected{color:var(--skin-selected)}
+html[data-skin="matrix"] :is(.sf-field,.sf-muted,.sf-scoring summary,.sf-category){color:var(--skin-muted)}
+html[data-skin="matrix"] :is(.sf-field input,.sf-field select){background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy)}
+html[data-skin="matrix"] :is(.sf-person,.sf-locations,.sf-tile,.sf-group-tile){border-color:var(--skin-edge)}
+html[data-skin="matrix"] .sf-primary{background:var(--skin-selected);border-color:var(--skin-selected);color:#031007}
+html[data-skin="matrix"] .sf-button.sf-selected{background:var(--skin-active-bg);border-color:var(--skin-selected);color:var(--skin-selected)}
+html[data-skin="matrix"] .sf-tile{background:var(--skin-panel)}
+html[data-skin="matrix"] .sf-tile .sf-button{border-color:var(--skin-edge);color:var(--skin-copy)}
+html[data-skin="matrix"]{--skin-input-bg:var(--skin-panel);--skin-input-border:var(--skin-edge)}
+html[data-skin="matrix"] :is(#work-settings-error,.sf-editor [role="alert"],.sf-group-dialog [role="alert"]){color:var(--skin-selected)}

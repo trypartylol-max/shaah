@@ -12,7 +12,11 @@ test('romantic capacity uses the configured original category label',()=>{
 test('promotion retains production authentication, persistence and scoring implementations',()=>{
  for(const name of ['signIn','signOut','flushCfgSaves','persistDay','calcScore','cfgForDate']){
   const a=loadApp(),b=loadApp(undefined,{source:baseline});
-  assert.equal(a.run(`${name}.toString()`),b.run(`${name}.toString()`),name);
+  let expected=b.run(`${name}.toString()`);
+  // The milestone feature deliberately supplies the scoring date; retain the
+  // exact implementation guard for every other part of cfgForDate.
+  if(name==='cfgForDate')expected=expected.replace(/(levelsFor\([^)]*),m\)/g,'$1,m,key)');
+  assert.equal(a.run(`${name}.toString()`),expected,name);
  }
  assert.ok(source.includes('https://llpyxktcfubhmthqujpa.supabase.co'));
  assert.ok(html.includes('https://llpyxktcfubhmthqujpa.supabase.co'));

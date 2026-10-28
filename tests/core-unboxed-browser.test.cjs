@@ -7,6 +7,8 @@ test('Core Routines is plain text with independent cards; responsive controls an
  const a=loadApp(fixture());
  a.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config;CFG.h.what={l:'What',p:35,pWork:35,pVacation:35,lv:1,on:true,i:'?'};CFG.order.push('what');CFG.log.at(-1).h.what=CFG.h.what;CFG.log.at(-1).order.push('what');_state['2026-10-16']={checks:{},social:{},people:[],note:'',_daylog:[]}");
  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.evaluate(async()=>{await document.fonts.ready;setSkin('matrix')});
  await page.locator('.nav-btn[data-tab="today"]').click();
  const saved=await page.evaluate(()=>JSON.stringify({cfg:CFG,days:_state,score:calcScore(todayKey())}));
  const geometry=()=>page.evaluate(()=>{
@@ -26,7 +28,11 @@ test('Core Routines is plain text with independent cards; responsive controls an
   // sizes remain intact, apart from the width recovered from outer padding.
   const sheet=await page.addStyleTag({url:'http://shaah.test/assets/app.669f2fdb1ac44f8a.css'});const before=await geometry();await sheet.evaluate(e=>e.remove());
   for(let i=0;i<current.cards.length;i++)assert.equal(current.cards[i].text,before.cards[i].text);
-  for(let i=0;i<current.other.length;i++)assert.deepEqual({...current.other[i],y:0},{...before.other[i],y:0},'unrelated cards keep style and dimensions');
+  for(let i=0;i<current.other.length;i++){
+   const {h:height,y,...style}=current.other[i],{h:oldHeight,y:oldY,...oldStyle}=before.other[i];
+   assert.deepEqual(style,oldStyle,'unrelated cards keep style and width');
+   assert.ok(Math.abs(height-oldHeight)<=2,'legacy typography differs by at most two CSS pixels');
+  }
  }
  assert.equal(await page.evaluate(()=>JSON.stringify({cfg:CFG,days:_state,score:calcScore(todayKey())})),saved,'responsive rendering does not alter data or scores');
  await page.setViewportSize({width:1440,height:1000});
@@ -35,6 +41,6 @@ test('Core Routines is plain text with independent cards; responsive controls an
  await page.screenshot({path:process.env.SHAAH_CORE_SCREENSHOT||'/tmp/shaah-core-unboxed.png',fullPage:true});
  await page.locator('.t-rout-toggle').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);
  await page.locator('.t-rout-toggle').press('Enter');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
- for(const points of [10,20,25,0]){await page.locator('.sf-work-next').click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);}
+ for(const points of [10,20,25,0]){await page.locator('.wg-card').click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);}
  await page.getByRole('button',{name:'Completar',exact:true}).click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),35);
 });

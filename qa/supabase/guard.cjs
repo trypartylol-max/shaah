@@ -61,7 +61,7 @@ function temporaryHtml(source, key) {
   validateKey(key);
   // Reconstruct an isolated QA fixture from the versioned static Pages assets.
   // This does not alter the deployed original or its enforced meta CSP.
-  const external=source.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)" integrity="([^"]+)"[^>]*><\/script>/);
+  const external=source.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)(?:\?[^"\s]*)?" integrity="([^"]+)"[^>]*><\/script>/);
   if(external){
     const path=require('node:path');
     const app=fs.readFileSync(path.join(__dirname,'../..',external[1]),'utf8');
@@ -69,6 +69,9 @@ function temporaryHtml(source, key) {
     source=source.replace(external[0],'<script>'+app+'</script>')
       .replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\n?/,'');
   }
+  // Keep the production-only account migration disabled in this QA fixture.
+  source=source.replace("SUPABASE_URL!=='https://"+PRODUCTION_REF+".supabase.co'",
+    "SUPABASE_URL!=='https://production-migration.invalid'");
   const replacements = [
     [/const SUPABASE_URL="[^"]*";/g, `const SUPABASE_URL=${JSON.stringify(QA_ORIGIN)};`],
     [/const SUPABASE_KEY="[^"]*";/g, `const SUPABASE_KEY=${JSON.stringify(key)};`],

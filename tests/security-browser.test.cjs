@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { fixture } = require('./helpers.cjs');
+const {openBulk,editPerson,socialPage}=require('./ui-helpers.cjs');
 const { openApp } = require('./browser-helpers.cjs');
 
 for (const [kind, suffix, expected] of [
@@ -28,20 +29,18 @@ test('stored contact IDs with punctuation still support edits, bulk groups, tagg
   data.config.selectedLocation = 'all';
   const page = await openApp(t, data);
   const before = await page.evaluate(() => JSON.stringify({ days: Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())), scores: Object.keys(_state).filter(k => k !== todayKey()).map(k => calcScore(k)) }));
-  await page.evaluate(() => openSettings());
-  const target = page.locator('input[data-ui-change="personSet"]').filter({ visible: true });
-  const index = await target.evaluateAll(nodes => nodes.findIndex(el => el.value === '<b>Ana & Bo</b>'));
-  assert.ok(index >= 0);
-  await target.nth(index).fill('Ana renamed');
-  await target.nth(index).press('Tab');
+  await editPerson(page,id);
+  assert.equal(await page.locator('#sf-name').inputValue(),'<b>Ana & Bo</b>');
+  await page.locator('#sf-name').fill('Ana renamed');
+  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
   assert.equal(await page.evaluate(id => personById(id).name, id), 'Ana renamed');
+  await openBulk(page);
   const box = page.locator('input[data-ui-change="bulkPeopleToggle"]').first();
   await box.check();
   await page.getByRole('button', { name: '+ Local & nearby', exact: true }).click();
   assert.deepEqual(await page.evaluate(id => personById(id).locations, id), [data.config.locationGroups[0].id]);
-  await page.evaluate(() => closeSettings());
-  await page.locator('.cb-row').filter({ hasText: 'Friends' }).click();
-  await page.getByTitle('Ana renamed', { exact: true }).click();
+  await socialPage(page);
+  await page.getByRole('button',{name:'Registrar encuentro con Ana renamed',exact:true}).click();
   assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), [id]);
   assert.equal(await page.locator('.sd-pts').innerText(), '16/18%');
   const unchanged = await page.evaluate(() => JSON.stringify({ days: Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())), scores: Object.keys(_state).filter(k => k !== todayKey()).map(k => calcScore(k)) }));
@@ -60,10 +59,10 @@ test('people import displays ordinary markup as text and keeps the imported iden
   await page.evaluate(id => { importApply({ people: [{ id, name: '<em>Imported & new</em>', sub: 'friends', every: 14 }] }); openSettings(); }, id);
   assert.equal(dialogs.length, 2);
   assert.equal(await page.locator('#scroll em').count(), 0);
-  const target = page.locator('input[data-ui-change="personSet"]').filter({ visible: true });
-  const index = await target.evaluateAll(nodes => nodes.findIndex(el => el.value === '<em>Imported & new</em>'));
-  await target.nth(index).fill('Imported renamed');
-  await target.nth(index).press('Tab');
+  await editPerson(page,id);
+  assert.equal(await page.locator('#sf-name').inputValue(),'<em>Imported & new</em>');
+  await page.locator('#sf-name').fill('Imported renamed');
+  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
   assert.equal(await page.evaluate(id => personById(id).name, id), 'Imported renamed');
 });
 
@@ -79,7 +78,7 @@ test('stored routine colors, Next text and Day Log IDs stay data while controls 
   });
   assert.ok((await page.locator('#scroll').innerText()).includes('Next: <i>2</i> <b>Next & rest</b>'));
   assert.equal(await page.locator('#scroll b, #scroll em, #scroll i').count(), 0);
-  assert.equal(await page.evaluate(() => Object.values(ROUTINES)[0].col), '#9090aa');
+  assert.equal(await page.evaluate(() => ROUTINES[routineId].col), '#9090aa');
   await page.evaluate(() => exitRoutine());
   for (const style of ['circle', 'slim', 'chips']) {
     await page.evaluate(style => { CFG.pill=style; render(); }, style);
@@ -107,14 +106,14 @@ test('stored routine colors, Next text and Day Log IDs stay data while controls 
 
 test('malformed stored routine definitions do not break startup or rewrite metadata', async t => {
   const data = fixture();
-  data.config.h.work.routine = true;
-  data.config.routines = { work: null, empty: { steps: {} }, invalid: { steps: [null] } };
-  const before = JSON.stringify(data.config.routines);
+  data.config.h.custom={l:'Custom',p:5,lv:1,on:true,routine:true};data.config.order.push('custom');
+  data.config.routines = { custom: null, empty: { steps: {} }, invalid: { steps: [null] } };
+  const before = data.config.routines;
   const page = await openApp(t, data);
   await page.locator('.nav-btn[data-tab="today"]').click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
-  assert.equal(await page.evaluate(() => JSON.stringify(CFG.routines)), before);
-  assert.deepEqual(await page.evaluate(() => Object.keys(ROUTINES)), []);
+  assert.deepEqual(await page.evaluate(() => Object.fromEntries(['custom','empty','invalid'].map(id=>[id,CFG.routines[id]]))), before);
+  assert.equal(await page.evaluate(() => ['custom','empty','invalid'].some(id=>Object.hasOwn(ROUTINES,id))), false);
 });
 
 test('adopting valid settings without a currently open routine keeps the app usable and its saved session', async t => {

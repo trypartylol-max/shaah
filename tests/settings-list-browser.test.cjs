@@ -13,7 +13,7 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
     const page = await openApp(t, locationFixture(), viewport);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const before = await snapshot(page);
-    const writes = await page.evaluate(() => window.__mockWrites.length);
+    const writes = await page.evaluate(() => window.__mockWrites.filter(row => row.date === 'settings').length);
     assert.deepEqual(await page.locator('[data-settings-section]').evaluateAll(nodes => nodes.map(node => node.dataset.settingsSection)), order);
     while (await page.locator('.st-head[aria-expanded="true"]').count()) await page.locator('.st-head[aria-expanded="true"]').first().click();
     assert.equal(await page.locator('.settings-list > .st-card').count(), 7);
@@ -40,15 +40,18 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
       await page.evaluate(skin => setSkin(skin), skin);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.getElementById('scroll').scrollWidth <= innerWidth), true);
     }
+    assert.equal(await page.evaluate(() => window.__mockWrites.filter(row => row.date === 'settings').length), writes, 'Appearance and menu navigation do not write settings');
     await page.reload();
     await page.waitForFunction(() => _cfgReady && _live);
+    const reloadWrites = await page.evaluate(() => window.__mockWrites.filter(row => row.date === 'settings').length);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     assert.equal(await page.locator('.st-head[aria-expanded="false"]').count(), 7, 'Stored open/collapse choices survive reload');
-    await page.getByRole('button', { name: 'People', exact: true }).click();
+    await page.locator('#settings-toggle-ppl').click();
+    await page.getByText('Organizar varias personas por grupo', {exact:true}).click();
     await page.getByRole('textbox', { name: 'Search contacts for bulk assignment' }).waitFor({ state: 'visible' });
     assert.equal(await page.locator('#settings-section-ppl').getAttribute('inert'), null);
     assert.equal(await snapshot(page), before, 'Menu actions preserve contacts, history and scores');
-    assert.equal(await page.evaluate(() => window.__mockWrites.length), writes, 'Appearance and menu navigation do not write settings to Supabase');
+    assert.equal(await page.evaluate(() => window.__mockWrites.filter(row => row.date === 'settings').length), reloadWrites, 'Menu navigation after reload does not write settings to Supabase');
   });
 }
 

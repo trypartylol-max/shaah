@@ -1,0 +1,9 @@
+✔ a contact with a saved orphan category can change locations without losing history or category (943.409125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1205.240958

@@ -110,7 +110,7 @@ test('strict CSP preserves routine step editors, timer controls and discard conf
   await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.running),false);
   await control(page,'click','routineReset',[],'button').click();assert.equal(await page.evaluate(()=>timerSecs),120);
   await control(page,'click','routineSendToEnd',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q[0]),1);
-  await control(page,'click','routineNext',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q.length),1);
+  await control(page,'click','routineNext',['work',1],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q.length),1);
   page.once('dialog',dialog=>dialog.accept());await control(page,'click','discardCurrentRoutine',[],'button').click();
   assert.equal(await page.evaluate(()=>routineView),false);assert.equal(await page.evaluate(()=>Object.keys(sessions).length),0);
   assert.deepEqual(await page.evaluate(()=>calcScore('2026-09-16')),before);await noEventAttributes(page);

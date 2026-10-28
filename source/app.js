@@ -3567,7 +3567,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
     ${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>${core?'CORE HABITS':'⬛ LVL 1 — CORE'}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
-      ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return workPhaseCard(key,item);
+      ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
         return`
       <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
@@ -4673,6 +4673,14 @@ function workGeometry(count,completed){
   shape+=Array.from({length:count},(_,i)=>{const a=point(i),b=point(count===2?i+1:(i+1)%count);return `<path class="wg-segment${i<completed?' lit':''}${i===completed-1?' latest':''}" pathLength="1" d="M${a.join(' ')} L${b.join(' ')}"/>`;}).join('');
  }
  return `<svg class="wg-figure${count&&completed===count?' complete':''}" viewBox="0 0 48 48" aria-hidden="true">${shape}</svg>`;
+}
+// History uses the day's dated milestones; Today keeps its existing Work card.
+function workHistoryRow(key,item){
+ const fraction=doneFrac(getChecked(key).work),phases=workMilestonesFor(key);
+ const completed=phases.filter(p=>fraction+1e-9>=p[2]).length;
+ const full=fraction>=1,partial=fraction>0&&!full;
+ const box=partial?`<span class="history-work-check" ${uiStyle(`border-color:${item.col};background:linear-gradient(90deg,${item.col} ${fraction*100}%,transparent ${fraction*100}%)`)}></span>`:chk(full,item.col);
+ return `<div class="row history-work-row${fraction?' on':''}" role="checkbox" tabindex="${phases.length?'0':'-1'}" aria-checked="${partial?'mixed':full?'true':'false'}" aria-disabled="${!phases.length}" aria-label="${esc(item.label)} · ${completed} / ${phases.length} milestones · ${pointsLabel(item,getChecked(key).work)} puntos" ${phases.length?ui('click','workPhaseAdvance',key):''} ${ui('keydown','activate')}><div class="history-work-name">${box}<span>${esc(item.icon)} ${esc(item.label)}</span></div><span class="history-work-points">${pointsLabel(item,getChecked(key).work)}</span></div>`;
 }
 function workPhaseCard(key,item){
  const fraction=doneFrac(getChecked(key).work);

@@ -1,0 +1,170 @@
+{
+  "projectRef": "kpnwiwaiwnndpvtxkvva",
+  "table": "shaah_cfg_87e99cfaa044a0b9",
+  "status": "passed",
+  "cases": [
+    {
+      "name": "fresh_synthetic_configuration_and_history_only_in_isolated_table",
+      "status": "passed"
+    },
+    {
+      "name": "anonymous_cross_account_and_wrong_request_owner_denied",
+      "status": "passed"
+    },
+    {
+      "name": "direct_settings_overwrite_blocked",
+      "status": "passed"
+    },
+    {
+      "name": "atomic_revision_race_rejects_stale_save_and_restore_preserves_history",
+      "status": "passed"
+    },
+    {
+      "name": "actual_habit_move_save_and_reload_preserves_identity_days_past_and_future",
+      "status": "passed"
+    },
+    {
+      "name": "real_disjoint_session_edits_merge_after_connection_failure",
+      "status": "passed"
+    },
+    {
+      "name": "real_level_conflict_blocks_edits_survives_reload_and_keeps_explicit_local_choice",
+      "status": "passed"
+    },
+    {
+      "name": "saved_settings_choice_preserves_discarded_local_version_in_backup",
+      "status": "passed"
+    },
+    {
+      "name": "actual_realtime_settings_update_reaches_only_own_account",
+      "status": "passed"
+    },
+    {
+      "name": "all_existing_QA_A_B_application_rows_unchanged",
+      "status": "passed"
+    },
+    {
+      "name": "no_runtime_errors_or_connections_outside_isolated_QA_scope",
+      "status": "passed"
+    }
+  ],
+  "productionRequests": 0,
+  "originalTableWrites": 0,
+  "runtimeErrors": 0,
+  "phase": "completed",
+  "originalHashes": {
+    "A": "ddef51af2649be79c0dd276326bffaa607752fff11ff59ac3208c06118f5645a",
+    "B": "686b630e6306b7eba261429383ee02693c81c7a1c738415e6e4e85e8c396a395"
+  },
+  "sourceSha256": "c7ee61cba5eede92e37d09123fc7e9712e0c62eb0b17b8eac6e499febd930621",
+  "afterHashes": {
+    "A": "ddef51af2649be79c0dd276326bffaa607752fff11ff59ac3208c06118f5645a",
+    "B": "686b630e6306b7eba261429383ee02693c81c7a1c738415e6e4e85e8c396a395"
+  },
+  "namespaceCleanup": "pending_guarded_SQL",
+  "audits": [
+    {
+      "allowedHttp": 19,
+      "allowedWebSockets": 4,
+      "blocked": 0,
+      "realtimeEvents": [
+        {
+          "type": "UPDATE",
+          "date": "settings",
+          "oldKeys": [
+            "data",
+            "date",
+            "settings_revision",
+            "user_id"
+          ]
+        },
+        {
+          "type": "UPDATE",
+          "date": "settings",
+          "oldKeys": [
+            "data",
+            "date",
+            "settings_revision",
+            "user_id"
+          ]
+        },
+        {
+          "type": "UPDATE",
+          "date": "settings",
+          "oldKeys": [
+            "data",
+            "date",
+            "settings_revision",
+            "user_id"
+          ]
+        },
+        {
+          "type": "UPDATE",
+          "date": "settings",
+          "oldKeys": [
+            "data",
+            "date",
+            "settings_revision",
+            "user_id"
+          ]
+        },
+        {
+          "type": "INSERT",
+          "date": "cfgbak",
+          "oldKeys": []
+        }
+      ],
+      "offlineFailures": 0
+    },
+    {
+      "allowedHttp": 16,
+      "allowedWebSockets": 11,
+      "blocked": 0,
+      "realtimeEvents": [
+        {
+          "type": "UPDATE",
+          "date": "settings",
+          "oldKeys": [
+            "data",
+            "date",
+            "settings_revision",
+            "user_id"
+          ]
+        },
+        {
+          "type": "INSERT",
+          "date": "cfgbak",
+          "oldKeys": []
+        }
+      ],
+      "offlineFailures": 15,
+      "websocketErrors": [
+        {
+          "code": "QA_WS_ERROR"
+        },
+        {
+          "code": "QA_WS_ERROR"
+        }
+      ]
+    },
+    {
+      "allowedHttp": 4,
+      "allowedWebSockets": 1,
+      "blocked": 0,
+      "realtimeEvents": [
+        {
+          "type": "UPDATE",
+          "date": "settings",
+          "oldKeys": [
+            "data",
+            "date",
+            "settings_revision",
+            "user_id"
+          ]
+        }
+      ],
+      "offlineFailures": 0
+    }
+  ],
+  "finalPreservation": "passed"
+}

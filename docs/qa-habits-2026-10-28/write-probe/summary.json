@@ -1,0 +1,19 @@
+{
+  "authorizedByUser": "Sí, solo ese registro temporal",
+  "authorizationDate": "2026-10-28",
+  "projectRef": "kpnwiwaiwnndpvtxkvva",
+  "profile": "QA A",
+  "probeDate": "2099-05-26",
+  "distinctNewRows": 1,
+  "casesPassed": 11,
+  "status": "passed",
+  "cleanup": "deleted_only_matching_new_probe",
+  "preexistingRowsChanged": false,
+  "productionRequests": 0,
+  "writeRequestsAttempted": 5,
+  "counterMeaning": "request attempts on the one approved row, including the deliberately offline attempt; not a count of rows",
+  "settingsWriteRequestsBlocked": 5,
+  "configurationWritesAuthorized": false,
+  "candidateHasPendingConfig": true,
+  "candidateEntrypointSHA256": "c7ee61cba5eede92e37d09123fc7e9712e0c62eb0b17b8eac6e499febd930621"
+}

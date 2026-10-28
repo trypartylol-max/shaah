@@ -5,7 +5,8 @@ const { openApp } = require('./browser-helpers.cjs');
 
 test('WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout', async t => {
   const page = await openApp(t);
-  const snapshot = () => page.locator('.sd-contact').evaluateAll(cards => cards.map(c => {
+  const baseline=await openApp(t,undefined,{width:1440,height:1000},{htmlFile:require('../qa/prepare-habit-baseline.cjs').prepare()});
+  const snapshot = (target=page) => target.locator('.sd-contact').evaluateAll(cards => cards.map(c => {
     const rect = s => { const r=c.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,w:r.width,h:r.height}; };
     return { card:c.getBoundingClientRect().toJSON(), icon:rect('.sd-icon'), name:rect('.w-name'), pill:rect('.sd-time-pill'), edit:rect('.sd-edit'), when:getComputedStyle(c.querySelector('.w-when')).display, fill:c.querySelector('.sd-pill-fill').getBoundingClientRect().width/c.querySelector('.sd-time-pill').clientWidth };
   }));
@@ -31,20 +32,8 @@ test('WHO TO SEE has two mobile rows, proportional pills and unchanged desktop l
   for (const width of [601,880,1440]) {
     await page.setViewportSize({width,height:1000});
     const current = await snapshot();
-    const baselineCSS = fs.readFileSync(require('node:path').join(__dirname,'../assets/app.3c606c176dc83f03.css'),'utf8');
-    await page.route('**/assets/app.*.css',route=>route.fulfill({contentType:'text/css',body:baselineCSS}));
-    // Remove SRI only in the intercepted test HTML to load the baseline bytes.
-    const originalHTML = fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
-    await page.route('http://shaah.test/',route=>route.fulfill({contentType:'text/html',body:originalHTML.replace(/(<link[^>]*app\.[a-f0-9]+\.css[^>]*?) integrity="[^"]*"/, '$1')}));
-    await page.reload();
-    await page.waitForFunction(()=>_cfgReady&&_live);
-    await page.locator('.nav-btn[data-tab="social"]').click();
-    assert.deepEqual(current,await snapshot(),`desktop unchanged at ${width}px`);
-    await page.unroute('**/assets/app.*.css');
-    await page.unroute('http://shaah.test/');
-    await page.reload();
-    await page.waitForFunction(()=>_cfgReady&&_live);
-    await page.locator('.nav-btn[data-tab="social"]').click();
+    await baseline.setViewportSize({width,height:1000});
+    assert.deepEqual(current,await snapshot(baseline),`desktop unchanged against exact main at ${width}px`);
   }
   await page.setViewportSize({width:390,height:844});
   const history = await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([key])=>key!==todayKey()))));

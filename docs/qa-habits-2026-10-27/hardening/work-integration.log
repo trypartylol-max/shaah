@@ -1,0 +1,26 @@
+✔ Core Routines is plain text with independent cards; responsive controls and state are preserved (2466.579459ms)
+Verified 67 historical days across 3 production accounts using local backup only.
+✔ romantic capacity uses the configured original category label (28.307291ms)
+✔ promotion retains exact-main authentication, persistence and dated scoring implementations (28.075917ms)
+✔ production backup accounts retain historical scores, IDs, categories and day records (44.256542ms)
+✔ approved Work amounts fit desktop/mobile and retain milestone persistence (1842.992125ms)
+✔ WORK geometry, exact activation, dated points, persistence and skins (2578.303166ms)
+✔ milestone editor adds/removes all rows, retains draft inputs, validates, persists tomorrow only (2402.276334ms)
+✔ 0 milestones: tomorrow, dynamic scores, N+1 reset, reload, unchanged history (41.388833ms)
+✔ 2 milestones: tomorrow, dynamic scores, N+1 reset, reload, unchanged history (8.496667ms)
+✔ 3 milestones: tomorrow, dynamic scores, N+1 reset, reload, unchanged history (7.973416ms)
+✔ 4 milestones: tomorrow, dynamic scores, N+1 reset, reload, unchanged history (8.900792ms)
+✔ 8 milestones: tomorrow, dynamic scores, N+1 reset, reload, unchanged history (9.558ms)
+✔ repeat save replaces tomorrow only; vacation and invalid phase do not change checks (3.543459ms)
+✔ one Work control cycles 400/650/800 with cumulative 10/20/25 then resets to zero on the fourth tap (42.829792ms)
+✔ legacy partial Work remains until explicit advance; Vacation cannot advance (4.456291ms)
+✔ custom Work milestones apply from tomorrow, preserve past scores and retain the four-tap cycle (8.41275ms)
+✔ weekly cash uses Sunday–Saturday, one highest milestone per day and dated amounts (9.278417ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11376.798125

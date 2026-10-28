@@ -1,0 +1,486 @@
+diff --git a/index.html b/index.html
+index 029ed32..a68dde1 100644
+--- a/index.html
++++ b/index.html
+@@ -55,7 +55,7 @@
+   </nav>
+ </div>
+ <script src="./assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-<script data-shaah-app src="./assets/app.937b6aef3d26c557.js" integrity="sha384-myd3nzXeXSyiry8XPjAmaOKLbMfrHeUt0Ler/vGECR6PqPLyP4EuDkvNlL6A0doX" crossorigin="anonymous"></script>
++<script data-shaah-app src="./assets/app.474132f7b8d5e5fa.js" integrity="sha384-O/qQ/FRteQ5NyrBrN3zIo7muszm82GgBHioqy3IolvNBI9kF2MicIcktGWEQ1YCU" crossorigin="anonymous"></script>
+ <script src="./assets/history-back-first-click-20261026.js"></script>
+ <script src="./assets/aurora-skin.js?v=85b841c8e7ba2ff9" integrity="sha384-0yctcfMdDP52+/l+6YGb/s4d8YLXrtx6XR/QbwNhXw6yTTFymfe5WbPDsc7n7C2C" crossorigin="anonymous"></script>
+ 
+diff --git a/qa/prepare-habit-baseline.cjs b/qa/prepare-habit-baseline.cjs
+new file mode 100644
+index 0000000..f2a1aa9
+--- /dev/null
++++ b/qa/prepare-habit-baseline.cjs
+@@ -0,0 +1,16 @@
++// Reproducible, read-only Git export of the exact base for this change.
++const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
++const {execFileSync}=require('node:child_process');
++const BASE='60b4f66b4cd69a0c3bf654992f349267c11c7e9e';
++const HTML_SHA256='9c8cb85ef5f3ed451eec61ee1c1734336e944ae964e2fb39b0ff6441b78b1bb5';
++function prepare(){
++ const root=path.resolve(__dirname,'..'),folder=path.join(root,'.runtime','habit-baseline',BASE);
++ fs.mkdirSync(folder,{recursive:true});
++ const archive=execFileSync('git',['archive',BASE,'index.html','assets'],{cwd:root,maxBuffer:128*1024*1024});
++ execFileSync('tar',['-x','-C',folder],{input:archive});
++ const file=path.join(folder,'index.html');
++ if(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')!==HTML_SHA256)throw Error('Base HTML identity mismatch');
++ return file;
++}
++if(require.main===module)console.log(prepare());
++module.exports={prepare,BASE,HTML_SHA256};
+diff --git a/source/app.js b/source/app.js
+index c4b55d9..73101ba 100644
+--- a/source/app.js
++++ b/source/app.js
+@@ -919,6 +919,7 @@ const UI_ACTIONS=Object.freeze({
+   exportUnownedOffline:uiRule('click',[],()=>exportUnownedOffline()),
+   closeReview:uiRule('click',[],()=>closeReview()),
+   toggleSec:uiRule('click',['string'],(n,e,key)=>toggleSec(key)),
++  cfgLevel:uiRule('change',['string'],(n,e,id)=>cfgLevel(id,Number(n.value))),
+   cfgMove:uiRule('click',['string','integer'],(n,e,id,d)=>cfgMove(id,d)),
+   cfgSet:uiRule('change',['string','habitField'],(n,e,id,field)=>cfgSet(id,field,field==='i'?n.value.slice(0,3):n.value)),
+   cfgVacationPoints:uiRule('change',['string'],(n,e,id)=>cfgEdit(()=>{ensureModePts(CFG.h[id]);CFG.h[id].pVacation=Math.max(0,parseInt(n.value)||0);CFG.h[id].p=modePts(CFG.h[id],travelMode());})),
+@@ -1459,15 +1460,22 @@ function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
+ // Wrap every change that affects scoring. Seals the old config over the past,
+ // then stamps the new one as effective from today.
+ function cfgEdit(fn){
++  // Loading/conflicted settings must not accept edits that cannot be persisted safely.
++  if(USER&&(!_cfgReady||_cfgConflict))return false;
++  const before=JSON.parse(JSON.stringify(CFG));
+   const lg=cfgLog();
++  if(lg.some(e=>!e||!DATE_RE.test(e.from)||!Number.isFinite(Date.parse(e.from+'T12:00:00Z'))||new Date(e.from+'T12:00:00Z').toISOString().slice(0,10)!==e.from||!e.h||!Array.isArray(e.order))||
++     new Set(lg.map(e=>e.from)).size!==lg.length)return false;
++  lg.sort((a,b)=>a.from.localeCompare(b.from));
+   if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
+-  fn();
++  try{fn();}catch(error){CFG=before;_dayCfgCache={};throw error;}
+   const tk=todayKey(), cur=cfgSnap(), last=lg.find(e=>e.from===tk);
+   if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;last.subs=cur.subs;last.mode=cur.mode;}
+   else lg.push({from:tk,h:cur.h,order:cur.order,subs:cur.subs,mode:cur.mode});
+   lg.sort((a,b)=>a.from.localeCompare(b.from));   // keep the epoch baseline
+   _dayCfgCache={};
+   saveCfg(); render();
++  return true;
+ }
+ function cfgForDate(key){
+   const lg=cfgLog();
+@@ -2600,6 +2608,7 @@ function renderSettings(){
+           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
+             <button ${ui('click','cfgMove' ,id,-1)} class="ord">▲</button>
+             <button ${ui('click','cfgMove' ,id,1)} class="ord">▼</button>
++            <select aria-label="Habit level" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>
+           </div>
+           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="icon"
+             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
+@@ -2728,6 +2737,10 @@ function cfgDel(id){
+   cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); });
+ }
+ function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
++function cfgLevel(id,level){
++  if(!Number.isInteger(level)||level<1||level>3||!CFG.h[id]||CFG.h[id].combo||CFG.h[id].lv===level)return;
++  cfgEdit(()=>{CFG.h[id].lv=level;});
++}
+ function cfgMove(id,dir){
+   const lv=CFG.h[id]&&CFG.h[id].lv; if(!lv)return;
+   const peers=CFG.order.filter(x=>CFG.h[x]&&CFG.h[x].lv===lv);
+@@ -3785,19 +3798,23 @@ function weekReview(){
+   const d=getDays(14),cur=d.slice(7),prev=d.slice(0,7);
+   const logged=cur.filter(x=>x.data);
+   if(!logged.length)return null;
+-  const avg=Math.round(logged.reduce((a,x)=>a+x.data.score,0)/logged.length);
++  const avg=Math.round(logged.reduce((a,x)=>a+dPct(x.data),0)/logged.length);
+   const pl=prev.filter(x=>x.data);
+-  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+x.data.score,0)/pl.length):null;
++  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+dPct(x.data),0)/pl.length):null;
+   // per-habit hit rate across the week
+-  const items=[...LVL1,...LVL2,...LVL3];
+-  const tally=items.map(it=>{
+-    let done=0;
+-    cur.forEach(x=>{const ch=getChecked(x.key);if(ch&&ch[it.id])done++;});
+-    return {...it,done,rate:Math.round(done/7*100)};
+-  }).filter(t=>t.pts>0);
++  const byId=new Map();
++  for(const x of cur){
++    const cfg=cfgForDate(x.key),checks=getChecked(x.key)||{};
++    for(const it of [...cfg.L1,...cfg.L2,...cfg.L3]){
++      if(it.pts<=0)continue;
++      const t=byId.get(it.id)||{...it,done:0,eligible:0};
++      t.eligible++;t.done+=doneFrac(checks[it.id]);byId.set(it.id,t);
++    }
++  }
++  const tally=[...byId.values()].map(t=>({...t,rate:Math.round(t.done/t.eligible*100)}));
+   const sorted=[...tally].sort((a,b)=>b.rate-a.rate);
+   const best=sorted[0],worst=sorted[sorted.length-1];
+-  const bestDay=logged.reduce((m,x)=>!m||x.data.score>m.data.score?x:m,null);
++  const bestDay=logged.reduce((m,x)=>!m||dPct(x.data)>dPct(m.data)?x:m,null);
+   return{avg,pavg,diff:pavg==null?null:avg-pavg,tally:sorted,best,worst,bestDay,days:logged.length,cur};
+ }
+ function renderWeekReview(){
+@@ -3822,7 +3839,7 @@ function renderWeekReview(){
+           <div ${uiStyle(`font-size:13px;color:${acol};margin-top:5px`)}>
+             ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
+           </div>
+-          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${r.bestDay.data.score}%</div>`:""}
++          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${dPct(r.bestDay.data)}%</div>`:""}
+         </div>
+       </div>
+       <div ${uiStyle(`display:flex;gap:8px;margin-bottom:16px`)}>
+@@ -3938,8 +3955,8 @@ function renderStats(){
+   }
+   const metrics = [
+     {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
+-    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/7`,col:"#4ade80",sub:review?.best?.label||"—"},
+-    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/7`,col:"#ef4444",sub:review?.worst?.label||"—"},
++    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/${review?.best?.eligible??7}`,col:"#4ade80",sub:review?.best?.label||"—"},
++    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/${review?.worst?.eligible??7}`,col:"#ef4444",sub:review?.worst?.label||"—"},
+     {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
+     {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
+     {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
+diff --git a/tests/browser-helpers.cjs b/tests/browser-helpers.cjs
+index c93e2ae..e3e2c93 100644
+--- a/tests/browser-helpers.cjs
++++ b/tests/browser-helpers.cjs
+@@ -41,7 +41,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
+     // The previous Original loaded Google font CSS. Compare it with the same
+     // validated self-contained font bytes, without any external request.
+     if(parsed.origin==='https://fonts.googleapis.com'){
+-      return route.fulfill({contentType:'text/css',body:fs.readFileSync('/workspace/sites/shaah-test-preview/fonts.css','utf8')});
++      return route.fulfill({contentType:'text/css',body:fs.readFileSync(options.fontCSSFile||path.join(pageRoot,'assets','fonts.css'),'utf8')});
+     }
+     // Fonts and any other external resource never leave this test context.
+     if (!url.startsWith('https://fonts.')) unexpectedRequests.push(url);
+diff --git a/tests/csp-events-browser.test.cjs b/tests/csp-events-browser.test.cjs
+index b27e829..0b20fdf 100644
+--- a/tests/csp-events-browser.test.cjs
++++ b/tests/csp-events-browser.test.cjs
+@@ -15,28 +15,32 @@ async function noEventAttributes(page){
+   assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('*')].flatMap(node=>[...node.attributes].filter(a=>/^on/i.test(a.name)).map(a=>a.name))),[]);
+ }
+ 
+-test('strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history',async t=>{
++test('strict CSP permits bulk membership and Unicode contact editing without changing history',async t=>{
+   const data=locationFixture(),id="old O'Neil & 雪";data.config.people[0].id=id;
+   const page=await open(t,data),before=await history(page);
+   await page.getByRole('button',{name:'Settings',exact:true}).click();
+-  await section(page,'People');
++  await section(page,'Social Settings');
++  await page.getByText('Organizar varias personas por grupo',{exact:true}).click();
+   await control(page,'change','bulkPeopleToggle',[id],'input').check();
++  // Settings renders again on selection; reopen the native details disclosure.
++  await page.getByText('Organizar varias personas por grupo',{exact:true}).click();
+   await page.getByRole('button',{name:'+ Panamá',exact:true}).click();
+   assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa']);
+-  await control(page,'change','locationTogglePerson',[id,'il'],'input').check();
+-  const name=control(page,'change','personSet',[id,'name'],'input');await name.fill('Synthetic Unicode contact');await name.press('Tab');
++  await page.getByRole('button',{name:'Abrir Social →',exact:true}).click();
++  await page.getByRole('button',{name:/People & Groups/}).click();
++  await page.locator('#social-directory-results').locator('[data-ui-click="socialEdit"]').filter({hasText:'Editar'}).first().click();
++  await control(page,'change','socialDraftLocation',['il'],'input').check();
++  await page.locator('#sf-name').fill('Synthetic Unicode contact');
++  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
++  assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa','il']);
+   assert.equal(await page.evaluate(id=>personById(id).name,id),'Synthetic Unicode contact');
+-  await control(page,'change','personSetInactive',[id],'input').click();
+-  await page.getByRole('button',{name:'Inactive',exact:true}).click();
+-  await control(page,'change','personSetInactive',[id],'input').click();
+-  assert.equal(await page.evaluate(id=>personById(id).inactive,id),false);
+   assert.equal(await history(page),before);await noEventAttributes(page);
+ });
+ 
+ test('strict CSP preserves separate Work/Vacation editor values and score history',async t=>{
+   const page=await open(t),before=await history(page);
+   await page.getByRole('button',{name:'Settings',exact:true}).click();await section(page,'Habits & weights');
+-  const work=control(page,'change','cfgSet',['meditation','p'],'input');await work.fill('12');await work.press('Tab');
++  const work=control(page,'change','cfgSet',['meditation','pWork'],'input');await work.fill('12');await work.press('Tab');
+   const vacation=control(page,'change','cfgVacationPoints',['meditation'],'input');await vacation.fill('8');await vacation.press('Tab');
+   assert.deepEqual(await page.evaluate(()=>[CFG.h.meditation.pWork,CFG.h.meditation.pVacation]),[12,8]);
+   await section(page,'Modes');await control(page,'click','setTravelMode',['vacation'],'button').click();
+@@ -51,9 +55,9 @@ test('strict CSP preserves separate Work/Vacation editor values and score histor
+ 
+ test('strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls',async t=>{
+   const page=await open(t),before=await history(page);
+-  const friends=page.locator('.cb-row').filter({hasText:'Friends'});await friends.focus();await friends.press('Enter');
++  const friends=control(page,'click','socialCategoryToggle',['friends','2026-10-16'],'button');await friends.focus();await friends.press('Enter');
+   const chosen=await page.evaluate(()=>getSocial(todayKey()).friends);
+-  await page.getByTitle('Ana Existing',{exact:true}).click();
++  await page.locator('.sf-combo-category').filter({has:friends}).getByRole('button',{name:'Ana Existing',exact:true}).click();
+   assert.equal(await page.evaluate(()=>getSocial(todayKey()).friends),chosen,'Child tagging does not activate the parent row');
+   await page.locator('.nav-btn[data-tab="today"]').click();
+   const note=page.locator('textarea').first();await note.fill('Synthetic note under strict CSP');await note.press('Tab');
+@@ -94,23 +98,23 @@ test('strict CSP permits activity create, edit and delete without changing older
+ });
+ 
+ test('strict CSP preserves routine step editors, timer controls and discard confirmation',async t=>{
+-  const data=locationFixture();data.config.h.work.routine=true;
+-  for(const era of data.config.log)era.h.work.routine=true;
+-  data.config.routines.work={label:'Synthetic routine',icon:'W',col:'#4ade80',steps:[{label:'First step',icon:'1',dur:1},{label:'Second step',icon:'2',dur:1}]};
++  const data=locationFixture();data.config.h.meditation.routine=true;data.config.h.meditation.lv=1;
++  for(const era of data.config.log){era.h.meditation.routine=true;era.h.meditation.lv=1;}
++  data.config.routines.meditation={label:'Synthetic routine',icon:'W',col:'#4ade80',steps:[{label:'First step',icon:'1',dur:1},{label:'Second step',icon:'2',dur:1}]};
+   const page=await open(t,data),before=await page.evaluate(()=>calcScore('2026-09-16'));
+   await page.getByRole('button',{name:'Settings',exact:true}).click();await section(page,'Routines');
+-  const label=control(page,'change','stepSet',['work',0,'label'],'input');await label.fill('Synthetic renamed step');await label.press('Tab');
+-  const duration=control(page,'change','stepSet',['work',0,'dur'],'input');await duration.fill('2');await duration.press('Tab');
+-  assert.deepEqual(await page.evaluate(()=>[CFG.routines.work.steps[0].label,CFG.routines.work.steps[0].dur]),['Synthetic renamed step',2]);
++  const label=control(page,'change','stepSet',['meditation',0,'label'],'input');await label.fill('Synthetic renamed step');await label.press('Tab');
++  const duration=control(page,'change','stepSet',['meditation',0,'dur'],'input');await duration.fill('2');await duration.press('Tab');
++  assert.deepEqual(await page.evaluate(()=>[CFG.routines.meditation.steps[0].label,CFG.routines.meditation.steps[0].dur]),['Synthetic renamed step',2]);
+   await page.getByRole('button',{name:'Back',exact:true}).click();await page.locator('.nav-btn[data-tab="today"]').click();
+   if(await page.locator('.t-rout.collapsed').count())await control(page,'click','toggleTodayRoutines',[]).click();
+-  await page.locator('[data-ui-click="startRoutine"],[data-ui-click="openRoutine"]').filter({visible:true}).first().click();
+-  assert.equal(await page.evaluate(()=>routineId),'work');
+-  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.running),true);
+-  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.running),false);
++  await control(page,'click','startRoutine',['meditation']).or(control(page,'click','openRoutine',['meditation'])).or(control(page,'click','startRoutineNested',['meditation'])).filter({visible:true}).first().click();
++  assert.equal(await page.evaluate(()=>routineId),'meditation');
++  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),true);
++  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),false);
+   await control(page,'click','routineReset',[],'button').click();assert.equal(await page.evaluate(()=>timerSecs),120);
+-  await control(page,'click','routineSendToEnd',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q[0]),1);
+-  await control(page,'click','routineNext',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q.length),1);
++  await control(page,'click','routineSendToEnd',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q[0]),1);
++  await control(page,'click','routineNext',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q.length),1);
+   page.once('dialog',dialog=>dialog.accept());await control(page,'click','discardCurrentRoutine',[],'button').click();
+   assert.equal(await page.evaluate(()=>routineView),false);assert.equal(await page.evaluate(()=>Object.keys(sessions).length),0);
+   assert.deepEqual(await page.evaluate(()=>calcScore('2026-09-16')),before);await noEventAttributes(page);
+diff --git a/tests/csp-styles-parity-browser.test.cjs b/tests/csp-styles-parity-browser.test.cjs
+index 10e0b0a..3f77421 100644
+--- a/tests/csp-styles-parity-browser.test.cjs
++++ b/tests/csp-styles-parity-browser.test.cjs
+@@ -2,8 +2,7 @@ const {test}=require('node:test');
+ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+ const {openApp}=require('./browser-helpers.cjs');
+ const {fixture}=require('./helpers.cjs');
+-const baselinePath='/workspace/shaah-original-steady/index.html';
+-assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(baselinePath)).digest('hex'),'cddd9d3a847f615a501cb9713e80fe07acf8140232337354ccda4673e8e02f22','Exact currently published Original baseline');
++const baselinePath=require('../qa/prepare-habit-baseline.cjs').prepare();
+ async function snapshot(page){
+  await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(220);
+  return page.locator('#scroll *').evaluateAll(nodes=>nodes.map(node=>{
+@@ -11,24 +10,34 @@ async function snapshot(page){
+   return {tag:node.tagName,class:node.getAttribute('class'),styles:Object.fromEntries(['display','position','color','backgroundColor','fontFamily','fontSize','fontWeight','borderTopWidth','borderTopColor','borderRadius','paddingTop','paddingRight','paddingBottom','paddingLeft','gap','flexDirection','overflow','opacity'].map(k=>[k,style[k]])),width:Math.round(box.width*10)/10,height:Math.round(box.height*10)/10};
+  }));
+ }
+-for(const skin of ['classic','matrix','minimal'])for(const size of ['mobile','desktop'])test(`${skin}/${size}: strict styles preserve the published Original appearance on main screens`,async t=>{
++for(const skin of ['classic','matrix','minimal'])for(const size of ['mobile','desktop'])test(`${skin}/${size}: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector`,async t=>{
+  const viewport=size==='mobile'?{width:390,height:844}:{width:1440,height:1000};
+  const before=await openApp(t,fixture(),viewport,{htmlFile:baselinePath});
+  const after=await openApp(t,fixture(),viewport);
+  for(const page of [before,after]){await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(id=>setSkin(id),skin);}
++ // Review values intentionally changed in this fix. Feed both renderers the
++ // same base review to compare presentation only; math and actual Stats labels
++ // are checked independently by habit timeline and browser regression tests.
++ const baseReview=await before.evaluate(()=>weekReview());
++ await after.evaluate(review=>{window.__originalWeekReview=weekReview;weekReview=()=>review},baseReview);
+  const results=[];
+  for(const tab of ['today','social','log','stats','history','settings']){
+   for(const page of [before,after])await page.evaluate(tab=>{if(tab==='settings')openSettings();else setTab(tab);},tab);
++  // The added control is intentional. Remove only that control for exact
++  // geometry parity; its visible layout and behavior have separate browser tests.
++  if(tab==='settings')await after.evaluate(()=>{window.__levelControls=[...document.querySelectorAll('select[data-ui-change="cfgLevel"]')].map(node=>{const marker=document.createComment('level-control');node.replaceWith(marker);return {node,marker}})});
+   const old=await snapshot(before),next=await snapshot(after);
++  if(tab==='settings')await after.evaluate(()=>{for(const {node,marker} of window.__levelControls)marker.replaceWith(node);delete window.__levelControls});
+   const diffs=[];
+   for(let i=0;i<Math.max(old.length,next.length);i++)if(JSON.stringify(old[i])!==JSON.stringify(next[i]))diffs.push({index:i,before:old[i],after:next[i]});
+   results.push({tab,beforeElements:old.length,afterElements:next.length,differences:diffs});
+  }
++ await after.evaluate(()=>{weekReview=window.__originalWeekReview;delete window.__originalWeekReview});
+  const out=path.join(__dirname,'../test-results/security-styles');fs.mkdirSync(out,{recursive:true});
+  fs.writeFileSync(path.join(out,`appearance-${process.env.SHAAH_BROWSER_ENGINE||'chromium'}-${skin}-${size}.json`),JSON.stringify(results,null,2));
+  // Compare appearance without screenshot instrumentation. WebKit's screenshot
+  // synchronization injects an inline `body {}` sheet, correctly rejected by CSP.
+  // Keep the policy enforced throughout this functional check.
+  const mismatches=results.filter(x=>x.differences.length).map(x=>({tab:x.tab,differences:x.differences.length,first:x.differences[0]}));
+- assert.deepEqual(mismatches,[],'Computed appearance and geometry remain equal to current Original');
++ assert.deepEqual(mismatches,[],'Computed appearance and geometry remain equal to the exact task base except the intentional selector');
+ });
+diff --git a/tests/habit-level-browser.test.cjs b/tests/habit-level-browser.test.cjs
+new file mode 100644
+index 0000000..25cdcdd
+--- /dev/null
++++ b/tests/habit-level-browser.test.cjs
+@@ -0,0 +1,103 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const fs=require('node:fs');
++const {openApp}=require('./browser-helpers.cjs');
++const {fixture}=require('./helpers.cjs');
++const level=page=>page.locator('select[data-ui-change="cfgLevel"][data-ui-change-args=\'["meditation"]\']');
++async function settings(page){
++ await page.getByRole('button',{name:'Settings',exact:true}).click();
++ const toggle=page.locator('#settings-toggle-hab');
++ if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
++}
++function data(){
++ const d=fixture();
++ d.config.log.push({...structuredClone(d.config.log.at(-1)),from:'2026-12-01',mode:'vacation'});
++ d.config.log.at(-1).h.meditation.pWork=37;
++ return d;
++}
++const history=page=>page.evaluate(()=>JSON.stringify({days:_state,eras:CFG.log.filter(e=>e.from!==todayKey()),scores:['2026-09-07','2026-09-08','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-10-08'].map(k=>calcScore(k))}));
++for(const skin of ['classic','aurora'])for(const width of [320,390,879,880,1440])test(`habit levels: ${skin} ${width}px keyboard, history, future era and reload`,async t=>{
++ const page=await openApp(t,data(),{width,height:1000});
++ await page.evaluate(async s=>{await flushCfgSaves();setSkin(s)},skin);
++ const before=await history(page);
++ const habit=await page.evaluate(()=>({...CFG.h.meditation}));
++ await settings(page);
++ const select=level(page);
++ assert.equal(await select.isVisible(),true);
++ for(const target of [3,1,2]){
++  await select.selectOption(String(target));
++  await page.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);
++  assert.equal(await page.evaluate(()=>CFG.h.meditation.lv),target);
++  assert.deepEqual(await page.evaluate(()=>{const h={...CFG.h.meditation};delete h.lv;return h}),Object.fromEntries(Object.entries(habit).filter(([k])=>k!=='lv')));
++  assert.equal(await history(page),before);
++ }
++ await page.waitForFunction(()=>!_syncRenderQueued);
++ await select.focus();assert.equal(await select.evaluate(n=>n===document.activeElement),true);
++ await page.keyboard.press('Tab');assert.equal(await select.evaluate(n=>n===document.activeElement),false);
++ await select.selectOption('3');await page.waitForFunction(()=>CFG.h.meditation.lv===3&&!_cfgDraft&&!_cfgFlushPromise);
++ const geometry=await select.evaluate(n=>{const b=n.getBoundingClientRect();return {left:b.left,right:b.right,width:innerWidth,overflow:document.getElementById('scroll').scrollWidth>innerWidth}});
++ assert.ok(geometry.left>=0&&geometry.right<=geometry.width,JSON.stringify(geometry));
++ assert.equal(geometry.overflow,false,'Expanded Settings has no horizontal overflow');
++ const row=select.locator('..').locator('..');
++ const controls=await row.evaluate(n=>{const box=n.getBoundingClientRect();return [...n.querySelectorAll('button,input,select')].map(c=>{const r=c.getBoundingClientRect();return {tag:c.tagName,field:c.getAttribute('data-ui-change'),width:r.width,left:r.left,right:r.right,rowRight:box.right}})});
++ for(const c of controls){assert.ok(c.width>0&&c.left>=0&&c.right<=c.rowRight+1,JSON.stringify(c));}
++
++ if(width===320||width===1440){fs.mkdirSync('test-results/habit-safety',{recursive:true});await page.screenshot({path:`test-results/habit-safety/settings-${skin}-${width}.png`});}
++ await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
++ assert.equal(await page.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await history(page),before);
++ assert.equal(await page.evaluate(()=>cfgForDate('2026-12-01').L2.some(i=>i.id==='meditation')),true);
++ await settings(page);assert.equal(await level(page).inputValue(),'3');
++ await page.getByRole('button',{name:'Back',exact:true}).click();
++ for(const hour of [12,22]){
++  await page.clock.setFixedTime(new Date(`2026-10-16T${hour}:00:00Z`));
++  await page.locator('.nav-btn[data-tab="today"]').click();
++  assert.equal(await page.evaluate(()=>document.getElementById('scroll').scrollWidth<=innerWidth),true);
++ }
++});
++test('habit level: failed save survives refresh then retries without changing historical/future eras',async t=>{
++ const page=await openApp(t,data());await page.evaluate(()=>flushCfgSaves());const before=await history(page);
++ await settings(page);
++ await page.evaluate(()=>{window.originalRpc=sb.rpc;sb.rpc=async()=>({error:{code:'SYNTHETIC_OFFLINE'}})});
++ await level(page).selectOption('3');await page.waitForFunction(()=>_cfgSaveFailed&&!!_cfgDraft&&!_cfgFlushPromise);
++ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(cfgPendingKey())).draft.h.meditation.lv),3);
++ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg.h.meditation.lv),2);
++ assert.equal(await history(page),before);
++ await page.reload();await page.waitForFunction(()=>_cfgReady&&!_cfgDraft&&!_cfgFlushPromise);
++ assert.equal(await page.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg.h.meditation.lv),3);
++ assert.equal(await history(page),before);
++});
++test('habit level: two sessions conflict without losing either choice, then explicit resolution',async t=>{
++ const a=await openApp(t,data());await a.evaluate(()=>flushCfgSaves());const before=await history(a);
++ const b=await a.context().newPage();await b.goto('http://shaah.test/');await b.waitForFunction(()=>_cfgReady&&_live);
++ b.on('pageerror',error=>assert.fail(error.message));b.on('dialog',dialog=>dialog.accept());
++ await settings(a);await settings(b);
++ await level(a).selectOption('1');await a.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);
++ await level(b).selectOption('3');await b.waitForFunction(()=>_cfgConflict);
++ assert.equal(await b.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await b.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg.h.meditation.lv),1);
++ const draft=await b.evaluate(()=>JSON.stringify(_cfgDraft));
++ await level(b).selectOption('2');assert.equal(await b.evaluate(()=>JSON.stringify(_cfgDraft)),draft);
++ await b.reload();await b.waitForFunction(()=>_cfgReady&&_cfgConflict);
++ await b.getByRole('button',{name:'Keep this device’s settings',exact:true}).click();
++ await b.waitForFunction(()=>!_cfgDraft&&!_cfgConflict);
++ assert.equal(await b.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await history(b),before);
++});
++test('Stats shows dated eligible denominators and fractional completion',async t=>{
++ const d=data();
++ const recent=structuredClone(d.config.log[2]);recent.from='2026-10-13';recent.h.meditation.on=false;
++ recent.h.fresh={l:'Fresh',i:'N',p:5,pWork:5,pVacation:5,lv:2,on:true};recent.order.push('fresh');d.config.log.splice(3,0,recent);
++ d.config.h=structuredClone(recent.h);d.config.order=[...recent.order];
++ d.days['2026-10-10']={checks:{meditation:.5},social:{},people:[],note:''};
++ const page=await openApp(t,d);await page.locator('.nav-btn[data-tab="stats"]').click();
++ const review=await page.evaluate(()=>weekReview());
++ for(const [label,item] of [['MOST CONSISTENT',review.best],['NEEDS WORK',review.worst]]){
++  const card=page.locator('.stats-metric-card').filter({has:page.locator('.stats-metric-label',{hasText:label})});
++  assert.equal(await card.locator('.stats-metric-value').innerText(),`${item.done}/${item.eligible}`);
++ }
++ assert.equal(review.tally.find(x=>x.id==='meditation').eligible,3);
++ assert.equal(review.tally.find(x=>x.id==='fresh').eligible,4);
++ assert.equal(review.tally.find(x=>x.id==='meditation').done,.5);
++});
+diff --git a/tests/habit-timeline-regression.test.cjs b/tests/habit-timeline-regression.test.cjs
+new file mode 100644
+index 0000000..444693f
+--- /dev/null
++++ b/tests/habit-timeline-regression.test.cjs
+@@ -0,0 +1,70 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const {loadApp}=require('./helpers.cjs');
++
++test('level change preserves identity, all day records, past and future eras',()=>{
++ const a=loadApp();a.run(`CFG.log.push({...JSON.parse(JSON.stringify(CFG.log[2])),from:'2026-12-01'});window.before=JSON.stringify([_state,CFG.log]);saveCfg=()=>{};cfgLevel('meditation',3);`);
++ const [days,eras]=JSON.parse(a.read('window.before'));
++ assert.deepEqual(a.read('_state'),days);
++ assert.deepEqual(a.read('CFG.log.filter(e=>e.from!==todayKey())'),eras);
++ assert.equal(a.read('CFG.h.meditation.lv'),3);
++ assert.equal(a.read('cfgForDate("2026-10-15").L2.some(i=>i.id==="meditation")'),true);
++ assert.equal(a.read('cfgForDate(todayKey()).L3.some(i=>i.id==="meditation")'),true);
++ assert.equal(a.read('cfgForDate("2026-12-01").L2.some(i=>i.id==="meditation")'),true);
++ a.run(`cfgLevel('meditation',1);cfgLevel('meditation',9)`);
++ assert.equal(a.read('CFG.log.filter(e=>e.from===todayKey()).length'),1);
++ assert.equal(a.read('CFG.h.meditation.lv'),1);
++});
++test('loading, conflict and ambiguous timelines reject edits without mutation',()=>{
++ for(const setup of [`USER={id:'A'};_cfgReady=false`, `USER={id:'A'};_cfgReady=true;_cfgConflict=true`, `CFG.log.push(JSON.parse(JSON.stringify(CFG.log[0])))`]){
++ const a=loadApp();a.run(`${setup};window.before=JSON.stringify(CFG);cfgLevel('meditation',3)`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++ }
++});
++test('weekly rates use dated eligibility, fractional completion and normalized scores',()=>{
++ const a=loadApp();a.run(`
++ getDays=()=>Array.from({length:14},(_,i)=>({key:i<7?'2026-10-01':i<10?'2026-10-10':'2026-10-16',data:{score:i<10?10:30,max:i<10?10:60}}));
++ cfgForDate=key=>({L1:key==='2026-10-16'?[{id:'new',pts:10}]:[{id:'old',pts:10}],L2:[],L3:[]});
++ _state={'2026-10-01':{checks:{old:true}},'2026-10-10':{checks:{old:true}},'2026-10-16':{checks:{new:.5}}};window.review=weekReview();`);
++ const r=a.read('window.review');
++ assert.equal(r.avg,71);assert.equal(r.pavg,100);
++ assert.equal(r.tally.find(x=>x.id==='new').eligible,4);
++ assert.equal(r.tally.find(x=>x.id==='new').rate,50);
++ assert.equal(r.tally.find(x=>x.id==='old').rate,100);
++ assert.equal(r.bestDay.key,'2026-10-10');
++});
++test('unsorted future era is retained; failed edit rolls back; invalid calendar date rejects',()=>{
++ const a=loadApp();a.run(`CFG.log.reverse();saveCfg=()=>{};cfgLevel('meditation',3);`);
++ assert.deepEqual(a.read('CFG.log.map(e=>e.from)'),['0001-01-01','2026-09-08','2026-10-08','2026-10-16']);
++ a.run(`window.before=JSON.stringify(CFG);try{cfgEdit(()=>{CFG.h.meditation.lv=2;throw Error('abort')})}catch(e){}`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++ a.run(`CFG.log.push({...CFG.log[0],from:'2026-02-30'});window.before=JSON.stringify(CFG);cfgLevel('meditation',1)`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++});
++test('weekly review handles dated pause/add/reweight, zero max and mode changes without mutating history',()=>{
++ const a=loadApp();a.run(`
++ saveCfg=()=>{};
++ const make=(from,mode,h)=>({from,mode,h,order:Object.keys(h),subs:[]});
++ const base={old:{l:'Old habit',i:'O',lv:2,on:true,pWork:10,pVacation:20},paused:{l:'Paused',i:'P',lv:1,on:true,pWork:10,pVacation:10}};
++ const later=JSON.parse(JSON.stringify(base));later.paused.on=false;later.old.pVacation=40;later.fresh={l:'New habit',i:'N',lv:3,on:true,pWork:5,pVacation:10};
++ CFG.log=[make('0001-01-01','work',base),make('2026-10-13','vacation',later)];
++ CFG.h=JSON.parse(JSON.stringify(later));CFG.order=Object.keys(CFG.h);CFG.subs=[];_dayCfgCache={};
++ _state={};for(let d=3;d<=16;d++){const key='2026-10-'+String(d).padStart(2,'0');_state[key]={checks:{old:d>=13?.5:true,paused:true,fresh:true},social:{},note:'',people:[]};}
++ persistTravelMode('vacation');window.before=JSON.stringify([CFG.log,_state]);window.review=weekReview();
++ `);
++ const r=a.read('window.review');
++ assert.equal(r.avg,77);assert.equal(r.pavg,100);assert.equal(r.bestDay.key,'2026-10-10');
++ assert.deepEqual(r.tally.map(x=>[x.id,x.eligible,x.done,x.rate]).sort(),[['fresh',4,4,100],['old',7,5,71],['paused',3,3,100]]);
++ a.run(`persistTravelMode('vacation');_dayCfgCache={};window.vacationReview=weekReview();persistTravelMode('work');_dayCfgCache={};window.workReview=weekReview();`);
++ assert.deepEqual(a.read('window.vacationReview.cur.slice(0,6)'),a.read('window.workReview.cur.slice(0,6)'));
++ assert.equal(a.read('JSON.stringify([CFG.log,_state])'),a.read('window.before'));
++ a.run(`CFG.log=[{from:'0001-01-01',h:{},order:[],subs:[],mode:'work'}];CFG.h={};CFG.order=[];_dayCfgCache={};window.empty=weekReview();`);
++ assert.equal(a.read('window.empty.avg'),0);assert.deepEqual(a.read('window.empty.tally'),[]);
++});
++test('blocked config edit never queues a settings write and preserves account-owned drafts',()=>{
++ const a=loadApp();a.run(`USER={id:'A'};_cfgReady=false;window.before=JSON.stringify(CFG);cfgSet('meditation','pWork','90');`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));assert.equal(a.read('_cfgDraft'),null);
++ assert.deepEqual(a.writes,[]);
++ a.run(`_cfgReady=true;_cfgConflict=true;_cfgDraft={marker:'Keep A draft'};cfgLevel('meditation',3);`);
++ assert.deepEqual(a.read('_cfgDraft'),{marker:'Keep A draft'});assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++});

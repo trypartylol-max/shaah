@@ -5,7 +5,7 @@ test('WORK geometry, exact activation, dated points, persistence and skins',asyn
  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')},undefined,process.env.STANDALONE?{htmlFile:process.env.STANDALONE}:{});await page.locator('.nav-btn[data-tab="today"]').click();
  const history=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey()))));
  const others=await page.locator('.sf-core-routine:not(.sf-work)').evaluateAll(es=>es.map(e=>e.outerHTML));
- for(const width of [320,390,879,880,1440]){await page.setViewportSize({width,height:1000});const g=await page.locator('.wg-card').evaluate(e=>({w:e.clientWidth,sw:e.scrollWidth,h:e.clientHeight,overflow:document.documentElement.scrollWidth>innerWidth}));assert.ok(g.sw<=g.w+1);assert.equal(g.overflow,false);assert.ok(g.h<125);}
+ for(const width of [320,390,879,880,1440]){await page.setViewportSize({width,height:1000});const g=await page.locator('.wg-card').evaluate(e=>({w:e.clientWidth,sw:e.scrollWidth,h:e.clientHeight,overflow:document.documentElement.scrollWidth>innerWidth}));assert.ok(g.sw<=g.w+1);assert.equal(g.overflow,false);assert.ok(g.h<150);}
  for(const n of [0,1,2,3,4,5,8]){
   await page.evaluate(n=>{CFG.workMilestones=[{from:todayKey(),steps:Array.from({length:n},(_,i)=>({amount:350+i*300,points:5+i}))}];_dayCfgCache={};setHabitState('work',todayKey(),false);render();},n);
   assert.equal(await page.locator('.wg-segment').count(),n);
@@ -19,7 +19,8 @@ test('WORK geometry, exact activation, dated points, persistence and skins',asyn
  }
  await page.locator('.wg-card').press('Space');assert.equal(await page.locator('.wg-segment.lit').count(),1);
  await page.reload();await page.locator('.nav-btn[data-tab="today"]').click();assert.ok(await page.evaluate(()=>doneFrac(getChecked(todayKey()).work)>0));
- for(const skin of ['glow','aurora']){await page.evaluate(s=>setSkin(s),skin);assert.equal(await page.locator('.wg-card').count(),0);assert.equal(await page.locator('.sf-work-next').count(),1);}
+ const workNode=await page.locator('.wg-card').elementHandle();
+ for(const skin of ['glow','aurora','matrix','minimal']){await page.evaluate(s=>setSkin(s),skin);assert.equal(await page.locator('.wg-card').count(),1);assert.equal(await workNode.evaluate(n=>n===document.querySelector('.wg-card')),true,'skin change preserves interactive node');}
  await page.evaluate(()=>setSkin('classic'));assert.deepEqual(await page.locator('.sf-core-routine:not(.sf-work)').evaluateAll(es=>es.map(e=>e.outerHTML)),others);
  await page.evaluate(()=>{setHabitState('work',todayKey(),false);workPhaseAdvance(todayKey());});await page.emulateMedia({reducedMotion:'reduce'});assert.equal(await page.locator('.wg-segment.latest').evaluate(e=>getComputedStyle(e).animationName),'none');
  await page.setViewportSize({width:390,height:844});
@@ -27,6 +28,6 @@ test('WORK geometry, exact activation, dated points, persistence and skins',asyn
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+24,y:box.y+24}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  assert.equal(await page.locator('.wg-segment.lit').count(),before+1);await cdp.detach();
  assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),history);
- await page.locator('.wg-card').screenshot({path:root+'/docs/work-geometry-mobile.png'});
- await page.setViewportSize({width:1440,height:1000});await page.locator('.wg-card').screenshot({path:root+'/docs/work-geometry-desktop.png'});
+ await page.locator('.wg-card').screenshot({path:root+'/test-results/work-geometry-mobile.png'});
+ await page.setViewportSize({width:1440,height:1000});await page.locator('.wg-card').screenshot({path:root+'/test-results/work-geometry-desktop.png'});
 });

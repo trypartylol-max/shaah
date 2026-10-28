@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "validatedCheckpoint": "b0f66f9",
+  "unchangedFunctionBodies": [
+    "cfgEdit",
+    "cfgLevel",
+    "weekReview",
+    "cfgForDate",
+    "calcScore",
+    "signIn",
+    "signOut",
+    "flushCfgSaves",
+    "persistDay",
+    "resolveCfgConflict",
+    "upgradeShaahSocialCoreConfig"
+  ],
+  "note": "Prior real QA results remain evidence for unchanged core; new presentation/disclosure code requires current regression/device checks."
+}

@@ -1,0 +1,24 @@
+{
+  "status": "validated_reported_iPhone_scope_complete_pending_release_decision",
+  "candidateCommit": "a4d98ab89c78dc5e1848d821c481e199c22cb600",
+  "integratedMain": "6529de614f3d0d75728add5ddf99c94ffde40b9f",
+  "chromium": {
+    "passed": 370,
+    "failed": 0,
+    "skipped": 0
+  },
+  "webkit": {
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0
+  },
+  "candidateHtmlSha256": "c56752c95bf3f27cd89360ebd0dcf47617c824cea8039ebca1ff7b9df0ebc048",
+  "candidateArchive": ".runtime/release-candidate/candidate-a4d98ab89c78dc5e1848d821c481e199c22cb600.tar",
+  "candidateArchiveSha256": "dc1f8e53e7909748cba317373293126aaa03b252f2d2d895c678d1b0cb5105cc",
+  "phonePreview": "used on LAN with synthetic data; clock fixed; server stopped and verified",
+  "physicalIPhone": "passed_user_reported_scope_iPhone17_iOS27_Safari",
+  "oauthConfiguration": "inspected_readonly_with_owner_authorization",
+  "interactiveGoogleLogin": "not_performed",
+  "deployment": "not_performed",
+  "remoteDataMutationsThisFollowup": 0
+}

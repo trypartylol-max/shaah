@@ -1,0 +1,174 @@
+{
+  "rls": [
+    {
+      "table": "day_logs",
+      "forced": false,
+      "enabled": true
+    }
+  ],
+  "indexes": [
+    {
+      "name": "day_logs_pkey",
+      "definition": "CREATE UNIQUE INDEX day_logs_pkey ON public.day_logs USING btree (user_id, date)"
+    }
+  ],
+  "policies": [
+    {
+      "name": "day_logs_delete_own",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "using": "(( SELECT auth.uid() AS uid) = user_id)",
+      "command": "DELETE",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "day_logs_insert_own",
+      "check": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "using": null,
+      "command": "INSERT",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "day_logs_select_own",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "using": "(( SELECT auth.uid() AS uid) = user_id)",
+      "command": "SELECT",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "day_logs_update_own",
+      "check": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "using": "(( SELECT auth.uid() AS uid) = user_id)",
+      "command": "UPDATE",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "shaah_settings_delete_requires_rpc",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "using": "(date <> 'settings'::text)",
+      "command": "DELETE",
+      "permissive": "RESTRICTIVE"
+    },
+    {
+      "name": "shaah_settings_insert_requires_rpc",
+      "check": "(date <> 'settings'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "using": null,
+      "command": "INSERT",
+      "permissive": "RESTRICTIVE"
+    },
+    {
+      "name": "shaah_settings_update_requires_rpc",
+      "check": "(date <> 'settings'::text)",
+      "roles": [
+        "authenticated"
+      ],
+      "using": "(date <> 'settings'::text)",
+      "command": "UPDATE",
+      "permissive": "RESTRICTIVE"
+    }
+  ],
+  "realtime": [
+    {
+      "table": "day_logs",
+      "schema": "public",
+      "publication": "supabase_realtime"
+    }
+  ],
+  "functions": [
+    {
+      "name": "restore_settings_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "grants": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "schema": "shaah_private",
+      "usesAuthUid": true,
+      "securityDefiner": true
+    },
+    {
+      "name": "save_settings_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "grants": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "schema": "shaah_private",
+      "usesAuthUid": true,
+      "securityDefiner": true
+    },
+    {
+      "name": "settings_backup_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "grants": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "schema": "shaah_private",
+      "usesAuthUid": true,
+      "securityDefiner": true
+    },
+    {
+      "name": "shaah_restore_settings_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "grants": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "schema": "public",
+      "usesAuthUid": false,
+      "securityDefiner": false
+    },
+    {
+      "name": "shaah_save_settings_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "grants": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "schema": "public",
+      "usesAuthUid": true,
+      "securityDefiner": false
+    },
+    {
+      "name": "shaah_settings_backup_v1",
+      "config": [
+        "search_path=\"\""
+      ],
+      "grants": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "schema": "public",
+      "usesAuthUid": false,
+      "securityDefiner": false
+    }
+  ]
+}

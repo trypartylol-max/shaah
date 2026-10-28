@@ -1,0 +1,66 @@
+{
+  "lints": [
+    {
+      "name": "rls_enabled_no_policy",
+      "title": "RLS Enabled No Policy",
+      "level": "INFO",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Detects cases where row level security (RLS) has been enabled on a table but no RLS policies have been created.",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "count": 3,
+      "findings": [
+        {
+          "detail": "Table \\`shaah_legacy_probe_private.settings_versions\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "settings_versions",
+            "type": "table",
+            "schema": "shaah_legacy_probe_private"
+          },
+          "observed_at": "2026-10-27T23:02:45.225Z"
+        },
+        {
+          "detail": "Table \\`shaah_private.settings_versions\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "settings_versions",
+            "type": "table",
+            "schema": "shaah_private"
+          },
+          "observed_at": "2026-10-27T23:02:45.225Z"
+        },
+        {
+          "detail": "Table \\`shaah_recovery.day_logs_checkpoint\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "day_logs_checkpoint",
+            "type": "table",
+            "schema": "shaah_recovery"
+          },
+          "observed_at": "2026-10-27T23:02:45.225Z"
+        }
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "title": "Leaked Password Protection Disabled",
+      "level": "WARN",
+      "facing": "EXTERNAL",
+      "categories": [
+        "SECURITY"
+      ],
+      "description": "Leaked password protection is currently disabled.",
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "count": 1,
+      "findings": [
+        {
+          "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+          "metadata": {
+            "type": "auth",
+            "entity": "Auth"
+          }
+        }
+      ]
+    }
+  ]
+}

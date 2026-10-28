@@ -1,0 +1,14 @@
+✔ Glow 320: native layout, persistence, Work and reduced motion (3747.263125ms)
+✔ Glow 390: native layout, persistence, Work and reduced motion (3284.886208ms)
+✔ Glow 600: native layout, persistence, Work and reduced motion (2674.74475ms)
+✔ Glow 879: native layout, persistence, Work and reduced motion (2359.429334ms)
+✔ Glow 880: native layout, persistence, Work and reduced motion (2953.35475ms)
+✔ Glow 1440: native layout, persistence, Work and reduced motion (3071.40125ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18682.33675

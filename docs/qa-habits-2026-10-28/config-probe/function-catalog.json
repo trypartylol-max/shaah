@@ -1,0 +1,62 @@
+[
+  {
+    "nspname": "public",
+    "proname": "shaah_cfg_87e99cfaa044a0b9_restore_settings_v1",
+    "prosecdef": false,
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "anon_execute": false,
+    "authenticated_execute": true
+  },
+  {
+    "nspname": "public",
+    "proname": "shaah_cfg_87e99cfaa044a0b9_save_settings_v1",
+    "prosecdef": false,
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "anon_execute": false,
+    "authenticated_execute": true
+  },
+  {
+    "nspname": "public",
+    "proname": "shaah_cfg_87e99cfaa044a0b9_settings_backup_v1",
+    "prosecdef": false,
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "anon_execute": false,
+    "authenticated_execute": true
+  },
+  {
+    "nspname": "shaah_cfg_87e99cfaa044a0b9_private",
+    "proname": "restore_settings_v1",
+    "prosecdef": true,
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "anon_execute": false,
+    "authenticated_execute": true
+  },
+  {
+    "nspname": "shaah_cfg_87e99cfaa044a0b9_private",
+    "proname": "save_settings_v1",
+    "prosecdef": true,
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "anon_execute": false,
+    "authenticated_execute": true
+  },
+  {
+    "nspname": "shaah_cfg_87e99cfaa044a0b9_private",
+    "proname": "settings_backup_v1",
+    "prosecdef": true,
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "anon_execute": false,
+    "authenticated_execute": true
+  }
+]

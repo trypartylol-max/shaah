@@ -1,0 +1,10 @@
+✔ habit level selector under CSP at 390px preserves history (1777.296042ms)
+✔ habit level selector under CSP at 1440px preserves history (872.435916ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3084.142333

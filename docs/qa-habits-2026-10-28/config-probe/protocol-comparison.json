@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "checkedFunctionBodies": 6,
+  "existingTableRLS": true,
+  "freshNamespaceAbsent": true
+}

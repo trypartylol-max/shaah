@@ -1,0 +1,15 @@
+{
+  "status": "validated_pending_release_authorization",
+  "baseCommit": "9d4de5bd66492bba55b834d8404c03490bbd3db8",
+  "localApplicationCommit": "4709f86d9b2e1d2c95fa25868b7e576ef415d7a8",
+  "chromiumPassed": 380,
+  "webkitPassed": 23,
+  "failed": 0,
+  "skipped": 0,
+  "candidateHtmlSha256": "b25f6eb684c0db00a20e1105d05c54b61cebba25d80e086998d07cd0ff776b71",
+  "archive": ".runtime/release-candidate/candidate-4709f86d9b2e1d2c95fa25868b7e576ef415d7a8.tar",
+  "archiveSha256": "3bd3eb0d73dee5ce33daa3e44bb5c0a119b0d4f0a2404812419cd771cef3ff3d",
+  "draftPR": "https://github.com/trypartylol-max/shaah/pull/20",
+  "deployment": "not_performed",
+  "productionDataChanged": false
+}

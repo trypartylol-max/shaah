@@ -57,7 +57,7 @@ for(const width of [390,1440])test(`Aurora Work ${width}: native milestones pers
  const before=await past();
  for(const points of [10,20,25,0]){
    await page.evaluate(()=>setTab('today'));
-   await page.locator('.sf-work-next').click();
+   await page.locator('.wg-card').click();
    assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);
    await page.waitForFunction(()=>!_pending[todayKey()]);
  }

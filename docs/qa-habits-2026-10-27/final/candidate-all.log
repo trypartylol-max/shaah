@@ -1,0 +1,1082 @@
+✔ Aurora V2 320: navigation, CSP, data, appearance and focus (1932.748042ms)
+✔ Aurora V2 390: navigation, CSP, data, appearance and focus (1346.522709ms)
+✔ Aurora V2 879: navigation, CSP, data, appearance and focus (991.267042ms)
+✔ Aurora V2 880: navigation, CSP, data, appearance and focus (1072.046041ms)
+✔ Aurora V2 1440: navigation, CSP, data, appearance and focus (1783.468042ms)
+✔ Aurora: cross-tab skin restore preserves native navigation and mobile night layout (786.755167ms)
+✔ Aurora Work 390: native milestones persist and leave historical scores unchanged (1941.251791ms)
+✔ Aurora Work 1440: native milestones persist and leave historical scores unchanged (1988.169334ms)
+✔ Aurora preserves the latest OG People / Groups switch without changing data (761.590666ms)
+✔ classic/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1598.500292ms)
+✔ classic/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (2114.550209ms)
+✔ matrix/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1410.504417ms)
+✔ matrix/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1482.100958ms)
+✔ minimal/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1143.243666ms)
+✔ minimal/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1191.426209ms)
+✔ aurora/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1181.928542ms)
+✔ aurora/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1056.313416ms)
+✔ rapid three-state changes persist the final state without replacing Today or losing scroll (1139.829583ms)
+✔ a failed save keeps the checked state and draft locally, then retries through the existing queue (1483.584083ms)
+✔ Social checkboxes and people update within the same screen and keep their score consistent (1572.151667ms)
+✔ editing a historical day and checking a level preserves that screen and other days (1125.534916ms)
+✔ setHabitState: a repaint cannot turn the same click into a parent Clear action (13.629ms)
+✔ startRoutine: a repaint cannot turn the same click into a parent Clear action (2.763625ms)
+✖ Core Routines is plain text with independent cards; responsive controls and state are preserved (1670.002958ms)
+✔ strict CSP permits bulk membership and Unicode contact editing without changing history (1667.15575ms)
+✔ strict CSP preserves separate Work/Vacation editor values and score history (787.249125ms)
+✔ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (788.312292ms)
+✔ strict CSP keeps Original login control usable without real Auth requests (348.650708ms)
+✔ strict CSP permits activity create, edit and delete without changing older history (902.256334ms)
+✔ strict CSP preserves routine step editors, timer controls and discard confirmation (1403.96375ms)
+✔ application templates contain no event attributes or text-to-code evaluator (1.228792ms)
+✔ registered actions require matching event types, exact arity and typed allowed values (10.557083ms)
+✔ inherited and unregistered names cannot become UI actions (3.291792ms)
+✔ disabled and inert controls do not invoke actions (1.991292ms)
+✔ a child action that stopped propagation does not also activate its parent (1.89725ms)
+✔ form actions preserve input values, Unicode IDs and checked-state types (1.878084ms)
+✔ field selectors and score-state values cannot widen beyond their registered choices (2.956583ms)
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (1039.977583ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (1358.764625ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (1179.051959ms)
+✔ all skins and main screens remain usable under the strict style policy (2218.236208ms)
+✔ classic/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector (6450.915417ms)
+✔ classic/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector (5513.378333ms)
+✔ matrix/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector (4571.170333ms)
+✔ matrix/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector (4945.451583ms)
+✔ minimal/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector (4447.727542ms)
+✔ minimal/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new level selector (4822.920875ms)
+✔ style descriptors accept only registered presentation properties and freeze declarations (28.350208ms)
+✔ style registration returns only opaque keys and reuses identical declarations (5.539208ms)
+✔ rendered application templates carry style registry keys instead of CSS attributes (113.34375ms)
+✔ Glow 320: native layout, persistence, Work and reduced motion (3699.675708ms)
+✔ Glow 390: native layout, persistence, Work and reduced motion (2618.46575ms)
+✔ Glow 600: native layout, persistence, Work and reduced motion (2349.997917ms)
+✔ Glow 879: native layout, persistence, Work and reduced motion (2478.503542ms)
+✔ Glow 880: native layout, persistence, Work and reduced motion (2541.714542ms)
+✔ Glow 1440: native layout, persistence, Work and reduced motion (2575.847042ms)
+✔ habit levels: classic 320px keyboard, history, future era and reload (1681.136583ms)
+✔ habit levels: classic 390px keyboard, history, future era and reload (1081.7335ms)
+✔ habit levels: classic 879px keyboard, history, future era and reload (1063.90975ms)
+✔ habit levels: classic 880px keyboard, history, future era and reload (1137.753584ms)
+✔ habit levels: classic 1440px keyboard, history, future era and reload (1210.264958ms)
+✔ habit levels: aurora 320px keyboard, history, future era and reload (2391.355375ms)
+✔ habit levels: aurora 390px keyboard, history, future era and reload (1956.217334ms)
+✔ habit levels: aurora 879px keyboard, history, future era and reload (1820.300709ms)
+✔ habit levels: aurora 880px keyboard, history, future era and reload (1261.269167ms)
+✔ habit levels: aurora 1440px keyboard, history, future era and reload (1277.631375ms)
+✔ habit level: failed save survives refresh then retries without changing historical/future eras (778.569875ms)
+✔ habit level: two sessions conflict without losing either choice, then explicit resolution (1409.527583ms)
+✔ Stats shows dated eligible denominators and fractional completion (600.58425ms)
+✔ level change preserves identity, all day records, past and future eras (32.482042ms)
+✔ loading, conflict and ambiguous timelines reject edits without mutation (5.824333ms)
+✔ weekly rates use dated eligibility, fractional completion and normalized scores (2.775583ms)
+✔ unsorted future era is retained; failed edit rolls back; invalid calendar date rejects (2.56ms)
+✔ weekly review handles dated pause/add/reweight, zero max and mode changes without mutating history (9.82675ms)
+✔ blocked config edit never queues a settings write and preserves account-owned drafts (2.682417ms)
+✔ History cards never overlap at 390px (2840.638209ms)
+✔ History cards never overlap at 879px (2266.799125ms)
+✔ History cards never overlap at 880px (2381.403417ms)
+✔ History cards never overlap at 1440px (2398.70125ms)
+✔ decoded HTTP 409 / PT409 rereads the revision and preserves independent edits and historical points (55.266916ms)
+✔ persistent HTTP 409 stops after four attempts and the saved draft can recover after reload (9.986875ms)
+✔ HTTP 409 followed by a same-field conflict retains both versions for explicit resolution (3.638541ms)
+✔ an unrelated HTTP 500 does not enter the conflict retry loop or fall back to direct writes (3.704167ms)
+✖ desktop: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (11967.157667ms)
+✖ mobile: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (10600.020084ms)
+✖ bulk search filters while typing, retains keyboard focus, and clears stale selections (10701.574125ms)
+✖ Unassigned, Active, Inactive and All people filters reset bulk selection (10788.73575ms)
+✖ WHO TO SEE and Social suggestions follow the location without changing recorded scores (691.312459ms)
+✖ an empty WHO TO SEE retains a working selector to recover recommendations (646.933875ms)
+✖ creation and rename dialogs preserve selected-location metadata across reload (10655.646833ms)
+✖ stale selected groups and deleted memberships remain accessible after full startup (717.405416ms)
+✖ contacts with an orphan Social category retain individual location editing (10619.198792ms)
+✔ legacy contacts without location/status fields are active and visible in every location (12.4425ms)
+✔ WHO TO SEE filters active contacts by location, retaining unassigned contacts (21.176167ms)
+✔ individual location toggles preserve all other memberships and reject unknown groups (2.292458ms)
+✔ bulk add is additive, deduplicates memberships and clears its selection (2.09375ms)
+✔ bulk remove removes only the requested membership from selected contacts (2.489ms)
+✔ bulk apply rejects unknown locations/actions and rechecks current filter eligibility (2.018167ms)
+✔ direct management keeps every contact available; bulk Unassigned remains independent (2.053916ms)
+✔ changing settings status, scope or search clears bulk selection (1.863875ms)
+✔ bulk search is case-insensitive and selects only matching contacts (2.695084ms)
+✔ inactive contacts stay excluded in every location and can be reactivated (2.482083ms)
+✔ switching location, memberships and inactive flags preserves all dated records and scores (4.449083ms)
+✔ explicitly recording an inactive/away contact still earns work Social points (3.369375ms)
+✔ explicitly recording an inactive/away contact still earns vacation Social points (2.967875ms)
+✔ Social auto-tagging ignores inactive/away suggestions, but deselecting a part clears all its tags (2.840834ms)
+✔ an empty recommendation list still renders a usable location selector (2.599417ms)
+✔ settings cache and server-row loading retain location groups, memberships and inactive status (3.196959ms)
+✔ a deleted/invalid persisted selected group falls back to All without rewriting contacts (1.854459ms)
+✔ dangling location IDs behave as Unassigned without deleting the stored IDs (2.484792ms)
+✔ people-only import keeps location/status metadata and does not overwrite existing contacts/history (2.752584ms)
+✔ 320px: Family filters recommendations only, with fixed toolbar and unchanged Location (1559.459458ms)
+✔ 390px: Family filters recommendations only, with fixed toolbar and unchanged Location (924.043875ms)
+✔ 1440px: Family filters recommendations only, with fixed toolbar and unchanged Location (969.490125ms)
+✔ mobile: Matrix icons cover navigation and content, preserve names and restore other skins (1746.561625ms)
+✔ desktop: Matrix icons cover navigation and content, preserve names and restore other skins (1324.212708ms)
+✔ dynamic custom icons remain safe text and editable fields retain their values and focus (637.124ms)
+✖ Matrix keeps rendered controls and result charts within its green and neutral palette (912.022083ms)
+✔ Matrix decorations preserve mobile hit targets and disappear or stop with reduced motion and other skins (1425.312792ms)
+✔ all five dock tabs exist in the same order before a delayed SDK finishes loading (618.2225ms)
+✔ shared-device removal signs out locally, clears only that account and leaves synthetic online rows unchanged (1197.348041ms)
+✔ pending drafts prevent shared-device removal without signing out or losing the draft (623.4955ms)
+✔ sign-out failure keeps the app session and displays a safe retry message (663.5085ms)
+✔ account editors pause while sign-out waits and become usable again after a failure (631.7415ms)
+✔ older unlinked activity stays out of the account and can be downloaded for recovery (782.317125ms)
+✔ Original static Pages runs navigation and skins under the stricter script-element CSP (974.992458ms)
+✔ explicit removal clears only the signed-out account copies, preserving other accounts, recovery and skin (11.36425ms)
+✔ ordinary sign out keeps recovery copies and uses only the current session scope (2.421833ms)
+✔ logout notices accept only their explicit fixed message codes (2.06225ms)
+✔ removal is blocked before Auth for offline day writes (1.944125ms)
+✔ removal is blocked before Auth for settings draft (2.472875ms)
+✔ removal is blocked before Auth for active routine (1.822625ms)
+✔ removal is blocked before Auth for malformed recovery record (1.765917ms)
+✔ an in-memory pending edit blocks removal even before it reaches storage (1.784417ms)
+✔ a live routine blocks removal even when browser storage could not retain its copy (1.823166ms)
+✔ cancelling removal leaves the session and all saved copies intact (2.508542ms)
+✔ a failed sign-out does not erase local copies or falsely report success (1.907583ms)
+✔ a late A sign-out acknowledgement cannot clear or reload the newer B session (2.022333ms)
+✔ edits arriving while sign-out waits are retained instead of being cleared (1.968917ms)
+✔ storage removal failure is surfaced without claiming that account copies were cleared (2.016209ms)
+✔ new Day Log copies are isolated by account and anonymous writes create no shared copy (2.077417ms)
+✔ unowned legacy Day Log data stays available for recovery without being assigned to A or B (1.801208ms)
+✔ a scoped Day Log cache cannot resurrect an explicitly empty saved activity list (1.72025ms)
+Verified 67 historical days across 3 production accounts using local backup only.
+✔ romantic capacity uses the configured original category label (9.288291ms)
+✔ promotion retains production authentication, persistence and scoring implementations (26.133875ms)
+✔ production backup accounts retain historical scores, IDs, categories and day records (57.773458ms)
+✔ classic: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (1667.791292ms)
+✔ matrix: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (1207.672916ms)
+✔ minimal: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (1190.506875ms)
+✔ a real remote change refreshes Today without restarting its entrance animation or sending writes (605.302375ms)
+✔ background visibility changes coalesce remote updates into one repaint on return (549.434417ms)
+✔ Realtime backup events do not repaint the active page or change daily history (11.905167ms)
+✔ Repeated identical day and settings echoes do not repaint Today (13.099458ms)
+✔ A real remote day change repaints once and duplicate deliveries preserve the same state (2.790583ms)
+✔ A real remote settings change repaints once and preserves scoring history (23.419667ms)
+✔ Remote deletion repaints only when it removes a visible own day (2.611375ms)
+✔ Opaque deletes that remove no own day do not repaint (2.848125ms)
+✔ An identical row received during a stale DELETE read remains protected without repainting (2.608625ms)
+✔ A pending local day edit is preserved without a repaint from its remote echo (2.908583ms)
+✔ A queued offline day edit is preserved when another device deletes the server row (2.361333ms)
+✔ A hidden page receives the latest data and defers repainting until it is visible (2.529167ms)
+✔ login handles query text as readable text and still boots (818.337917ms)
+✔ login handles hash text as readable text and still boots (355.909834ms)
+✔ login handles incomplete percent as readable text and still boots (478.428666ms)
+✔ login handles encoded percent as readable text and still boots (403.737708ms)
+✖ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (776.123ms)
+✖ people import displays ordinary markup as text and keeps the imported identifier editable (10654.819833ms)
+✖ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (994.939542ms)
+✖ malformed stored routine definitions do not break startup or rewrite metadata (676.37675ms)
+✔ adopting valid settings without a currently open routine keeps the app usable and its saved session (573.661083ms)
+✔ the pinned SDK has matching SRI, anonymous CORS and an explicit static version URL (3.920458ms)
+✔ import rejects null habit map before backups, confirmation, state changes or queued writes (10.55675ms)
+✔ import rejects wrong contact type before backups, confirmation, state changes or queued writes (3.159125ms)
+✔ import rejects wrong membership type before backups, confirmation, state changes or queued writes (2.888542ms)
+✔ import rejects wrong status type before backups, confirmation, state changes or queued writes (2.220542ms)
+✔ import rejects invalid day after valid contacts before backups, confirmation, state changes or queued writes (2.092083ms)
+✔ import rejects reserved object keys before backups, confirmation, state changes or queued writes (2.070375ms)
+✔ import rejects empty root before backups, confirmation, state changes or queued writes (2.607083ms)
+✔ invalid routine styles reject the entire settings import without changing valid data (3.050667ms)
+✔ a missing routine definition is rejected before adopting settings or new days (2.534958ms)
+✔ valid full export imports keep historical scores, original IDs and new Day Log records (23.593084ms)
+✔ legacy people imports preserve punctuation and Unicode IDs without renaming historical references (2.376084ms)
+✔ older settings without timelines or per-mode prices remain importable (2.30025ms)
+✔ a delayed step callback leaves a removed routine session recoverable without recording completion (2.070833ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (1399.698583ms)
+✖ returning to A through the auth callback restores only A routine and A screen preferences (643.336459ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (547.776292ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (1087.066584ms)
+✔ switching accounts clears routine controls without copying A activity into B storage (32.07225ms)
+✔ forced sign-out stops routine timers and never creates or adopts anonymous routines (2.676209ms)
+✔ account changes reset derived configuration, dates, selections and editors before loading B (2.6155ms)
+✔ returning to A restores its own saved routine while B restores only its own preferences (3.580458ms)
+✔ same-account token refresh preserves the routine, pending changes and current screen (3.16ms)
+✔ an already queued A timer cannot advance B, save B data, or cancel B newer timer (2.593042ms)
+✔ account switch preserves offline drafts, local recovery and other account copies byte for byte (2.413583ms)
+✔ identical routine IDs in two accounts still restore the correct account progress (2.69825ms)
+✔ a queued callback from an earlier A session remains invalid after returning from B to A (3.563958ms)
+✔ own realtime echo completes once and clears the pending draft (12.350584ms)
+✔ network failures keep the local draft for retry (2.672125ms)
+✔ a genuine conflicting edit is not overwritten (2.511375ms)
+✔ an already saved draft is acknowledged without another write (3.206458ms)
+✔ a genuine edit during an echo is preserved and saved once more (5.0975ms)
+✔ Today shortcut opens Social even when its navigation tab is hidden (2.267416ms)
+✖ mobile: compact settings list preserves editors, keyboard order, collapse state and synthetic data (11726.593083ms)
+✖ desktop: compact settings list preserves editors, keyboard order, collapse state and synthetic data (11514.795292ms)
+✔ an initially open Appearance section closes on the first click even without a stored flag (902.018791ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (2558.681916ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (1949.957375ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (996.51725ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (724.78075ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (607.924708ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (901.598167ms)
+✖ desktop: existing contacts render, can be tagged individually, and survive reload through the fake server (11167.365875ms)
+✖ mobile: existing contacts render, can be tagged individually, and survive reload through the fake server (10583.661375ms)
+✖ work: zero-point activity shows zero consistently in Social, Today and the calculated score (10647.599542ms)
+✖ vacation: zero-point activity shows zero consistently in Social, Today and the calculated score (10677.198666ms)
+✔ old unpriced historical Social parts render their dated Work/Vacation split (691.530833ms)
+✖ changing a contact category and name in Settings keeps its historical ID and recorded Social part (10529.979917ms)
+✔ Social header geometry and navigation at mobile and desktop widths (2229.551542ms)
+✔ single-category editor preserves configured Family points and contact identity (31.757291ms)
+✔ cancel and account changes discard drafts without changing saved contact metadata (3.038459ms)
+✔ contact edit preserves history and requires frequency for a new contact (2.550334ms)
+✖ Strangers respect location and mobile People & Groups remains reachable above the dock (11405.826083ms)
+✔ migration reactivates once with 180 days and keeps IDs, history and edited frequency (22.5385ms)
+✔ romantic capacity blocks only new assignments and permits editing existing excess contacts (11.737625ms)
+✔ focus filters Friends suggestions; combo keeps all contacts (4.68975ms)
+✔ Work phases earn 10,20,25; previous days keep original weights; Vacation stays off (9.513083ms)
+✔ Strangers suggestions respect memberships, retaining unassigned contacts without changing history (7.266166ms)
+✔ future era ordering/modes retained; invalid timelines fail without mutation (3.960208ms)
+✔ migration cannot write before authoritative load or during a settings conflict (2.00775ms)
+✔ all backed-up TEST accounts retain every historical score and day after migration (69.721458ms)
+✔ account-specific migration and pending config use only current owner (2.704167ms)
+✔ Social category controls expand people without inferring an encounter (2.757791ms)
+✔ settings edit today preserves sorted future transition and earlier scores (2.798792ms)
+✔ Settings renders rules and Work-specific fields in Vacation without UI errors (5.286459ms)
+✔ inline groups create, rename and cancel without prompts or rewriting memberships/history (2.757541ms)
+✔ Family and legacy family remain recommended across friend location focus with their own frequency (3.11125ms)
+✔ contact capsule drains to due, refills overdue, turns red after 40 percent and caps at double frequency (2.153458ms)
+✖ WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout (1389.598ms)
+✔ Social tabs follow order B and keep original category labels (34.033334ms)
+✔ two people in one category award its points once and preserve history (4.963917ms)
+✔ Today combo is compact and directory displays frequencies (4.070084ms)
+✔ location focus cannot hide people from encounter category selection (0.185708ms)
+✔ legacy optional-tab preference cannot hide Social or rewrite history (2.648416ms)
+✔ application JavaScript compiles (6.062ms)
+✔ legacy contacts load from cache without IDs, names, category or frequency changes (8.662416ms)
+✔ a settings row preserves existing contacts and its historical timeline (2.755458ms)
+✔ server day rows preserve people, fractional checks, Social, note and Day Log (1.919625ms)
+✔ tagging an existing contact checks its Social part and scores it only once (22.248208ms)
+✔ untagging a person preserves the selected Social activity and the rest of the day (3.489542ms)
+✔ a sole contact is auto-tagged for its Social part; multiple contacts require a choice (2.728667ms)
+✔ editing contact metadata does not rewrite historical days, config eras or scores (3.070083ms)
+✔ deleting a contact keeps previously logged IDs, Social flags and points (2.329834ms)
+✔ orphan recovery preserves the original ID and every historical row (3.052625ms)
+✔ WHO TO SEE orders never-seen contacts first and uses the latest visit (3.034ms)
+✔ 2026-09-07: dated work points, maximum, percentage and grade (2.276625ms)
+✔ 2026-09-08: dated vacation points, maximum, percentage and grade (2.147584ms)
+✔ 2026-09-15: dated vacation points, maximum, percentage and grade (2.099542ms)
+✔ 2026-09-16: dated vacation points, maximum, percentage and grade (2.088625ms)
+✔ 2026-09-17: dated vacation points, maximum, percentage and grade (2.102167ms)
+✔ 2026-09-18: dated vacation points, maximum, percentage and grade (2.027125ms)
+✔ 2026-10-08: dated work points, maximum, percentage and grade (2.019667ms)
+✔ Work → Vacation → Work changes today without changing historical Social scores (6.3045ms)
+✔ editing Vacation points while live mode is Work preserves Work points and old days (4.158542ms)
+✔ editing Work points while live mode is Vacation preserves Vacation points and old days (2.639708ms)
+✔ legacy parts with no price inherit the work combo split, without mutation (2.101375ms)
+✔ legacy parts with no price inherit the vacation combo split, without mutation (1.957042ms)
+✔ explicit legacy zero and mode-specific values are preserved by fallback (1.750541ms)
+✔ a historical zero-point work activity retains zero without changing its saved row (2.035334ms)
+✔ selecting a zero-point part earns zero, rather than the whole work combo (11.673167ms)
+✔ a historical zero-point vacation activity retains zero without changing its saved row (3.127167ms)
+✔ selecting a zero-point part earns zero, rather than the whole vacation combo (10.484666ms)
+✔ a legacy combo check with no selected active part still grants the whole combo (2.130792ms)
+✔ pausing a Social part changes today, preserving historical points and contact IDs (2.605167ms)
+✔ a zero Social maximum produces zero points and a finite normalized percentage (2.288834ms)
+✔ persistDay serializes synthetic contact and Social changes through a fake server only (2.559583ms)
+✔ classic/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (1448.880542ms)
+✔ classic/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (841.857917ms)
+✔ matrix/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (855.29075ms)
+✔ matrix/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (860.207125ms)
+✔ minimal/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (849.171333ms)
+✔ minimal/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (868.393833ms)
+✔ real remote day changes preserve the screen and update a clean note without sending writes (727.519792ms)
+✔ habit and score feedback is immediate and uses short motion without moving the whole page (582.981375ms)
+✔ an acknowledgement filling absent people defaults is not a visible day change (10.129583ms)
+✔ an acknowledgement filling absent _daylog defaults is not a visible day change (2.079208ms)
+✔ an acknowledgement filling absent both defaults is not a visible day change (1.843459ms)
+✔ a genuinely new empty day remains a real change (1.75025ms)
+✖ matrix: real incoming changes keep the screen and clean/dirty notes consistent (1129.595417ms)
+✖ minimal: real incoming changes keep the screen and clean/dirty notes consistent (595.637375ms)
+✔ auth verifies the configured identity before exposing a session to QA app contexts (1.006625ms)
+✔ a different authenticated identity aborts without reading or seeding table rows (0.433167ms)
+✔ table accessibility and returned ownership are checked rather than assumed from a 200 response (0.260416ms)
+✔ network errors are reported as a fixed code without echoing credentials (0.175666ms)
+✔ QA configuration defaults only to the explicitly authorized project (1.148167ms)
+✔ missing credentials stop execution without substituting embedded production values (0.711584ms)
+✔ reject a project URL outside the QA allowlist: llpyxktcfubhmthqujpa.supabase.co (0.339209ms)
+✔ reject a project URL outside the QA allowlist: other.supabase.co (0.085666ms)
+✔ reject a project URL outside the QA allowlist: kpnwiwaiwnndpvtxkvva.supabase.co (0.087625ms)
+✔ reject a mismatched reference and reject duplicate test identities (0.172166ms)
+✔ accept public QA keys; reject service-role, secret and another project keys (0.380333ms)
+✔ Node HTTP guard rejects production, spoofed hosts, credentials, non-HTTPS and admin endpoints before fetch (0.481167ms)
+✔ Node HTTP guard forbids redirects even if the caller requests following them (0.247291ms)
+✔ WebSocket guard accepts only the QA Realtime endpoint (0.22575ms)
+✖ temporary QA HTML changes endpoint/key/SDK locally without mutating source (6.2885ms)
+✔ browser routes abort forbidden HTTP, redirects and WebSockets before forwarding (0.600666ms)
+✔ browser transport failures are counted without surfacing request secrets (0.19575ms)
+✔ public preflight never requests existing rows and redacts key and Auth response fields (17.590792ms)
+✔ public preflight refuses privileged keys before any network request (0.394083ms)
+✔ public preflight does not certify anonymous table access or invalid gateway keys (0.629709ms)
+✔ Chromium loads the actual local SDK and blocks production HTTP/WS before forwarding (804.465583ms)
+✔ QA bridge forwards real protocol frames without exposing payloads in audit (1.4505ms)
+✔ QA bridge refuses other destinations and offline connections before creating a socket (0.268625ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (1942.569625ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (655.975125ms)
+✔ legacy HTTP 500 / SQLSTATE 40001 retries the revision read and preserves both writers without upsert (14.30675ms)
+✔ opaque DELETE reconciliation removes only absent own days and preserves pending/offline edits (3.063125ms)
+✔ opaque DELETE reconciliation cannot erase a row received after its SELECT began (3.294834ms)
+✔ opaque DELETE reconciliation ignores an account change while its SELECT is pending (3.117708ms)
+✔ opaque DELETE reconciliation preserves state if the RLS read fails (2.658833ms)
+✔ Realtime routes an id-only DELETE through the own-row check and ignores another explicit owner (3.47475ms)
+✔ offline A data never restores or replays under B and remains available for A (22.916834ms)
+✔ a delayed A write is not submitted as B after switching accounts (2.887667ms)
+✔ unowned legacy queue is preserved without restoring or submitting it (2.502375ms)
+✔ concurrent edits to different contacts preserve both settings changes (6.921ms)
+✔ a true field conflict preserves server value and retains the local draft across reload (9.155459ms)
+✔ settings CAS retries when another writer changes the row after the read (7.003209ms)
+✔ merging memberships and different contact fields preserves historical configuration and points (8.164542ms)
+✔ a failed in-flight A request keeps its A payload after B signs in (3.082416ms)
+✔ an edit made during offline replay is not removed by the older acknowledgement (3.204625ms)
+✔ returning to A before its old acknowledgement cannot erase A newer persisted queue (3.4585ms)
+✔ late account A load cannot populate B state or enable B config writes (2.886708ms)
+✔ queued config writes stay with A across an account switch (4.38775ms)
+✔ Realtime rejects other-owner DELETE/UPDATE and callbacks from a prior account (3.927042ms)
+✔ signed-in live Work/Vacation preference is scoped to its account (2.706958ms)
+✔ network failures retain the config draft and retry succeeds without losing it (3.451666ms)
+✔ concurrent contact deletion and modification reports a conflict instead of guessing (5.770208ms)
+✔ settings edited before the first server read survive reconnect and merge safely (4.530708ms)
+✔ an account without a settings row can create its first configuration without upsert overwrites (2.657375ms)
+✔ legacy day-only accounts keep their day rows when the first settings row is created (10.558833ms)
+✔ an unavailable revision protocol keeps drafts and never falls back to a legacy settings write (3.163584ms)
+✔ a malformed server acknowledgement cannot discard a pending settings draft (3.014458ms)
+✔ revision CAS detects an intervening write even when data returns to its previous value (9.105625ms)
+✔ denied settings RPC preserves local edits without issuing direct fallback mutations (3.049458ms)
+✔ a token switch between read and RPC cannot submit an A settings draft as B (3.635875ms)
+✔ desktop Production/WOD are readable and closed levels are header-sized (5641.800917ms)
+✔ Today disclosures shrink, reopen and survive Settings in both appearances (66913.040042ms)
+✔ approved Work amounts fit desktop/mobile and retain milestone persistence (1838.915542ms)
+✔ one Work control cycles 400/650/800 with cumulative 10/20/25 then resets to zero on the fourth tap (41.85725ms)
+✔ legacy partial Work remains until explicit advance; Vacation cannot advance (4.290333ms)
+✔ custom Work milestones apply from today, preserve past scores and retain the four-tap cycle (8.866583ms)
+✔ weekly cash uses Sunday–Saturday, one highest milestone per day and dated amounts (8.660959ms)
+ℹ tests 352
+ℹ suites 0
+ℹ pass 324
+ℹ fail 28
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 427991.647292
+
+✖ failing tests:
+
+test at tests/core-unboxed-browser.test.cjs:6:1
+✖ Core Routines is plain text with independent cards; responsive controls and state are preserved (1670.002958ms)
+  AssertionError [ERR_ASSERTION]: unrelated cards keep style and dimensions
+  + actual - expected
+  
+    {
+      bg: 'rgb(13, 13, 25)',
+      border: '1px',
+  +   h: 148.375,
+  -   h: 146.96875,
+      pad: '14px',
+      shadow: 'none',
+      w: 288,
+      x: 16,
+      y: 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/core-unboxed-browser.test.cjs:29:49)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { bg: 'rgb(13, 13, 25)', border: '1px', pad: '14px', shadow: 'none', x: 16, y: 0, w: 288, h: 148.375 },
+    expected: { bg: 'rgb(13, 13, 25)', border: '1px', pad: '14px', shadow: 'none', x: 16, y: 0, w: 288, h: 146.96875 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:13:3
+✖ desktop: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (11967.157667ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold01\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:18:35) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold01\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:13:3
+✖ mobile: bulk/individual memberships, removal, inactive/reactivation and reload preserve history (10600.020084ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold01\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:18:35) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold01\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:52:1
+✖ bulk search filters while typing, retains keyboard focus, and clears stale selections (10701.574125ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold01\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:55:33) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold01\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold01"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:68:1
+✖ Unassigned, Active, Inactive and All people filters reset bulk selection (10788.73575ms)
+  locator.check: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\"pold02\\"]"]')[22m
+  [2m    - locator resolved to <input type="checkbox" data-ui-change-args="["pold02"]" data-ui-change="bulkPeopleToggle"/>[22m
+  [2m  - attempting click action[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be visible, enabled and stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying click action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be visible, enabled and stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying click action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:71:33) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="bulkPeopleToggle"][data-ui-change-args="[\\\\"pold02\\\\"]"]')`, '    - locator resolved to <input type="checkbox" data-ui-change-args="["pold02"]" data-ui-change="bulkPeopleToggle"/>', '  - attempting click action', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '    - waiting 20ms', '    2 × waiting for element to be visible, enabled and stable', '      - element is not visible', '    - retrying click action', '      - waiting 100ms', '    19 × waiting for element to be visible, enabled and stable', '       - element is not visible', '     - retrying click action', '       - waiting 500ms' ]
+  }
+
+test at tests/location-browser.test.cjs:86:1
+✖ WHO TO SEE and Social suggestions follow the location without changing recorded scores (691.312459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'Alex Existing',
+      'Ana Existing',
+  +   'Inactive Person',
+      'Legacy Person',
+      'Luis Existing',
+  +   'Orphan Person'
+    ]
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:89:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Alex Existing', 'Ana Existing', 'Inactive Person', 'Legacy Person', 'Luis Existing', 'Orphan Person' ],
+    expected: [ 'Alex Existing', 'Ana Existing', 'Legacy Person', 'Luis Existing' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:103:1
+✖ an empty WHO TO SEE retains a working selector to recover recommendations (646.933875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  3 !== 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:108:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 3,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:113:1
+✖ creation and rename dialogs preserve selected-location metadata across reload (10655.646833ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: '+ ADD LOCATION', exact: true })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:118:75) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: '+ ADD LOCATION', exact: true })" ]
+  }
+
+test at tests/location-browser.test.cjs:139:1
+✖ stale selected groups and deleted memberships remain accessible after full startup (717.405416ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  7 !== 5
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:146:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 7,
+    expected: 5,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/location-browser.test.cjs:152:1
+✖ contacts with an orphan Social category retain individual location editing (10619.198792ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: 'Inactive', exact: true })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/location-browser.test.cjs:158:69) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: 'Inactive', exact: true })" ]
+  }
+
+test at tests/matrix-icons-browser.test.cjs:77:1
+✖ Matrix keeps rendered controls and result charts within its green and neutral palette (912.022083ms)
+  AssertionError [ERR_ASSERTION]: today
+  + actual - expected
+  
+  + [
+  +   {
+  +     class: 'sf-core-icon',
+  +     color: 'rgb(22, 22, 38)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'DIV'
+  +   },
+  +   {
+  +     class: 'sf-core-icon',
+  +     color: 'rgb(22, 22, 38)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'DIV'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderTopColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(52, 52, 74)',
+  +     id: '',
+  +     property: 'borderBottomColor',
+  +     tag: 'BUTTON'
+  +   },
+  +   {
+  +     class: 'sf-button',
+  +     color: 'rgb(23, 23, 37)',
+  +     id: '',
+  +     property: 'backgroundColor',
+  +     tag: 'BUTTON'
+  +   }
+  + ]
+  - []
+  
+      at check (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/matrix-icons-browser.test.cjs:101:12)
+      at async TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/matrix-icons-browser.test.cjs:105:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { tag: 'DIV', id: '', class: 'sf-core-icon', property: 'borderTopColor', color: 'rgb(22, 22, 38)' }, { tag: 'DIV', id: '', class: 'sf-core-icon', property: 'borderBottomColor', color: 'rgb(22, 22, 38)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderTopColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'borderBottomColor', color: 'rgb(52, 52, 74)' }, { tag: 'BUTTON', id: '', class: 'sf-button', property: 'backgroundColor', color: 'rgb(23, 23, 37)' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/security-browser.test.cjs:22:1
+✖ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (776.123ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(index >= 0)
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/security-browser.test.cjs:34:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/security-browser.test.cjs:55:1
+✖ people import displays ordinary markup as text and keeps the imported identifier editable (10654.819833ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="personSet"]').filter({ visible: true }).last()[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/security-browser.test.cjs:65:27) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="personSet"]').filter({ visible: true }).last()` ]
+  }
+
+test at tests/security-browser.test.cjs:70:1
+✖ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (994.939542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '#e2e2e2'
+  - '#9090aa'
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/security-browser.test.cjs:82:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '#e2e2e2',
+    expected: '#9090aa',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/security-browser.test.cjs:108:1
+✖ malformed stored routine definitions do not break startup or rewrite metadata (676.37675ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '{"work":{"label":"Work","icon":"💼","col":"#e2e2e2","steps":[{"id":"w400","label":"₪400 · +10 pts","dur":1},{"id":"w650","label":"₪650 · +10 pts","dur":1},{"id":"w800","label":"₪800+ · +5 pts","dur":1}]},"empty":{"steps":{}},"invalid":{"steps":[null]}}'
+  - '{"work":null,"empty":{"steps":{}},"invalid":{"steps":[null]}}'
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/security-browser.test.cjs:116:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '{"work":{"label":"Work","icon":"💼","col":"#e2e2e2","steps":[{"id":"w400","label":"₪400 · +10 pts","dur":1},{"id":"w650","label":"₪650 · +10 pts","dur":1},{"id":"w800","label":"₪800+ · +5 pts","dur":1}]},"empty":{"steps":{}},"invalid":{"steps":[null]}}',
+    expected: '{"work":null,"empty":{"steps":{}},"invalid":{"steps":[null]}}',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/session-isolation-browser.test.cjs:40:1
+✖ returning to A through the auth callback restores only A routine and A screen preferences (643.336459ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/session-isolation-browser.test.cjs:53:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/settings-list-browser.test.cjs:12:3
+✖ mobile: compact settings list preserves editors, keyboard order, collapse state and synthetic data (11726.593083ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: 'People', exact: true })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/settings-list-browser.test.cjs:47:69) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: 'People', exact: true })" ]
+  }
+
+test at tests/settings-list-browser.test.cjs:12:3
+✖ desktop: compact settings list preserves editors, keyboard order, collapse state and synthetic data (11514.795292ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: 'People', exact: true })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/settings-list-browser.test.cjs:47:69) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: 'People', exact: true })" ]
+  }
+
+test at tests/social-browser.test.cjs:10:3
+✖ desktop: existing contacts render, can be tagged individually, and survive reload through the fake server (11167.365875ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-browser.test.cjs:14:66) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })" ]
+  }
+
+test at tests/social-browser.test.cjs:10:3
+✖ mobile: existing contacts render, can be tagged individually, and survive reload through the fake server (10583.661375ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-browser.test.cjs:14:66) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })" ]
+  }
+
+test at tests/social-browser.test.cjs:31:3
+✖ work: zero-point activity shows zero consistently in Social, Today and the calculated score (10647.599542ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-browser.test.cjs:36:68) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })" ]
+  }
+
+test at tests/social-browser.test.cjs:31:3
+✖ vacation: zero-point activity shows zero consistently in Social, Today and the calculated score (10677.198666ms)
+  locator.click: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-browser.test.cjs:36:68) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Strangers' })" ]
+  }
+
+test at tests/social-browser.test.cjs:57:1
+✖ changing a contact category and name in Settings keeps its historical ID and recorded Social part (10529.979917ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="personSet"][data-ui-change-args="[\\"pold03\\",\\"name\\"]"]')[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-browser.test.cjs:62:14) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="personSet"][data-ui-change-args="[\\\\"pold03\\\\",\\\\"name\\\\"]"]')` ]
+  }
+
+test at tests/social-location-access-browser.test.cjs:6:1
+✖ Strangers respect location and mobile People & Groups remains reachable above the dock (11405.826083ms)
+  locator.scrollIntoViewIfNeeded: Timeout 9996.406ms exceeded.
+  Call log:
+  [2m  - attempting scroll into view action[22m
+  [2m    2 × waiting for element to be stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying scroll into view action[22m
+  [2m    - waiting 20ms[22m
+  [2m    2 × waiting for element to be stable[22m
+  [2m      - element is not visible[22m
+  [2m    - retrying scroll into view action[22m
+  [2m      - waiting 100ms[22m
+  [2m    19 × waiting for element to be stable[22m
+  [2m       - element is not visible[22m
+  [2m     - retrying scroll into view action[22m
+  [2m       - waiting 500ms[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-location-access-browser.test.cjs:26:39) {
+    name: 'TimeoutError',
+    log: [ '  - attempting scroll into view action', '    2 × waiting for element to be stable', '      - element is not visible', '    - retrying scroll into view action', '    - waiting 20ms', '    2 × waiting for element to be stable', '      - element is not visible', '    - retrying scroll into view action', '      - waiting 100ms', '    19 × waiting for element to be stable', '       - element is not visible', '     - retrying scroll into view action', '       - waiting 500ms' ]
+  }
+
+test at tests/social-mobile-layout-browser.test.cjs:6:1
+✖ WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout (1389.598ms)
+  AssertionError [ERR_ASSERTION]: desktop unchanged at 601px
+  + actual - expected
+  
+    [
+      {
+        card: {
+  +       bottom: 227,
+  -       bottom: 276,
+          height: 58,
+          left: 27,
+          right: 574,
+  +       top: 169,
+  -       top: 218,
+          width: 547,
+          x: 27,
+  +       y: 169
+  -       y: 218
+        },
+        edit: {
+          h: 38,
+          w: 32,
+          x: 542,
+  +       y: 179
+  -       y: 228
+        },
+        fill: 0,
+        icon: {
+          h: 21,
+          w: 20,
+          x: 30,
+  +       y: 187.5
+  -       y: 236.5
+        },
+        name: {
+          h: 21,
+          w: 385,
+          x: 59,
+  +       y: 177.25
+  -       y: 226.25
+        },
+        pill: {
+          h: 29,
+          w: 76,
+          x: 453,
+  +       y: 183.5
+  -       y: 232.5
+        },
+        when: 'block'
+      },
+      {
+        card: {
+  +       bottom: 291,
+  -       bottom: 340,
+          height: 58,
+          left: 27,
+          right: 574,
+  +       top: 233,
+  -       top: 282,
+          width: 547,
+          x: 27,
+  +       y: 233
+  -       y: 282
+        },
+        edit: {
+          h: 38,
+          w: 32,
+          x: 542,
+  +       y: 243
+  -       y: 292
+        },
+        fill: 0,
+        icon: {
+          h: 21,
+          w: 20,
+          x: 30,
+  +       y: 251.5
+  -       y: 300.5
+        },
+        name: {
+          h: 21,
+          w: 385,
+          x: 59,
+  +       y: 241.25
+  -       y: 290.25
+        },
+        pill: {
+          h: 29,
+          w: 76,
+          x: 453,
+  +       y: 247.5
+  -       y: 296.5
+        },
+        when: 'block'
+      },
+      {
+        card: {
+  +       bottom: 355,
+  -       bottom: 404,
+          height: 58,
+          left: 27,
+          right: 574,
+  +       top: 297,
+  -       top: 346,
+          width: 547,
+          x: 27,
+  +       y: 297
+  -       y: 346
+        },
+        edit: {
+          h: 38,
+          w: 32,
+          x: 542,
+  +       y: 307
+  -       y: 356
+        },
+        fill: 0.9666385135135135,
+        icon: {
+          h: 21,
+          w: 20,
+          x: 30,
+  +       y: 315.5
+  -       y: 364.5
+        },
+        name: {
+          h: 21,
+          w: 385,
+          x: 59,
+  +       y: 305.25
+  -       y: 354.25
+        },
+        pill: {
+          h: 29,
+          w: 76,
+          x: 453,
+  +       y: 311.5
+  -       y: 360.5
+        },
+        when: 'block'
+      }
+    ]
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/social-mobile-layout-browser.test.cjs:42:12)
+      at runNextTicks (node:internal/process/task_queues:65:5)
+      at process.processImmediate (node:internal/timers:541:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { card: [Object], icon: [Object], name: [Object], pill: [Object], edit: [Object], when: 'block', fill: 0 }, { card: [Object], icon: [Object], name: [Object], pill: [Object], edit: [Object], when: 'block', fill: 0 }, { card: [Object], icon: [Object], name: [Object], pill: [Object], edit: [Object], when: 'block', fill: 0.9666385135135135 } ],
+    expected: [ { card: [Object], icon: [Object], name: [Object], pill: [Object], edit: [Object], when: 'block', fill: 0 }, { card: [Object], icon: [Object], name: [Object], pill: [Object], edit: [Object], when: 'block', fill: 0 }, { card: [Object], icon: [Object], name: [Object], pill: [Object], edit: [Object], when: 'block', fill: 0.9666385135135135 } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/steady-remote-skins-browser.test.cjs:7:40
+✖ matrix: real incoming changes keep the screen and clean/dirty notes consistent (1129.595417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/steady-remote-skins-browser.test.cjs:17:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/steady-remote-skins-browser.test.cjs:7:40
+✖ minimal: real incoming changes keep the screen and clean/dirty notes consistent (595.637375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/steady-remote-skins-browser.test.cjs:17:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/supabase-guard.test.cjs:75:1
+✖ temporary QA HTML changes endpoint/key/SDK locally without mutating source (6.2885ms)
+  Error: Production reference remains in QA HTML
+      at temporaryHtml (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/qa/supabase/guard.cjs:82:44)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/supabase-guard.test.cjs:77:18)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)

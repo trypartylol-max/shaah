@@ -1,0 +1,61 @@
+✖ strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history (12676.830083ms)
+✖ strict CSP preserves separate Work/Vacation editor values and score history (10768.849625ms)
+✖ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (10661.961834ms)
+✔ strict CSP keeps Original login control usable without real Auth requests (391.27025ms)
+✔ strict CSP permits activity create, edit and delete without changing older history (1147.51ms)
+✖ strict CSP preserves routine step editors, timer controls and discard confirmation (10659.652291ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 2
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47001.213125
+
+✖ failing tests:
+
+test at tests/csp-events-browser.test.cjs:18:1
+✖ strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history (12676.830083ms)
+  locator.getAttribute: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for getByRole('button', { name: /^People(?:$|\s)/ })[22m
+  
+      at section (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/csp-events-browser.test.cjs:13:123)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/csp-events-browser.test.cjs:22:9) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for getByRole('button', { name: /^People(?:$|\\s)/ })" ]
+  }
+
+test at tests/csp-events-browser.test.cjs:36:1
+✖ strict CSP preserves separate Work/Vacation editor values and score history (10768.849625ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="cfgSet"][data-ui-change-args="[\\"meditation\\",\\"p\\"]"]')[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/csp-events-browser.test.cjs:39:84) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="cfgSet"][data-ui-change-args="[\\\\"meditation\\\\",\\\\"p\\\\"]"]')` ]
+  }
+
+test at tests/csp-events-browser.test.cjs:52:1
+✖ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (10661.961834ms)
+  locator.focus: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/csp-events-browser.test.cjs:54:83) {
+    name: 'TimeoutError',
+    log: [ "  - waiting for locator('.cb-row').filter({ hasText: 'Friends' })" ]
+  }
+
+test at tests/csp-events-browser.test.cjs:96:1
+✖ strict CSP preserves routine step editors, timer controls and discard confirmation (10659.652291ms)
+  locator.fill: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for locator('input[data-ui-change="stepSet"][data-ui-change-args="[\\"work\\",0,\\"label\\"]"]')[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/csp-events-browser.test.cjs:102:87) {
+    name: 'TimeoutError',
+    log: [ `  - waiting for locator('input[data-ui-change="stepSet"][data-ui-change-args="[\\\\"work\\\\",0,\\\\"label\\\\"]"]')` ]
+  }

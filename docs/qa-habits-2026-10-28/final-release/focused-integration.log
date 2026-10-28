@@ -1,0 +1,47 @@
+✔ login handles query text as readable text and still boots (867.71975ms)
+✔ login handles hash text as readable text and still boots (345.236792ms)
+✔ login handles incomplete percent as readable text and still boots (274.722917ms)
+✔ login handles encoded percent as readable text and still boots (267.276417ms)
+✔ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (1001.831416ms)
+✔ people import displays ordinary markup as text and keeps the imported identifier editable (705.223417ms)
+✔ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (1991.268292ms)
+✔ malformed stored routine definitions do not break startup or rewrite metadata (513.06225ms)
+✔ adopting valid settings without a currently open routine keeps the app usable and its saved session (505.093208ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (1067.967125ms)
+✔ returning to A through the auth callback restores only A routine and A screen preferences (506.926458ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (472.916334ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (860.752875ms)
+✔ own realtime echo completes once and clears the pending draft (21.106166ms)
+✔ network failures keep the local draft for retry (1.787792ms)
+✔ a genuine conflicting edit is not overwritten (1.622292ms)
+✔ an already saved draft is acknowledged without another write (2.309083ms)
+✔ a genuine edit during an echo is preserved and saved once more (3.847084ms)
+✖ Today shortcut opens Social even when its navigation tab is hidden (2.300125ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 18
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10050.683458
+
+✖ failing tests:
+
+test at tests/settings-echo.test.cjs:43:1
+✖ Today shortcut opens Social even when its navigation tab is hidden (2.300125ms)
+  /Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/index.html:4117
+      if(dialog){dialog.close();dialog.remove();
+                        ^
+
+  TypeError: dialog.close is not a function
+      at routineDialogSync (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/index.html:4117:23)
+      at render (evalmachine.<anonymous>:3:3)
+      at setTab (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/index.html:4154:57)
+      at Object.run (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/index.html:907:43)
+      at evalmachine.<anonymous>:5:20
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at Object.run (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/helpers.cjs:77:26)
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/settings-echo.test.cjs:46:6)
+      at Test.runInAsyncScope (node:async_hooks:227:14)

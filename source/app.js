@@ -283,6 +283,7 @@ function setSkin(id){
   return true;
 }
 function initSkin(){
+  ["1c1d28", "252535", "29293c"].forEach(hex=>_skinColors.add(hex));
   _skinColors.add('171725');_skinColors.add('34344a');_skinColors.add('a78bfa');
   try{const id=localStorage.getItem(SKIN_KEY);_skin=SKINS.some(s=>s.id===id)?id:'classic';}catch(e){_skin='classic';}
   applySkin();
@@ -924,6 +925,7 @@ const UI_ACTIONS=Object.freeze({
   exportUnownedOffline:uiRule('click',[],()=>exportUnownedOffline()),
   closeReview:uiRule('click',[],()=>closeReview()),
   toggleSec:uiRule('click',['string'],(n,e,key)=>toggleSec(key)),
+  cfgLevel:uiRule('change',['string'],(n,e,id)=>cfgLevel(id,Number(n.value))),
   cfgMove:uiRule('click',['string','integer'],(n,e,id,d)=>cfgMove(id,d)),
   cfgSet:uiRule('change',['string','habitField'],(n,e,id,field)=>cfgSet(id,field,field==='i'?n.value.slice(0,3):n.value)),
   cfgVacationPoints:uiRule('change',['string'],(n,e,id)=>cfgEdit(()=>{ensureModePts(CFG.h[id]);CFG.h[id].pVacation=Math.max(0,parseInt(n.value)||0);CFG.h[id].p=modePts(CFG.h[id],travelMode());})),
@@ -1465,15 +1467,22 @@ function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
 // Wrap every change that affects scoring. Seals the old config over the past,
 // then stamps the new one as effective from today.
 function cfgEdit(fn){
+  // Loading/conflicted settings must not accept edits that cannot be persisted safely.
+  if(USER&&(!_cfgReady||_cfgConflict))return false;
+  const before=JSON.parse(JSON.stringify(CFG));
   const lg=cfgLog();
+  if(lg.some(e=>!e||!DATE_RE.test(e.from)||!Number.isFinite(Date.parse(e.from+'T12:00:00Z'))||new Date(e.from+'T12:00:00Z').toISOString().slice(0,10)!==e.from||!e.h||!Array.isArray(e.order))||
+     new Set(lg.map(e=>e.from)).size!==lg.length)return false;
+  lg.sort((a,b)=>a.from.localeCompare(b.from));
   if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
-  fn();
+  try{fn();}catch(error){CFG=before;_dayCfgCache={};throw error;}
   const tk=todayKey(), cur=cfgSnap(), last=lg.find(e=>e.from===tk);
   if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;last.subs=cur.subs;last.mode=cur.mode;}
   else lg.push({from:tk,h:cur.h,order:cur.order,subs:cur.subs,mode:cur.mode});
   lg.sort((a,b)=>a.from.localeCompare(b.from));   // keep the epoch baseline
   _dayCfgCache={};
   saveCfg(); render();
+  return true;
 }
 function cfgForDate(key){
   const lg=cfgLog();
@@ -2606,6 +2615,7 @@ function renderSettings(){
           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
             <button ${ui('click','cfgMove' ,id,-1)} class="ord">▲</button>
             <button ${ui('click','cfgMove' ,id,1)} class="ord">▼</button>
+            <select aria-label="Habit level" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>
           </div>
           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="icon"
             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
@@ -2734,6 +2744,10 @@ function cfgDel(id){
   cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); });
 }
 function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
+function cfgLevel(id,level){
+  if(!Number.isInteger(level)||level<1||level>3||!CFG.h[id]||CFG.h[id].combo||CFG.h[id].lv===level)return;
+  cfgEdit(()=>{CFG.h[id].lv=level;});
+}
 function cfgMove(id,dir){
   const lv=CFG.h[id]&&CFG.h[id].lv; if(!lv)return;
   const peers=CFG.order.filter(x=>CFG.h[x]&&CFG.h[x].lv===lv);
@@ -3772,19 +3786,23 @@ function weekReview(){
   const d=getDays(14),cur=d.slice(7),prev=d.slice(0,7);
   const logged=cur.filter(x=>x.data);
   if(!logged.length)return null;
-  const avg=Math.round(logged.reduce((a,x)=>a+x.data.score,0)/logged.length);
+  const avg=Math.round(logged.reduce((a,x)=>a+dPct(x.data),0)/logged.length);
   const pl=prev.filter(x=>x.data);
-  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+x.data.score,0)/pl.length):null;
+  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+dPct(x.data),0)/pl.length):null;
   // per-habit hit rate across the week
-  const items=[...LVL1,...LVL2,...LVL3];
-  const tally=items.map(it=>{
-    let done=0;
-    cur.forEach(x=>{const ch=getChecked(x.key);if(ch&&ch[it.id])done++;});
-    return {...it,done,rate:Math.round(done/7*100)};
-  }).filter(t=>t.pts>0);
+  const byId=new Map();
+  for(const x of cur){
+    const cfg=cfgForDate(x.key),checks=getChecked(x.key)||{};
+    for(const it of [...cfg.L1,...cfg.L2,...cfg.L3]){
+      if(it.pts<=0)continue;
+      const t=byId.get(it.id)||{...it,done:0,eligible:0};
+      t.eligible++;t.done+=doneFrac(checks[it.id]);byId.set(it.id,t);
+    }
+  }
+  const tally=[...byId.values()].map(t=>({...t,rate:Math.round(t.done/t.eligible*100)}));
   const sorted=[...tally].sort((a,b)=>b.rate-a.rate);
   const best=sorted[0],worst=sorted[sorted.length-1];
-  const bestDay=logged.reduce((m,x)=>!m||x.data.score>m.data.score?x:m,null);
+  const bestDay=logged.reduce((m,x)=>!m||dPct(x.data)>dPct(m.data)?x:m,null);
   return{avg,pavg,diff:pavg==null?null:avg-pavg,tally:sorted,best,worst,bestDay,days:logged.length,cur};
 }
 function renderWeekReview(){
@@ -3809,7 +3827,7 @@ function renderWeekReview(){
           <div ${uiStyle(`font-size:13px;color:${acol};margin-top:5px`)}>
             ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
           </div>
-          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${r.bestDay.data.score}%</div>`:""}
+          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${dPct(r.bestDay.data)}%</div>`:""}
         </div>
       </div>
       <div ${uiStyle(`display:flex;gap:8px;margin-bottom:16px`)}>
@@ -3925,8 +3943,8 @@ function renderStats(){
   }
   const metrics = [
     {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
-    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/7`,col:"#4ade80",sub:review?.best?.label||"—"},
-    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/7`,col:"#ef4444",sub:review?.worst?.label||"—"},
+    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/${review?.best?.eligible??7}`,col:"#4ade80",sub:review?.best?.label||"—"},
+    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/${review?.worst?.eligible??7}`,col:"#ef4444",sub:review?.worst?.label||"—"},
     {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
     {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
     {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
@@ -4459,7 +4477,7 @@ function socialCancel(){socialDraft=null;socialFormError='';render();}
 function socialSave(){
   const d=socialDraft;if(!d)return;
   const name=String(d.name||'').trim().slice(0,40),every=Number(d.every);
-  if(!name||!Number.isInteger(every)||every<1||every>3650||(d.sub!=='family'&&!socialCategories().some(s=>s.id===d.sub))){
+  if(!name||!Number.isInteger(every)||every<1||every>3650||(d.sub!=='family'&&!socialCategories().some(s=>s.id===d.sub)&&!(d.id&&socialCategory(personById(d.id)||{})===d.sub))){
     socialFormError='Completa el nombre, la frecuencia (1–3650 días) y una categoría activa.';render();return;
   }
   let p=d.id?personById(d.id):null;
@@ -4468,7 +4486,7 @@ function socialSave(){
   const fresh=!p;
   if(fresh){let id;do{id='p'+Math.random().toString(36).slice(2,10);}while(personById(id));p={id};peopleList().push(p);}
   // Keep unknown location references so editing cannot silently lose legacy data.
-  Object.assign(p,{name,every,sub:d.sub,relationship:d.sub==='family'?'family':d.sub==='flirt'?'romantic':'friends',locations:[...d.locations]});
+  Object.assign(p,{name,every,sub:d.sub,relationship:d.sub==='family'?'family':d.sub==='flirt'?'romantic':socialCategories().some(s=>s.id===d.sub)?'friends':(p.relationship||d.relationship||'friends'),locations:[...d.locations]});
   const key=d.key;socialDraft=null;socialFormError='';saveCfg();
   if(fresh&&key)socialRecord(p.id,key);else render();
 }
@@ -4479,7 +4497,7 @@ function socialEditor(){
     ${socialFormError?`<p role="alert">${esc(socialFormError)}</p>`:''}
     <label class="sf-field">Nombre<input id="sf-name" maxlength="40" value="${esc(d.name)}" ${ui('input','socialDraftName')}></label>
     <label class="sf-field">Verlo cada cuántos días<input id="sf-every" type="number" min="1" max="3650" step="1" placeholder="7 = semanal · 30 = mensual" value="${esc(d.every)}" ${ui('input','socialDraftEvery')}></label>
-    <label class="sf-field">Categoría<select id="sf-sub" ${ui('change','socialDraftSub')}>${socialCategories().map(s=>`<option value="${esc(s.id)}" ${d.sub===s.id?'selected':''}>${esc(s.label)}</option>`).join('')}</select></label>
+    <label class="sf-field">Categoría<select id="sf-sub" ${ui('change','socialDraftSub')}>${socialCategories().map(s=>`<option value="${esc(s.id)}" ${d.sub===s.id?'selected':''}>${esc(s.label)}</option>`).join('')}${!socialCategories().some(s=>s.id===d.sub)?`<option value="${esc(d.sub)}" selected>${d.sub==='family'?'Family':esc(d.sub)+' · categoría anterior'}</option>`:''}</select></label>
 
     <fieldset class="sf-locations"><legend>Lugares</legend>${locationGroups().map(g=>`<label><input type="checkbox" ${d.locations.includes(g.id)?'checked':''} ${ui('change','socialDraftLocation',g.id)}> ${esc(g.name)}</label>`).join('')||'<span class="sf-muted">Puedes crear lugares desde Social → Grupos.</span>'}<div class="sf-muted">Sin lugares asignados: aparece en todos.</div></fieldset>
     ${socialButton(d.id?'Guardar cambios':d.key?'Guardar y registrar encuentro':'Guardar persona','socialSave',[],true)}
@@ -4694,7 +4712,7 @@ function workPhaseCard(key,item){
 }
 function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
 
-function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px`)}>
+function socialGeneralSettings(){const bulkOpen=!!document.getElementById('social-bulk-details')?.open;return `      <div ${uiStyle(`margin-bottom:4px`)}>
         <div class="sec" ${uiStyle(`color:#fbbf24`)}>👥 SOCIAL COMBO — ${subsOn(subsList()).length} ACTIVE${subsOn(subsList()).length<subsList().length?` · ${subsList().length-subsOn(subsList()).length} PAUSED`:""}</div>
         <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:8px`)}>Each part is worth its own points and the combo is their sum — <b ${uiStyle(`color:#fbbf24`)}>${subsOn(subsList()).reduce((a,y)=>a+safePts(y.p),0)}%</b> right now. Adding or pausing a part changes the combo from today on; past days keep what they were scored with.</div>
         ${subsList().map((x,i)=>`
@@ -4713,7 +4731,7 @@ function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px
           ${subsList().length>1?`<button ${ui('click','subDel' ,i)} title="Remove" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
         </div>`).join("")}
         <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>+ ADD TO COMBO</button>
-      </div>${socialRulesHTML()}<details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>`;}
+      </div>${socialRulesHTML()}<details id="social-bulk-details" class="sf-scoring" ${bulkOpen?'open':''}><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>`;}
 
 
 boot();

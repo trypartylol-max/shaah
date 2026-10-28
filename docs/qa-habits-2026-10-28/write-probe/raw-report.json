@@ -1,0 +1,87 @@
+{
+  "projectRef": "kpnwiwaiwnndpvtxkvva",
+  "sourceSHA256": "c7ee61cba5eede92e37d09123fc7e9712e0c62eb0b17b8eac6e499febd930621",
+  "cases": [
+    {
+      "name": "existing_private_QA_gateway_has_configured_profiles",
+      "status": "passed"
+    },
+    {
+      "name": "both_existing_synthetic_accounts_authenticate",
+      "status": "passed"
+    },
+    {
+      "name": "real_authenticated_RLS_blocks_cross_account_reads_both_directions",
+      "status": "passed"
+    },
+    {
+      "name": "anonymous_table_access_denied",
+      "status": "passed"
+    },
+    {
+      "name": "candidate_loads_real_QA_A_and_subscribes_realtime",
+      "status": "passed"
+    },
+    {
+      "name": "real_candidate_A_B_A_switch_preserves_account_configuration",
+      "status": "passed"
+    },
+    {
+      "name": "real_QA_data_renders_mobile_and_desktop",
+      "status": "passed"
+    },
+    {
+      "name": "new_tagged_day_save_survives_real_server_reload",
+      "status": "passed"
+    },
+    {
+      "name": "real_offline_retry_preserves_newest_probe_note",
+      "status": "passed"
+    },
+    {
+      "name": "all_preexisting_QA_rows_unchanged",
+      "status": "passed"
+    },
+    {
+      "name": "no_candidate_runtime_errors",
+      "status": "passed"
+    }
+  ],
+  "applicationWrites": 5,
+  "productionRequests": 0,
+  "existingRowsChanged": false,
+  "phase": "preservation",
+  "probeDate": "2099-05-26",
+  "blockedUnexpectedApplicationWrites": 5,
+  "blockedOperations": [
+    {
+      "method": "POST",
+      "path": "/rest/v1/rpc/shaah_save_settings_v1",
+      "date": null
+    },
+    {
+      "method": "POST",
+      "path": "/rest/v1/rpc/shaah_save_settings_v1",
+      "date": null
+    },
+    {
+      "method": "POST",
+      "path": "/rest/v1/rpc/shaah_save_settings_v1",
+      "date": null
+    },
+    {
+      "method": "POST",
+      "path": "/rest/v1/rpc/shaah_save_settings_v1",
+      "date": null
+    },
+    {
+      "method": "POST",
+      "path": "/rest/v1/rpc/shaah_save_settings_v1",
+      "date": null
+    }
+  ],
+  "candidateHasPendingConfig": true,
+  "realtimeSubscriptions": 2,
+  "status": "passed",
+  "probeCleanup": "deleted_only_matching_new_probe"
+}

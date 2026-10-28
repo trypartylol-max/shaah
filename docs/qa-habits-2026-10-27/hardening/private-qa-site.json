@@ -1,0 +1,13 @@
+{
+  "id": "appgprj_6ad42cda28a88191851a529e150ac45d",
+  "title": "SHAAH TEST · Location Groups",
+  "url": "https://shaah-test-location-groups.arviler.chatgpt.site",
+  "version": 35,
+  "role": "owner",
+  "accessMode": "custom",
+  "allowedRoles": [
+    "owner"
+  ],
+  "secretValuesStored": false,
+  "siteEdited": false
+}

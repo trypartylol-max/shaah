@@ -1,0 +1,14 @@
+{
+  "projectRef": "kpnwiwaiwnndpvtxkvva",
+  "scope": "public-key gateway and anonymous table permission only",
+  "status": "passed",
+  "authSettingsHttpStatus": 200,
+  "passwordProviderEnabled": true,
+  "signupDisabled": false,
+  "emailAutoConfirm": false,
+  "anonymousTableHttpStatus": 401,
+  "authenticatedSyncExecuted": false,
+  "applicationRowsRequested": 0,
+  "writes": 0,
+  "keyPrinted": false
+}

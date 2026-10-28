@@ -1,0 +1,30 @@
+✔ Aurora V2 320: navigation, CSP, data, appearance and focus (1199.750917ms)
+✔ Aurora V2 390: navigation, CSP, data, appearance and focus (1051.302791ms)
+✔ Aurora V2 879: navigation, CSP, data, appearance and focus (796.270333ms)
+✔ Aurora V2 880: navigation, CSP, data, appearance and focus (833.552375ms)
+✔ Aurora V2 1440: navigation, CSP, data, appearance and focus (1317.077417ms)
+✔ Aurora: cross-tab skin restore preserves native navigation and mobile night layout (586.181417ms)
+✔ Aurora Work 390: native milestones persist and leave historical scores unchanged (1738.266084ms)
+✔ Aurora Work 1440: native milestones persist and leave historical scores unchanged (1748.080875ms)
+✔ Aurora preserves the latest OG People / Groups switch without changing data (486.742708ms)
+✔ Glow 320: native layout, persistence, Work and reduced motion (2553.583541ms)
+✔ Glow 390: native layout, persistence, Work and reduced motion (2368.504ms)
+✔ Glow 600: native layout, persistence, Work and reduced motion (2074.131958ms)
+✔ Glow 879: native layout, persistence, Work and reduced motion (2012.665875ms)
+✔ Glow 880: native layout, persistence, Work and reduced motion (2040.754959ms)
+✔ Glow 1440: native layout, persistence, Work and reduced motion (2576.651166ms)
+Verified 67 historical days across 3 production accounts using local backup only.
+✔ romantic capacity uses the configured original category label (18.995416ms)
+✔ promotion retains exact-main authentication, persistence and dated scoring implementations (19.927791ms)
+✔ production backup accounts retain historical scores, IDs, categories and day records (30.590542ms)
+✔ approved Work amounts fit desktop/mobile and retain milestone persistence (1453.132167ms)
+✔ WORK geometry, exact activation, dated points, persistence and skins (2166.226625ms)
+✔ milestone editor adds/removes all rows, retains draft inputs, validates, persists tomorrow only (2028.33025ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30976.596917

@@ -1,0 +1,32 @@
+[
+  {
+    "nspname": "public",
+    "proname": "shaah_restore_settings_v1",
+    "definition": "CREATE OR REPLACE FUNCTION public.shaah_restore_settings_v1(p_restore_revision bigint, p_expected_revision bigint)\n RETURNS jsonb\n LANGUAGE sql\n SET search_path TO ''\nAS $function$\n  select shaah_private.restore_settings_v1(p_restore_revision,p_expected_revision)\n$function$\n"
+  },
+  {
+    "nspname": "public",
+    "proname": "shaah_save_settings_v1",
+    "definition": "CREATE OR REPLACE FUNCTION public.shaah_save_settings_v1(p_expected_revision bigint, p_data jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  if auth.uid() is null or p_data->>'owner_id' is distinct from auth.uid()::text\n  then raise exception 'SHAAH_REQUEST_OWNER_MISMATCH' using errcode='42501'; end if;\n  return shaah_private.save_settings_v1(p_expected_revision,p_data->'data');\nend\n$function$\n"
+  },
+  {
+    "nspname": "public",
+    "proname": "shaah_settings_backup_v1",
+    "definition": "CREATE OR REPLACE FUNCTION public.shaah_settings_backup_v1()\n RETURNS jsonb\n LANGUAGE sql\n STABLE\n SET search_path TO ''\nAS $function$\n  select shaah_private.settings_backup_v1()\n$function$\n"
+  },
+  {
+    "nspname": "shaah_private",
+    "proname": "restore_settings_v1",
+    "definition": "CREATE OR REPLACE FUNCTION shaah_private.restore_settings_v1(p_restore_revision bigint, p_expected_revision bigint)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare v_uid uuid := auth.uid(); v_data jsonb;\nbegin\n  if v_uid is null then raise exception 'SHAAH_AUTH_REQUIRED' using errcode='42501'; end if;\n  select data into v_data from shaah_private.settings_versions\n    where user_id=v_uid and settings_revision=p_restore_revision;\n  if not found then raise exception 'SHAAH_BACKUP_NOT_FOUND' using errcode='P0002'; end if;\n  -- Recovery creates a new revision; it never rewinds the concurrency counter.\n  return shaah_private.save_settings_v1(p_expected_revision,v_data);\nend\n$function$\n"
+  },
+  {
+    "nspname": "shaah_private",
+    "proname": "save_settings_v1",
+    "definition": "CREATE OR REPLACE FUNCTION shaah_private.save_settings_v1(p_expected_revision bigint, p_data jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n  v_uid uuid := auth.uid();\n  v_old public.day_logs%rowtype;\n  v_new public.day_logs%rowtype;\nbegin\n  if v_uid is null then raise exception 'SHAAH_AUTH_REQUIRED' using errcode='42501'; end if;\n  if jsonb_typeof(p_data) is distinct from 'object'\n     or jsonb_typeof(p_data->'_cfg') is distinct from 'object'\n     or p_expected_revision < 0\n  then raise exception 'SHAAH_INVALID_SETTINGS' using errcode='22023'; end if;\n\n  select * into v_old from public.day_logs\n    where user_id=v_uid and date='settings' for update;\n  if found then\n    if p_expected_revision is distinct from v_old.settings_revision\n    then raise exception 'SHAAH_REVISION_CONFLICT' using errcode='PT409'; end if;\n    if exists(select 1 from shaah_private.settings_versions\n      where user_id=v_uid and settings_revision=v_old.settings_revision and data<>v_old.data)\n    then raise exception 'SHAAH_HISTORY_INTEGRITY_FAILED' using errcode='23514'; end if;\n    insert into shaah_private.settings_versions(user_id,settings_revision,data)\n      values(v_uid,v_old.settings_revision,v_old.data) on conflict do nothing;\n    update public.day_logs set data=p_data,settings_revision=v_old.settings_revision+1\n      where user_id=v_uid and date='settings' returning * into v_new;\n  else\n    if p_expected_revision is not null\n    then raise exception 'SHAAH_REVISION_CONFLICT' using errcode='PT409'; end if;\n    insert into public.day_logs(user_id,date,data,settings_revision)\n      values(v_uid,'settings',p_data,1) on conflict(user_id,date) do nothing returning * into v_new;\n    if not found then raise exception 'SHAAH_REVISION_CONFLICT' using errcode='PT409'; end if;\n  end if;\n\n  insert into shaah_private.settings_versions(user_id,settings_revision,data)\n    values(v_uid,v_new.settings_revision,v_new.data);\n  -- Keep the latest 50 revisions and the pre-protocol baseline (revision 0).\n  -- External pre-migration exports remain the independent disaster-recovery copy.\n  delete from shaah_private.settings_versions where user_id=v_uid\n    and settings_revision>0 and settings_revision<v_new.settings_revision-49;\n  return jsonb_build_object('data',v_new.data,'settings_revision',v_new.settings_revision);\nend\n$function$\n"
+  },
+  {
+    "nspname": "shaah_private",
+    "proname": "settings_backup_v1",
+    "definition": "CREATE OR REPLACE FUNCTION shaah_private.settings_backup_v1()\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare v_uid uuid := auth.uid(); v_versions jsonb;\nbegin\n  if v_uid is null then raise exception 'SHAAH_AUTH_REQUIRED' using errcode='42501'; end if;\n  select coalesce(jsonb_agg(jsonb_build_object('settings_revision',settings_revision,\n    'data',data,'captured_at',captured_at) order by settings_revision desc),'[]'::jsonb)\n    into v_versions from shaah_private.settings_versions where user_id=v_uid;\n  return v_versions;\nend\n$function$\n"
+  }
+]

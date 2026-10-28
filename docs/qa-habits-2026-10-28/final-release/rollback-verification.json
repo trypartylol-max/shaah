@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "filesVerified": 76,
+  "commit": "5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b",
+  "archive": ".runtime/release-candidate/rollback-5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b.tar",
+  "sha256": "6fe2f8f63864ab3a850c89b90eff382e1c48d8bbeebf67d44f17ea879a11880f",
+  "scope": "Complete pinned-main index.html and assets; no database or settings rollback",
+  "executed": false
+}

@@ -1,0 +1,190 @@
+{
+  "checkedAtUtc": "2026-10-28T15:14:56.260Z",
+  "baseCommit": "5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b",
+  "url": "https://trypartylol-max.github.io/shaah/",
+  "status": "passed",
+  "writes": 0,
+  "publicGets": 18,
+  "assets": [
+    {
+      "path": "assets/fonts.f979be2919756976.css",
+      "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/app.60f7baffd50b7901.css",
+      "sha256": "60f7baffd50b79016842c45d4098d051859a4f6f53bd0a7df8a89d52125c8ee9",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/mobile-circular-log-20261026.css",
+      "sha256": "2dc701b7fc3f5db574656de3e836229a85508f1b68ac0d021dc9a792aa8a6fe0",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/aurora-skin.css",
+      "sha256": "797ee01cb04edf92d74e47cf6fe244e02088cbd74c2083aebbe23d941bd2ff5c",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/work-skin-parity-20261027.css",
+      "sha256": "5d6343542ea09f4ed19f8dd84b04b29b4213a86a9c1e4f8f817e3946185c9137",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/ui-refinement-20261027.css",
+      "sha256": "bf764a271f221033b8169a9251e032537eafb1c9e5b1f727f243c4e65e68850c",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-disclosure-20261027.css",
+      "sha256": "0b94ee84df2cd85b669ca38c9a8cca389b2efa44f179cac94dea181f18dc2e20",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-desktop-20261027.css",
+      "sha256": "b92ad68b3455da3311dec2be2cafa73e28b98b1c49d216ea0c5842aa62e16f4f",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-type-20261027.css",
+      "sha256": "98f73babcc1737ccc6c7fd4e7fa114946b7f00121798ab0e992be4cf46804490",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/mobile-width-test-20261027.css",
+      "sha256": "f23f5346472c2b9d290955a27ecb30be917b981704c735df9d7acbc6aed37161",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-mobile-order-20261027.css",
+      "sha256": "b91e72309b53569793a1ce051c0caf6110860de283cf83279cae98c9b1f1d5e3",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-mobile-disclosure-20261027.css",
+      "sha256": "0770c4a5fad419941f934148060a4eccaeb0433c171b551149b3ff2772affc17",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/supabase-2.118.0.js",
+      "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/app.978901283e67117d.js",
+      "sha256": "978901283e67117d5233f1cb9b813a71d0be4da1c530f2a4c270b7474f1fecdd",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/history-back-first-click-20261026.js",
+      "sha256": "51376aafaddc17ddb9ed165c70cc928d32397a2780e3a863f41d66fa23cb0731",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/aurora-skin.js",
+      "sha256": "85b841c8e7ba2ff9d19fa5f38ca0b5947c15a85ad57e5fda57d945bf2994a495",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/today-mobile-disclosure-20261027.js",
+      "sha256": "335c6b373a683c90e9ec9d7b0830ea2d9096355fe3b191116f1f2f9c4f320175",
+      "sri": "not_declared"
+    }
+  ],
+  "candidate": [
+    {
+      "path": "assets/fonts.f979be2919756976.css",
+      "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/app.0be129ce330bc295.css",
+      "sha256": "0be129ce330bc2954bd501a1eef085fcdd2c4e30376f459dfa3e907c02697177",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/mobile-circular-log-20261026.css",
+      "sha256": "2dc701b7fc3f5db574656de3e836229a85508f1b68ac0d021dc9a792aa8a6fe0",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/aurora-skin.css",
+      "sha256": "797ee01cb04edf92d74e47cf6fe244e02088cbd74c2083aebbe23d941bd2ff5c",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/work-skin-parity-20261027.css",
+      "sha256": "5d6343542ea09f4ed19f8dd84b04b29b4213a86a9c1e4f8f817e3946185c9137",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/ui-refinement-20261027.css",
+      "sha256": "bf764a271f221033b8169a9251e032537eafb1c9e5b1f727f243c4e65e68850c",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-disclosure-20261027.css",
+      "sha256": "0b94ee84df2cd85b669ca38c9a8cca389b2efa44f179cac94dea181f18dc2e20",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-desktop-20261027.css",
+      "sha256": "b92ad68b3455da3311dec2be2cafa73e28b98b1c49d216ea0c5842aa62e16f4f",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-type-20261027.css",
+      "sha256": "98f73babcc1737ccc6c7fd4e7fa114946b7f00121798ab0e992be4cf46804490",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/mobile-width-test-20261027.css",
+      "sha256": "f23f5346472c2b9d290955a27ecb30be917b981704c735df9d7acbc6aed37161",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-mobile-order-20261027.css",
+      "sha256": "b91e72309b53569793a1ce051c0caf6110860de283cf83279cae98c9b1f1d5e3",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/today-mobile-disclosure-20261027.css",
+      "sha256": "0770c4a5fad419941f934148060a4eccaeb0433c171b551149b3ff2772affc17",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/supabase-2.118.0.js",
+      "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/app.e08867f4c7271da0.js",
+      "sha256": "e08867f4c7271da04b331ecbc19426ae63adac9f3fae37a9cf057d9a6a30243d",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/history-back-first-click-20261026.js",
+      "sha256": "51376aafaddc17ddb9ed165c70cc928d32397a2780e3a863f41d66fa23cb0731",
+      "sri": "not_declared"
+    },
+    {
+      "path": "assets/aurora-skin.js",
+      "sha256": "85b841c8e7ba2ff9d19fa5f38ca0b5947c15a85ad57e5fda57d945bf2994a495",
+      "sri": "passed"
+    },
+    {
+      "path": "assets/today-mobile-disclosure-20261027.js",
+      "sha256": "335c6b373a683c90e9ec9d7b0830ea2d9096355fe3b191116f1f2f9c4f320175",
+      "sri": "not_declared"
+    }
+  ],
+  "publishedHtmlSha256": "4cb2348633e404d8f240b42f90dea0496d8b7bce07c285df5400490c5497bcbd",
+  "candidateHtmlSha256": "9f40b9d5755ac8c62141bc245aaab29c9436db8adec89aa381eda5bf63de5cc3",
+  "rollback": {
+    "commit": "5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b",
+    "archive": ".runtime/release-candidate/rollback-5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b.tar",
+    "sha256": "6fe2f8f63864ab3a850c89b90eff382e1c48d8bbeebf67d44f17ea879a11880f",
+    "scope": "Complete pinned-main index.html and assets; no database or settings rollback"
+  }
+}

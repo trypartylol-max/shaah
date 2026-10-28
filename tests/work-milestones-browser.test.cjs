@@ -3,6 +3,7 @@ const {openApp}=require('./browser-helpers.cjs');const {loadApp}=require('./help
 test('milestone editor adds/removes all rows, retains draft inputs, validates, persists tomorrow only',async t=>{
  const a=loadApp();a.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config");
  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
+ await page.evaluate(()=>setSkin('aurora'));
  const before=await page.evaluate(()=>({days:JSON.stringify(_state),score:JSON.stringify(calcScore(todayKey())),log:JSON.stringify(CFG.log)}));
  await page.evaluate(()=>{settingsOpen=true;secOpen.rout=true;render();});
  const card=page.locator('.sf-work-settings');
@@ -28,8 +29,8 @@ test('milestone editor adds/removes all rows, retains draft inputs, validates, p
   const result=await page.evaluate(count=>{
    const key=keyMinus(todayKey(),-1);CFG.workMilestones=[{from:key,steps:Array.from({length:count},(_,i)=>({amount:100*(i+1),points:5}))}];_dayCfgCache={};
    const host=document.createElement('div');host.id='milestone-layout';document.body.append(host);uiHTML(host,workMilestonesSettings()+workPhaseCard(key,cfgForDate(key).L1.find(i=>i.id==='work')));
-   const bar=host.querySelector('.sf-work-progress'),card=host.querySelector('.sf-work');const result={segments:bar.children.length,columns:getComputedStyle(bar).gridTemplateColumns.split(' ').length,overflow:card.scrollWidth>card.clientWidth+1};host.remove();return result;
+   const card=host.querySelector('.wg-card');const result={segments:card.querySelectorAll('.wg-segment').length,disabled:card.disabled,overflow:card.scrollWidth>card.clientWidth+1};host.remove();return result;
   },count);
-  assert.equal(result.segments,count);if(count)assert.equal(result.columns,count);assert.equal(result.overflow,false);
+  assert.equal(result.segments,count);assert.equal(result.disabled,count===0);assert.equal(result.overflow,false);
  }
 });

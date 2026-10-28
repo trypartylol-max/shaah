@@ -41,7 +41,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     // The previous Original loaded Google font CSS. Compare it with the same
     // validated self-contained font bytes, without any external request.
     if(parsed.origin==='https://fonts.googleapis.com'){
-      return route.fulfill({contentType:'text/css',body:fs.readFileSync('/workspace/sites/shaah-test-preview/fonts.css','utf8')});
+      return route.fulfill({contentType:'text/css',body:fs.readFileSync(options.fontCSSFile||path.join(pageRoot,'assets','fonts.css'),'utf8')});
     }
     // Fonts and any other external resource never leave this test context.
     if (!url.startsWith('https://fonts.')) unexpectedRequests.push(url);

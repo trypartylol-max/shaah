@@ -1,0 +1,20 @@
+{
+  "base": "b0e8d7470288e1349bfb0a909b2847757868dbb9",
+  "sourceCommit": "a77e86772746d4d29a6fac721fc06d36c841a599",
+  "finalTestCounts": {
+    "tests": 363,
+    "pass": 363,
+    "fail": 0,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "authenticatedReadonlyCases": 9,
+  "qaApplicationWrites": 0,
+  "productionApplicationWrites": 0,
+  "sitePublicationChanged": false,
+  "writeProbeExecuted": false,
+  "writeProbeApproval": "pending_explicit_user_answer",
+  "sourceAppSHA256": "7ec01d955365977abe35db4332a4b429115484b9195a1d9d0d45b92396f9394c",
+  "cssSHA256": "c6e54b40480c5759e939a232ebb2bf48d908da38f45cb2e7dceda85220e37e3a",
+  "htmlSHA256": "c7ee61cba5eede92e37d09123fc7e9712e0c62eb0b17b8eac6e499febd930621"
+}

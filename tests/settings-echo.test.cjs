@@ -46,7 +46,7 @@ test('Today shortcut opens Social even when its navigation tab is hidden',()=>{
  app.run(`USER={id:'synthetic-A'};CFG.socialTab=false;
  document.getElementById=()=>({style:{},querySelector:()=>null});document.querySelectorAll=()=>[];
  uiHTML=(el,html)=>{window.lastView=html};topbarHTML=()=>'';renderSocial=()=> 'SOCIAL_VIEW';renderToday=()=> 'TODAY_VIEW';
- renderTour=()=>{};renderResume=()=>{};initScrollHide=()=>{};tuckNav=()=>{};
+ renderTour=()=>{};routineDialogSync=()=>{};renderResume=()=>{};initScrollHide=()=>{};tuckNav=()=>{};
  UI_ACTIONS.setTab.run(null,null,'social');`);
  assert.equal(app.read('window.lastView'),'SOCIAL_VIEW');assert.equal(app.read('CFG.socialTab'),false);
 });

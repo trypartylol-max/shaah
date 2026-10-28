@@ -6,6 +6,8 @@ const fs=require('node:fs');
 
 for(const skin of ['matrix','minimal'])test(`${skin}: real incoming changes keep the screen and clean/dirty notes consistent`,async t=>{
   const page=await openApp(t,fixture(),{width:390,height:844});
+  await page.evaluate(()=>flushCfgSaves());
+  const writes=await page.evaluate(()=>__mockWrites.length);
   await page.evaluate(skin=>{setSkin(skin);setTab('today');window.__screen=document.querySelector('.today');window.__ring=document.querySelector('.t-ring svg');},skin);
   await page.evaluate(()=>__emitMockRealtime({eventType:'UPDATE',new:{user_id:'regression-user',date:todayKey(),data:{_checks:{work:true},_social:blankSocial(),_note:'Synthetic incoming note'}}}));
   assert.equal(await page.locator('textarea').inputValue(),'Synthetic incoming note');
@@ -14,5 +16,5 @@ for(const skin of ['matrix','minimal'])test(`${skin}: real incoming changes keep
   assert.equal(await page.locator('textarea').inputValue(),'Synthetic pending draft');
   assert.equal(await page.evaluate(()=>__screen===document.querySelector('.today')&&__ring===document.querySelector('.t-ring svg')),true);
   assert.equal(await page.locator('.today').evaluate(node=>getComputedStyle(node).opacity),'1');
-  assert.equal(await page.evaluate(()=>__mockWrites.length),0);
+  assert.equal(await page.evaluate(()=>__mockWrites.length),writes);
 });

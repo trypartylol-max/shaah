@@ -1,0 +1,141 @@
+✔ classic/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (12785.971166ms)
+✔ classic/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4307.620791ms)
+✔ matrix/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4434.51525ms)
+✔ matrix/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4459.867416ms)
+✔ minimal/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4238.424792ms)
+✔ minimal/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4147.407167ms)
+✖ habit levels: classic 320px keyboard, history, future era and reload (1552.236334ms)
+✔ habit levels: classic 390px keyboard, history, future era and reload (1112.283709ms)
+✔ habit levels: classic 879px keyboard, history, future era and reload (1134.169ms)
+✔ habit levels: classic 880px keyboard, history, future era and reload (1134.629916ms)
+✖ habit levels: classic 1440px keyboard, history, future era and reload (1149.766083ms)
+✖ habit levels: aurora 320px keyboard, history, future era and reload (1101.072541ms)
+✔ habit levels: aurora 390px keyboard, history, future era and reload (1084.410792ms)
+✔ habit levels: aurora 879px keyboard, history, future era and reload (1468.625458ms)
+✔ habit levels: aurora 880px keyboard, history, future era and reload (1133.606458ms)
+✖ habit levels: aurora 1440px keyboard, history, future era and reload (1178.231958ms)
+✔ habit level: failed save survives refresh then retries without changing historical/future eras (639.952583ms)
+✔ habit level: two sessions conflict without losing either choice, then explicit resolution (1161.682917ms)
+✔ Stats shows dated eligible denominators and fractional completion (471.269917ms)
+✔ integrated mobile 390: disclosures hide content and preserve data across rendering (1004.260083ms)
+✔ integrated mobile 879: disclosures hide content and preserve data across rendering (571.94525ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (1669.361917ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (521.37825ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 19
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 53578.329625
+
+✖ failing tests:
+
+test at tests/habit-level-browser.test.cjs:19:82
+✖ habit levels: classic 320px keyboard, history, future era and reload (1552.236334ms)
+  AssertionError [ERR_ASSERTION]: No browser runtime exceptions
+  + actual - expected
+
+  + [
+  +   'Unexpected CSP or integrity violation'
+  + ]
+  - []
+
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/browser-helpers.cjs:162:12)
+      at TestHook.runInAsyncScope (node:async_hooks:227:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
+      at Test.runHook (node:internal/test_runner/test:1289:20)
+      at async after (node:internal/test_runner/test:1342:9)
+      at async Test.run (node:internal/test_runner/test:1428:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Unexpected CSP or integrity violation' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/habit-level-browser.test.cjs:19:82
+✖ habit levels: classic 1440px keyboard, history, future era and reload (1149.766083ms)
+  AssertionError [ERR_ASSERTION]: No browser runtime exceptions
+  + actual - expected
+
+  + [
+  +   'Unexpected CSP or integrity violation'
+  + ]
+  - []
+
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/browser-helpers.cjs:162:12)
+      at TestHook.runInAsyncScope (node:async_hooks:227:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
+      at Test.runHook (node:internal/test_runner/test:1289:20)
+      at async after (node:internal/test_runner/test:1342:9)
+      at async Test.run (node:internal/test_runner/test:1428:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Unexpected CSP or integrity violation' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/habit-level-browser.test.cjs:19:82
+✖ habit levels: aurora 320px keyboard, history, future era and reload (1101.072541ms)
+  AssertionError [ERR_ASSERTION]: No browser runtime exceptions
+  + actual - expected
+
+  + [
+  +   'Unexpected CSP or integrity violation'
+  + ]
+  - []
+
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/browser-helpers.cjs:162:12)
+      at TestHook.runInAsyncScope (node:async_hooks:227:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
+      at Test.runHook (node:internal/test_runner/test:1289:20)
+      at async after (node:internal/test_runner/test:1342:9)
+      at async Test.run (node:internal/test_runner/test:1428:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Unexpected CSP or integrity violation' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/habit-level-browser.test.cjs:19:82
+✖ habit levels: aurora 1440px keyboard, history, future era and reload (1178.231958ms)
+  AssertionError [ERR_ASSERTION]: No browser runtime exceptions
+  + actual - expected
+
+  + [
+  +   'Unexpected CSP or integrity violation'
+  + ]
+  - []
+
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/shaah-habits-safety/tests/browser-helpers.cjs:162:12)
+      at TestHook.runInAsyncScope (node:async_hooks:227:14)
+      at TestHook.run (node:internal/test_runner/test:1402:25)
+      at TestHook.run (node:internal/test_runner/test:1757:18)
+      at TestHook.run (node:internal/util:581:20)
+      at Test.runHook (node:internal/test_runner/test:1289:20)
+      at async after (node:internal/test_runner/test:1342:9)
+      at async Test.run (node:internal/test_runner/test:1428:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Unexpected CSP or integrity violation' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

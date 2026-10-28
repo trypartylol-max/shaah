@@ -1,0 +1,31 @@
+✔ classic/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4905.793375ms)
+✔ classic/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4074.053791ms)
+✔ matrix/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4338.690791ms)
+✔ matrix/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4284.693625ms)
+✔ minimal/mobile: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4257.826417ms)
+✔ minimal/desktop: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections (4335.849708ms)
+✔ habit levels: classic 320px keyboard, history, future era and reload (1747.0625ms)
+✔ habit levels: classic 390px keyboard, history, future era and reload (1216.059667ms)
+✔ habit levels: classic 879px keyboard, history, future era and reload (1208.044958ms)
+✔ habit levels: classic 880px keyboard, history, future era and reload (1243.535791ms)
+✔ habit levels: classic 1440px keyboard, history, future era and reload (1202.604334ms)
+✔ habit levels: aurora 320px keyboard, history, future era and reload (1493.967541ms)
+✔ habit levels: aurora 390px keyboard, history, future era and reload (1306.232833ms)
+✔ habit levels: aurora 879px keyboard, history, future era and reload (1183.676959ms)
+✔ habit levels: aurora 880px keyboard, history, future era and reload (1250.236458ms)
+✔ habit levels: aurora 1440px keyboard, history, future era and reload (1317.863291ms)
+✔ habit level: failed save survives refresh then retries without changing historical/future eras (753.812166ms)
+✔ habit level: two sessions conflict without losing either choice, then explicit resolution (1266.234375ms)
+✔ Stats shows dated eligible denominators and fractional completion (543.3895ms)
+✔ integrated mobile 390: disclosures hide content and preserve data across rendering (1005.949125ms)
+✔ integrated mobile 879: disclosures hide content and preserve data across rendering (578.558334ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (1833.451125ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (583.77725ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 47489.006167

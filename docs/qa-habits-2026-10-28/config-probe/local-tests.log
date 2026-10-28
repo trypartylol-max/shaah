@@ -1,0 +1,34 @@
+✔ config probe refuses other projects and unsafe identifiers (0.710959ms)
+✔ config probe scopes the complete revision protocol to fresh names (0.91325ms)
+✔ cleanup verifies run ownership and never uses cascade or existing resources (1.211416ms)
+✔ habit levels: classic 320px keyboard, history, future era and reload (1302.979ms)
+✔ habit levels: classic 390px keyboard, history, future era and reload (916.613083ms)
+✔ habit levels: classic 879px keyboard, history, future era and reload (897.315917ms)
+✔ habit levels: classic 880px keyboard, history, future era and reload (951.018875ms)
+✔ habit levels: classic 1440px keyboard, history, future era and reload (934.770875ms)
+✔ habit levels: aurora 320px keyboard, history, future era and reload (914.015375ms)
+✔ habit levels: aurora 390px keyboard, history, future era and reload (867.272958ms)
+✔ habit levels: aurora 879px keyboard, history, future era and reload (878.482875ms)
+✔ habit levels: aurora 880px keyboard, history, future era and reload (902.641667ms)
+✔ habit levels: aurora 1440px keyboard, history, future era and reload (975.580834ms)
+✔ habit level: failed save survives refresh then retries without changing historical/future eras (567.326083ms)
+✔ habit level: two sessions conflict without losing either choice, then explicit resolution (1045.916917ms)
+✔ Stats shows dated eligible denominators and fractional completion (436.066917ms)
+✔ level change preserves identity, all day records, past and future eras (20.683417ms)
+✔ loading, conflict and ambiguous timelines reject edits without mutation (3.841ms)
+✔ weekly rates use dated eligibility, fractional completion and normalized scores (1.421125ms)
+✔ unsorted future era is retained; failed edit rolls back; invalid calendar date rejects (2.198584ms)
+✔ weekly review handles dated pause/add/reweight, zero max and mode changes without mutating history (6.527166ms)
+✔ blocked config edit never queues a settings write and preserves account-owned drafts (1.835458ms)
+✔ probe cleanup recognizes semantically identical JSONB despite nested key reordering (0.623417ms)
+✔ probe cleanup detects changes to notes, checks, membership and array ordering (0.147209ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (1352.443125ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (444.649541ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14086.57025

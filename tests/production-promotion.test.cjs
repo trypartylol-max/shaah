@@ -4,14 +4,18 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {source,html,loadApp}=require('./helpers.cjs');
 const baseline=fs.readFileSync(path.join(__dirname,'../assets/app.4e9e7eead727df06.js'),'utf8');
+const mainHtmlPath=require('../qa/prepare-habit-baseline.cjs').prepare();
+const mainHtml=fs.readFileSync(mainHtmlPath,'utf8');
+const mainAsset=mainHtml.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)(?:\?[^\"]*)?"/)[1];
+const currentMainSource=fs.readFileSync(path.resolve(path.dirname(mainHtmlPath),mainAsset),'utf8');
 test('romantic capacity uses the configured original category label',()=>{
  const app=loadApp();app.run("CFG.subs.find(s=>s.id==='flirt').label='She';");
  assert.match(app.run('socialRulesHTML()'),/>She · máximo de personas asignadas/);
  assert.doesNotMatch(app.run('socialRulesHTML()'),/Flirting ·/);
 });
-test('promotion retains production authentication, persistence and scoring implementations',()=>{
+test('promotion retains exact-main authentication, persistence and dated scoring implementations',()=>{
  for(const name of ['signIn','signOut','flushCfgSaves','persistDay','calcScore','cfgForDate']){
-  const a=loadApp(),b=loadApp(undefined,{source:baseline});
+  const a=loadApp(),b=loadApp(undefined,{source:currentMainSource});
   assert.equal(a.run(`${name}.toString()`),b.run(`${name}.toString()`),name);
  }
  assert.ok(source.includes('https://llpyxktcfubhmthqujpa.supabase.co'));

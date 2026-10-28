@@ -1,0 +1,27 @@
+✔ config probe refuses other projects and unsafe identifiers (1.38ms)
+✔ config probe scopes the complete revision protocol to fresh names (1.470125ms)
+✔ cleanup verifies run ownership and never uses cascade or existing resources (1.316791ms)
+✔ probe cleanup recognizes semantically identical JSONB despite nested key reordering (0.7415ms)
+✔ probe cleanup detects changes to notes, checks, membership and array ordering (0.211834ms)
+✔ QA configuration defaults only to the explicitly authorized project (0.809166ms)
+✔ missing credentials stop execution without substituting embedded production values (0.491375ms)
+✔ reject a project URL outside the QA allowlist: llpyxktcfubhmthqujpa.supabase.co (0.220167ms)
+✔ reject a project URL outside the QA allowlist: other.supabase.co (0.05925ms)
+✔ reject a project URL outside the QA allowlist: kpnwiwaiwnndpvtxkvva.supabase.co (0.058959ms)
+✔ reject a mismatched reference and reject duplicate test identities (0.161666ms)
+✔ accept public QA keys; reject service-role, secret and another project keys (0.283375ms)
+✔ Node HTTP guard rejects production, spoofed hosts, credentials, non-HTTPS and admin endpoints before fetch (0.389417ms)
+✔ Node HTTP guard forbids redirects even if the caller requests following them (0.200417ms)
+✔ WebSocket guard accepts only the QA Realtime endpoint (0.165084ms)
+✔ temporary QA HTML changes endpoint/key/SDK locally without mutating source (4.549084ms)
+✔ browser routes abort forbidden HTTP, redirects and WebSockets before forwarding (0.412541ms)
+✔ browser transport failures are counted without surfacing request secrets (0.140334ms)
+✔ QA fixture retargets only the known migration gate and rejects unexpected production references (6.788542ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 71.051208

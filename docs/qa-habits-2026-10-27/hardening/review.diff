@@ -1,0 +1,1553 @@
+diff --git a/index.html b/index.html
+index 823cfab..793de3f 100644
+--- a/index.html
++++ b/index.html
+@@ -17,7 +17,7 @@
+ <link rel="apple-touch-icon" href="data:image/png;base64,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"/>
+ <link rel="icon" type="image/png" href="data:image/png;base64,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"/>
+ <link rel="stylesheet" href="./assets/fonts.f979be2919756976.css" integrity="sha384-Uz2ERp7y0Bg6aLQzu1ypM7M782VfTQfpYK2iLJW3D0ik2BnRcZx89Nq32LNwvZ+b" crossorigin="anonymous">
+-<link rel="stylesheet" href="./assets/app.18d4ef4efe2f2763.css" integrity="sha384-TDOGCdJuTT7a7nNDk8KdVIhSsNopPyPcCW/eGByqnXJPcbM68FAB04Vur51J6riY" crossorigin="anonymous">
++<link rel="stylesheet" href="./assets/app.c6e54b40480c5759.css" integrity="sha384-Dx8jcmLb0JBDq92T+Ibicq8mjCRWLx19nRh3fuWgEUDc824Zwsk+BqDJqJNt3toB" crossorigin="anonymous">
+ 
+ 
+ 
+@@ -55,7 +55,7 @@
+   </nav>
+ </div>
+ <script src="./assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
+-<script data-shaah-app src="./assets/app.4974ace382dfc38e.js" integrity="sha384-3zMWu26ea8kznNM47Dex6w+8C0pjpN2vxQLaZiPNfoe9FSSedtR41Nj0KdEoa4Jq" crossorigin="anonymous"></script>
++<script data-shaah-app src="./assets/app.7ec01d955365977a.js" integrity="sha384-23gxjdNbNinNHfuKbrQAnYKbNl++ysHJE16fMfYA807U0t+p/tIlVWC2Ua/mJBHw" crossorigin="anonymous"></script>
+ <script src="./assets/history-back-first-click-20261026.js"></script>
+ <script src="./assets/aurora-skin.js?v=85b841c8e7ba2ff9" integrity="sha384-0yctcfMdDP52+/l+6YGb/s4d8YLXrtx6XR/QbwNhXw6yTTFymfe5WbPDsc7n7C2C" crossorigin="anonymous"></script>
+ 
+diff --git a/qa/prepare-habit-baseline.cjs b/qa/prepare-habit-baseline.cjs
+new file mode 100644
+index 0000000..b0550a0
+--- /dev/null
++++ b/qa/prepare-habit-baseline.cjs
+@@ -0,0 +1,16 @@
++// Reproducible, read-only Git export of the exact base for this change.
++const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
++const {execFileSync}=require('node:child_process');
++const BASE='b0e8d7470288e1349bfb0a909b2847757868dbb9';
++const HTML_SHA256='362c5f37c670fe7b1577e3d9511d90b7ba996e889ea116ae77d6ef231216d4c5';
++function prepare(){
++ const root=path.resolve(__dirname,'..'),folder=path.join(root,'.runtime','habit-baseline',BASE);
++ fs.mkdirSync(folder,{recursive:true});
++ const archive=execFileSync('git',['archive',BASE,'index.html','assets'],{cwd:root,maxBuffer:128*1024*1024});
++ execFileSync('tar',['-x','-C',folder],{input:archive});
++ const file=path.join(folder,'index.html');
++ if(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')!==HTML_SHA256)throw Error('Base HTML identity mismatch');
++ return file;
++}
++if(require.main===module)console.log(prepare());
++module.exports={prepare,BASE,HTML_SHA256};
+diff --git a/qa/supabase/check-existing-profiles.cjs b/qa/supabase/check-existing-profiles.cjs
+new file mode 100644
+index 0000000..bb7ebc2
+--- /dev/null
++++ b/qa/supabase/check-existing-profiles.cjs
+@@ -0,0 +1,102 @@
++// Existing owner-private QA A/B: no seed, no reset, no configuration writes.
++// A --write-probe may touch one preflight-absent, tagged future day for A only.
++const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict'),readline=require('node:readline');
++const {chromium}=require('playwright');
++const {QA_ORIGIN,QA_REF,LOCAL_ORIGIN,assertQaUrl,temporaryHtml,installBrowserGuard}=require('./guard.cjs');
++const root=path.resolve(__dirname,'../..'),SITE='https://shaah-test-location-groups.arviler.chatgpt.site';
++const out=path.join(root,'test-results/existing-qa');fs.mkdirSync(out,{recursive:true});
++const report={projectRef:QA_REF,sourceSHA256:crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'index.html'))).digest('hex'),cases:[],applicationWrites:0,productionRequests:0,existingRowsChanged:false};
++const mark=name=>report.cases.push({name,status:'passed'});
++const hash=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex');
++console.log('Ready for private Site proof on hidden stdin.');
++const rl=readline.createInterface({input:process.stdin,terminal:false});
++rl.once('line',async line=>{
++ rl.close();process.stdin.pause();process.stdin.unref?.();let browser,scope,request,originalRows;
++ try{
++  const proof=JSON.parse(line);assert.equal(proof.siteUrl,SITE);assert.ok(proof.serviceToken);
++  const site=async(endpoint,options={})=>{
++   assert.ok(['/qa/health','/qa/config.js','/qa/session'].includes(endpoint));
++   return fetch(SITE+endpoint,{...options,headers:{'OAI-Sites-Authorization':'Bearer '+proof.serviceToken,...options.headers},redirect:'error',signal:AbortSignal.timeout(30000)});
++  };
++  report.phase='private_health';const healthResponse=await site('/qa/health');assert.equal(healthResponse.status,200);const health=await healthResponse.json();
++  assert.equal(health.projectRef,QA_REF);assert.equal(health.credentialsConfigured,true);mark('existing_private_QA_gateway_has_configured_profiles');
++  const configResponse=await site('/qa/config.js');assert.equal(configResponse.status,200);const config=await configResponse.text(),key=config.match(/sb_publishable_[A-Za-z0-9_-]+/)?.[0];assert.ok(key);
++  const sessions={};
++  for(const who of ['A','B']){
++   report.phase='authenticate_'+who;const r=await site('/qa/session',{method:'POST',headers:{Origin:SITE,'Content-Type':'application/json'},body:JSON.stringify({profile:who})});assert.equal(r.status,200);
++   sessions[who]=await r.json();assert.ok(sessions[who].access_token&&sessions[who].refresh_token);assert.ok(sessions[who].user.email.startsWith('qa-'+who.toLowerCase()+'-'));
++  }
++  assert.notEqual(sessions.A.user.id,sessions.B.user.id);mark('both_existing_synthetic_accounts_authenticate');
++  request=async(who,method,endpoint,body,extra={})=>{
++   const url=QA_ORIGIN+endpoint;assertQaUrl(url);
++   if(method!=='GET'&&!['/auth/v1/token','/auth/v1/logout'].includes(new URL(url).pathname)){
++    assert.ok(scope&&who==='A');const u=new URL(url);assert.equal(u.pathname,'/rest/v1/day_logs');
++    if(method==='DELETE'){assert.equal(u.searchParams.get('user_id'),'eq.'+scope.owner);assert.equal(u.searchParams.get('date'),'eq.'+scope.date);const expected=JSON.parse((u.searchParams.get('data')||'').replace(/^eq\./,''));assert.equal(hash(expected),hash(scope.lastData));assert.ok(expected._note?.startsWith(scope.tag+':'));}
++    else{assert.equal(method,'POST');assert.equal(body.user_id,scope.owner);assert.equal(body.date,scope.date);assert.ok(body.data?._note?.startsWith(scope.tag+':'));}
++    report.applicationWrites++;if(method==='POST')scope.lastData=structuredClone(body.data);
++   }
++   const r=await fetch(url,{method,headers:{apikey:key,...(who?{Authorization:'Bearer '+sessions[who].access_token}:{}),...(body?{'Content-Type':'application/json'}:{}),...extra},...(body?{body:JSON.stringify(body)}:{}),redirect:'error',signal:AbortSignal.timeout(30000)});
++   let data=null;try{data=await r.json();}catch{}return {status:r.status,ok:r.ok,data};
++  };
++  const rows=async who=>{const r=await request(who,'GET','/rest/v1/day_logs?select=date,data,settings_revision&user_id=eq.'+sessions[who].user.id+'&order=date.asc');assert.ok(r.ok&&Array.isArray(r.data));return r.data;};
++  originalRows={A:await rows('A'),B:await rows('B')};
++  for(const who of ['A','B']){
++   const me=await request(who,'GET','/auth/v1/user');assert.equal(me.data.id,sessions[who].user.id);
++   const other=who==='A'?'B':'A';const cross=await request(who,'GET','/rest/v1/day_logs?select=date&user_id=eq.'+sessions[other].user.id+'&limit=1');assert.ok(cross.ok);assert.deepEqual(cross.data,[]);
++  }
++  mark('real_authenticated_RLS_blocks_cross_account_reads_both_directions');
++  const anon=await request(null,'GET','/rest/v1/day_logs?select=date&limit=0');assert.ok([401,403].includes(anon.status));mark('anonymous_table_access_denied');
++  const candidate=temporaryHtml(fs.readFileSync(path.join(root,'index.html'),'utf8'),key),sdk=fs.readFileSync(path.join(root,'assets/supabase-2.118.0.js'),'utf8');
++  browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--no-sandbox']});
++  const context=await browser.newContext({viewport:{width:1440,height:1000},timezoneId:'UTC',serviceWorkers:'block'}),audit={allowedHttp:0,allowedWebSockets:0,blocked:[],blockedWrites:0,realtimeEvents:[]},transport={offline:false};
++  await installBrowserGuard(context,{html:candidate,sdk,session:sessions.A,userId:sessions.A.user.id,audit,transport});
++  await context.route(LOCAL_ORIGIN+'/assets/**',route=>{
++   const url=new URL(route.request().url()),file=path.resolve(root,'.'+url.pathname);assert.ok(file.startsWith(path.join(root,'assets')+path.sep));assert.equal(route.request().method(),'GET');
++   return route.fulfill({contentType:file.endsWith('.css')?'text/css':file.endsWith('.woff2')?'font/woff2':'application/javascript',body:fs.readFileSync(file)});
++  });
++  await context.route('**/rest/v1/**',route=>{
++   const r=route.request(),u=new URL(r.url());assertQaUrl(r.url());if(r.method()==='GET')return route.fallback();
++   let row;try{row=r.postDataJSON();}catch{}
++   if(scope?.created&&r.method()==='POST'&&u.pathname==='/rest/v1/day_logs'&&row?.date===scope.date&&row.user_id===scope.owner&&row.data?._note?.startsWith(scope.tag+':')){report.applicationWrites++;scope.lastData=structuredClone(row.data);return route.fallback();}
++   audit.blockedWrites++;(audit.blockedOperations||=[]).push({method:r.method(),path:u.pathname,date:typeof row?.date==='string'?row.date:null});return route.abort('blockedbyclient');
++  });
++  const page=await context.newPage();page.setDefaultTimeout(25000);page.on('pageerror',()=>{report.runtimeErrors=(report.runtimeErrors||0)+1});
++  report.phase='candidate_boot_A';await page.goto(LOCAL_ORIGIN+'/');await page.waitForFunction(()=>_cfgReady&&_live);
++  assert.equal(await page.evaluate(()=>SUPABASE_URL),QA_ORIGIN);assert.equal(await page.evaluate(()=>USER.id),sessions.A.user.id);mark('candidate_loads_real_QA_A_and_subscribes_realtime');
++  for(const who of ['B','A']){
++   await page.evaluate(session=>sb.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token}),sessions[who]);
++   await page.waitForFunction(id=>USER?.id===id&&_cfgReady&&_live,sessions[who].user.id);
++   assert.equal(await page.evaluate(async()=>{const r=await sb.from('day_logs').select('data').eq('user_id',USER.id).eq('date','settings');return !r.error&&r.data?.length===1&&cfgEqual(_cfgBase,r.data[0].data)}),true);
++  }
++  mark('real_candidate_A_B_A_switch_preserves_account_configuration');
++  for(const width of [390,1440]){
++   await page.setViewportSize({width,height:1000});for(const tab of ['today','social','stats','history']){await page.evaluate(tab=>setTab(tab),tab);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
++  }
++  mark('real_QA_data_renders_mobile_and_desktop');
++  if(process.argv.includes('--write-probe')){
++   report.phase='bounded_new_day_preflight';const date='2099-'+String(1+crypto.randomInt(12)).padStart(2,'0')+'-'+String(1+crypto.randomInt(28)).padStart(2,'0');
++   const existing=await request('A','GET','/rest/v1/day_logs?select=date&user_id=eq.'+sessions.A.user.id+'&date=eq.'+date);assert.deepEqual(existing.data,[]);
++   scope={owner:sessions.A.user.id,date,tag:'shaah-validation-'+crypto.randomUUID()};report.probeDate=date;
++   const claim=await request('A','POST','/rest/v1/day_logs',{user_id:scope.owner,date,data:{_checks:{},_social:{},_people:[],_note:scope.tag+':claimed'}});assert.equal(claim.status,201);scope.created=true;
++   await page.evaluate(({date,note})=>setNote(date,note),{date,note:scope.tag+':online'});await page.waitForFunction(date=>!_pending[date]&&!_offlineQueue[date],date);
++   let saved=await request('A','GET','/rest/v1/day_logs?select=data&user_id=eq.'+scope.owner+'&date=eq.'+date);assert.equal(saved.data?.[0]?.data?._note,scope.tag+':online');
++   await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);assert.equal(await page.evaluate(date=>getNote(date),date),scope.tag+':online');mark('new_tagged_day_save_survives_real_server_reload');
++   transport.offline=true;await context.setOffline(true);await page.evaluate(({date,note})=>setNote(date,note),{date,note:scope.tag+':offline'});await page.waitForFunction(date=>!!_offlineQueue[date]&&!_pending[date],date);
++   transport.offline=false;await context.setOffline(false);await page.evaluate(()=>flushOfflineQueue());
++   await page.waitForFunction(date=>!_offlineQueue[date],date);saved=await request('A','GET','/rest/v1/day_logs?select=data&user_id=eq.'+scope.owner+'&date=eq.'+date);assert.equal(saved.data?.[0]?.data?._note,scope.tag+':offline');mark('real_offline_retry_preserves_newest_probe_note');
++  }
++  report.phase='preservation';
++  const after={A:await rows('A'),B:await rows('B')};for(const who of ['A','B']){const unchanged=hash(after[who].filter(r=>!scope||who!=='A'||r.date!==scope.date))===hash(originalRows[who]);if(!unchanged)report.existingRowsChanged=true;assert.equal(unchanged,true);}
++  mark('all_preexisting_QA_rows_unchanged');assert.equal(report.runtimeErrors||0,0);mark('no_candidate_runtime_errors');
++  report.blockedUnexpectedApplicationWrites=audit.blockedWrites;report.blockedOperations=audit.blockedOperations||[];report.candidateHasPendingConfig=await page.evaluate(()=>!!_cfgDraft);report.realtimeSubscriptions=audit.allowedWebSockets;report.status='passed';
++ }catch(e){report.status='blocked';report.errorClass=e.name;report.code='QA_EXISTING_PROFILE_CHECK_FAILED';}
++ finally{
++  if(browser)await browser.close();
++  if(scope?.created&&request){try{
++   const r=await request('A','GET','/rest/v1/day_logs?select=data&user_id=eq.'+scope.owner+'&date=eq.'+scope.date);const note=r.data?.[0]?.data?._note;
++   if(note?.startsWith(scope.tag+':')&&hash(r.data[0].data)===hash(scope.lastData)){const deleted=await request('A','DELETE','/rest/v1/day_logs?user_id=eq.'+scope.owner+'&date=eq.'+scope.date+'&data=eq.'+encodeURIComponent(JSON.stringify(scope.lastData)),undefined,{Prefer:'return=representation'});assert.ok(deleted.ok);assert.equal(deleted.data?.length,1);report.probeCleanup='deleted_only_matching_new_probe';}
++   else{report.probeCleanup=r.data?.length?'kept_changed_probe_for_review':'no_probe_row';if(r.data?.length)report.status='blocked';}
++  }catch{report.probeCleanup='needs_review';report.status='blocked';}}
++  fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));if(report.status!=='passed')process.exitCode=2;
++ }
++});
+diff --git a/qa/supabase/guard.cjs b/qa/supabase/guard.cjs
+index 91b2cb1..5733b45 100644
+--- a/qa/supabase/guard.cjs
++++ b/qa/supabase/guard.cjs
+@@ -69,6 +69,12 @@ function temporaryHtml(source, key) {
+     source=source.replace(external[0],'<script>'+app+'</script>')
+       .replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\n?/,'');
+   }
++  // The production-only migration guard is a second, known endpoint literal.
++  // Retarget only that exact guard in the isolated copy; arbitrary production
++  // references still fail the final scan and all network routes stay allowlisted.
++  const migrationGuard="SUPABASE_URL!=='https://"+PRODUCTION_REF+".supabase.co'";
++  if(source.split(migrationGuard).length!==2)throw new Error('Unexpected migration guard; abort');
++  source=source.replace(migrationGuard,"SUPABASE_URL!=="+JSON.stringify(QA_ORIGIN));
+   const replacements = [
+     [/const SUPABASE_URL="[^"]*";/g, `const SUPABASE_URL=${JSON.stringify(QA_ORIGIN)};`],
+     [/const SUPABASE_KEY="[^"]*";/g, `const SUPABASE_KEY=${JSON.stringify(key)};`],
+diff --git a/source/app.css b/source/app.css
+index e18db4b..6e83795 100644
+--- a/source/app.css
++++ b/source/app.css
+@@ -2390,22 +2390,22 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ /* SOCIAL_INTEGRATION */
+ /* Inherits SHAAH's original type, colors and responsive application shell. */
+ .sf-capture{padding:14px;border:1px solid #34344a;border-radius:13px;background:#111120;margin:6px 0 12px;min-width:0}
+-.sf-heading,.sf-person{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.sf-heading strong{font-size:16px}.sf-buttons{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.sf-button{font:inherit;font-size:14px;min-height:42px;padding:9px 13px;border-radius:10px;background:#171725;color:#e2e2e2;border:1px solid #34344a;cursor:pointer;max-width:100%;overflow-wrap:anywhere}.sf-primary{background:#fbbf24;color:#07070f;border-color:#fbbf24}.sf-selected{background:#29200f;border-color:#fbbf24;color:#fbbf24}.sf-muted{font-size:13px;line-height:1.6;color:#adadbf;margin:4px 0;overflow-wrap:anywhere}.sf-field{display:block;font-size:13px;color:#adadbf;margin:12px 0}.sf-field input,.sf-field select{display:block;width:100%;box-sizing:border-box;background:#07070f;color:#e2e2e2;border:1px solid #34344a;border-radius:8px;padding:10px;margin-top:5px;font:inherit;font-size:16px;min-width:0}.sf-person{padding:12px 0;border-bottom:1px solid #22223a}.sf-person>div{min-width:0;overflow-wrap:anywhere}.sf-person:last-child{border-bottom:0}.sf-locations{border:1px solid #34344a;border-radius:8px;margin:15px 0}.sf-locations label,.sf-check{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px}.sf-locations input,.sf-check input{width:18px;height:18px}.sf-editor{max-width:620px;margin:10px auto;width:100%;box-sizing:border-box}.sf-scoring{margin:10px 0 18px}.sf-scoring summary{cursor:pointer;color:#adadbf;padding:10px 0;font-size:14px}.sf-editor [role=alert]{color:#f87171}.sf-editor h3{font-size:16px;margin-top:20px}
++.sf-heading,.sf-person{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.sf-heading strong{font-size:16px}.sf-buttons{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.sf-button{font:inherit;font-size:14px;min-height:42px;padding:9px 13px;border-radius:10px;background:rgba(var(--skin-rgb-171725,23,23,37),1);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);cursor:pointer;max-width:100%;overflow-wrap:anywhere}.sf-primary{background:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-07070f,7,7,15),1);border-color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}.sf-selected{background:rgba(var(--skin-rgb-29200f,41,32,15),1);border-color:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}.sf-muted{font-size:13px;line-height:1.6;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);margin:4px 0;overflow-wrap:anywhere}.sf-field{display:block;font-size:13px;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);margin:12px 0}.sf-field input,.sf-field select{display:block;width:100%;box-sizing:border-box;background:rgba(var(--skin-rgb-07070f,7,7,15),1);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:8px;padding:10px;margin-top:5px;font:inherit;font-size:16px;min-width:0}.sf-person{padding:12px 0;border-bottom:1px solid rgba(var(--skin-rgb-22223a,34,34,58),1)}.sf-person>div{min-width:0;overflow-wrap:anywhere}.sf-person:last-child{border-bottom:0}.sf-locations{border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:8px;margin:15px 0}.sf-locations label,.sf-check{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px}.sf-locations input,.sf-check input{width:18px;height:18px}.sf-editor{max-width:620px;margin:10px auto;width:100%;box-sizing:border-box}.sf-scoring{margin:10px 0 18px}.sf-scoring summary{cursor:pointer;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);padding:10px 0;font-size:14px}.sf-editor [role=alert]{color:rgba(var(--skin-rgb-f87171,248,113,113),1)}.sf-editor h3{font-size:16px;margin-top:20px}
+ /* Compact contact tiles: roughly one tenth the previous desktop footprint. */
+ .sf-grid,.soc .sf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin:8px 0 16px}
+-.sf-tile{position:relative;display:flex;flex-direction:column;gap:5px;padding:7px;border:1px solid #34344a;border-radius:8px;background:#111120;min-width:0}
++.sf-tile{position:relative;display:flex;flex-direction:column;gap:5px;padding:7px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:8px;background:rgba(var(--skin-rgb-111120,17,17,32),1);min-width:0}
+ .sf-tile .sf-heading{position:absolute;top:3px;right:3px}
+ .sf-tile .sf-category,.sf-tile>.sf-muted{display:none}
+ .sf-name{display:block;font-size:13px;line-height:24px;padding-right:33px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .sf-tile .sf-heading .sf-button{font-size:10px;min-height:26px;padding:3px;border:0;background:transparent}
+ .sf-tile>.sf-button{font-size:12px;min-height:30px;padding:4px 6px;border-radius:5px;margin-top:auto}
+-.sf-seen{border-color:#fbbf24}.sf-new{border-style:dashed;justify-content:center}.sf-new>strong{display:none}.sf-new>.sf-button{margin:0;min-height:59px}
++.sf-seen{border-color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}.sf-new{border-style:dashed;justify-content:center}.sf-new>strong{display:none}.sf-new>.sf-button{margin:0;min-height:59px}
+ 
+ /* Original-density social overview with direct encounter actions. */
+-.sd-toolbar,.sd-caption{display:flex;align-items:center;justify-content:space-between;gap:12px}.sd-toolbar>.sf-button{font-size:12px;min-height:34px;padding:6px 12px}.sd-recent{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:3px 0 10px}.sd-recent .sec{margin:0 8px 0 0;font-size:10px}.sd-recent .sf-button{font-size:12px;min-height:30px;padding:4px 10px;border-radius:6px}.sd-search{max-width:460px}.sd-search .sf-field{font-size:11px;margin:8px 0 16px}.sd-search input{font-size:13px;padding:8px}.sd-caption{margin:8px 0}.sd-caption .sec{margin:0}.sd-caption>span:last-child{font-size:11px;color:#8888a4}.sd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,285px),1fr));gap:6px 20px;padding:12px!important}.sd-contact{display:flex;align-items:center;gap:2px;min-width:0;border-radius:6px}.sd-contact:hover{background:#ffffff06}.sd-person{display:flex;align-items:center;gap:9px;flex:1;min-width:0;text-align:left;background:transparent;border:0;color:inherit;padding:8px 3px;cursor:pointer;font:inherit;min-height:58px}.sd-icon{width:20px;text-align:center;font-size:14px;flex-shrink:0}.sd-identity{min-width:0;flex:1}.sd-identity .w-name{display:block;font-size:14px;color:#e2e2e2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sd-identity .w-when{display:block;font-size:11px;color:#8888a4;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sd-timing{width:72px;flex-shrink:0}.sd-timing .w-due{display:block;text-align:right;font-size:11px;margin-top:5px;white-space:nowrap}.sd-edit{font:inherit;font-size:15px;color:#8888a4;background:transparent;border:0;border-radius:4px;width:27px;min-height:38px;cursor:pointer}.sd-edit:hover{color:#fbbf24;background:#ffffff09}.sd-done .sd-icon{color:#4ade80}.sd-done{background:#4ade8008}.sd-add{min-height:58px;border:1px dashed #34344a;border-radius:6px;background:transparent;color:#adadbf;font:inherit;font-size:12px;cursor:pointer}.sd-help{font-size:11px;color:#8888a4;line-height:1.7;margin:8px 0 15px}.sd-help span{margin-left:10px}.sd-combo{border-top:1px solid #22223a}.sd-person:focus-visible,.sd-edit:focus-visible,.sd-add:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}@media(max-width:600px){.sd-grid{gap:2px;padding:8px!important}.sd-help span{display:block;margin:0}.sd-category{display:none}}
++.sd-toolbar,.sd-caption{display:flex;align-items:center;justify-content:space-between;gap:12px}.sd-toolbar>.sf-button{font-size:12px;min-height:34px;padding:6px 12px}.sd-recent{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:3px 0 10px}.sd-recent .sec{margin:0 8px 0 0;font-size:10px}.sd-recent .sf-button{font-size:12px;min-height:30px;padding:4px 10px;border-radius:6px}.sd-search{max-width:460px}.sd-search .sf-field{font-size:11px;margin:8px 0 16px}.sd-search input{font-size:13px;padding:8px}.sd-caption{margin:8px 0}.sd-caption .sec{margin:0}.sd-caption>span:last-child{font-size:11px;color:rgba(var(--skin-rgb-8888a4,136,136,164),1)}.sd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,285px),1fr));gap:6px 20px;padding:12px!important}.sd-contact{display:flex;align-items:center;gap:2px;min-width:0;border-radius:6px}.sd-contact:hover{background:rgba(var(--skin-rgb-ffffff,255,255,255),0.023529411764705882)}.sd-person{display:flex;align-items:center;gap:9px;flex:1;min-width:0;text-align:left;background:transparent;border:0;color:inherit;padding:8px 3px;cursor:pointer;font:inherit;min-height:58px}.sd-icon{width:20px;text-align:center;font-size:14px;flex-shrink:0}.sd-identity{min-width:0;flex:1}.sd-identity .w-name{display:block;font-size:14px;color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sd-identity .w-when{display:block;font-size:11px;color:rgba(var(--skin-rgb-8888a4,136,136,164),1);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sd-timing{width:72px;flex-shrink:0}.sd-timing .w-due{display:block;text-align:right;font-size:11px;margin-top:5px;white-space:nowrap}.sd-edit{font:inherit;font-size:15px;color:rgba(var(--skin-rgb-8888a4,136,136,164),1);background:transparent;border:0;border-radius:4px;width:27px;min-height:38px;cursor:pointer}.sd-edit:hover{color:rgba(var(--skin-rgb-fbbf24,251,191,36),1);background:rgba(var(--skin-rgb-ffffff,255,255,255),0.03529411764705882)}.sd-done .sd-icon{color:rgba(var(--skin-rgb-4ade80,74,222,128),1)}.sd-done{background:rgba(var(--skin-rgb-4ade80,74,222,128),0.03137254901960784)}.sd-add{min-height:58px;border:1px dashed rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:6px;background:transparent;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);font:inherit;font-size:12px;cursor:pointer}.sd-help{font-size:11px;color:rgba(var(--skin-rgb-8888a4,136,136,164),1);line-height:1.7;margin:8px 0 15px}.sd-help span{margin-left:10px}.sd-combo{border-top:1px solid rgba(var(--skin-rgb-22223a,34,34,58),1)}.sd-person:focus-visible,.sd-edit:focus-visible,.sd-add:focus-visible{outline:2px solid rgba(var(--skin-rgb-fbbf24,251,191,36),1);outline-offset:2px}@media(max-width:600px){.sd-grid{gap:2px;padding:8px!important}.sd-help span{display:block;margin:0}.sd-category{display:none}}
+ 
+ /* Remaining-time pill: full after a visit, empty when due. */
+-.sd-contact{gap:10px}.sd-time-pill{position:relative;isolation:isolate;overflow:hidden;flex:0 0 76px;height:29px;border-radius:20px;background:#1c1d28;display:grid;place-items:center;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}.sd-pill-fill{position:absolute;inset:0 auto 0 0;height:100%;opacity:.3;pointer-events:none}.sd-pill-label{position:relative;z-index:1}.sd-edit{flex:0 0 32px;width:32px}.sd-identity{overflow:hidden}@media(pointer:coarse){.sd-edit{flex-basis:44px;width:44px;min-height:44px}}
++.sd-contact{gap:10px}.sd-time-pill{position:relative;isolation:isolate;overflow:hidden;flex:0 0 76px;height:29px;border-radius:20px;background:rgba(var(--skin-rgb-1c1d28,28,29,40),1);display:grid;place-items:center;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}.sd-pill-fill{position:absolute;inset:0 auto 0 0;height:100%;opacity:.3;pointer-events:none}.sd-pill-label{position:relative;z-index:1}.sd-edit{flex:0 0 32px;width:32px}.sd-identity{overflow:hidden}@media(pointer:coarse){.sd-edit{flex-basis:44px;width:44px;min-height:44px}}
+ 
+ /* Direct management list keeps frequency and membership visible. */
+ .sf-directory{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+@@ -2416,9 +2416,9 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ .sf-today-combo{margin:3px 0}.sf-today-combo>summary{padding:10px 12px}
+ @media(max-width:879px){.sd-search input,.sf-field input,.sf-field select{font-size:16px}}
+ .sf-compact-combo{margin:5px 0 12px;min-width:0}
+-.sf-combo-heading{font-size:inherit;margin:0 0 10px}.sf-combo-heading strong{font:inherit}.sf-combo-heading>span{margin-left:auto;font-size:11px;color:#7e7e97}
+-.sf-category-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:9px 0;background:none;border:0;border-top:1px solid #22223a;color:#adadbf;font:inherit;font-size:14px;text-align:left;cursor:pointer}
+-.sf-category-toggle.sf-selected{color:#fbbf24}.sf-combo-category .sf-buttons{margin:3px 0 7px;gap:5px}.sf-combo-category .sf-button{min-height:32px;padding:5px 9px;font-size:12px}
++.sf-combo-heading{font-size:inherit;margin:0 0 10px}.sf-combo-heading strong{font:inherit}.sf-combo-heading>span{margin-left:auto;font-size:11px;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1)}
++.sf-category-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:9px 0;background:none;border:0;border-top:1px solid rgba(var(--skin-rgb-22223a,34,34,58),1);color:rgba(var(--skin-rgb-adadbf,173,173,191),1);font:inherit;font-size:14px;text-align:left;cursor:pointer}
++.sf-category-toggle.sf-selected{color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}.sf-combo-category .sf-buttons{margin:3px 0 7px;gap:5px}.sf-combo-category .sf-button{min-height:32px;padding:5px 9px;font-size:12px}
+ .sf-directory-filters{display:flex;flex-wrap:wrap;gap:10px}.sf-directory-filters>.sf-field{flex:1;min-width:140px}.sf-work .sf-buttons{margin-bottom:0}
+ .t-social-independent{width:100%;max-width:390px}
+ @media(min-width:880px){.today>.t-social-independent{grid-column:2;grid-row:auto}}
+@@ -2437,13 +2437,13 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ .sf-reveal.is-open{grid-template-rows:1fr;opacity:1}
+ .sf-reveal-inner{overflow:hidden;min-height:0;min-width:0}
+ .sf-core-routine{min-width:0;box-sizing:border-box}
+-.sf-work,.sf-core-extra{background:#0d0d1a;border:1px solid #111120;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
++.sf-work,.sf-core-extra{background:rgba(var(--skin-rgb-0d0d1a,13,13,26),1);border:1px solid rgba(var(--skin-rgb-111120,17,17,32),1);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+ .sf-work-head{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:12px}
+-.sf-core-icon{width:46px;height:46px;border-radius:12px;background:#111120;border:1px solid #161626;display:grid;place-items:center;font-size:23px}
+-.sf-work-info{min-width:0}.sf-work-info .r-lab{font-size:17px;font-weight:500;color:#e2e2e2}.sf-work-info .r-sub{font-size:13px;color:#a4a4ba;margin-top:4px}
+-.sf-work-points{font-size:12px;color:#adadbf;white-space:nowrap}.sf-work-progress,.sf-work-targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+-.sf-work-segment{height:5px;border-radius:9px;background:#252535;transition:background .2s ease}.sf-work-segment.is-done{background:#e2e2e2}
+-.sf-work-targets{text-align:center;font-size:12px;color:#a4a4ba}.sf-core-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}.sf-work-register{min-height:38px;font-size:13px;margin:0;background:#e2e2e2;color:#080810}
++.sf-core-icon{width:46px;height:46px;border-radius:12px;background:rgba(var(--skin-rgb-111120,17,17,32),1);border:1px solid rgba(var(--skin-rgb-161626,22,22,38),1);display:grid;place-items:center;font-size:23px}
++.sf-work-info{min-width:0}.sf-work-info .r-lab{font-size:17px;font-weight:500;color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1)}.sf-work-info .r-sub{font-size:13px;color:rgba(var(--skin-rgb-a4a4ba,164,164,186),1);margin-top:4px}
++.sf-work-points{font-size:12px;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);white-space:nowrap}.sf-work-progress,.sf-work-targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
++.sf-work-segment{height:5px;border-radius:9px;background:rgba(var(--skin-rgb-252535,37,37,53),1);transition:background .2s ease}.sf-work-segment.is-done{background:rgba(var(--skin-rgb-e2e2e2,226,226,226),1)}
++.sf-work-targets{text-align:center;font-size:12px;color:rgba(var(--skin-rgb-a4a4ba,164,164,186),1)}.sf-core-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}.sf-work-register{min-height:38px;font-size:13px;margin:0;background:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);color:rgba(var(--skin-rgb-080810,8,8,16),1)}
+ .sf-work .sf-reveal .sf-buttons{margin:2px 0 0}.sf-work .sf-reveal .sf-button{font-size:12px;padding:6px 8px;min-height:34px}
+ @media(min-width:880px){
+  #scroll .today.sf-today-v27{align-items:start!important;align-content:start!important}
+@@ -2468,7 +2468,7 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ 
+ /* Consistent Today rhythm: no legacy vertical shifts or capped column widths. */
+ #scroll .today.sf-today-v27>.t-rout,#scroll .today.sf-today-v27>.t-lvl,#scroll .today.sf-today-v27>.t-note{margin:0!important;transform:none!important;width:100%!important;max-width:none!important;box-sizing:border-box}
+-#scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine{border:1px solid rgba(var(--skin-rgb-8888a4,136,136,164),.42)!important;box-shadow:0 1px 4px #00000014}
++#scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine{border:1px solid rgba(var(--skin-rgb-8888a4,136,136,164),.42)!important;box-shadow:0 1px 4px rgba(var(--skin-rgb-000000,0,0,0),0.0784313725490196)}
+ #scroll .today.sf-today-v27>.t-rout{border-color:rgba(var(--skin-rgb-8888a4,136,136,164),.32)!important}
+ .sf-work-targets small{display:block;font-size:10px;opacity:.8;margin-top:3px}
+ .sf-work-register{min-height:42px}
+@@ -2482,12 +2482,12 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ .sf-directory .sf-managed{display:flex;flex-direction:column;gap:5px;padding:12px;min-width:0}
+ .sf-directory .sf-heading{position:static;flex-wrap:nowrap;gap:6px}
+ .sf-directory .sf-category{font-size:11px;flex:1;min-width:0;overflow-wrap:anywhere}
+-.sf-directory .sf-heading .sf-button{font-size:12px;min-height:32px;padding:5px 8px;border:1px solid #34344a}
++.sf-directory .sf-heading .sf-button{font-size:12px;min-height:32px;padding:5px 8px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1)}
+ .sf-directory .sf-name{line-height:1.35;margin-top:1px}
+ .sf-directory .sf-managed>.sf-muted{font-size:12px;line-height:1.45;margin:0}
+ .sf-directory-filters{gap:8px}.sf-directory-filters>.sf-field{margin:8px 0}
+ .sf-group-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:8px;margin:10px 0}
+-.sf-group-tile{display:flex;flex-direction:column;gap:4px;border:1px solid #34344a;border-radius:8px;padding:10px;min-width:0}
++.sf-group-tile{display:flex;flex-direction:column;gap:4px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:8px;padding:10px;min-width:0}
+ .sf-group-tile strong{font-size:14px;overflow-wrap:anywhere}.sf-group-tile .sf-muted{margin:0}
+ .sf-group-tile .sf-button{align-self:flex-start;min-height:32px;font-size:12px;padding:5px 8px;margin-top:auto}
+ .sf-group-add{border-style:dashed;min-height:86px}
+@@ -2532,11 +2532,11 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ @media(prefers-reduced-motion:reduce){.sf-work-meter-part{transition:none}}
+ 
+ /* Group edits live in the browser top layer, independent of page scroll. */
+-.sf-group-dialog{position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0;padding:0;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--skin-edge);border-radius:16px;background:var(--skin-panel);color:var(--skin-copy);box-shadow:0 18px 60px #0008;font:inherit}
+-.sf-group-dialog::backdrop{background:#0009;backdrop-filter:blur(3px)}
++.sf-group-dialog{position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0;padding:0;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--skin-edge);border-radius:16px;background:var(--skin-panel);color:var(--skin-copy);box-shadow:0 18px 60px rgba(var(--skin-rgb-000000,0,0,0),0.5333333333333333);font:inherit}
++.sf-group-dialog::backdrop{background:rgba(var(--skin-rgb-000000,0,0,0),0.6);backdrop-filter:blur(3px)}
+ .sf-group-dialog-card{padding:22px}.sf-group-dialog h2{font-size:19px;font-weight:500;margin:0 0 16px}.sf-group-dialog .sf-field{margin:0;color:var(--skin-muted)}
+ .sf-group-dialog input{background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy)}
+-.sf-group-dialog .sf-buttons{justify-content:flex-end;margin:18px 0 0}.sf-group-dialog [role=alert]{color:#f87171;font-size:13px}
++.sf-group-dialog .sf-buttons{justify-content:flex-end;margin:18px 0 0}.sf-group-dialog [role=alert]{color:rgba(var(--skin-rgb-f87171,248,113,113),1);font-size:13px}
+ /* Core shares the existing level-card palette; Work is one continuous bar. */
+ #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine{background:transparent!important;border-color:rgba(var(--skin-rgb-34344a,52,52,74),.65)!important}
+ .sf-work-meter{gap:0;border:1px solid var(--skin-edge);overflow:hidden;background:var(--skin-panel);border-radius:9px}
+@@ -2578,7 +2578,7 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ #scroll .today.sf-today-v27 .t-rout-body>.sf-work-reference{grid-template-rows:auto 1fr auto!important;align-content:stretch!important}
+ #scroll .today.sf-today-v27 .sf-work-track{align-self:center}
+ #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine>.sf-core-actions{align-self:end}
+-.sf-work-settings{padding:14px;margin-bottom:10px}.sf-work-settings-row{display:grid;grid-template-columns:20px 1fr 1fr;gap:10px;align-items:center;margin:10px 0}.sf-work-settings-row label{display:grid;gap:5px;color:var(--skin-muted);font-size:13px}.sf-work-settings-row input{width:100%;min-width:0;box-sizing:border-box;background:var(--skin-input-bg,#111120);border:1px solid var(--skin-input-border,#29293c);color:var(--skin-copy,#e2e2e2);border-radius:8px;padding:8px;font:inherit}#work-settings-error{color:#f87171;font-size:13px}
++.sf-work-settings{padding:14px;margin-bottom:10px}.sf-work-settings-row{display:grid;grid-template-columns:20px 1fr 1fr;gap:10px;align-items:center;margin:10px 0}.sf-work-settings-row label{display:grid;gap:5px;color:var(--skin-muted);font-size:13px}.sf-work-settings-row input{width:100%;min-width:0;box-sizing:border-box;background:var(--skin-input-bg,rgba(var(--skin-rgb-111120,17,17,32),1));border:1px solid var(--skin-input-border,rgba(var(--skin-rgb-29293c,41,41,60),1));color:var(--skin-copy,rgba(var(--skin-rgb-e2e2e2,226,226,226),1));border-radius:8px;padding:8px;font:inherit}#work-settings-error{color:rgba(var(--skin-rgb-f87171,248,113,113),1);font-size:13px}
+ 
+ /* Keep the last Social controls clear of the fixed mobile navigation. */
+ @media(max-width:879px){.soc{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}}
+@@ -2620,10 +2620,10 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
+ .sd-location-control{display:flex;align-items:center;gap:7px;min-width:0;max-width:100%;margin:8px 0 12px}
+ .sd-location-control>div{min-width:0}.sd-location-control>div>div{margin:0!important}
+ .sd-location-control select{max-width:100%}
+-.sd-location-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 9px;flex:0 0 auto;min-height:36px;border:1px solid #34344a;border-radius:8px;background:#111120;color:#adadbf;font:inherit;cursor:pointer}
+-.sd-location-toggle:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}
++.sd-location-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 9px;flex:0 0 auto;min-height:36px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:8px;background:rgba(var(--skin-rgb-111120,17,17,32),1);color:rgba(var(--skin-rgb-adadbf,173,173,191),1);font:inherit;cursor:pointer}
++.sd-location-toggle:focus-visible{outline:2px solid rgba(var(--skin-rgb-fbbf24,251,191,36),1);outline-offset:2px}
+ 
+-.sd-location-toggle[aria-pressed="true"]{background:#29200f;border-color:#fbbf24;color:#fbbf24}
++.sd-location-toggle[aria-pressed="true"]{background:rgba(var(--skin-rgb-29200f,41,32,15),1);border-color:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-fbbf24,251,191,36),1)}
+ 
+ /* Social mobile header: keep Who to See at its existing left edge. */
+ @media(max-width:879px){
+diff --git a/source/app.js b/source/app.js
+index 4f565c0..89c0d24 100644
+--- a/source/app.js
++++ b/source/app.js
+@@ -288,6 +288,7 @@ function setSkin(id){
+   return true;
+ }
+ function initSkin(){
++  ["1c1d28", "252535", "29293c"].forEach(hex=>_skinColors.add(hex));
+   _skinColors.add('171725');_skinColors.add('34344a');_skinColors.add('a78bfa');
+   try{const id=localStorage.getItem(SKIN_KEY);_skin=SKINS.some(s=>s.id===id)?id:'classic';}catch(e){_skin='classic';}
+   applySkin();
+@@ -929,6 +930,7 @@ const UI_ACTIONS=Object.freeze({
+   exportUnownedOffline:uiRule('click',[],()=>exportUnownedOffline()),
+   closeReview:uiRule('click',[],()=>closeReview()),
+   toggleSec:uiRule('click',['string'],(n,e,key)=>toggleSec(key)),
++  cfgLevel:uiRule('change',['string'],(n,e,id)=>cfgLevel(id,Number(n.value))),
+   cfgMove:uiRule('click',['string','integer'],(n,e,id,d)=>cfgMove(id,d)),
+   cfgSet:uiRule('change',['string','habitField'],(n,e,id,field)=>cfgSet(id,field,field==='i'?n.value.slice(0,3):n.value)),
+   cfgVacationPoints:uiRule('change',['string'],(n,e,id)=>cfgEdit(()=>{ensureModePts(CFG.h[id]);CFG.h[id].pVacation=Math.max(0,parseInt(n.value)||0);CFG.h[id].p=modePts(CFG.h[id],travelMode());})),
+@@ -1469,15 +1471,22 @@ function cfgLog(){ if(!Array.isArray(CFG.log))CFG.log=[]; return CFG.log; }
+ // Wrap every change that affects scoring. Seals the old config over the past,
+ // then stamps the new one as effective from today.
+ function cfgEdit(fn){
++  // Loading/conflicted settings must not accept edits that cannot be persisted safely.
++  if(USER&&(!_cfgReady||_cfgConflict))return false;
++  const before=JSON.parse(JSON.stringify(CFG));
+   const lg=cfgLog();
++  if(lg.some(e=>!e||!DATE_RE.test(e.from)||!Number.isFinite(Date.parse(e.from+'T12:00:00Z'))||new Date(e.from+'T12:00:00Z').toISOString().slice(0,10)!==e.from||!e.h||!Array.isArray(e.order))||
++     new Set(lg.map(e=>e.from)).size!==lg.length)return false;
++  lg.sort((a,b)=>a.from.localeCompare(b.from));
+   if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
+-  fn();
++  try{fn();}catch(error){CFG=before;_dayCfgCache={};throw error;}
+   const tk=todayKey(), cur=cfgSnap(), last=lg.find(e=>e.from===tk);
+   if(last&&last.from===tk){last.h=cur.h;last.order=cur.order;last.subs=cur.subs;last.mode=cur.mode;}
+   else lg.push({from:tk,h:cur.h,order:cur.order,subs:cur.subs,mode:cur.mode});
+   lg.sort((a,b)=>a.from.localeCompare(b.from));   // keep the epoch baseline
+   _dayCfgCache={};
+   saveCfg(); render();
++  return true;
+ }
+ function cfgForDate(key){
+   const lg=cfgLog();
+@@ -2610,6 +2619,7 @@ function renderSettings(){
+           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
+             <button ${ui('click','cfgMove' ,id,-1)} class="ord">▲</button>
+             <button ${ui('click','cfgMove' ,id,1)} class="ord">▼</button>
++            <select aria-label="Habit level" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>
+           </div>
+           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="icon"
+             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
+@@ -2738,6 +2748,10 @@ function cfgDel(id){
+   cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); });
+ }
+ function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
++function cfgLevel(id,level){
++  if(!Number.isInteger(level)||level<1||level>3||!CFG.h[id]||CFG.h[id].combo||CFG.h[id].lv===level)return;
++  cfgEdit(()=>{CFG.h[id].lv=level;});
++}
+ function cfgMove(id,dir){
+   const lv=CFG.h[id]&&CFG.h[id].lv; if(!lv)return;
+   const peers=CFG.order.filter(x=>CFG.h[x]&&CFG.h[x].lv===lv);
+@@ -3795,19 +3809,23 @@ function weekReview(){
+   const d=getDays(14),cur=d.slice(7),prev=d.slice(0,7);
+   const logged=cur.filter(x=>x.data);
+   if(!logged.length)return null;
+-  const avg=Math.round(logged.reduce((a,x)=>a+x.data.score,0)/logged.length);
++  const avg=Math.round(logged.reduce((a,x)=>a+dPct(x.data),0)/logged.length);
+   const pl=prev.filter(x=>x.data);
+-  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+x.data.score,0)/pl.length):null;
++  const pavg=pl.length?Math.round(pl.reduce((a,x)=>a+dPct(x.data),0)/pl.length):null;
+   // per-habit hit rate across the week
+-  const items=[...LVL1,...LVL2,...LVL3];
+-  const tally=items.map(it=>{
+-    let done=0;
+-    cur.forEach(x=>{const ch=getChecked(x.key);if(ch&&ch[it.id])done++;});
+-    return {...it,done,rate:Math.round(done/7*100)};
+-  }).filter(t=>t.pts>0);
++  const byId=new Map();
++  for(const x of cur){
++    const cfg=cfgForDate(x.key),checks=getChecked(x.key)||{};
++    for(const it of [...cfg.L1,...cfg.L2,...cfg.L3]){
++      if(it.pts<=0)continue;
++      const t=byId.get(it.id)||{...it,done:0,eligible:0};
++      t.eligible++;t.done+=doneFrac(checks[it.id]);byId.set(it.id,t);
++    }
++  }
++  const tally=[...byId.values()].map(t=>({...t,rate:Math.round(t.done/t.eligible*100)}));
+   const sorted=[...tally].sort((a,b)=>b.rate-a.rate);
+   const best=sorted[0],worst=sorted[sorted.length-1];
+-  const bestDay=logged.reduce((m,x)=>!m||x.data.score>m.data.score?x:m,null);
++  const bestDay=logged.reduce((m,x)=>!m||dPct(x.data)>dPct(m.data)?x:m,null);
+   return{avg,pavg,diff:pavg==null?null:avg-pavg,tally:sorted,best,worst,bestDay,days:logged.length,cur};
+ }
+ function renderWeekReview(){
+@@ -3832,7 +3850,7 @@ function renderWeekReview(){
+           <div ${uiStyle(`font-size:13px;color:${acol};margin-top:5px`)}>
+             ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
+           </div>
+-          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${r.bestDay.data.score}%</div>`:""}
++          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString("en-US",{weekday:"short"})} · ${dPct(r.bestDay.data)}%</div>`:""}
+         </div>
+       </div>
+       <div ${uiStyle(`display:flex;gap:8px;margin-bottom:16px`)}>
+@@ -3948,8 +3966,8 @@ function renderStats(){
+   }
+   const metrics = [
+     {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
+-    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/7`,col:"#4ade80",sub:review?.best?.label||"—"},
+-    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/7`,col:"#ef4444",sub:review?.worst?.label||"—"},
++    {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/${review?.best?.eligible??7}`,col:"#4ade80",sub:review?.best?.label||"—"},
++    {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/${review?.worst?.eligible??7}`,col:"#ef4444",sub:review?.worst?.label||"—"},
+     {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
+     {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
+     {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
+@@ -4490,7 +4508,7 @@ function socialCancel(){socialDraft=null;socialFormError='';render();}
+ function socialSave(){
+   const d=socialDraft;if(!d)return;
+   const name=String(d.name||'').trim().slice(0,40),every=Number(d.every);
+-  if(!name||!Number.isInteger(every)||every<1||every>3650||(d.sub!=='family'&&!socialCategories().some(s=>s.id===d.sub))){
++  if(!name||!Number.isInteger(every)||every<1||every>3650||(d.sub!=='family'&&!socialCategories().some(s=>s.id===d.sub)&&!(d.id&&socialCategory(personById(d.id)||{})===d.sub))){
+     socialFormError='Completa el nombre, la frecuencia (1–3650 días) y una categoría activa.';render();return;
+   }
+   let p=d.id?personById(d.id):null;
+@@ -4499,7 +4517,7 @@ function socialSave(){
+   const fresh=!p;
+   if(fresh){let id;do{id='p'+Math.random().toString(36).slice(2,10);}while(personById(id));p={id};peopleList().push(p);}
+   // Keep unknown location references so editing cannot silently lose legacy data.
+-  Object.assign(p,{name,every,sub:d.sub,relationship:d.sub==='family'?'family':d.sub==='flirt'?'romantic':'friends',locations:[...d.locations]});
++  Object.assign(p,{name,every,sub:d.sub,relationship:d.sub==='family'?'family':d.sub==='flirt'?'romantic':socialCategories().some(s=>s.id===d.sub)?'friends':(p.relationship||d.relationship||'friends'),locations:[...d.locations]});
+   const key=d.key;socialDraft=null;socialFormError='';saveCfg();
+   if(fresh&&key)socialRecord(p.id,key);else render();
+ }
+@@ -4510,7 +4528,7 @@ function socialEditor(){
+     ${socialFormError?`<p role="alert">${esc(socialFormError)}</p>`:''}
+     <label class="sf-field">Nombre<input id="sf-name" maxlength="40" value="${esc(d.name)}" ${ui('input','socialDraftName')}></label>
+     <label class="sf-field">Verlo cada cuántos días<input id="sf-every" type="number" min="1" max="3650" step="1" placeholder="7 = semanal · 30 = mensual" value="${esc(d.every)}" ${ui('input','socialDraftEvery')}></label>
+-    <label class="sf-field">Categoría<select id="sf-sub" ${ui('change','socialDraftSub')}>${socialCategories().map(s=>`<option value="${esc(s.id)}" ${d.sub===s.id?'selected':''}>${esc(s.label)}</option>`).join('')}</select></label>
++    <label class="sf-field">Categoría<select id="sf-sub" ${ui('change','socialDraftSub')}>${socialCategories().map(s=>`<option value="${esc(s.id)}" ${d.sub===s.id?'selected':''}>${esc(s.label)}</option>`).join('')}${!socialCategories().some(s=>s.id===d.sub)?`<option value="${esc(d.sub)}" selected>${d.sub==='family'?'Family':esc(d.sub)+' · categoría anterior'}</option>`:''}</select></label>
+ 
+     <fieldset class="sf-locations"><legend>Lugares</legend>${locationGroups().map(g=>`<label><input type="checkbox" ${d.locations.includes(g.id)?'checked':''} ${ui('change','socialDraftLocation',g.id)}> ${esc(g.name)}</label>`).join('')||'<span class="sf-muted">Puedes crear lugares desde Social → Grupos.</span>'}<div class="sf-muted">Sin lugares asignados: aparece en todos.</div></fieldset>
+     ${socialButton(d.id?'Guardar cambios':d.key?'Guardar y registrar encuentro':'Guardar persona','socialSave',[],true)}
+@@ -4718,7 +4736,7 @@ function workPhaseCard(key,item){
+ }
+ function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(state?'Desmarcar':'Completar','toggleHabit',[item.id,key],!!state)}</div></section>`;}
+ 
+-function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px`)}>
++function socialGeneralSettings(){const bulkOpen=!!document.getElementById('social-bulk-details')?.open;return `      <div ${uiStyle(`margin-bottom:4px`)}>
+         <div class="sec" ${uiStyle(`color:#fbbf24`)}>👥 SOCIAL COMBO — ${subsOn(subsList()).length} ACTIVE${subsOn(subsList()).length<subsList().length?` · ${subsList().length-subsOn(subsList()).length} PAUSED`:""}</div>
+         <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:8px`)}>Each part is worth its own points and the combo is their sum — <b ${uiStyle(`color:#fbbf24`)}>${subsOn(subsList()).reduce((a,y)=>a+safePts(y.p),0)}%</b> right now. Adding or pausing a part changes the combo from today on; past days keep what they were scored with.</div>
+         ${subsList().map((x,i)=>`
+@@ -4737,7 +4755,7 @@ function socialGeneralSettings(){return `      <div ${uiStyle(`margin-bottom:4px
+           ${subsList().length>1?`<button ${ui('click','subDel' ,i)} title="Remove" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
+         </div>`).join("")}
+         <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>+ ADD TO COMBO</button>
+-      </div>${socialRulesHTML()}<details class="sf-scoring"><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>`;}
++      </div>${socialRulesHTML()}<details id="social-bulk-details" class="sf-scoring" ${bulkOpen?'open':''}><summary>Organizar varias personas por grupo</summary>${bulkPeoplePanel()}</details>`;}
+ 
+ 
+ boot();
+diff --git a/tests/browser-helpers.cjs b/tests/browser-helpers.cjs
+index c93e2ae..e3e2c93 100644
+--- a/tests/browser-helpers.cjs
++++ b/tests/browser-helpers.cjs
+@@ -41,7 +41,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
+     // The previous Original loaded Google font CSS. Compare it with the same
+     // validated self-contained font bytes, without any external request.
+     if(parsed.origin==='https://fonts.googleapis.com'){
+-      return route.fulfill({contentType:'text/css',body:fs.readFileSync('/workspace/sites/shaah-test-preview/fonts.css','utf8')});
++      return route.fulfill({contentType:'text/css',body:fs.readFileSync(options.fontCSSFile||path.join(pageRoot,'assets','fonts.css'),'utf8')});
+     }
+     // Fonts and any other external resource never leave this test context.
+     if (!url.startsWith('https://fonts.')) unexpectedRequests.push(url);
+diff --git a/tests/core-unboxed-browser.test.cjs b/tests/core-unboxed-browser.test.cjs
+index 995393a..1befeaa 100644
+--- a/tests/core-unboxed-browser.test.cjs
++++ b/tests/core-unboxed-browser.test.cjs
+@@ -9,7 +9,9 @@ test('Core Routines is plain text with independent cards; responsive controls an
+  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
+  await page.locator('.nav-btn[data-tab="today"]').click();
+  const saved=await page.evaluate(()=>JSON.stringify({cfg:CFG,days:_state,score:calcScore(todayKey())}));
+- const geometry=()=>page.evaluate(()=>{
++ const baseline=await openApp(t,{config:a.read('CFG'),days:a.read('_state')},{width:1440,height:1000},{htmlFile:require('../qa/prepare-habit-baseline.cjs').prepare()});
++ await baseline.locator('.nav-btn[data-tab="today"]').click();
++ const geometry=(target=page)=>target.evaluate(()=>{
+   const style=s=>{const e=document.querySelector(s),c=getComputedStyle(e),r=e.getBoundingClientRect();return {bg:c.backgroundColor,border:c.borderTopWidth,pad:c.padding,shadow:c.boxShadow,x:r.x,y:r.y,w:r.width,h:r.height}};
+   return {group:style('.sf-today-v27>.t-rout'),header:style('.t-rout-toggle'),total:style('.sf-core-total'),cards:[...document.querySelectorAll('.t-rout-body>.sf-core-routine')].map(e=>({text:e.textContent,bg:getComputedStyle(e).backgroundColor,border:getComputedStyle(e).borderTopWidth,w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height})),other:['.t-lvl2','.t-lvl3','.t-social-independent','.t-note'].map(style)};
+  });
+@@ -22,9 +24,8 @@ test('Core Routines is plain text with independent cards; responsive controls an
+   assert.equal(await page.locator('.sf-core-total').innerText(),'0/60');assert.equal(current.cards.length,2);
+   for(const card of current.cards){assert.equal(card.border,'1px');assert.notEqual(card.bg,'rgba(0, 0, 0, 0)');}
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no overflow');
+-  // Compare against the exact CSS served before this change: card content and
+-  // sizes remain intact, apart from the width recovered from outer padding.
+-  const sheet=await page.addStyleTag({url:'http://shaah.test/assets/app.669f2fdb1ac44f8a.css'});const before=await geometry();await sheet.evaluate(e=>e.remove());
++  // Compare against exact main with its current typography and responsive styles.
++  await baseline.setViewportSize({width,height:1000});const before=await geometry(baseline);
+   for(let i=0;i<current.cards.length;i++)assert.equal(current.cards[i].text,before.cards[i].text);
+   for(let i=0;i<current.other.length;i++)assert.deepEqual({...current.other[i],y:0},{...before.other[i],y:0},'unrelated cards keep style and dimensions');
+  }
+@@ -35,6 +36,6 @@ test('Core Routines is plain text with independent cards; responsive controls an
+  await page.screenshot({path:process.env.SHAAH_CORE_SCREENSHOT||'/tmp/shaah-core-unboxed.png',fullPage:true});
+  await page.locator('.t-rout-toggle').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);
+  await page.locator('.t-rout-toggle').press('Enter');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
+- for(const points of [10,20,25,0]){await page.locator('.sf-work-next').click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);}
++ for(const points of [10,20,25,0]){await page.locator('.sf-work-next,.wg-card').click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);}
+  await page.getByRole('button',{name:'Completar',exact:true}).click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),35);
+ });
+diff --git a/tests/csp-events-browser.test.cjs b/tests/csp-events-browser.test.cjs
+index b27e829..1d30daf 100644
+--- a/tests/csp-events-browser.test.cjs
++++ b/tests/csp-events-browser.test.cjs
+@@ -15,28 +15,31 @@ async function noEventAttributes(page){
+   assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('*')].flatMap(node=>[...node.attributes].filter(a=>/^on/i.test(a.name)).map(a=>a.name))),[]);
+ }
+ 
+-test('strict CSP permits bulk membership, individual edits and ordinary Unicode legacy IDs without changing history',async t=>{
++test('strict CSP permits bulk membership and Unicode contact editing without changing history',async t=>{
+   const data=locationFixture(),id="old O'Neil & 雪";data.config.people[0].id=id;
+   const page=await open(t,data),before=await history(page);
+   await page.getByRole('button',{name:'Settings',exact:true}).click();
+-  await section(page,'People');
++  await section(page,'Social Settings');
++  await page.getByText('Organizar varias personas por grupo',{exact:true}).click();
+   await control(page,'change','bulkPeopleToggle',[id],'input').check();
++  assert.equal(await page.locator('#social-bulk-details').evaluate(n=>n.open),true,'Bulk selection preserves the native disclosure');
+   await page.getByRole('button',{name:'+ Panamá',exact:true}).click();
+   assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa']);
+-  await control(page,'change','locationTogglePerson',[id,'il'],'input').check();
+-  const name=control(page,'change','personSet',[id,'name'],'input');await name.fill('Synthetic Unicode contact');await name.press('Tab');
++  await page.getByRole('button',{name:'Abrir Social →',exact:true}).click();
++  await page.getByRole('button',{name:/People & Groups/}).click();
++  await page.locator('#social-directory-results').locator('[data-ui-click="socialEdit"]').filter({hasText:'Editar'}).first().click();
++  await control(page,'change','socialDraftLocation',['il'],'input').check();
++  await page.locator('#sf-name').fill('Synthetic Unicode contact');
++  await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
++  assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa','il']);
+   assert.equal(await page.evaluate(id=>personById(id).name,id),'Synthetic Unicode contact');
+-  await control(page,'change','personSetInactive',[id],'input').click();
+-  await page.getByRole('button',{name:'Inactive',exact:true}).click();
+-  await control(page,'change','personSetInactive',[id],'input').click();
+-  assert.equal(await page.evaluate(id=>personById(id).inactive,id),false);
+   assert.equal(await history(page),before);await noEventAttributes(page);
+ });
+ 
+ test('strict CSP preserves separate Work/Vacation editor values and score history',async t=>{
+   const page=await open(t),before=await history(page);
+   await page.getByRole('button',{name:'Settings',exact:true}).click();await section(page,'Habits & weights');
+-  const work=control(page,'change','cfgSet',['meditation','p'],'input');await work.fill('12');await work.press('Tab');
++  const work=control(page,'change','cfgSet',['meditation','pWork'],'input');await work.fill('12');await work.press('Tab');
+   const vacation=control(page,'change','cfgVacationPoints',['meditation'],'input');await vacation.fill('8');await vacation.press('Tab');
+   assert.deepEqual(await page.evaluate(()=>[CFG.h.meditation.pWork,CFG.h.meditation.pVacation]),[12,8]);
+   await section(page,'Modes');await control(page,'click','setTravelMode',['vacation'],'button').click();
+@@ -51,9 +54,9 @@ test('strict CSP preserves separate Work/Vacation editor values and score histor
+ 
+ test('strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls',async t=>{
+   const page=await open(t),before=await history(page);
+-  const friends=page.locator('.cb-row').filter({hasText:'Friends'});await friends.focus();await friends.press('Enter');
++  const friends=control(page,'click','socialCategoryToggle',['friends','2026-10-16'],'button');await friends.focus();await friends.press('Enter');
+   const chosen=await page.evaluate(()=>getSocial(todayKey()).friends);
+-  await page.getByTitle('Ana Existing',{exact:true}).click();
++  await page.locator('.sf-combo-category').filter({has:friends}).getByRole('button',{name:'Ana Existing',exact:true}).click();
+   assert.equal(await page.evaluate(()=>getSocial(todayKey()).friends),chosen,'Child tagging does not activate the parent row');
+   await page.locator('.nav-btn[data-tab="today"]').click();
+   const note=page.locator('textarea').first();await note.fill('Synthetic note under strict CSP');await note.press('Tab');
+@@ -94,23 +97,23 @@ test('strict CSP permits activity create, edit and delete without changing older
+ });
+ 
+ test('strict CSP preserves routine step editors, timer controls and discard confirmation',async t=>{
+-  const data=locationFixture();data.config.h.work.routine=true;
+-  for(const era of data.config.log)era.h.work.routine=true;
+-  data.config.routines.work={label:'Synthetic routine',icon:'W',col:'#4ade80',steps:[{label:'First step',icon:'1',dur:1},{label:'Second step',icon:'2',dur:1}]};
++  const data=locationFixture();data.config.h.meditation.routine=true;data.config.h.meditation.lv=1;
++  for(const era of data.config.log){era.h.meditation.routine=true;era.h.meditation.lv=1;}
++  data.config.routines.meditation={label:'Synthetic routine',icon:'W',col:'#4ade80',steps:[{label:'First step',icon:'1',dur:1},{label:'Second step',icon:'2',dur:1}]};
+   const page=await open(t,data),before=await page.evaluate(()=>calcScore('2026-09-16'));
+   await page.getByRole('button',{name:'Settings',exact:true}).click();await section(page,'Routines');
+-  const label=control(page,'change','stepSet',['work',0,'label'],'input');await label.fill('Synthetic renamed step');await label.press('Tab');
+-  const duration=control(page,'change','stepSet',['work',0,'dur'],'input');await duration.fill('2');await duration.press('Tab');
+-  assert.deepEqual(await page.evaluate(()=>[CFG.routines.work.steps[0].label,CFG.routines.work.steps[0].dur]),['Synthetic renamed step',2]);
++  const label=control(page,'change','stepSet',['meditation',0,'label'],'input');await label.fill('Synthetic renamed step');await label.press('Tab');
++  const duration=control(page,'change','stepSet',['meditation',0,'dur'],'input');await duration.fill('2');await duration.press('Tab');
++  assert.deepEqual(await page.evaluate(()=>[CFG.routines.meditation.steps[0].label,CFG.routines.meditation.steps[0].dur]),['Synthetic renamed step',2]);
+   await page.getByRole('button',{name:'Back',exact:true}).click();await page.locator('.nav-btn[data-tab="today"]').click();
+   if(await page.locator('.t-rout.collapsed').count())await control(page,'click','toggleTodayRoutines',[]).click();
+-  await page.locator('[data-ui-click="startRoutine"],[data-ui-click="openRoutine"]').filter({visible:true}).first().click();
+-  assert.equal(await page.evaluate(()=>routineId),'work');
+-  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.running),true);
+-  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.running),false);
++  await control(page,'click','startRoutine',['meditation']).or(control(page,'click','openRoutine',['meditation'])).or(control(page,'click','startRoutineNested',['meditation'])).filter({visible:true}).first().click();
++  assert.equal(await page.evaluate(()=>routineId),'meditation');
++  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),true);
++  await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),false);
+   await control(page,'click','routineReset',[],'button').click();assert.equal(await page.evaluate(()=>timerSecs),120);
+-  await control(page,'click','routineSendToEnd',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q[0]),1);
+-  await control(page,'click','routineNext',[],'button').click();assert.equal(await page.evaluate(()=>sessions.work.q.length),1);
++  await control(page,'click','routineSendToEnd',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q[0]),1);
++  await control(page,'click','routineNext',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q.length),1);
+   page.once('dialog',dialog=>dialog.accept());await control(page,'click','discardCurrentRoutine',[],'button').click();
+   assert.equal(await page.evaluate(()=>routineView),false);assert.equal(await page.evaluate(()=>Object.keys(sessions).length),0);
+   assert.deepEqual(await page.evaluate(()=>calcScore('2026-09-16')),before);await noEventAttributes(page);
+diff --git a/tests/csp-styles-parity-browser.test.cjs b/tests/csp-styles-parity-browser.test.cjs
+index 10e0b0a..140d515 100644
+--- a/tests/csp-styles-parity-browser.test.cjs
++++ b/tests/csp-styles-parity-browser.test.cjs
+@@ -2,8 +2,7 @@ const {test}=require('node:test');
+ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+ const {openApp}=require('./browser-helpers.cjs');
+ const {fixture}=require('./helpers.cjs');
+-const baselinePath='/workspace/shaah-original-steady/index.html';
+-assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(baselinePath)).digest('hex'),'cddd9d3a847f615a501cb9713e80fe07acf8140232337354ccda4673e8e02f22','Exact currently published Original baseline');
++const baselinePath=require('../qa/prepare-habit-baseline.cjs').prepare();
+ async function snapshot(page){
+  await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(220);
+  return page.locator('#scroll *').evaluateAll(nodes=>nodes.map(node=>{
+@@ -11,24 +10,51 @@ async function snapshot(page){
+   return {tag:node.tagName,class:node.getAttribute('class'),styles:Object.fromEntries(['display','position','color','backgroundColor','fontFamily','fontSize','fontWeight','borderTopWidth','borderTopColor','borderRadius','paddingTop','paddingRight','paddingBottom','paddingLeft','gap','flexDirection','overflow','opacity'].map(k=>[k,style[k]])),width:Math.round(box.width*10)/10,height:Math.round(box.height*10)/10};
+  }));
+ }
+-for(const skin of ['classic','matrix','minimal'])for(const size of ['mobile','desktop'])test(`${skin}/${size}: strict styles preserve the published Original appearance on main screens`,async t=>{
++for(const skin of ['classic','matrix','minimal'])for(const size of ['mobile','desktop'])test(`${skin}/${size}: strict styles preserve task-base appearance with identical weekly inputs apart from the new selector and explicit skin-color corrections`,async t=>{
+  const viewport=size==='mobile'?{width:390,height:844}:{width:1440,height:1000};
+  const before=await openApp(t,fixture(),viewport,{htmlFile:baselinePath});
+  const after=await openApp(t,fixture(),viewport);
+  for(const page of [before,after]){await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(id=>setSkin(id),skin);}
++ // Review values intentionally changed in this fix. Feed both renderers the
++ // same base review to compare presentation only; math and actual Stats labels
++ // are checked independently by habit timeline and browser regression tests.
++ const baseReview=await before.evaluate(()=>weekReview());
++ await after.evaluate(review=>{window.__originalWeekReview=weekReview;weekReview=()=>review},baseReview);
+  const results=[];
+  for(const tab of ['today','social','log','stats','history','settings']){
+   for(const page of [before,after])await page.evaluate(tab=>{if(tab==='settings')openSettings();else setTab(tab);},tab);
++  // The added control is intentional. Remove only that control for exact
++  // geometry parity; its visible layout and behavior have separate browser tests.
++  if(tab==='settings')await after.evaluate(()=>{window.__levelControls=[...document.querySelectorAll('select[data-ui-change="cfgLevel"]')].map(node=>{const marker=document.createComment('level-control');node.replaceWith(marker);return {node,marker}})});
+   const old=await snapshot(before),next=await snapshot(after);
++  if(tab==='settings')await after.evaluate(()=>{for(const {node,marker} of window.__levelControls)marker.replaceWith(node);delete window.__levelControls});
++  // Color-only changes in Social/Core are intentional: raw Classic literals now
++  // use the existing skin engine. Accept only its exact RGB/alpha mapping;
++  // dimensions, typography, structure and every other style stay exact.
++  const paletteChanges=[];
++  if(skin!=='classic'){
++   const properties=['color','backgroundColor','borderTopColor'];
++   const values=[...new Set(old.flatMap(n=>properties.map(k=>n.styles[k])))];
++   const mapping=await after.evaluate(values=>{
++    const probe=document.createElement('span');document.body.append(probe);const result={};
++    for(const value of values){probe.style.color=skinColorValue(value);result[value]=getComputedStyle(probe).color;}
++    probe.remove();return result;
++   },values);
++   for(let i=0;i<Math.min(old.length,next.length);i++)for(const property of properties){
++    const previous=old[i].styles[property],current=next[i].styles[property];
++    if(previous!==current&&mapping[previous]===current){paletteChanges.push({index:i,property,from:previous,to:current});old[i].styles[property]=current;}
++   }
++  }
+   const diffs=[];
+   for(let i=0;i<Math.max(old.length,next.length);i++)if(JSON.stringify(old[i])!==JSON.stringify(next[i]))diffs.push({index:i,before:old[i],after:next[i]});
+-  results.push({tab,beforeElements:old.length,afterElements:next.length,differences:diffs});
++  results.push({tab,beforeElements:old.length,afterElements:next.length,differences:diffs,acceptedPaletteChanges:paletteChanges});
+  }
++ await after.evaluate(()=>{weekReview=window.__originalWeekReview;delete window.__originalWeekReview});
+  const out=path.join(__dirname,'../test-results/security-styles');fs.mkdirSync(out,{recursive:true});
+  fs.writeFileSync(path.join(out,`appearance-${process.env.SHAAH_BROWSER_ENGINE||'chromium'}-${skin}-${size}.json`),JSON.stringify(results,null,2));
+  // Compare appearance without screenshot instrumentation. WebKit's screenshot
+  // synchronization injects an inline `body {}` sheet, correctly rejected by CSP.
+  // Keep the policy enforced throughout this functional check.
+  const mismatches=results.filter(x=>x.differences.length).map(x=>({tab:x.tab,differences:x.differences.length,first:x.differences[0]}));
+- assert.deepEqual(mismatches,[],'Computed appearance and geometry remain equal to current Original');
++ assert.deepEqual(mismatches,[],'Computed appearance and geometry remain equal to the exact task base except the intentional selector');
+ });
+diff --git a/tests/glow-browser.test.cjs b/tests/glow-browser.test.cjs
+index 62e6289..6b57aec 100644
+--- a/tests/glow-browser.test.cjs
++++ b/tests/glow-browser.test.cjs
+@@ -5,7 +5,7 @@ const {openApp}=require('./browser-helpers.cjs');
+ const {locationFixture}=require('./location-fixtures.cjs');
+ for(const width of [320,390,600,879,880,1440])test(`Glow ${width}: native layout, persistence, Work and reduced motion`,async t=>{
+  const page=await openApp(t,locationFixture(),{width,height:width<880?844:1000});
+- await page.evaluate(async()=>{await flushCfgSaves();setTab('today')});
++ await page.evaluate(async()=>{await flushCfgSaves();setSkin('aurora');setTab('today')});
+  const snapshot=()=>page.evaluate(()=>JSON.stringify({config:CFG,days:_state,scores:Object.keys(_state).filter(k=>/^\d{4}-/.test(k)).map(k=>[k,calcScore(k)])}));
+  const before=await snapshot(),writes=await page.evaluate(()=>__mockWrites.length);
+  const geometry=()=>page.locator('.sf-work-reference').evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height}));
+@@ -13,7 +13,7 @@ for(const width of [320,390,600,879,880,1440])test(`Glow ${width}: native layout
+  await page.getByRole('button',{name:'Settings',exact:true}).click();
+  await page.locator('[data-skin-choice="glow"]').click();
+  await page.evaluate(()=>closeSettings());
+- assert.deepEqual(await geometry(),layout,'OG Work card geometry retained');
++ assert.deepEqual(await geometry(),layout,'shared bar-card geometry retained');
+  assert.equal(await page.locator('.t-ring>svg>circle:last-child').evaluate(el=>getComputedStyle(el).stroke),'rgb(130, 146, 255)');
+  assert.equal(await page.locator('.t-ring').evaluate(el=>getComputedStyle(el,'::before').animationName),'shaah-glow-breathe');
+  for(const tab of ['log','social','stats','history','today']){
+diff --git a/tests/habit-level-browser.test.cjs b/tests/habit-level-browser.test.cjs
+new file mode 100644
+index 0000000..25cdcdd
+--- /dev/null
++++ b/tests/habit-level-browser.test.cjs
+@@ -0,0 +1,103 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const fs=require('node:fs');
++const {openApp}=require('./browser-helpers.cjs');
++const {fixture}=require('./helpers.cjs');
++const level=page=>page.locator('select[data-ui-change="cfgLevel"][data-ui-change-args=\'["meditation"]\']');
++async function settings(page){
++ await page.getByRole('button',{name:'Settings',exact:true}).click();
++ const toggle=page.locator('#settings-toggle-hab');
++ if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
++}
++function data(){
++ const d=fixture();
++ d.config.log.push({...structuredClone(d.config.log.at(-1)),from:'2026-12-01',mode:'vacation'});
++ d.config.log.at(-1).h.meditation.pWork=37;
++ return d;
++}
++const history=page=>page.evaluate(()=>JSON.stringify({days:_state,eras:CFG.log.filter(e=>e.from!==todayKey()),scores:['2026-09-07','2026-09-08','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-10-08'].map(k=>calcScore(k))}));
++for(const skin of ['classic','aurora'])for(const width of [320,390,879,880,1440])test(`habit levels: ${skin} ${width}px keyboard, history, future era and reload`,async t=>{
++ const page=await openApp(t,data(),{width,height:1000});
++ await page.evaluate(async s=>{await flushCfgSaves();setSkin(s)},skin);
++ const before=await history(page);
++ const habit=await page.evaluate(()=>({...CFG.h.meditation}));
++ await settings(page);
++ const select=level(page);
++ assert.equal(await select.isVisible(),true);
++ for(const target of [3,1,2]){
++  await select.selectOption(String(target));
++  await page.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);
++  assert.equal(await page.evaluate(()=>CFG.h.meditation.lv),target);
++  assert.deepEqual(await page.evaluate(()=>{const h={...CFG.h.meditation};delete h.lv;return h}),Object.fromEntries(Object.entries(habit).filter(([k])=>k!=='lv')));
++  assert.equal(await history(page),before);
++ }
++ await page.waitForFunction(()=>!_syncRenderQueued);
++ await select.focus();assert.equal(await select.evaluate(n=>n===document.activeElement),true);
++ await page.keyboard.press('Tab');assert.equal(await select.evaluate(n=>n===document.activeElement),false);
++ await select.selectOption('3');await page.waitForFunction(()=>CFG.h.meditation.lv===3&&!_cfgDraft&&!_cfgFlushPromise);
++ const geometry=await select.evaluate(n=>{const b=n.getBoundingClientRect();return {left:b.left,right:b.right,width:innerWidth,overflow:document.getElementById('scroll').scrollWidth>innerWidth}});
++ assert.ok(geometry.left>=0&&geometry.right<=geometry.width,JSON.stringify(geometry));
++ assert.equal(geometry.overflow,false,'Expanded Settings has no horizontal overflow');
++ const row=select.locator('..').locator('..');
++ const controls=await row.evaluate(n=>{const box=n.getBoundingClientRect();return [...n.querySelectorAll('button,input,select')].map(c=>{const r=c.getBoundingClientRect();return {tag:c.tagName,field:c.getAttribute('data-ui-change'),width:r.width,left:r.left,right:r.right,rowRight:box.right}})});
++ for(const c of controls){assert.ok(c.width>0&&c.left>=0&&c.right<=c.rowRight+1,JSON.stringify(c));}
++
++ if(width===320||width===1440){fs.mkdirSync('test-results/habit-safety',{recursive:true});await page.screenshot({path:`test-results/habit-safety/settings-${skin}-${width}.png`});}
++ await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
++ assert.equal(await page.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await history(page),before);
++ assert.equal(await page.evaluate(()=>cfgForDate('2026-12-01').L2.some(i=>i.id==='meditation')),true);
++ await settings(page);assert.equal(await level(page).inputValue(),'3');
++ await page.getByRole('button',{name:'Back',exact:true}).click();
++ for(const hour of [12,22]){
++  await page.clock.setFixedTime(new Date(`2026-10-16T${hour}:00:00Z`));
++  await page.locator('.nav-btn[data-tab="today"]').click();
++  assert.equal(await page.evaluate(()=>document.getElementById('scroll').scrollWidth<=innerWidth),true);
++ }
++});
++test('habit level: failed save survives refresh then retries without changing historical/future eras',async t=>{
++ const page=await openApp(t,data());await page.evaluate(()=>flushCfgSaves());const before=await history(page);
++ await settings(page);
++ await page.evaluate(()=>{window.originalRpc=sb.rpc;sb.rpc=async()=>({error:{code:'SYNTHETIC_OFFLINE'}})});
++ await level(page).selectOption('3');await page.waitForFunction(()=>_cfgSaveFailed&&!!_cfgDraft&&!_cfgFlushPromise);
++ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(cfgPendingKey())).draft.h.meditation.lv),3);
++ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg.h.meditation.lv),2);
++ assert.equal(await history(page),before);
++ await page.reload();await page.waitForFunction(()=>_cfgReady&&!_cfgDraft&&!_cfgFlushPromise);
++ assert.equal(await page.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg.h.meditation.lv),3);
++ assert.equal(await history(page),before);
++});
++test('habit level: two sessions conflict without losing either choice, then explicit resolution',async t=>{
++ const a=await openApp(t,data());await a.evaluate(()=>flushCfgSaves());const before=await history(a);
++ const b=await a.context().newPage();await b.goto('http://shaah.test/');await b.waitForFunction(()=>_cfgReady&&_live);
++ b.on('pageerror',error=>assert.fail(error.message));b.on('dialog',dialog=>dialog.accept());
++ await settings(a);await settings(b);
++ await level(a).selectOption('1');await a.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);
++ await level(b).selectOption('3');await b.waitForFunction(()=>_cfgConflict);
++ assert.equal(await b.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await b.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')).find(r=>r.date==='settings').data._cfg.h.meditation.lv),1);
++ const draft=await b.evaluate(()=>JSON.stringify(_cfgDraft));
++ await level(b).selectOption('2');assert.equal(await b.evaluate(()=>JSON.stringify(_cfgDraft)),draft);
++ await b.reload();await b.waitForFunction(()=>_cfgReady&&_cfgConflict);
++ await b.getByRole('button',{name:'Keep this device’s settings',exact:true}).click();
++ await b.waitForFunction(()=>!_cfgDraft&&!_cfgConflict);
++ assert.equal(await b.evaluate(()=>CFG.h.meditation.lv),3);
++ assert.equal(await history(b),before);
++});
++test('Stats shows dated eligible denominators and fractional completion',async t=>{
++ const d=data();
++ const recent=structuredClone(d.config.log[2]);recent.from='2026-10-13';recent.h.meditation.on=false;
++ recent.h.fresh={l:'Fresh',i:'N',p:5,pWork:5,pVacation:5,lv:2,on:true};recent.order.push('fresh');d.config.log.splice(3,0,recent);
++ d.config.h=structuredClone(recent.h);d.config.order=[...recent.order];
++ d.days['2026-10-10']={checks:{meditation:.5},social:{},people:[],note:''};
++ const page=await openApp(t,d);await page.locator('.nav-btn[data-tab="stats"]').click();
++ const review=await page.evaluate(()=>weekReview());
++ for(const [label,item] of [['MOST CONSISTENT',review.best],['NEEDS WORK',review.worst]]){
++  const card=page.locator('.stats-metric-card').filter({has:page.locator('.stats-metric-label',{hasText:label})});
++  assert.equal(await card.locator('.stats-metric-value').innerText(),`${item.done}/${item.eligible}`);
++ }
++ assert.equal(review.tally.find(x=>x.id==='meditation').eligible,3);
++ assert.equal(review.tally.find(x=>x.id==='fresh').eligible,4);
++ assert.equal(review.tally.find(x=>x.id==='meditation').done,.5);
++});
+diff --git a/tests/habit-timeline-regression.test.cjs b/tests/habit-timeline-regression.test.cjs
+new file mode 100644
+index 0000000..444693f
+--- /dev/null
++++ b/tests/habit-timeline-regression.test.cjs
+@@ -0,0 +1,70 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const {loadApp}=require('./helpers.cjs');
++
++test('level change preserves identity, all day records, past and future eras',()=>{
++ const a=loadApp();a.run(`CFG.log.push({...JSON.parse(JSON.stringify(CFG.log[2])),from:'2026-12-01'});window.before=JSON.stringify([_state,CFG.log]);saveCfg=()=>{};cfgLevel('meditation',3);`);
++ const [days,eras]=JSON.parse(a.read('window.before'));
++ assert.deepEqual(a.read('_state'),days);
++ assert.deepEqual(a.read('CFG.log.filter(e=>e.from!==todayKey())'),eras);
++ assert.equal(a.read('CFG.h.meditation.lv'),3);
++ assert.equal(a.read('cfgForDate("2026-10-15").L2.some(i=>i.id==="meditation")'),true);
++ assert.equal(a.read('cfgForDate(todayKey()).L3.some(i=>i.id==="meditation")'),true);
++ assert.equal(a.read('cfgForDate("2026-12-01").L2.some(i=>i.id==="meditation")'),true);
++ a.run(`cfgLevel('meditation',1);cfgLevel('meditation',9)`);
++ assert.equal(a.read('CFG.log.filter(e=>e.from===todayKey()).length'),1);
++ assert.equal(a.read('CFG.h.meditation.lv'),1);
++});
++test('loading, conflict and ambiguous timelines reject edits without mutation',()=>{
++ for(const setup of [`USER={id:'A'};_cfgReady=false`, `USER={id:'A'};_cfgReady=true;_cfgConflict=true`, `CFG.log.push(JSON.parse(JSON.stringify(CFG.log[0])))`]){
++ const a=loadApp();a.run(`${setup};window.before=JSON.stringify(CFG);cfgLevel('meditation',3)`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++ }
++});
++test('weekly rates use dated eligibility, fractional completion and normalized scores',()=>{
++ const a=loadApp();a.run(`
++ getDays=()=>Array.from({length:14},(_,i)=>({key:i<7?'2026-10-01':i<10?'2026-10-10':'2026-10-16',data:{score:i<10?10:30,max:i<10?10:60}}));
++ cfgForDate=key=>({L1:key==='2026-10-16'?[{id:'new',pts:10}]:[{id:'old',pts:10}],L2:[],L3:[]});
++ _state={'2026-10-01':{checks:{old:true}},'2026-10-10':{checks:{old:true}},'2026-10-16':{checks:{new:.5}}};window.review=weekReview();`);
++ const r=a.read('window.review');
++ assert.equal(r.avg,71);assert.equal(r.pavg,100);
++ assert.equal(r.tally.find(x=>x.id==='new').eligible,4);
++ assert.equal(r.tally.find(x=>x.id==='new').rate,50);
++ assert.equal(r.tally.find(x=>x.id==='old').rate,100);
++ assert.equal(r.bestDay.key,'2026-10-10');
++});
++test('unsorted future era is retained; failed edit rolls back; invalid calendar date rejects',()=>{
++ const a=loadApp();a.run(`CFG.log.reverse();saveCfg=()=>{};cfgLevel('meditation',3);`);
++ assert.deepEqual(a.read('CFG.log.map(e=>e.from)'),['0001-01-01','2026-09-08','2026-10-08','2026-10-16']);
++ a.run(`window.before=JSON.stringify(CFG);try{cfgEdit(()=>{CFG.h.meditation.lv=2;throw Error('abort')})}catch(e){}`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++ a.run(`CFG.log.push({...CFG.log[0],from:'2026-02-30'});window.before=JSON.stringify(CFG);cfgLevel('meditation',1)`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++});
++test('weekly review handles dated pause/add/reweight, zero max and mode changes without mutating history',()=>{
++ const a=loadApp();a.run(`
++ saveCfg=()=>{};
++ const make=(from,mode,h)=>({from,mode,h,order:Object.keys(h),subs:[]});
++ const base={old:{l:'Old habit',i:'O',lv:2,on:true,pWork:10,pVacation:20},paused:{l:'Paused',i:'P',lv:1,on:true,pWork:10,pVacation:10}};
++ const later=JSON.parse(JSON.stringify(base));later.paused.on=false;later.old.pVacation=40;later.fresh={l:'New habit',i:'N',lv:3,on:true,pWork:5,pVacation:10};
++ CFG.log=[make('0001-01-01','work',base),make('2026-10-13','vacation',later)];
++ CFG.h=JSON.parse(JSON.stringify(later));CFG.order=Object.keys(CFG.h);CFG.subs=[];_dayCfgCache={};
++ _state={};for(let d=3;d<=16;d++){const key='2026-10-'+String(d).padStart(2,'0');_state[key]={checks:{old:d>=13?.5:true,paused:true,fresh:true},social:{},note:'',people:[]};}
++ persistTravelMode('vacation');window.before=JSON.stringify([CFG.log,_state]);window.review=weekReview();
++ `);
++ const r=a.read('window.review');
++ assert.equal(r.avg,77);assert.equal(r.pavg,100);assert.equal(r.bestDay.key,'2026-10-10');
++ assert.deepEqual(r.tally.map(x=>[x.id,x.eligible,x.done,x.rate]).sort(),[['fresh',4,4,100],['old',7,5,71],['paused',3,3,100]]);
++ a.run(`persistTravelMode('vacation');_dayCfgCache={};window.vacationReview=weekReview();persistTravelMode('work');_dayCfgCache={};window.workReview=weekReview();`);
++ assert.deepEqual(a.read('window.vacationReview.cur.slice(0,6)'),a.read('window.workReview.cur.slice(0,6)'));
++ assert.equal(a.read('JSON.stringify([CFG.log,_state])'),a.read('window.before'));
++ a.run(`CFG.log=[{from:'0001-01-01',h:{},order:[],subs:[],mode:'work'}];CFG.h={};CFG.order=[];_dayCfgCache={};window.empty=weekReview();`);
++ assert.equal(a.read('window.empty.avg'),0);assert.deepEqual(a.read('window.empty.tally'),[]);
++});
++test('blocked config edit never queues a settings write and preserves account-owned drafts',()=>{
++ const a=loadApp();a.run(`USER={id:'A'};_cfgReady=false;window.before=JSON.stringify(CFG);cfgSet('meditation','pWork','90');`);
++ assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));assert.equal(a.read('_cfgDraft'),null);
++ assert.deepEqual(a.writes,[]);
++ a.run(`_cfgReady=true;_cfgConflict=true;_cfgDraft={marker:'Keep A draft'};cfgLevel('meditation',3);`);
++ assert.deepEqual(a.read('_cfgDraft'),{marker:'Keep A draft'});assert.equal(a.read('JSON.stringify(CFG)'),a.read('window.before'));
++});
+diff --git a/tests/location-browser.test.cjs b/tests/location-browser.test.cjs
+index fd63128..e7cbafa 100644
+--- a/tests/location-browser.test.cjs
++++ b/tests/location-browser.test.cjs
+@@ -1,163 +1,92 @@
+-const { test } = require('node:test');
+-const assert = require('node:assert/strict');
+-const { openApp } = require('./browser-helpers.cjs');
+-const { locationFixture } = require('./location-fixtures.cjs');
+-
+-const changeControl = (page, action, args) => page.locator(`input[data-ui-change="${action}"][data-ui-change-args=${JSON.stringify(JSON.stringify(args))}]`);
+-const bulkBox = (page, id) => changeControl(page, 'bulkPeopleToggle', [id]);
+-const membership = (page, id, loc) => changeControl(page, 'locationTogglePerson', [id, loc]);
+-const inactive = (page, id) => changeControl(page, 'personSetInactive', [id]);
+-const history = page => page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey()))));
+-
+-for (const [name, viewport] of [['desktop', { width: 1440, height: 1000 }], ['mobile', { width: 390, height: 844 }]]) {
+-  test(`${name}: bulk/individual memberships, removal, inactive/reactivation and reload preserve history`, async t => {
+-    const page = await openApp(t, locationFixture(), viewport);
+-    const original = await history(page);
+-    const score = await page.evaluate(() => calcScore('2026-09-16'));
+-    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-    await bulkBox(page, 'pold01').check();
+-    await bulkBox(page, 'pold02').check();
+-    await page.getByRole('button', { name: '+ Panamá', exact: true }).click();
+-    assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['il', 'pa']);
+-    assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['pa']);
+-    assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]:checked').count(), 0);
+-    await membership(page, 'pold01', 'il').check();
+-    await membership(page, 'pold02', 'il').uncheck();
+-    assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['pa']);
+-    // The row disappears immediately when its status changes.
+-    await inactive(page, 'pold01').click();
+-    assert.equal(await page.evaluate(() => personById('pold01').inactive), true);
+-    assert.equal(await inactive(page, 'pold01').count(), 0);
+-    await page.getByRole('button', { name: 'Inactive', exact: true }).click();
+-    await inactive(page, 'pold01').click();
+-    assert.equal(await page.evaluate(() => personById('pold01').inactive), false);
+-    await page.getByRole('button', { name: 'All people', exact: true }).click();
+-    await bulkBox(page, 'pold01').check();
+-    await page.getByRole('button', { name: '− Panamá', exact: true }).click();
+-    assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['il']);
+-    const row = changeControl(page, 'personSet', ['pold01', 'name']).locator('..');
+-    assert.equal(await row.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true, 'Contact controls fit the row');
+-    await page.waitForFunction(() => window.__mockWrites.some(r => r.date === 'settings' && r.data._cfg.people.find(p => p.id === 'pold01').locations.join() === 'il'));
+-    await page.reload();
+-    await page.waitForFunction(() => _cfgReady && _live);
+-    assert.deepEqual(await page.evaluate(() => personById('pold01').locations), ['il']);
+-    assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['pa']);
+-    assert.equal(await page.evaluate(() => personById('pold01').inactive), false);
+-    assert.deepEqual(await page.evaluate(() => CFG.locationGroups.map(g => g.id)), ['il', 'pa', 'empty']);
+-    assert.equal(await history(page), original);
+-    assert.deepEqual(await page.evaluate(() => calcScore('2026-09-16')), score);
+-  });
+-}
+-
+-test('bulk search filters while typing, retains keyboard focus, and clears stale selections', async t => {
+-  const page = await openApp(t, locationFixture());
+-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-  await bulkBox(page, 'pold01').check();
+-  const search = page.getByRole('textbox', { name: 'Search contacts for bulk assignment' });
+-  await search.click();
+-  await search.pressSequentially('lUiS');
+-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 1);
+-  assert.equal(await search.evaluate(el => el === document.activeElement), true);
+-  assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
+-  await page.getByRole('button', { name: 'Select visible', exact: true }).click();
+-  await page.getByRole('button', { name: '+ Empty', exact: true }).click();
+-  assert.deepEqual(await page.evaluate(() => personById('pold02').locations), ['il', 'pa', 'empty']);
+-  assert.deepEqual(await page.evaluate(() => personById('pold01').locations), []);
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const {openApp}=require('./browser-helpers.cjs');
++const {locationFixture}=require('./location-fixtures.cjs');
++const {control,bulk,edit,social,groups}=require('./social-ui-helpers.cjs');
++const box=(p,id)=>control(p,'change','bulkPeopleToggle',[id],'input');
++const history=p=>p.evaluate(()=>JSON.stringify({days:Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())),scores:['2026-09-07','2026-09-16','2026-10-08'].map(k=>calcScore(k))}));
++for(const [device,viewport] of [['desktop',{width:1440,height:1000}],['mobile',{width:390,height:844}]])test(`${device}: bulk and individual group changes survive reload without rewriting history`,async t=>{
++ const page=await openApp(t,locationFixture(),viewport),before=await history(page);
++ await bulk(page);await box(page,'pold01').check();await bulk(page);await box(page,'pold02').check();
++ await bulk(page);await page.getByRole('button',{name:'+ Panamá',exact:true}).click();
++ assert.deepEqual(await page.evaluate(()=>personById('pold02').locations),['il','pa']);
++ assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),['pa']);
++ assert.deepEqual(await page.evaluate(()=>bulkPeopleSelection),[]);
++ await edit(page,'pold01');await control(page,'change','socialDraftLocation',['il'],'input').check();
++ await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
++ await edit(page,'pold02');await control(page,'change','socialDraftLocation',['il'],'input').uncheck();
++ await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
++ await bulk(page);await box(page,'pold01').check();await bulk(page);await page.getByRole('button',{name:'− Panamá',exact:true}).click();
++ await page.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);
++ await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
++ assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),['il']);
++ assert.deepEqual(await page.evaluate(()=>personById('pold02').locations),['pa']);
++ assert.deepEqual(await page.evaluate(()=>CFG.locationGroups.map(g=>g.id)),['il','pa','empty']);
++ assert.equal(await history(page),before);
+ });
+-
+-test('Unassigned, Active, Inactive and All people filters reset bulk selection', async t => {
+-  const page = await openApp(t, locationFixture());
+-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-  await bulkBox(page, 'pold02').check();
+-  await page.getByRole('button', { name: 'Unassigned', exact: true }).click();
+-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 2);
+-  assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
+-  await page.getByRole('button', { name: 'All contacts', exact: true }).click();
+-  await bulkBox(page, 'pold02').check();
+-  await page.getByRole('button', { name: 'Inactive', exact: true }).click();
+-  assert.deepEqual(await page.evaluate(() => bulkPeopleSelection), []);
+-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 2);
+-  await page.getByRole('button', { name: 'All people', exact: true }).click();
+-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 7);
+-  await page.getByRole('button', { name: 'Active', exact: true }).click();
+-  assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(), 5);
++test('bulk search preserves focus and clears stale selections',async t=>{
++ const page=await openApp(t,locationFixture());await bulk(page);await box(page,'pold01').check();await bulk(page);
++ const search=page.getByRole('textbox',{name:'Search contacts for bulk assignment'});await search.pressSequentially('lUiS');
++ assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(),1);
++ assert.equal(await search.evaluate(n=>n===document.activeElement),true);
++ assert.deepEqual(await page.evaluate(()=>bulkPeopleSelection),[]);
++ await bulk(page);await page.getByRole('button',{name:'Select visible',exact:true}).click();await bulk(page);
++ await page.getByRole('button',{name:'+ Empty',exact:true}).click();
++ assert.deepEqual(await page.evaluate(()=>personById('pold02').locations),['il','pa','empty']);
++ assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),[]);
+ });
+-
+-test('WHO TO SEE and Social suggestions follow the location without changing recorded scores', async t => {
+-  const page = await openApp(t, locationFixture());
+-  const original = await history(page);
+-  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(), ['Ana Existing', 'Luis Existing', 'Alex Existing', 'Legacy Person'].sort());
+-  await page.getByLabel('Current social location').first().selectOption('pa');
+-  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(), ['Ana Existing', 'Luis Existing', 'Remote Person', 'Legacy Person'].sort());
+-  await page.locator('.cb-row').filter({ hasText: 'Flirting' }).click();
+-  assert.equal(await page.getByTitle('Alex Existing', { exact: true }).count(), 0);
+-  assert.equal(await page.getByTitle('Inactive Person', { exact: true }).count(), 0);
+-  assert.equal(await page.locator('.sd-pts').innerText(), '2/18%');
+-  assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), []);
+-  await page.getByLabel('Current social location').first().selectOption('il');
+-  assert.equal(await page.getByTitle('Alex Existing', { exact: true }).count(), 1);
+-  assert.equal(await page.locator('.sd-pts').innerText(), '2/18%');
+-  assert.equal(await history(page), original);
++test('Unassigned and All contacts clear bulk selection; migration retains all seven identities',async t=>{
++ const page=await openApp(t,locationFixture());await bulk(page);await box(page,'pold02').check();await bulk(page);
++ await page.getByRole('button',{name:'Unassigned',exact:true}).click();await bulk(page);
++ assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(),2);
++ assert.deepEqual(await page.evaluate(()=>bulkPeopleSelection),[]);
++ await page.getByRole('button',{name:'All contacts',exact:true}).click();await bulk(page);
++ assert.equal(await page.locator('input[data-ui-change="bulkPeopleToggle"]').count(),7);
++ assert.equal(await page.evaluate(()=>personById('pinactive').every),180);
++ assert.equal(await page.evaluate(()=>Object.hasOwn(personById('pinactive'),'inactive')),false);
+ });
+-
+-test('an empty WHO TO SEE retains a working selector to recover recommendations', async t => {
+-  const data = locationFixture();
+-  data.config.people = data.config.people.filter(p => p.locations?.length);
+-  data.config.selectedLocation = 'empty';
+-  const page = await openApp(t, data);
+-  assert.equal(await page.locator('.w-name').count(), 0);
+-  await page.getByLabel('Current social location').last().selectOption('il');
+-  assert.equal(await page.locator('.w-name').count(), 2);
++test('locations filter discovery while every contact remains available in the Social Combo',async t=>{
++ const page=await openApp(t,locationFixture()),before=await history(page);
++ assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(),['Alex Existing','Ana Existing','Inactive Person','Legacy Person','Luis Existing','Orphan Person'].sort());
++ await page.getByLabel('Current social location').selectOption('pa');
++ assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(),['Alex Existing','Ana Existing','Inactive Person','Legacy Person','Luis Existing','Orphan Person','Remote Person'].sort());
++ await control(page,'click','socialCategoryToggle',['flirt','2026-10-16'],'button').click();
++ const category=page.locator('.sf-combo-category').filter({has:control(page,'click','socialCategoryToggle',['flirt','2026-10-16'],'button')});
++ assert.equal(await category.getByRole('button',{name:'Alex Existing',exact:true}).isVisible(),true);
++ assert.deepEqual(await page.evaluate(()=>getPeople(todayKey())),[]);
++ assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),2);
++ await page.getByLabel('Current social location').selectOption('il');
++ assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),2);assert.equal(await history(page),before);
+ });
+-
+-test('creation and rename dialogs preserve selected-location metadata across reload', async t => {
+-  const page = await openApp(t, locationFixture());
+-  const original = await history(page);
+-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-  page.once('dialog', d => d.accept('Madrid'));
+-  await page.getByRole('button', { name: '+ ADD LOCATION', exact: true }).click();
+-  const loc = await page.evaluate(() => selectedLocation());
+-  page.once('dialog', d => d.accept('España'));
+-  await page.getByRole('button', { name: '✎ Madrid', exact: true }).click();
+-  const answers = ['New Synthetic Person', '21'];
+-  const onDialog = d => d.accept(answers.shift());
+-  page.on('dialog', onDialog);
+-  await page.getByRole('button', { name: '+ ADD PERSON', exact: true }).first().click();
+-  page.off('dialog', onDialog);
+-  const person = await page.evaluate(() => peopleList().find(p => p.name === 'New Synthetic Person'));
+-  assert.deepEqual(person.locations, [loc]);
+-  assert.equal(person.inactive, false);
+-  assert.equal(person.every, 21);
+-  await page.waitForFunction(() => window.__mockWrites.some(r => r.date === 'settings' && r.data._cfg.people.some(p => p.name === 'New Synthetic Person')));
+-  await page.reload();
+-  await page.waitForFunction(() => _cfgReady && _live);
+-  assert.equal(await page.evaluate(() => locationGroups().find(g => g.id === selectedLocation()).name), 'España');
+-  assert.deepEqual(await page.evaluate(id => personById(id), person.id), person);
+-  assert.equal(await history(page), original);
++test('an empty discovery view retains a selector while unfiltered categories remain visible',async t=>{
++ const d=locationFixture();d.config.people=d.config.people.filter(p=>p.locations?.length);d.config.people.forEach(p=>{p.sub='friends'});d.config.selectedLocation='empty';
++ const page=await openApp(t,d);assert.equal(await page.locator('.w-name').count(),0);
++ await page.getByLabel('Current social location').selectOption('il');assert.equal(await page.locator('.w-name').count(),4);
+ });
+-
+-test('stale selected groups and deleted memberships remain accessible after full startup', async t => {
+-  const data = locationFixture();
+-  data.config.selectedLocation = 'deleted';
+-  data.config.people[0].locations = ['deleted'];
+-  const page = await openApp(t, data);
+-  assert.equal(await page.getByLabel('Current social location').first().inputValue(), 'all');
+-  assert.equal(await page.evaluate(() => selectedLocation()), 'all');
+-  assert.equal(await page.locator('.w-name').count(), 5);
+-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-  await page.getByRole('button', { name: 'Unassigned', exact: true }).click();
+-  assert.equal(await bulkBox(page, 'pold01').count(), 1);
++test('group create/rename and new contact metadata survive reload',async t=>{
++ const page=await openApp(t,locationFixture()),before=await history(page);await groups(page);
++ await page.getByRole('button',{name:'+ Añadir grupo',exact:true}).click();
++ await page.locator('dialog[open] input').fill('Madrid');await page.getByRole('button',{name:'Guardar grupo',exact:true}).click();
++ const id=await page.evaluate(()=>locationGroups().find(g=>g.name==='Madrid').id);
++ await control(page,'click','locationRename',[id],'button').click();await page.locator('dialog[open] input').fill('España');await page.getByRole('button',{name:'Guardar grupo',exact:true}).click();
++ await page.getByLabel('Current social location').selectOption(id);
++ await page.getByRole('button',{name:'+ Persona',exact:true}).first().click();
++ await page.locator('#sf-name').fill('New Synthetic Person');await page.locator('#sf-every').fill('21');await page.getByRole('button',{name:'Guardar persona',exact:true}).click();
++ const person=await page.evaluate(()=>peopleList().find(p=>p.name==='New Synthetic Person'));
++ assert.deepEqual(person.locations,[id]);assert.equal(person.every,21);
++ await page.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
++ assert.equal(await page.evaluate(id=>locationGroups().find(g=>g.id===id).name,id),'España');
++ assert.deepEqual(await page.evaluate(id=>personById(id),person.id),person);assert.equal(await history(page),before);
+ });
+-
+-test('contacts with an orphan Social category retain individual location editing', async t => {
+-  const data = locationFixture();
+-  data.days['2026-09-16'].people.push('porphan');
+-  const page = await openApp(t, data, { width: 390, height: 844 });
+-  const original = await history(page);
+-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-  await page.getByRole('button', { name: 'Inactive', exact: true }).click();
+-  assert.equal(await membership(page, 'porphan', 'pa').count(), 1);
+-  await membership(page, 'porphan', 'pa').check();
+-  assert.deepEqual(await page.evaluate(() => personById('porphan').locations), ['il', 'pa']);
+-  assert.equal(await history(page), original);
++test('stale group references remain stored but accessible as unassigned after startup',async t=>{
++ const d=locationFixture();d.config.selectedLocation='deleted';d.config.people[0].locations=['deleted'];
++ const page=await openApp(t,d);assert.equal(await page.getByLabel('Current social location').inputValue(),'all');assert.equal(await page.locator('.w-name').count(),7);
++ await bulk(page);await page.getByRole('button',{name:'Unassigned',exact:true}).click();await bulk(page);
++ assert.equal(await box(page,'pold01').count(),1);assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),['deleted']);
++});
++test('orphan categories can edit membership while preserving category and recorded encounters',async t=>{
++ const d=locationFixture();Object.assign(d.config.people.find(p=>p.id==='porphan'),{relationship:'legacy-relation',locations:['il','retired'],customMetadata:'retain'});d.days['2026-09-16'].people.push('porphan');const page=await openApp(t,d,{width:390,height:844}),before=await history(page);
++ await edit(page,'porphan');assert.equal(await page.locator('#sf-sub').inputValue(),'archived');
++ await control(page,'change','socialDraftLocation',['pa'],'input').check();await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
++ assert.deepEqual(await page.evaluate(()=>personById('porphan').locations),['il','retired','pa']);assert.equal(await page.evaluate(()=>personById('porphan').sub),'archived');assert.equal(await page.evaluate(()=>personById('porphan').relationship),'legacy-relation');assert.equal(await page.evaluate(()=>personById('porphan').customMetadata),'retain');assert.equal(await history(page),before);
+ });
+diff --git a/tests/production-promotion.test.cjs b/tests/production-promotion.test.cjs
+index 66764f3..9995acc 100644
+--- a/tests/production-promotion.test.cjs
++++ b/tests/production-promotion.test.cjs
+@@ -4,14 +4,18 @@ const fs=require('node:fs');
+ const path=require('node:path');
+ const {source,html,loadApp}=require('./helpers.cjs');
+ const baseline=fs.readFileSync(path.join(__dirname,'../assets/app.4e9e7eead727df06.js'),'utf8');
++const mainHtmlPath=require('../qa/prepare-habit-baseline.cjs').prepare();
++const mainHtml=fs.readFileSync(mainHtmlPath,'utf8');
++const mainAsset=mainHtml.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)"/)[1];
++const currentMainSource=fs.readFileSync(path.resolve(path.dirname(mainHtmlPath),mainAsset),'utf8');
+ test('romantic capacity uses the configured original category label',()=>{
+  const app=loadApp();app.run("CFG.subs.find(s=>s.id==='flirt').label='She';");
+  assert.match(app.run('socialRulesHTML()'),/>She · máximo de personas asignadas/);
+  assert.doesNotMatch(app.run('socialRulesHTML()'),/Flirting ·/);
+ });
+-test('promotion retains production authentication, persistence and scoring implementations',()=>{
++test('promotion retains exact-main authentication, persistence and dated scoring implementations',()=>{
+  for(const name of ['signIn','signOut','flushCfgSaves','persistDay','calcScore','cfgForDate']){
+-  const a=loadApp(),b=loadApp(undefined,{source:baseline});
++  const a=loadApp(),b=loadApp(undefined,{source:currentMainSource});
+   assert.equal(a.run(`${name}.toString()`),b.run(`${name}.toString()`),name);
+  }
+  assert.ok(source.includes('https://llpyxktcfubhmthqujpa.supabase.co'));
+diff --git a/tests/security-browser.test.cjs b/tests/security-browser.test.cjs
+index 9d585bc..eb1d105 100644
+--- a/tests/security-browser.test.cjs
++++ b/tests/security-browser.test.cjs
+@@ -1,6 +1,7 @@
+ const { test } = require('node:test');
+ const assert = require('node:assert/strict');
+ const { fixture } = require('./helpers.cjs');
++const {control,bulk,edit,combo,category}=require('./social-ui-helpers.cjs');
+ const { openApp } = require('./browser-helpers.cjs');
+ 
+ for (const [kind, suffix, expected] of [
+@@ -28,22 +29,15 @@ test('stored contact IDs with punctuation still support edits, bulk groups, tagg
+   data.config.selectedLocation = 'all';
+   const page = await openApp(t, data);
+   const before = await page.evaluate(() => JSON.stringify({ days: Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())), scores: Object.keys(_state).filter(k => k !== todayKey()).map(k => calcScore(k)) }));
+-  await page.evaluate(() => openSettings());
+-  const target = page.locator('input[data-ui-change="personSet"]').filter({ visible: true });
+-  const index = await target.evaluateAll(nodes => nodes.findIndex(el => el.value === '<b>Ana & Bo</b>'));
+-  assert.ok(index >= 0);
+-  await target.nth(index).fill('Ana renamed');
+-  await target.nth(index).press('Tab');
+-  assert.equal(await page.evaluate(id => personById(id).name, id), 'Ana renamed');
+-  const box = page.locator('input[data-ui-change="bulkPeopleToggle"]').first();
+-  await box.check();
+-  await page.getByRole('button', { name: '+ Local & nearby', exact: true }).click();
+-  assert.deepEqual(await page.evaluate(id => personById(id).locations, id), [data.config.locationGroups[0].id]);
+-  await page.evaluate(() => closeSettings());
+-  await page.locator('.cb-row').filter({ hasText: 'Friends' }).click();
+-  await page.getByTitle('Ana renamed', { exact: true }).click();
+-  assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), [id]);
+-  assert.equal(await page.locator('.sd-pts').innerText(), '16/18%');
++  await bulk(page);await control(page,'change','bulkPeopleToggle',[id],'input').check();await bulk(page);
++  await page.getByRole('button',{name:'+ Local & nearby',exact:true}).click();
++  assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),[data.config.locationGroups[0].id]);
++  await edit(page,id);assert.equal(await page.locator('#sf-name').inputValue(),'<b>Ana & Bo</b>');
++  await page.locator('#sf-name').fill('Ana renamed');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
++  assert.equal(await page.evaluate(id=>personById(id).name,id),'Ana renamed');
++  await category(page,'friends');await combo(page).getByRole('button',{name:'Ana renamed',exact:true}).click();
++  assert.deepEqual(await page.evaluate(()=>getPeople(todayKey())),[id]);
++  assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),16);
+   const unchanged = await page.evaluate(() => JSON.stringify({ days: Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())), scores: Object.keys(_state).filter(k => k !== todayKey()).map(k => calcScore(k)) }));
+   assert.equal(unchanged, before);
+   await page.waitForFunction(id => window.__mockWrites.some(r => r.date === 'settings' && r.data._cfg.people.some(p => p.id === id && p.name === 'Ana renamed')), id);
+@@ -60,10 +54,8 @@ test('people import displays ordinary markup as text and keeps the imported iden
+   await page.evaluate(id => { importApply({ people: [{ id, name: '<em>Imported & new</em>', sub: 'friends', every: 14 }] }); openSettings(); }, id);
+   assert.equal(dialogs.length, 2);
+   assert.equal(await page.locator('#scroll em').count(), 0);
+-  const target = page.locator('input[data-ui-change="personSet"]').filter({ visible: true });
+-  const index = await target.evaluateAll(nodes => nodes.findIndex(el => el.value === '<em>Imported & new</em>'));
+-  await target.nth(index).fill('Imported renamed');
+-  await target.nth(index).press('Tab');
++  await edit(page,id);assert.equal(await page.locator('#sf-name').inputValue(),'<em>Imported & new</em>');
++  await page.locator('#sf-name').fill('Imported renamed');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+   assert.equal(await page.evaluate(id => personById(id).name, id), 'Imported renamed');
+ });
+ 
+@@ -79,7 +71,7 @@ test('stored routine colors, Next text and Day Log IDs stay data while controls
+   });
+   assert.ok((await page.locator('#scroll').innerText()).includes('Next: <i>2</i> <b>Next & rest</b>'));
+   assert.equal(await page.locator('#scroll b, #scroll em, #scroll i').count(), 0);
+-  assert.equal(await page.evaluate(() => Object.values(ROUTINES)[0].col), '#9090aa');
++  assert.equal(await page.evaluate(() => ROUTINES["routine O'Neil & <id> \""].col), '#9090aa');
+   await page.evaluate(() => exitRoutine());
+   for (const style of ['circle', 'slim', 'chips']) {
+     await page.evaluate(style => { CFG.pill=style; render(); }, style);
+@@ -107,14 +99,14 @@ test('stored routine colors, Next text and Day Log IDs stay data while controls
+ 
+ test('malformed stored routine definitions do not break startup or rewrite metadata', async t => {
+   const data = fixture();
+-  data.config.h.work.routine = true;
+-  data.config.routines = { work: null, empty: { steps: {} }, invalid: { steps: [null] } };
++  data.config.h.broken={...data.config.h.work,l:"Broken",routine:true};data.config.order.push("broken");
++  data.config.routines = { broken: null, empty: { steps: {} }, invalid: { steps: [null] } };
+   const before = JSON.stringify(data.config.routines);
+   const page = await openApp(t, data);
+   await page.locator('.nav-btn[data-tab="today"]').click();
+   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+-  assert.equal(await page.evaluate(() => JSON.stringify(CFG.routines)), before);
+-  assert.deepEqual(await page.evaluate(() => Object.keys(ROUTINES)), []);
++  assert.equal(await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(CFG.routines).filter(([id])=>id!=='work')))), before);
++  assert.deepEqual(await page.evaluate(() => Object.keys(ROUTINES).filter(id=>id!=='work')), []);
+ });
+ 
+ test('adopting valid settings without a currently open routine keeps the app usable and its saved session', async t => {
+diff --git a/tests/session-isolation-browser.test.cjs b/tests/session-isolation-browser.test.cjs
+index 3cba9b0..8b0fe61 100644
+--- a/tests/session-isolation-browser.test.cjs
++++ b/tests/session-isolation-browser.test.cjs
+@@ -4,7 +4,8 @@ const {openApp}=require('./browser-helpers.cjs');
+ const {fixture}=require('./helpers.cjs');
+ async function open(t){
+   const a=fixture(),b=fixture();
+-  a.config.routines={work:{label:'Synthetic A routine',icon:'W',steps:[{label:'Synthetic A step',dur:1}]}};
++  a.config.h.runner={...a.config.h.work,l:'Synthetic A routine',routine:true};a.config.order.push('runner');
++  a.config.routines={runner:{label:'Synthetic A routine',icon:'W',steps:[{label:'Synthetic A step',dur:1}]}};
+   b.config.routines={};b.config.people=[];
+   for(const day of Object.values(b.days)){day.note='Synthetic B note';day.people=[];day._daylog=[];}
+   return openApp(t,a,{width:390,height:844},{syntheticAccounts:{'synthetic-B':b}});
+@@ -17,7 +18,7 @@ async function emit(page,owner,event='SIGNED_IN'){
+ 
+ test('actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies',async t=>{
+   const page=await open(t);
+-  await page.evaluate(()=>{startRoutine('work');routineToggle();});
++  await page.evaluate(()=>{startRoutine('runner');routineToggle();});
+   const savedA=await page.evaluate(()=>localStorage.getItem('shaah_routine_regression-user'));
+   assert.ok(savedA);
+   await page.evaluate(()=>{
+@@ -40,13 +41,13 @@ test('actual Original artifact removes A routine and editor when B signs in, pre
+ test('returning to A through the auth callback restores only A routine and A screen preferences',async t=>{
+   const page=await open(t);
+   await page.evaluate(()=>{
+-    set(cfgKey(),CFG);startRoutine('work');routineToggle();
++    set(cfgKey(),CFG);startRoutine('runner');routineToggle();
+     set(todayRoutinesKey(),false);set(secKey(),{hab:false});
+   });
+   await emit(page,'synthetic-B');
+   assert.equal(await page.evaluate(()=>todayRoutinesOpen),true);
+   await emit(page,'regression-user');
+-  assert.deepEqual(await page.evaluate(()=>Object.keys(sessions)),['work']);
++  assert.deepEqual(await page.evaluate(()=>Object.keys(sessions)),['runner']);
+   assert.equal(await page.evaluate(()=>routineView&&timerRunning),true);
+   assert.equal(await page.evaluate(()=>todayRoutinesOpen),false);
+   assert.equal(await page.evaluate(()=>secOpen.hab),false);
+@@ -55,7 +56,7 @@ test('returning to A through the auth callback restores only A routine and A scr
+ 
+ test('same-owner refresh keeps the live runner and signed-out state shows no account activity',async t=>{
+   const page=await open(t);
+-  await page.evaluate(()=>{startRoutine('work');routineToggle();});
++  await page.evaluate(()=>{startRoutine('runner');routineToggle();});
+   const timer=await page.evaluate(()=>timerInterval),epoch=await page.evaluate(()=>_syncEpoch);
+   await emit(page,'regression-user','TOKEN_REFRESHED');
+   assert.equal(await page.evaluate(()=>timerInterval),timer);assert.equal(await page.evaluate(()=>_syncEpoch),epoch);
+diff --git a/tests/settings-list-browser.test.cjs b/tests/settings-list-browser.test.cjs
+index 2eab831..adb2f02 100644
+--- a/tests/settings-list-browser.test.cjs
++++ b/tests/settings-list-browser.test.cjs
+@@ -13,6 +13,7 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
+     const page = await openApp(t, locationFixture(), viewport);
+     await page.getByRole('button', { name: 'Settings', exact: true }).click();
+     const before = await snapshot(page);
++    await page.evaluate(()=>flushCfgSaves());
+     const writes = await page.evaluate(() => window.__mockWrites.length);
+     assert.deepEqual(await page.locator('[data-settings-section]').evaluateAll(nodes => nodes.map(node => node.dataset.settingsSection)), order);
+     while (await page.locator('.st-head[aria-expanded="true"]').count()) await page.locator('.st-head[aria-expanded="true"]').first().click();
+@@ -40,15 +41,17 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
+       await page.evaluate(skin => setSkin(skin), skin);
+       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.getElementById('scroll').scrollWidth <= innerWidth), true);
+     }
++    assert.equal(await page.evaluate(()=>__mockWrites.length),writes,'Menu and skin changes do not write before reload');
+     await page.reload();
+     await page.waitForFunction(() => _cfgReady && _live);
+     await page.getByRole('button', { name: 'Settings', exact: true }).click();
+     assert.equal(await page.locator('.st-head[aria-expanded="false"]').count(), 7, 'Stored open/collapse choices survive reload');
+-    await page.getByRole('button', { name: 'People', exact: true }).click();
++    await page.getByRole('button', { name: 'Social Settings', exact: true }).click();
++    await page.getByText('Organizar varias personas por grupo',{exact:true}).click();
+     await page.getByRole('textbox', { name: 'Search contacts for bulk assignment' }).waitFor({ state: 'visible' });
+     assert.equal(await page.locator('#settings-section-ppl').getAttribute('inert'), null);
+     assert.equal(await snapshot(page), before, 'Menu actions preserve contacts, history and scores');
+-    assert.equal(await page.evaluate(() => window.__mockWrites.length), writes, 'Appearance and menu navigation do not write settings to Supabase');
++    assert.equal(await page.evaluate(() => window.__mockWrites.length), 0, 'Appearance and menu navigation do not write settings to Supabase');
+   });
+ }
+ 
+diff --git a/tests/social-browser.test.cjs b/tests/social-browser.test.cjs
+index acf4571..2223a8b 100644
+--- a/tests/social-browser.test.cjs
++++ b/tests/social-browser.test.cjs
+@@ -1,6 +1,7 @@
+ const { test } = require('node:test');
+ const assert = require('node:assert/strict');
+ const { fixture } = require('./helpers.cjs');
++const {control,edit,combo,category}=require('./social-ui-helpers.cjs');
+ const { openApp } = require('./browser-helpers.cjs');
+ 
+ for (const [name, viewport] of [
+@@ -11,18 +12,18 @@ for (const [name, viewport] of [
+     const page = await openApp(t, fixture(), viewport);
+     const originalHistory = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey()))));
+     assert.equal(await page.locator('.w-name').count(), 3);
+-    await page.locator('.cb-row').filter({ hasText: 'Friends' }).click();
++    await category(page,'friends');
+     assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), []);
+-    await page.getByTitle('Ana Existing', { exact: true }).click();
+-    await page.getByTitle('Luis Existing', { exact: true }).click();
++    await combo(page).getByRole('button',{name:'Ana Existing',exact:true}).click();
++    await combo(page).getByRole('button',{name:'Luis Existing',exact:true}).click();
+     assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), ['pold01', 'pold02']);
+-    assert.equal(await page.locator('.sd-pts').innerText(), '16/18%');
++    assert.equal(await page.locator('.sf-combo-heading > span').innerText(), '16 / 18 PTS');
+     await page.waitForFunction(() => window.__mockWrites.some(r => r.date === todayKey() && r.data._people.length === 2));
+     await page.reload();
+     await page.waitForFunction(() => _cfgReady && _live);
+     await page.locator('.nav-btn[data-tab="social"]').click();
+     assert.deepEqual(await page.evaluate(() => getPeople(todayKey())), ['pold01', 'pold02']);
+-    assert.equal(await page.locator('.sd-pts').innerText(), '16/18%');
++    assert.equal(await page.locator('.sf-combo-heading > span').innerText(), '16 / 18 PTS');
+     assert.equal(await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k]) => k !== todayKey())))), originalHistory);
+   });
+ }
+@@ -33,14 +34,14 @@ for (const [mode, maximum] of [['work', 18], ['vacation', 24]]) {
+     data.config.travel.mode = mode;
+     data.config.log[2].mode = mode;
+     const page = await openApp(t, data);
+-    await page.locator('.cb-row').filter({ hasText: 'Strangers' }).click();
+-    assert.equal(await page.locator('.sd-pts').innerText(), `0/${maximum}%`);
++    await category(page,'strangers');
++    assert.equal(await page.locator('.sf-combo-heading > span').innerText(), `0 / ${maximum} PTS`);
+     assert.equal(await page.evaluate(() => calcScore(todayKey()).l3), 0);
+-    assert.ok((await page.locator('.cb-sub').innerText()).includes('1/3 active · 0%'));
++    assert.equal(await control(page,'click','socialCategoryToggle',['strangers','2026-10-16'],'button').getAttribute('aria-pressed'),'true');
+     await page.locator('.nav-btn[data-tab="today"]').click();
+     assert.equal(await page.evaluate(() => calcScore(todayKey()).l3), 0);
+-    await page.getByRole('button', { name: 'EDIT', exact: true }).click();
+-    assert.ok((await page.locator('.cb-sub').innerText()).includes('1/3 active · 0%'));
++    await page.locator('.nav-btn[data-tab="social"]').click();
++    assert.equal(await control(page,'click','socialCategoryToggle',['strangers','2026-10-16'],'button').getAttribute('aria-pressed'),'true');
+   });
+ }
+ 
+@@ -54,14 +55,11 @@ test('old unpriced historical Social parts render their dated Work/Vacation spli
+   }
+ });
+ 
+-test('changing a contact category and name in Settings keeps its historical ID and recorded Social part', async t => {
++test('changing a contact category and name in Social keeps its historical ID and recorded Social part', async t => {
+   const page = await openApp(t);
+   const before = await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') }));
+-  await page.evaluate(() => openSettings());
+-  const name = page.locator(`input[data-ui-change="personSet"][data-ui-change-args=${JSON.stringify(JSON.stringify(['pold03','name']))}]`);
+-  await name.fill('Alex Renamed');
+-  await name.press('Tab');
+-  await page.locator(`select[data-ui-change="personSet"][data-ui-change-args=${JSON.stringify(JSON.stringify(['pold03','sub']))}]`).selectOption('friends');
++  await edit(page,'pold03');await page.locator('#sf-name').fill('Alex Renamed');
++  await page.locator('#sf-sub').selectOption('friends');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+   assert.equal(await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') })), before);
+   assert.equal(await page.evaluate(() => personById('pold03').name), 'Alex Renamed');
+ });
+diff --git a/tests/social-legacy-regression.test.cjs b/tests/social-legacy-regression.test.cjs
+new file mode 100644
+index 0000000..a5605d6
+--- /dev/null
++++ b/tests/social-legacy-regression.test.cjs
+@@ -0,0 +1,15 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const {loadApp}=require('./helpers.cjs');
++test('editing legacy membership preserves unknown category, relationship, metadata and historical scoring',()=>{
++ const a=loadApp();a.run(`saveCfg=()=>{};CFG.people[0]={...CFG.people[0],sub:'retired',relationship:'legacy',customMetadata:{keep:true},locations:['retired-location']};window.before=JSON.stringify([_state,CFG.log,calcScore('2026-09-16')]);socialEdit('pold01');socialDraft.name='Edited legacy person';socialSave();`);
++ assert.equal(a.read('personById("pold01").sub'),'retired');assert.equal(a.read('personById("pold01").relationship'),'legacy');
++ assert.deepEqual(a.read('personById("pold01").customMetadata'),{keep:true});assert.deepEqual(a.read('personById("pold01").locations'),['retired-location']);
++ assert.equal(a.read('JSON.stringify([_state,CFG.log,calcScore("2026-09-16")])'),a.read('window.before'));
++});
++test('legacy exception never permits assigning a new invalid category to existing or new contacts',()=>{
++ for(const id of ['pold01',null]){
++  const a=loadApp();a.run(`saveCfg=()=>{};window.before=JSON.stringify(CFG.people);socialDraft={id:${JSON.stringify(id)},name:'Invalid category',every:7,sub:'never-configured',locations:[]};socialSave();`);
++  assert.equal(a.read('JSON.stringify(CFG.people)'),a.read('window.before'));assert.notEqual(a.read('socialFormError'),'');
++ }
++});
+diff --git a/tests/social-location-access-browser.test.cjs b/tests/social-location-access-browser.test.cjs
+index a52485b..d880c59 100644
+--- a/tests/social-location-access-browser.test.cjs
++++ b/tests/social-location-access-browser.test.cjs
+@@ -23,6 +23,7 @@ test('Strangers respect location and mobile People & Groups remains reachable ab
+   const box=await toggle.boundingBox(),nav=await page.locator('#nav').boundingBox();
+   assert.ok(box.y>=0&&box.y+box.height<=nav.y,'toggle fully above dock');
+   await toggle.click();
++  await page.locator('#social-directory-toggle').click();
+   await page.locator('.sf-group-add').scrollIntoViewIfNeeded();
+   await page.waitForTimeout(350);
+   await page.locator('#scroll').evaluate(e=>e.scrollTop=e.scrollHeight);
+@@ -31,6 +32,7 @@ test('Strangers respect location and mobile People & Groups remains reachable ab
+   await page.locator('.sf-group-add').click();
+   await page.locator('dialog[open]').waitFor();
+   await page.keyboard.press('Escape');
++  await page.locator('#social-directory-toggle').click();
+   await toggle.click();
+  }
+ });
+diff --git a/tests/social-mobile-layout-browser.test.cjs b/tests/social-mobile-layout-browser.test.cjs
+index e56b09d..149ac12 100644
+--- a/tests/social-mobile-layout-browser.test.cjs
++++ b/tests/social-mobile-layout-browser.test.cjs
+@@ -5,7 +5,8 @@ const { openApp } = require('./browser-helpers.cjs');
+ 
+ test('WHO TO SEE has two mobile rows, proportional pills and unchanged desktop layout', async t => {
+   const page = await openApp(t);
+-  const snapshot = () => page.locator('.sd-contact').evaluateAll(cards => cards.map(c => {
++  const baseline=await openApp(t,undefined,{width:1440,height:1000},{htmlFile:require('../qa/prepare-habit-baseline.cjs').prepare()});
++  const snapshot = (target=page) => target.locator('.sd-contact').evaluateAll(cards => cards.map(c => {
+     const rect = s => { const r=c.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,w:r.width,h:r.height}; };
+     return { card:c.getBoundingClientRect().toJSON(), icon:rect('.sd-icon'), name:rect('.w-name'), pill:rect('.sd-time-pill'), edit:rect('.sd-edit'), when:getComputedStyle(c.querySelector('.w-when')).display, fill:c.querySelector('.sd-pill-fill').getBoundingClientRect().width/c.querySelector('.sd-time-pill').clientWidth };
+   }));
+@@ -31,20 +32,8 @@ test('WHO TO SEE has two mobile rows, proportional pills and unchanged desktop l
+   for (const width of [601,880,1440]) {
+     await page.setViewportSize({width,height:1000});
+     const current = await snapshot();
+-    const baselineCSS = fs.readFileSync(require('node:path').join(__dirname,'../assets/app.3c606c176dc83f03.css'),'utf8');
+-    await page.route('**/assets/app.*.css',route=>route.fulfill({contentType:'text/css',body:baselineCSS}));
+-    // Remove SRI only in the intercepted test HTML to load the baseline bytes.
+-    const originalHTML = fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
+-    await page.route('http://shaah.test/',route=>route.fulfill({contentType:'text/html',body:originalHTML.replace(/(<link[^>]*app\.[a-f0-9]+\.css[^>]*?) integrity="[^"]*"/, '$1')}));
+-    await page.reload();
+-    await page.waitForFunction(()=>_cfgReady&&_live);
+-    await page.locator('.nav-btn[data-tab="social"]').click();
+-    assert.deepEqual(current,await snapshot(),`desktop unchanged at ${width}px`);
+-    await page.unroute('**/assets/app.*.css');
+-    await page.unroute('http://shaah.test/');
+-    await page.reload();
+-    await page.waitForFunction(()=>_cfgReady&&_live);
+-    await page.locator('.nav-btn[data-tab="social"]').click();
++    await baseline.setViewportSize({width,height:1000});
++    assert.deepEqual(current,await snapshot(baseline),`desktop unchanged against exact main at ${width}px`);
+   }
+   await page.setViewportSize({width:390,height:844});
+   const history = await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([key])=>key!==todayKey()))));
+diff --git a/tests/social-ui-helpers.cjs b/tests/social-ui-helpers.cjs
+new file mode 100644
+index 0000000..c409a94
+--- /dev/null
++++ b/tests/social-ui-helpers.cjs
+@@ -0,0 +1,21 @@
++const control=(page,event,action,args=[],tag='*')=>page.locator(`${tag}[data-ui-${event}="${action}"][data-ui-${event}-args=${JSON.stringify(JSON.stringify(args))}]`);
++async function social(page){
++ if(await page.locator('#settings-toggle-ppl').count())await page.getByRole('button',{name:'Back',exact:true}).click();
++ await page.locator('.nav-btn[data-tab="social"]').click();
++}
++async function bulk(page){
++ if(!await page.locator('#settings-toggle-ppl').count())await page.getByRole('button',{name:'Settings',exact:true}).click();
++ const section=page.locator('#settings-toggle-ppl');if(await section.getAttribute('aria-expanded')==='false')await section.click();
++ const details=page.locator('details.sf-scoring');if(!await details.evaluate(n=>n.open))await details.locator('summary').click();
++}
++async function directory(page){
++ await social(page);const toggle=page.locator('.sf-people-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
++ if(await page.locator('#social-directory-toggle').getAttribute('aria-pressed')==='true')await page.locator('#social-directory-toggle').click();
++}
++async function edit(page,id){
++ await directory(page);await control(page,'click','socialEdit',[id],'button').and(page.locator('#social-directory-results button')).click();
++}
++const combo=page=>page.locator('.sf-compact-combo');
++async function category(page,id){await control(page,'click','socialCategoryToggle',[id,'2026-10-16'],'button').click();}
++async function groups(page){await directory(page);await page.locator('#social-directory-toggle').click();}
++module.exports={control,social,bulk,directory,edit,combo,category,groups};
+diff --git a/tests/steady-remote-skins-browser.test.cjs b/tests/steady-remote-skins-browser.test.cjs
+index 2c7a850..c86a602 100644
+--- a/tests/steady-remote-skins-browser.test.cjs
++++ b/tests/steady-remote-skins-browser.test.cjs
+@@ -6,6 +6,8 @@ const fs=require('node:fs');
+ 
+ for(const skin of ['matrix','minimal'])test(`${skin}: real incoming changes keep the screen and clean/dirty notes consistent`,async t=>{
+   const page=await openApp(t,fixture(),{width:390,height:844});
++  await page.evaluate(()=>flushCfgSaves());
++  const writes=await page.evaluate(()=>__mockWrites.length);
+   await page.evaluate(skin=>{setSkin(skin);setTab('today');window.__screen=document.querySelector('.today');window.__ring=document.querySelector('.t-ring svg');},skin);
+   await page.evaluate(()=>__emitMockRealtime({eventType:'UPDATE',new:{user_id:'regression-user',date:todayKey(),data:{_checks:{work:true},_social:blankSocial(),_note:'Synthetic incoming note'}}}));
+   assert.equal(await page.locator('textarea').inputValue(),'Synthetic incoming note');
+@@ -14,5 +16,5 @@ for(const skin of ['matrix','minimal'])test(`${skin}: real incoming changes keep
+   assert.equal(await page.locator('textarea').inputValue(),'Synthetic pending draft');
+   assert.equal(await page.evaluate(()=>__screen===document.querySelector('.today')&&__ring===document.querySelector('.t-ring svg')),true);
+   assert.equal(await page.locator('.today').evaluate(node=>getComputedStyle(node).opacity),'1');
+-  assert.equal(await page.evaluate(()=>__mockWrites.length),0);
++  assert.equal(await page.evaluate(()=>__mockWrites.length),writes);
+ });
+diff --git a/tests/supabase-guard.test.cjs b/tests/supabase-guard.test.cjs
+index 69c1462..8bb5ff1 100644
+--- a/tests/supabase-guard.test.cjs
++++ b/tests/supabase-guard.test.cjs
+@@ -105,3 +105,8 @@ test('browser transport failures are counted without surfacing request secrets',
+   await http({request:()=>({url:()=>QA_ORIGIN+'/rest/v1/day_logs'}),fetch:async()=>{throw new Error('synthetic-secret-value');},abort:async()=>{aborted++;}});
+   assert.equal(aborted,1);assert.equal(audit.httpTransportErrors,1);assert.equal(JSON.stringify(audit).includes('synthetic-secret-value'),false);
+ });
++test('QA fixture retargets only the known migration gate and rejects unexpected production references',()=>{
++ const result=temporaryHtml(html,'sb_publishable_synthetic');
++ assert.ok(result.includes('SUPABASE_URL!=='+JSON.stringify(QA_ORIGIN)));
++ assert.throws(()=>temporaryHtml(html+`<script>window.unexpected="https://${PRODUCTION_REF}.supabase.co"</script>`,'sb_publishable_synthetic'),/Production reference remains/);
++});
+diff --git a/tests/work-essential-browser.test.cjs b/tests/work-essential-browser.test.cjs
+index 9d65925..224bfd6 100644
+--- a/tests/work-essential-browser.test.cjs
++++ b/tests/work-essential-browser.test.cjs
+@@ -6,6 +6,7 @@ test('approved Work amounts fit desktop/mobile and retain milestone persistence'
+  const a=loadApp();
+  a.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config;_state['2026-10-16']={checks:{},social:{},people:[],note:'',_daylog:[]}");
+  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
++ await page.evaluate(()=>setSkin('aurora'));
+  await page.locator('.nav-btn[data-tab="today"]').click();
+  const old=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey()))));
+  for(const width of [320,390,600,879,880,1024,1440,1920]){
+diff --git a/tests/work-milestones-browser.test.cjs b/tests/work-milestones-browser.test.cjs
+index 7bfb7cb..0a08e17 100644
+--- a/tests/work-milestones-browser.test.cjs
++++ b/tests/work-milestones-browser.test.cjs
+@@ -3,6 +3,7 @@ const {openApp}=require('./browser-helpers.cjs');const {loadApp}=require('./help
+ test('milestone editor adds/removes all rows, retains draft inputs, validates, persists tomorrow only',async t=>{
+  const a=loadApp();a.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config");
+  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
++ await page.evaluate(()=>setSkin('aurora'));
+  const before=await page.evaluate(()=>({days:JSON.stringify(_state),score:JSON.stringify(calcScore(todayKey())),log:JSON.stringify(CFG.log)}));
+  await page.evaluate(()=>{settingsOpen=true;secOpen.rout=true;render();});
+  const card=page.locator('.sf-work-settings');

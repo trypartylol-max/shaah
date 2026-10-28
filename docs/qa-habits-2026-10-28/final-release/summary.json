@@ -1,0 +1,14 @@
+{
+  "status": "validated_pending_publication_authorization",
+  "candidateCommit": "b4b5cb5387d97e5dd74dabe481de0c1080048028",
+  "baseCommit": "5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b",
+  "chromiumPassed": 378,
+  "webkitPassed": 23,
+  "failures": 0,
+  "skipped": 0,
+  "candidateHtmlSha256": "9f40b9d5755ac8c62141bc245aaab29c9436db8adec89aa381eda5bf63de5cc3",
+  "archive": ".runtime/release-candidate/candidate-b4b5cb5387d97e5dd74dabe481de0c1080048028.tar",
+  "archiveSha256": "515ca795e2e8c2b4e712f2ae2fb975343fa989262dbeb43a3692e7a0bfc743ed",
+  "physicalDeviceScope": "Prior unchanged habit controls confirmed on iPhone17/iOS27/Safari; new Core START device scope is upstream, not newly certified",
+  "deployment": "not_performed"
+}

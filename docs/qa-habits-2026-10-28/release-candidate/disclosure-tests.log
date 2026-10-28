@@ -1,0 +1,10 @@
+✔ integrated mobile 390: disclosures hide content and preserve data across rendering (957.4385ms)
+✔ integrated mobile 879: disclosures hide content and preserve data across rendering (540.542042ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1844.947792

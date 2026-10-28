@@ -1,0 +1,14 @@
+✔ own realtime echo completes once and clears the pending draft (21.150584ms)
+✔ network failures keep the local draft for retry (1.840792ms)
+✔ a genuine conflicting edit is not overwritten (1.631875ms)
+✔ an already saved draft is acknowledged without another write (2.232ms)
+✔ a genuine edit during an echo is preserved and saved once more (3.707125ms)
+✔ Today shortcut opens Social even when its navigation tab is hidden (1.529916ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 79.963791

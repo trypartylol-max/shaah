@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "priorCandidate": "a4d98ab",
+  "identicalCoreFunctions": [
+    "cfgEdit",
+    "cfgLevel",
+    "weekReview",
+    "cfgForDate",
+    "calcScore",
+    "signIn",
+    "signOut",
+    "flushCfgSaves",
+    "persistDay",
+    "resolveCfgConflict",
+    "upgradeShaahSocialCoreConfig"
+  ],
+  "scope": "Historical and real QA tests retained; newer Core Routines behavior tested separately"
+}

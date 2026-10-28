@@ -3,13 +3,22 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const htmlPath = process.env.SHAAH_HTML || path.join(__dirname, '..', 'index.html');
-const html = fs.readFileSync(htmlPath, 'utf8');
+let html = fs.readFileSync(htmlPath, 'utf8');
 const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
   .filter(([, attrs]) => !/\bsrc\s*=/.test(attrs)).map(([, , script]) => script);
-const externalApp = html.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)"[^>]*><\/script>/);
+const externalApp = html.match(/<script data-shaah-app src="(\.\/assets\/app\.[a-f0-9]{16}\.js)(?:\?[^"\s]*)?"[^>]*><\/script>/);
 if (scripts.length !== 0 || !externalApp) throw new Error('Expected the versioned external application script');
 const appPath = path.resolve(path.dirname(htmlPath), externalApp[1]);
-const source = fs.readFileSync(appPath, 'utf8');
+const source = fs.readFileSync(process.env.SHAAH_SOURCE || appPath, 'utf8');
+if (process.env.SHAAH_SOURCE) {
+  const sri = 'sha384-' + require('node:crypto').createHash('sha384').update(source).digest('base64');
+  html = html.replace(/<script data-shaah-app[^>]*>/, tag => tag.replace(/integrity="[^"]*"/, 'integrity="' + sri + '"'));
+}
+const cssSource = process.env.SHAAH_CSS ? fs.readFileSync(process.env.SHAAH_CSS, 'utf8') : null;
+if (cssSource !== null) {
+  const sri = 'sha384-' + require('node:crypto').createHash('sha384').update(cssSource).digest('base64');
+  html = html.replace(/<link[^>]*href="\.\/assets\/app\.[a-f0-9]{16}\.css"[^>]*>/, tag => tag.replace(/integrity="[^"]*"/, 'integrity="' + sri + '"'));
+}
 const clone = value => JSON.parse(JSON.stringify(value));
 
 function fixture() {
@@ -52,10 +61,10 @@ function loadApp(data = fixture(), options = {}) {
   const effects = [];
   let timerId = 0;
   const context = vm.createContext({
-    console, URL, URLSearchParams, Intl,
+    console, URL, URLSearchParams, Intl, TextEncoder, crypto:require('node:crypto').webcrypto,
     Date: class extends Date {
-      constructor(...args) { super(...(args.length ? args : ['2026-10-16T12:00:00Z'])); }
-      static now() { return Date.parse('2026-10-16T12:00:00Z'); }
+      constructor(...args) { super(...(args.length ? args : [options.now || '2026-10-16T12:00:00Z'])); }
+      static now() { return Date.parse(options.now || '2026-10-16T12:00:00Z'); }
     },
     navigator: { onLine: false, vibrate() {} },
     localStorage: { getItem: k => values.get(k) ?? null, setItem: (k, v) => values.set(k, String(v)), removeItem: k => values.delete(k) },
@@ -87,4 +96,4 @@ function serverRows(data) {
   }))];
 }
 
-module.exports = { html, source, htmlPath, fixture, loadApp, clone, serverRows };
+module.exports = { html, source, cssSource, htmlPath, fixture, loadApp, clone, serverRows };

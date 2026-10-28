@@ -4,6 +4,7 @@ const {openApp}=require('./browser-helpers.cjs');
 const {fixture}=require('./helpers.cjs');
 const baselinePath=require('../qa/prepare-habit-baseline.cjs').prepare();
 async function snapshot(page){
+ await page.evaluate(()=>document.querySelector('[data-history-safety]')?.remove());
  await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(220);
  return page.locator('#scroll *').evaluateAll(nodes=>nodes.map(node=>{
   const style=getComputedStyle(node),box=node.getBoundingClientRect();

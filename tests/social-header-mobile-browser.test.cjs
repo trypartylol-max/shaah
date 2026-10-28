@@ -35,7 +35,7 @@ test('Social header geometry and navigation at mobile and desktop widths',async 
  }
  assert.equal(await page.evaluate(()=>JSON.stringify(_state)),state,'navigation does not change records');
  await page.setViewportSize({width:390,height:844});
- await page.screenshot({path:'docs/social-header-mobile.png',fullPage:true});
+ await page.screenshot({path:'test-results/social-header-mobile.png',fullPage:true});
  await page.setViewportSize({width:1440,height:1000});
- await page.screenshot({path:'docs/social-header-desktop.png',fullPage:true});
+ await page.screenshot({path:'test-results/social-header-desktop.png',fullPage:true});
 });

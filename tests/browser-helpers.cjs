@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium, webkit } = require('playwright');
-const { html, htmlPath, fixture, serverRows } = require('./helpers.cjs');
+const { html, htmlPath, source, cssSource, fixture, serverRows } = require('./helpers.cjs');
 
 let browser;
 before(async () => {
@@ -17,7 +17,8 @@ after(async () => { await browser?.close(); });
 
 async function openApp(t, data = fixture(), viewport = { width: 1440, height: 1000 }, options = {}) {
   const pageHtml=options.htmlFile?fs.readFileSync(options.htmlFile,'utf8'):html;
-  const pageRoot=path.dirname(options.htmlFile||htmlPath);
+  const appOrigin=new URL(options.url||'http://shaah.test/').origin;
+  const pageRoot=options.assetsRoot||path.dirname(options.htmlFile||htmlPath);
   const context = await browser.newContext({ viewport, timezoneId: 'UTC', serviceWorkers: 'block' });
   t.after(() => context.close());
   const unexpectedRequests = [];
@@ -25,15 +26,19 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
   await context.route('**/*', async route => {
     const url = route.request().url();
     const parsed = new URL(url);
-    if (options.worker && parsed.origin === 'http://shaah.test') {
+    if (options.worker && parsed.origin === appOrigin) {
       if (route.request().method() !== 'GET') { unexpectedRequests.push('Unmocked method: ' + route.request().method()); return route.abort(); }
       if (parsed.pathname === '/sdk.js') return route.fulfill({ contentType: 'application/javascript', body: '/* local SDK test double already installed */' });
       const response = await options.worker.fetch(new Request(url), options.workerEnv);
       return route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) });
     }
-    if (parsed.origin === 'http://shaah.test' && parsed.pathname === '/') return route.fulfill({ contentType: 'text/html', body: pageHtml });
-    if(parsed.origin==='http://shaah.test'&&/^\/assets\/[\w.-]+\.(?:js|css|woff2?)$/.test(parsed.pathname)){
-      return route.fulfill({contentType:parsed.pathname.endsWith('.css')?'text/css':/\.woff2?$/.test(parsed.pathname)?'font/woff2':'application/javascript',body:fs.readFileSync(path.join(pageRoot,parsed.pathname.slice(1)))});
+    if (parsed.origin === appOrigin && parsed.pathname === '/') return route.fulfill({ contentType: 'text/html', body: pageHtml });
+    if(parsed.origin===appOrigin&&/^\/assets\/[\w.-]+\.(?:js|css|woff2?)$/.test(parsed.pathname)){
+      const appAsset=!options.htmlFile && /^\/assets\/app\.[a-f0-9]{16}\.(js|css)$/.exec(parsed.pathname);
+      const body=appAsset?.[1]==='js' && process.env.SHAAH_SOURCE ? source
+        : appAsset?.[1]==='css' && cssSource!==null ? cssSource
+        : fs.readFileSync(path.join(pageRoot,parsed.pathname.slice(1)));
+      return route.fulfill({contentType:parsed.pathname.endsWith('.css')?'text/css':/\.woff2?$/.test(parsed.pathname)?'font/woff2':'application/javascript',body});
     }
     if (url.startsWith('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')) {
       return route.fulfill({ contentType: 'application/javascript', body: '/* Supabase is replaced by the local test double. */' });
@@ -48,7 +53,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     return route.abort();
   });
   await context.routeWebSocket('**/*',socket=>{unexpectedRequests.push('Unmocked WebSocket');socket.close();});
-  await context.addInitScript(({ rows, loggedOut, extraRows }) => {
+  await context.addInitScript(({ rows, loggedOut, extraRows, authEmail }) => {
     const copy = value => JSON.parse(JSON.stringify(value));
     const allowedOwners=new Set(['regression-user',...Object.keys(extraRows)]);
     const rowsKey=owner=>owner==='regression-user'?'shaah_mock_rows':'shaah_mock_rows:'+owner;
@@ -68,7 +73,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
       window.__mockClientCreated = true;
       return {
         auth: {
-          getSession: async () => ({ data: { session: loggedOut || sessionStorage.getItem('shaah_mock_signedout') ? null : { user: { id: 'regression-user', email: 'synthetic@example.invalid' } } } }),
+          getSession: async () => ({ data: { session: loggedOut || sessionStorage.getItem('shaah_mock_signedout') ? null : { user: { id: 'regression-user', email: authEmail } } } }),
           signOut: async options => {
             const calls = JSON.parse(sessionStorage.getItem('shaah_mock_signout_calls') || '[]'); calls.push(options);
             sessionStorage.setItem('shaah_mock_signout_calls', JSON.stringify(calls));
@@ -91,7 +96,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
         },
         from(table) {
           if (table !== 'day_logs') throw new Error('Unexpected table: ' + table);
-          let action='select',payload,returning=false;
+          let action='select',payload,returning=false,countExact=false,sortKey=null,bounds=null;
           const filters=[];
           const equal=(a,b)=>{
             if(a===b)return true;
@@ -99,7 +104,9 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
             const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(k=>Object.hasOwn(b,k)&&equal(a[k],b[k]));
           };
           const query={
-            select(){if(action!=='select')returning=true;return query;},
+            select(_columns,options){if(action!=='select')returning=true;countExact=options?.count==='exact';return query;},
+            order(key){sortKey=key;return query;},
+            range(from,to){bounds=[from,to];return query;},
             eq(k,v){if(k==='user_id'&&!allowedOwners.has(v))throw new Error('Unexpected owner');filters.push([k,v]);return query;},
             upsert(row){action='upsert';payload=copy(row);return query;},
             insert(row){action='insert';payload=copy(row);return query;},
@@ -110,7 +117,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
               if(!allowedOwners.has(owner))throw new Error('Missing or unexpected owner');
               let rows=getRows(owner).map(r=>({user_id:owner,...r}));
               const matches=r=>filters.every(([k,v])=>k==='data'?equal(r.data,JSON.parse(v)):r[k]===v);
-              if(action==='select')return {data:copy(rows.filter(matches)),error:null};
+              if(action==='select'){const found=rows.filter(matches);if(sortKey)found.sort((a,b)=>String(a[sortKey]).localeCompare(String(b[sortKey])));return {data:copy(bounds?found.slice(bounds[0],bounds[1]+1):found),count:countExact?found.length:null,error:null};}
               if((action==='upsert'||action==='insert')&&payload.user_id!==owner)throw new Error('Unexpected write owner');
               if(action==='insert'&&rows.some(r=>r.date===payload.date))return {data:null,error:{code:'23505'}};
               let changed=[];
@@ -144,7 +151,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     // their normal SRI. The SDK export cannot replace this synthetic adapter.
     const syntheticSDK=window.supabase;
     Object.defineProperty(window,'supabase',{configurable:true,get:()=>syntheticSDK,set(){}});
-  }, { rows: serverRows(data), loggedOut: !!options.loggedOut,extraRows:Object.fromEntries(Object.entries(options.syntheticAccounts||{}).map(([owner,data])=>[owner,serverRows(data)])) });
+  }, { rows: serverRows(data), loggedOut: !!options.loggedOut, authEmail: options.authEmail ?? 'synthetic@example.invalid',extraRows:Object.fromEntries(Object.entries(options.syntheticAccounts||{}).map(([owner,data])=>[owner,serverRows(data)])) });
   const page = await context.newPage();
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => errors.push(error.message));

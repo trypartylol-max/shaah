@@ -1,0 +1,30 @@
+✔ backup is read-only, checks the downloaded file, previews and round-trips the repair (42.23ms)
+✔ altered, foreign and unprepared backup files cannot enable application (7.952209ms)
+✔ local edits and remote revisions invalidate the reviewed snapshot (17.431792ms)
+✔ recovery preserves unrelated new settings and new day records but refuses conflicting period edits (30.706333ms)
+✔ recovery keeps equivalent inserted boundaries and restores their previous scoring (5.038541ms)
+✔ missing revision/count protocol, unsynced data and changing reads fail closed (5.864917ms)
+✔ rejected or unconfirmed RPCs never claim success; late local edits are preserved (39.23175ms)
+✔ a delayed read from another account cannot download or apply the former owner data (1.575166ms)
+✔ pagination exports beyond the server page limit and validates the total count (162.667333ms)
+✔ digest has a known interoperable value and dangerous JSON keys are rejected (2.456416ms)
+✔ a lost acknowledgement after a committed repair can be recovered after refresh (41.8715ms)
+✔ a missing total count cannot silently truncate a backup (1.745666ms)
+✔ repair proposes only dated boundaries and never mutates live state, storage or day rows (21.802459ms)
+✔ proposal seals missing vacation/return boundaries with independent copies (3.887667ms)
+✔ no proposal for unrelated or incomplete identity null (1.913625ms)
+✔ no proposal for unrelated or incomplete identity {"id":"other","email":"other@example.invalid"} (1.468042ms)
+✔ no proposal for unrelated or incomplete identity {"id":"owner"} (1.459041ms)
+✔ no proposal for unrelated or incomplete identity {"id":"owner","email":"trypartylol@gmail.com.evil"} (1.4715ms)
+✔ no proposal for unrelated or incomplete identity {"email":"trypartylol@gmail.com"} (1.66975ms)
+✔ account casing is normalized; pre-return and completed versions have no proposal (6.626709ms)
+✔ uncertain timelines are rejected instead of inventing an earlier baseline (2.069541ms)
+✔ Settings disable/re-enable does not create completions (3.1105ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 413.519083

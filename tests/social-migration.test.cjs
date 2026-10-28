@@ -114,3 +114,17 @@ test('contact capsule drains to due, refills overdue, turns red after 40 percent
  assert.equal(a.read('socialTimePill({every:10,days:null}).color'),'#8888a4');
  for(const [days,label] of [[6,'+4d'],[9,'+1d'],[10,'0d'],[13,'-3d']])assert.equal(a.read(`socialTimePill({every:10,days:${days}}).label`),label);
 });
+
+test('editing a saved orphan category preserves it but cannot assign another unknown category',()=>{
+ const a=upgraded();a.run("CFG.people[0].sub='archived';CFG.people[0].relationship='romantic';socialEdit('pold01')");
+ assert.ok(a.run('socialEditor()').includes('value="archived" selected'));
+ const before=a.read('_state');
+ a.run("socialDraftField('name','Renamed saved contact');socialSave()");
+ assert.equal(a.read("personById('pold01').sub"),'archived');
+ assert.equal(a.read("personById('pold01').name"),'Renamed saved contact');
+ assert.equal(a.read("personById('pold01').relationship"),'romantic');
+ assert.deepEqual(a.read('_state'),before);
+ a.run("socialEdit('pold01');socialDraftField('sub','unknown');socialSave()");
+ assert.equal(a.read("personById('pold01').sub"),'archived');
+ assert.ok(a.read('socialFormError'));
+});

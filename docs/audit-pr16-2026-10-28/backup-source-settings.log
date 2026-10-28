@@ -1,0 +1,11 @@
+✔ mobile: compact settings list preserves editors, keyboard order, collapse state and synthetic data (1766.880667ms)
+✔ desktop: compact settings list preserves editors, keyboard order, collapse state and synthetic data (1302.669042ms)
+✔ an initially open Appearance section closes on the first click even without a stored flag (638.604667ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4035.742208

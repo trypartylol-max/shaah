@@ -871,8 +871,14 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
+  historyBackupDownload:uiRule('click',[],()=>historyBackupDownload()),
+  historyBackupVerifyFile:uiRule('change',[],n=>historyBackupVerify(n.files?.[0])),
+  historyRestoreFile:uiRule('change',[],n=>historyRestorePreview(n.files?.[0])),
+  historyRepairApply:uiRule('click',[],()=>historyCommit(false)),
+  historyRepairRestore:uiRule('click',[],()=>historyCommit(true)),
   socialFamilyToggle:uiRule('click',[],()=>{socialFamilyIncluded=!socialFamilyIncluded;render();}),
   socialDirectoryToggle:uiRule('click',[],()=>socialDirectoryToggle()),
+  socialBulkToggle:uiRule('click',[],()=>{socialBulkOpen=!socialBulkOpen;}),
   socialPeopleToggle:uiRule('click',[],()=>{socialPeopleOpen=!socialPeopleOpen;render();}),
   socialRecord:uiRule('click',['string','string'],(n,e,id,key)=>socialRecord(id,key),true),
   socialViewSet:uiRule('click',['string'],(n,e,v)=>socialViewSet(v)),
@@ -997,6 +1003,7 @@ const UI_ACTIONS=Object.freeze({
   exitRoutine:uiRule('click',[],()=>exitRoutine()),
   discardCurrentRoutine:uiRule('click',[],()=>{if(confirm('Discard this routine session?'))closeRoutine();}),
   routineReset:uiRule('click',[],()=>routineReset()),
+  routineFinishEarly:uiRule('click',['string'],(n,e,id)=>finishRoutineEarly(id),true),
   routineToggle:uiRule('click',[],()=>routineToggle()),
   routineNext:uiRule('click',['string','integer'],(n,e,id,step)=>{if(e.detail<2)routineNext(id,step);},true),
   routineResume:uiRule('click',['string'],(n,e,id)=>resumeRoutine(id),true),
@@ -1300,40 +1307,225 @@ function setTravelResume(v){
 // llegó (o pasó) la fecha de vuelta al trabajo, cambia solo a "work". No hace
 // nada mientras el modo ya sea "work" ni si `auto` está apagado.
 function checkTravelAuto(){ /* Automatic mode changes disabled: only explicit user actions switch modes. */ }
-// One-time, idempotent repair of the confirmed return on 2026-10-08.
-// Preserve every dated habit configuration and check-in; only repair modes.
-function ensureWorkReturn2026(){
-  const RETURN='2026-10-08', START='2026-09-08';
-  if(todayKey()<RETURN)return false;
-  travelEnsure();
-  if(Number(CFG.travelV)>=10)return false;
-  const lg=cfgLog();
-  if(!lg.length){const b=cfgBaseline();lg.push({from:CFG_EPOCH,h:b.h,order:b.order,subs:b.subs,mode:b.mode,auto:true});}
-  let at=-1;
-  for(let i=0;i<lg.length;i++)if(lg[i].from<=RETURN)at=i;
-  if(at<0)at=0;
-  if(lg[at].from<RETURN){
-    const e=lg[at];
-    lg.splice(at+1,0,{from:RETURN,h:JSON.parse(JSON.stringify(e.h)),
-      order:(e.order||[]).slice(),subs:JSON.parse(JSON.stringify(e.subs||[])),mode:'work'});
+// The dated repair is a read-only proposal. Applying it is a separate, gated action.
+function historyRepairAccount(){return !!USER?.id&&typeof USER.email==='string'&&USER.email.trim().toLowerCase()==='trypartylol@gmail.com';}
+function ensureWorkReturn2026(config=CFG,days=_state,day=todayKey()){
+  const START='2026-09-08',RETURN='2026-10-08';
+  if(!historyRepairAccount()||day<RETURN||Number(config.travelV)>=10)return null;
+  const before=cfgCopy(config),after=cfgCopy(config),log=after.log;
+  if(!Array.isArray(log)||!log.length||log[0].from>START||log.some((e,i)=>!e||!DATE_RE.test(e.from)||!Number.isFinite(Date.parse(e.from+'T12:00:00Z'))||!e.h||typeof e.h!=='object'||Array.isArray(e.h)||!Array.isArray(e.order)||(e.mode!==undefined&&!['work','vacation'].includes(e.mode))||(e.h.work&&(typeof e.h.work!=='object'||(e.h.work.on!==undefined&&typeof e.h.work.on!=='boolean')))||(i&&e.from<=log[i-1].from)))throw Error('El historial necesita una revisión antes de repararlo.');
+  for(const date of [START,RETURN]){
+    if(log.some(e=>e.from===date))continue;
+    let at=0;for(let i=0;i<log.length;i++){if(log[i].from<date)at=i;else break;}
+    log.splice(at+1,0,{...cfgCopy(log[at]),from:date});
   }
-  for(const e of lg){
-    if(e.from>=START&&e.from<RETURN){
-      e.mode='vacation';
-      if(e.h&&e.h.work)e.h.work.on=false;
-    }else if(e.from>=RETURN){
-      e.mode='work';
-      if(e.h&&e.h.work)e.h.work.on=true;
-    }
+  for(const era of log){
+    if(era.from>=START&&era.from<RETURN){era.mode='vacation';if(era.h.work)era.h.work.on=false;}
+    else if(era.from===RETURN){era.mode='work';if(era.h.work)era.h.work.on=true;}
   }
-  CFG.travel.auto=false;
-  CFG.travel.resumeOn='';
-  persistTravelMode('work');
-  if(CFG.h&&CFG.h.work)CFG.h.work.on=true;
-  CFG.travelV=10;
-  _dayCfgCache={};
-  return true;
+  // A historical repair never changes the live mode, its schedule, or day rows.
+  after.travelV=10;
+  return {before,after,day,changes:historyModeChanges(before,after),scores:historyScoreChanges(before,after,days)};
 }
+function historyModeChanges(before,after){
+  return (after.log||[]).flatMap(e=>{
+    const exact=(before.log||[]).find(x=>x.from===e.from);let old=exact;
+    if(!old)for(const x of before.log||[]){if(x.from<=e.from)old=x;else break;}
+    const workBefore=!!old?.h?.work&&old.h.work.on!==false,workAfter=!!e.h?.work&&e.h.work.on!==false;
+    return exact&&old.mode===e.mode&&workBefore===workAfter?[]:[{date:e.from,before:old?.mode||'Período anterior',after:e.mode,workBefore,workAfter,created:!exact}];
+  });
+}
+function historyScoreChanges(before,after,days){
+  const saved={config:CFG,days:_state,cache:_dayCfgCache};
+  try{
+    _state=cfgCopy(days);
+    const scores=config=>{CFG=cfgCopy(config);_dayCfgCache={};return Object.fromEntries(Object.keys(days).filter(k=>DATE_RE.test(k)).sort().map(k=>[k,calcScore(k)]));};
+    const old=scores(before),next=scores(after);
+    return Object.keys(old).filter(k=>!cfgEqual(old[k],next[k])).map(date=>({date,before:old[date].score,after:next[date].score,maxBefore:old[date].max,maxAfter:next[date].max}));
+  }finally{CFG=saved.config;_state=saved.days;_dayCfgCache=saved.cache;}
+}
+function historySafetyState(){return {busy:false,status:'',backup:null,verified:false,verifiedName:'',restore:null};}
+var _historySafety=historySafetyState();
+const HISTORY_BACKUP_LIMIT=20*1024*1024;
+function historyCanonical(value){
+  const seen=new Set();let nodes=0;
+  const walk=(v,depth)=>{
+    if(++nodes>200000||depth>40)throw Error('El respaldo supera los límites de verificación.');
+    if(v===null||typeof v==='boolean'||typeof v==='string')return JSON.stringify(v);
+    if(typeof v==='number'&&Number.isFinite(v))return JSON.stringify(v);
+    if(!v||typeof v!=='object'||seen.has(v))throw Error('El respaldo no tiene un formato válido.');
+    seen.add(v);let text;
+    if(Array.isArray(v))text='['+v.map(x=>walk(x,depth+1)).join(',')+']';
+    else text='{'+Object.keys(v).sort().map(k=>{if(['__proto__','prototype','constructor'].includes(k))throw Error('El respaldo contiene campos no válidos.');return JSON.stringify(k)+':'+walk(v[k],depth+1);}).join(',')+'}';
+    seen.delete(v);return text;
+  };
+  const text=walk(value,0);
+  if(new TextEncoder().encode(text).byteLength>HISTORY_BACKUP_LIMIT)throw Error('El respaldo supera 20 MB. No se aplicó ningún cambio.');
+  return text;
+}
+async function historyDigest(payload){
+  if(!globalThis.crypto?.subtle)throw Error('Este navegador no permite verificar el respaldo. Usa una conexión segura.');
+  const bytes=new TextEncoder().encode(historyCanonical(payload));
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');
+}
+function historyIdle(){
+  if(!USER?.id||!_cfgReady||!_live||_cfgDraft||_cfgFlushPromise||_cfgConflict||_cfgSaveFailed||Object.keys(_pending).length||Object.keys(_offlineQueue).length)throw Error('Espera a que terminen de sincronizarse tus cambios y vuelve a intentarlo.');
+}
+function historyLocal(){return {config:cfgCopy(CFG),days:cfgCopy(_state),day:todayKey()};}
+function historySameLocal(local){return local.day===todayKey()&&cfgEqual(local.config,CFG)&&cfgEqual(local.days,_state);}
+async function historyRead(owner,current){
+  const read=async()=>{
+    let records=[],total=null,bytes=0;
+    do{
+      const result=await sb.from('day_logs').select('*',{count:'exact'}).eq('user_id',owner).order('date',{ascending:true}).range(records.length,records.length+499);
+      if(!current())throw Error('La cuenta cambió. Vuelve a preparar el respaldo.');
+      if(result.error||!Array.isArray(result.data)||!Number.isSafeInteger(result.count)||result.count<0||result.count>20000||(total!==null&&total!==result.count))throw Error('No se pudo leer un respaldo completo y estable. Vuelve a intentarlo.');
+      total=result.count;
+      if(!result.data.length&&records.length<total)throw Error('La lectura del respaldo quedó incompleta.');
+      bytes+=new TextEncoder().encode(JSON.stringify(result.data)).byteLength;
+      if(bytes>HISTORY_BACKUP_LIMIT)throw Error('El respaldo supera 20 MB.');
+      records.push(...result.data);
+      if(records.length>total)throw Error('Los datos cambiaron durante la lectura.');
+    }while(records.length<total);
+    if(new Set(records.map(r=>r.date)).size!==records.length||records.some(r=>typeof r.date!=='string'||(r.user_id&&r.user_id!==owner)))throw Error('No se pudo verificar la cuenta del respaldo.');
+    return records;
+  };
+  const records=await read(),again=await read();
+  if(historyCanonical(records)!==historyCanonical(again))throw Error('Los datos cambiaron durante la lectura. Prepara otro respaldo.');
+  const settings=records.find(r=>r.date==='settings');
+  if(!settings?.data?._cfg||(!Number.isSafeInteger(settings.settings_revision)||settings.settings_revision<0))throw Error('Primero sincroniza la configuración de tu cuenta.');
+  return {records,settings};
+}
+function historyGuardRecords(records){return records.filter(r=>r.date!=='cfgbak');}
+function historyServerDays(records){
+  return Object.fromEntries(records.filter(r=>DATE_RE.test(r.date)).map(r=>{const d=r.data||{};return [r.date,{checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]}];}));
+}
+function historyCheckBase(snapshot){
+  if(!cfgEqual(snapshot.settings.data._cfg,_cfgBase?._cfg))throw Error('Hay cambios de otro dispositivo. Actualiza la app antes de continuar.');
+  const days=historyServerDays(snapshot.records);
+  for(const [date,d] of Object.entries(_state).filter(([k])=>DATE_RE.test(k))){
+    const local={checks:d.checks||{},social:d.social||blankSocial(),note:d.note||'',people:d.people||[],_daylog:d._daylog||[]};
+    const empty=!Object.values(local.checks).some(Boolean)&&!Object.values(local.social).some(Boolean)&&!local.note&&!local.people.length&&!local._daylog.length;
+    if(!days[date]&&empty)continue; // Rendering may create an unsaved empty Today.
+    if(!cfgEqual(local,days[date]))throw Error('Hay registros recientes sin actualizar. Actualiza la app antes de continuar.');
+  }
+}
+function historyUndoConfig(plan,current){
+  if(Number(current.travelV)<10||!Number.isFinite(Number(current.travelV)))throw Error('Esta reparación no figura como aplicada.');
+  const after=mergeCfg(plan.after,plan.before,current);
+  // Preserve the completed-review marker so an older app cannot rerun its
+  // automatic migration immediately after the user recovers the old history.
+  after.travelV=10;
+  // Keep equivalent boundary entries so older clients cannot revive a longer,
+  // stale timeline from their cache after a successful recovery.
+  for(const e of current.log||[]){
+    if((plan.before.log||[]).some(x=>x.from===e.from)||(after.log||[]).some(x=>x.from===e.from))continue;
+    let original=plan.before.log[0];for(const old of plan.before.log){if(old.from<=e.from)original=old;else break;}
+    after.log.push({...cfgCopy(original),from:e.from});
+  }
+  after.log.sort((a,b)=>a.from.localeCompare(b.from));return after;
+}
+function historyDownload(envelope){
+  const url=URL.createObjectURL(new Blob([JSON.stringify(envelope,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download='shaah-backup-'+todayKey()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function historyBackupDownload(){
+  const state=_historySafety;if(state.busy)return;
+  const owner=USER?.id,epoch=_syncEpoch,current=()=>_historySafety===state&&USER?.id===owner&&_syncEpoch===epoch;
+  state.busy=true;state.backup=null;state.verified=false;state.verifiedName='';state.restore=null;state.status='Preparando el respaldo…';render();
+  try{
+    historyIdle();const local=historyLocal(),snapshot=await historyRead(owner,current);if(!current())return;historyIdle();historyCheckBase(snapshot);
+    if(!historySameLocal(local))throw Error('Tus datos cambiaron. Prepara otro respaldo.');
+    const payload={app:'SHAAH',format:1,kind:'account-backup',owner:{id:owner,email:USER.email||''},created:new Date().toISOString(),day:local.day,config:cfgCopy(snapshot.settings.data._cfg),visibleConfig:local.config,days:historyServerDays(snapshot.records),records:snapshot.records,settingsRevision:snapshot.settings.settings_revision};
+    const envelope={payload,sha256:await historyDigest(payload)};
+    if(!current())return;historyIdle();if(!historySameLocal(local))throw Error('Tus datos cambiaron. Prepara otro respaldo.');
+    let plan=null,planError='';try{plan=ensureWorkReturn2026(payload.config,payload.days,payload.day);}catch(e){planError=e.message;}
+    historyDownload(envelope);
+    state.backup={envelope,local,snapshot,plan,planError};state.status='Selecciona el archivo descargado para comprobar que el respaldo se conserva correctamente.';
+  }catch(e){if(current())state.status=e.message||'No se pudo preparar el respaldo.';}
+  finally{if(current()){state.busy=false;render();}}
+}
+async function historyParseBackup(file,owner){
+  if(!file||!Number.isFinite(file.size)||file.size>HISTORY_BACKUP_LIMIT)throw Error('Selecciona un respaldo SHAAH de menos de 20 MB.');
+  let envelope;try{envelope=JSON.parse(await file.text());}catch(e){throw Error('El archivo no es un respaldo JSON válido.');}
+  const p=envelope?.payload;
+  if(!p||p.app!=='SHAAH'||p.format!==1||p.kind!=='account-backup'||p.owner?.id!==owner||!p.config||typeof p.config!=='object'||Array.isArray(p.config)||!p.days||typeof p.days!=='object'||Array.isArray(p.days)||!Array.isArray(p.records)||p.records.some(r=>!r||typeof r!=='object'||Array.isArray(r))||!DATE_RE.test(p.day)||(!Number.isSafeInteger(p.settingsRevision)||p.settingsRevision<0)||typeof envelope.sha256!=='string')throw Error('El respaldo no corresponde a esta cuenta o tiene un formato incompatible.');
+  const settings=p.records.find(r=>r.date==='settings');
+  if(!settings||settings.settings_revision!==p.settingsRevision||!cfgEqual(settings.data?._cfg,p.config)||new Set(p.records.map(r=>r.date)).size!==p.records.length||p.records.some(r=>typeof r.date!=='string'||(r.user_id&&r.user_id!==owner))||!cfgEqual(historyServerDays(p.records),p.days))throw Error('El respaldo contiene datos incompletos o inconsistentes.');
+  if(await historyDigest(p)!==envelope.sha256)throw Error('El respaldo fue modificado o está incompleto. No se aplicó ningún cambio.');
+  return envelope;
+}
+async function historyBackupVerify(file){
+  const state=_historySafety;if(state.busy)return;
+  const owner=USER?.id,epoch=_syncEpoch,current=()=>_historySafety===state&&USER?.id===owner&&_syncEpoch===epoch;
+  state.busy=true;state.verified=false;state.status='Verificando el archivo…';render();
+  try{
+    historyIdle();const envelope=await historyParseBackup(file,owner);
+    if(!current())return;
+    if(!state.backup||envelope.sha256!==state.backup.envelope.sha256||!historySameLocal(state.backup.local))throw Error('Necesitas descargar un respaldo nuevo del estado actual.');
+    state.verified=true;state.verifiedName=String(file.name||'Respaldo SHAAH').slice(0,160);state.status=state.backup.planError||(state.backup.plan?'Respaldo verificado. Revisa los cambios previstos antes de confirmar.':'Respaldo verificado. No hay una reparación pendiente.');
+  }catch(e){if(current())state.status=e.message||'No se pudo verificar el archivo.';}
+  finally{if(current()){state.busy=false;render();}}
+}
+async function historyRestorePreview(file){
+  const state=_historySafety;if(state.busy)return;
+  const owner=USER?.id,epoch=_syncEpoch,current=()=>_historySafety===state&&USER?.id===owner&&_syncEpoch===epoch;
+  state.busy=true;state.restore=null;state.status='Comprobando la recuperación…';render();
+  try{
+    if(!historyRepairAccount())throw Error('Esta reparación no corresponde a tu cuenta.');
+    historyIdle();const envelope=await historyParseBackup(file,owner);if(!current())return;
+    const plan=ensureWorkReturn2026(envelope.payload.config,envelope.payload.days,envelope.payload.day);
+    if(!plan)throw Error('Este archivo no es anterior a la reparación.');
+    const local=historyLocal(),snapshot=await historyRead(owner,current);if(!current())return;historyIdle();historyCheckBase(snapshot);
+    if(!historySameLocal(local))throw Error('Tus datos cambiaron. Vuelve a revisar la recuperación.');
+    let after;try{after=historyUndoConfig(plan,snapshot.settings.data._cfg);}catch(e){throw Error('Se editaron los mismos períodos después de la reparación. Se necesita una revisión manual.');}
+    if(cfgEqual(after,snapshot.settings.data._cfg))throw Error('No hay cambios de esta reparación que recuperar.');
+    state.restore={local,snapshot,after,fileName:String(file.name||'Respaldo SHAAH').slice(0,160),plan:{changes:historyModeChanges(local.config,after),scores:historyScoreChanges(snapshot.settings.data._cfg,after,historyServerDays(snapshot.records))}};
+    state.status='Revisa la recuperación. Los registros diarios nuevos se conservarán.';
+  }catch(e){if(current())state.status=e.message||'No se pudo preparar la recuperación.';}
+  finally{if(current()){state.busy=false;render();}}
+}
+async function historyCommit(restore=false){
+  const state=_historySafety;if(state.busy)return;
+  const owner=USER?.id,epoch=_syncEpoch,current=()=>_historySafety===state&&USER?.id===owner&&_syncEpoch===epoch;
+  let sent=false;
+  try{
+    if(!historyRepairAccount())throw Error('Esta reparación no corresponde a tu cuenta.');
+    historyIdle();const stage=restore?state.restore:state.backup;
+    if(!stage||(!restore&&(!state.verified||!stage.plan)))throw Error('Descarga y verifica el respaldo antes de continuar.');
+    if(!historySameLocal(stage.local))throw Error('Tus datos cambiaron. Prepara un respaldo o una revisión nuevos.');
+    if(!confirm(restore?'¿Confirmas recuperar la configuración anterior de esta reparación? Los registros diarios se conservarán.':'¿Confirmas aplicar los cambios de fechas y puntuaciones mostrados? El modo actual y los registros diarios se conservarán.'))return;
+    state.busy=true;state.status='Guardando…';render();
+    const snapshot=await historyRead(owner,current);if(!current())return;historyIdle();historyCheckBase(snapshot);
+    if(!historySameLocal(stage.local)||historyCanonical(historyGuardRecords(snapshot.records))!==historyCanonical(historyGuardRecords(stage.snapshot.records)))throw Error('Los datos cambiaron desde la revisión. No se aplicó la operación.');
+    const after=restore?stage.after:stage.plan.after,data={...cfgCopy(snapshot.settings.data),_cfg:cfgCopy(after)};
+    let visibleAfter;try{visibleAfter=mergeCfg(snapshot.settings.data._cfg,stage.local.config,after);}catch(e){throw Error('Hay diferencias locales en el historial. Actualiza los datos antes de continuar.');}
+    sent=true;
+    const result=await sb.rpc('shaah_save_settings_v1',{p_expected_revision:snapshot.settings.settings_revision,p_data:{owner_id:owner,data}});
+    if(!current())return;
+    if(result.error){sent=['PT409','40001','23505','42501','PGRST202','PGRST301','PGRST302'].includes(result.error.code)?false:true;throw Error(['PT409','40001','23505'].includes(result.error.code)?'Otro dispositivo cambió la configuración. Prepara otra revisión.':'El servidor rechazó el cambio. No se guardó la operación.');}
+    if(!result.data||!Number.isSafeInteger(result.data.settings_revision)||result.data.settings_revision<=snapshot.settings.settings_revision||!cfgEqual(result.data.data,data))throw Error('No se pudo verificar la respuesta del servidor.');
+    if(!cfgEqual(CFG,stage.local.config)&&!cfgEqual(CFG,Object.assign(cfgCopy(DEFAULT_CFG),cfgCopy(after)))){
+      if(!_cfgDraft){_cfgDraftBase=cfgCopy(stage.local.config);_cfgDraft=cfgCopy(CFG);}
+      _cfgBase=cfgCopy(data);_cfgConflict=true;keepCfgDraft();
+      state.backup=null;state.verified=false;state.restore=null;state.status='La operación fue confirmada, pero hay cambios nuevos en este dispositivo. Se conservaron para resolver la sincronización.';return;
+    }
+    _cfgBase=cfgCopy(data);CFG=Object.assign(cfgCopy(DEFAULT_CFG),visibleAfter);applyCfg();set(cfgKey(),CFG);saveCache();
+    state.backup=null;state.verified=false;state.restore=null;state.status=restore?'Recuperación confirmada. Los registros diarios se conservaron.':'Reparación confirmada. Conserva el archivo de respaldo para poder recuperarla.';
+  }catch(e){if(current()){state.verified=false;state.status=sent?'No se pudo confirmar el resultado. Conserva el respaldo y actualiza los datos antes de recuperar o reintentar.':e.message||'No se pudo completar la operación.';}}
+  finally{if(current()){state.busy=false;render();}}
+}
+function historyPreviewHTML(plan){
+  if(!plan)return '';
+  const mode=v=>v==='work'?'Trabajo':v==='vacation'?'Vacaciones':v;
+  const table=(headers,rows)=>`<div ${uiStyle('overflow:auto;max-height:240px')}><table ${uiStyle('width:100%;font-size:13px;text-align:left')}><thead><tr>${headers.map(x=>`<th ${uiStyle('padding:6px')}>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(x=>`<td ${uiStyle('padding:6px')}>${esc(String(x))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  return `<h3>Cambios previstos</h3>${!plan.changes.length?'<p>Los períodos ya coinciden. Al confirmar se marcará esta revisión como completada.</p>':table(['Desde','Antes','Después'],plan.changes.map(c=>[c.date,mode(c.before)+(c.workBefore?' · Trabajo activo':' · Trabajo pausado'),mode(c.after)+(c.workAfter?' · Trabajo activo':' · Trabajo pausado')]))}<p>${plan.scores.length} días guardados cambian de puntuación.</p>${plan.scores.length?table(['Fecha','Antes','Después'],plan.scores.map(c=>[c.date,c.before+'/'+c.maxBefore,c.after+'/'+c.maxAfter])):''}<p class="sf-muted">El modo actual, las notas, las personas y los registros diarios se conservarán.</p>`;
+}
+function historySafetyHTML(){
+  const s=_historySafety,b=s.backup,fresh=b&&historySameLocal(b.local),eligible=historyRepairAccount(),button=(text,action,disabled=false)=>`<button type="button" class="sf-button" ${disabled?'disabled':''} ${ui('click',action)}>${text}</button>`;
+  return `<section data-history-safety ${uiStyle('margin-bottom:18px;padding:12px;border:1px solid var(--skin-edge);border-radius:10px;min-width:0')}><h3>Respaldo completo</h3><p class="sf-muted">Descarga tus datos guardados y comprueba el archivo. Guárdalo en un lugar privado.</p>${button('Descargar respaldo','historyBackupDownload',s.busy)}${s.verified?`<p class="sf-muted">Archivo verificado: ${esc(s.verifiedName)}</p>`:''}${b?`<label class="sf-field">${s.verified?'Elegir otro archivo (opcional)':'Verificar archivo descargado'}<input type="file" accept="application/json,.json" ${s.busy?'disabled':''} ${ui('change','historyBackupVerifyFile')}></label>`:''}<p role="status" aria-live="polite">${esc(s.status)}</p>${eligible?`<h3>Revisar historial de septiembre y octubre de 2026</h3><p class="sf-muted">${Number(CFG.travelV)>=10?'Esta revisión ya figura como completada. Puedes revisar su recuperación.':'La reparación está pausada. Solo se aplicará después de verificar un respaldo y confirmar los cambios.'}</p>${s.verified&&b?.plan?historyPreviewHTML(b.plan):''}${button('Confirmar reparación','historyRepairApply',s.busy||!s.verified||!b?.plan||!fresh)}<h3>Recuperar esta reparación</h3><p class="sf-muted">Selecciona el respaldo anterior para revisar la recuperación. Los registros añadidos después se conservarán.</p>${s.restore?`<p class="sf-muted">Respaldo comprobado: ${esc(s.restore.fileName)}</p>`:''}<label class="sf-field">${s.restore?'Elegir otro respaldo anterior (opcional)':'Respaldo anterior'}<input type="file" accept="application/json,.json" ${s.busy?'disabled':''} ${ui('change','historyRestoreFile')}></label>${s.restore?historyPreviewHTML(s.restore.plan)+button('Confirmar recuperación','historyRepairRestore',s.busy):''}`:''}</section>`;
+}
+
 // One-time repair: Vacation Mode officially starts on 2026-09-08.
 // Historical scores must use the mode that was active on that date, even if the
 // current config was already marked as v2 before the dated vacation era existed.
@@ -2095,8 +2287,8 @@ function resetAccountView(){
   currentTab='today';histTab='week';histMonth=null;tourStep=null;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
-  bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';
+  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
+  bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';_historySafety=historySafetyState();
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
   dayLogEditClose();_lastY=0;tuckNav(false);
   _syncText='SYNC…';_syncColor='#f59e0b';_signOutStatus='';
@@ -2320,10 +2512,8 @@ async function loadAll(){
     // Do not rewrite completed days to Vacation on every load.
     widenBaseline();
     addFamilyOnce();addJunkFoodOnce();rebalanceOnce();
-    // Restore the user's explicit live switch AFTER the settings row has been
-    // loaded, because the server row may contain an older mode snapshot.
+    // Restoring the live preference is separate from the manual historical repair.
     restoreLiveTravelMode();
-    if(ensureWorkReturn2026())saveCfg();
     // Repair malformed legacy dates before the automatic return check.
     if(normalizeTravelResume())saveCfg();
     applyCfg();
@@ -2705,7 +2895,7 @@ function renderSettings(){
             </div>`).join("")}
         </div>`}).join("")}`,"st-col-b")}
             ${stCard("ppl","SOCIAL SETTINGS","#9090aa",`${socialGeneralSettings()}<p class="sf-muted">Personas, grupos y frecuencias se administran en Social.</p><button class="sf-button" ${ui('click','socialManage')}>Abrir Social →</button>`,"st-col-b")}
-            ${stCard("bak","BACKUPS","#9090aa",`
+            ${stCard("bak","BACKUPS","#9090aa",`${historySafetyHTML()}
       <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px`)}>Your settings are saved automatically on every change. Restore any version here — your daily logs are never touched.</div>
       ${bakList().length?bakList().map(b=>`
         <div ${uiStyle(`display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,0.03);margin-bottom:5px`)}>
@@ -2758,8 +2948,7 @@ function cfgMove(id,dir){
   const a=CFG.order.indexOf(peers[i]), b=CFG.order.indexOf(peers[j]);
   cfgEdit(()=>{ [CFG.order[a],CFG.order[b]]=[CFG.order[b],CFG.order[a]]; });
 }
-function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; });
-      if(CFG.h[id].on===true) dayLogHookHabitCompletion(id); }
+function cfgToggle(id){ if(!CFG.h[id])return; haptic(10); cfgEdit(()=>{ CFG.h[id].on=CFG.h[id].on===false; }); }
 function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 // Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
 // Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.
@@ -3740,7 +3929,7 @@ function renderDayLogTab(){
             const dur=dayLogDuration(e),running=!e.end&&!dayLogIsSleepWake(e);
             return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" role="button" tabindex="0" aria-label="Edit activity" ${ui('click','dayLogPanelSelect' ,e.id)} ${ui('keydown','activate')}>
               <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':' · NOW')}</div>
-              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(e.meta?.sleepRole==='sleep'?'SLEEP':'WAKE'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':''))}</div></div>
+              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(e.meta?.sleepRole==='sleep'?'SLEEP':'WAKE'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.endedEarly?'INCOMPLETE':e.meta?.completed?'COMPLETED':''))}</div></div>
               <div><span class="logdesk-type ${esc(e.type)}">${dayLogTypeLabel(e.type)}</span></div>
               <div class="logdesk-duration">${dur==null?'—':dayLogFmt(dur)}</div>
               <button class="logdesk-edit" type="button" ${ui('click','dayLogPanelSelectNested' ,e.id)} aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
@@ -4113,7 +4302,8 @@ function routineDialogSync(){
     dialog.setAttribute('aria-labelledby','cr-title');document.body.appendChild(dialog);
     dialog.addEventListener('cancel',e=>{e.preventDefault();exitRoutine();});
     // Escape is handled above even when the browser dispatches its cancel event.
-    dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();exitRoutine();}});
+    dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const menu=dialog.querySelector('.cr-session-menu[open]');if(menu){menu.open=false;menu.querySelector('summary')?.focus();}else exitRoutine();}});
+    dialog.addEventListener('click',e=>{const menu=dialog.querySelector('.cr-session-menu[open]');if(menu&&!menu.contains(e.target))menu.open=false;});
   }
   const action=dialog.contains(document.activeElement)?document.activeElement.getAttribute('data-ui-click'):null;
   uiHTML(dialog,renderRoutine());
@@ -4135,7 +4325,7 @@ function renderRoutine(){
   const rt=ROUTINES[routineId],s=S();if(!rt||!s)return '';
   const index=s.q[0],step=rt.steps[index];if(!step)return '';
   const done=Object.keys(s.done).length;
-  return `<header class="cr-header"><div><h2 id="cr-title">${esc(rt.icon)} ${esc(rt.label)}</h2></div><button ${ui('click','exitRoutine')} aria-label="Close routine">✕</button></header>
+  return `<header class="cr-header"><div><h2 id="cr-title">${esc(rt.icon)} ${esc(rt.label)}</h2></div><div class="cr-header-actions"><details class="cr-session-menu"><summary aria-label="Routine options" title="Routine options">⋯</summary><div class="cr-session-menu-panel"><button type="button" ${ui('click','routineFinishEarly',routineId)}>Finalizar antes</button></div></details><button ${ui('click','exitRoutine')} aria-label="Close routine">✕</button></div></header>
     <div class="cr-body"><section class="cr-current"><div class="cr-step-label" role="status">STEP ${done+1} / ${rt.steps.length}${step.isBreak?' · BREAK':step.ses!==undefined?' · SESSION '+esc(step.ses):''}</div><h3><span class="cr-step-icon">${esc(step.icon)}</span>${esc(step.label)}</h3><div class="cr-timer-row"><button class="cr-reset" aria-label="Reset Step" title="Reset Step" ${ui('click','routineReset')}>↺</button><div class="cr-timer-face"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="cr-timer-track" cx="110" cy="110" r="96"/><circle id="timer-ring" class="cr-timer-progress" cx="110" cy="110" r="96" stroke-dasharray="${2*Math.PI*96}" stroke-dashoffset="${2*Math.PI*96*(1-s.secs/(step.dur*60))}"/></svg><div class="cr-timer-center"><div id="timer-clock" class="cr-clock" role="timer" aria-live="off">${routineTime(s.secs)}</div><span>REMAINING</span></div></div></div><div class="cr-controls"><button autofocus class="cr-primary" aria-label="${s.running?'Pause':s.paused?'Resume':'Start Step'}" ${ui('click','routineToggle')}>${s.running?'Ⅱ Pause':s.paused?'▶ Resume':'▶ Start Step'}</button><button ${ui('click','routineNext',routineId,index)}>${s.q.length===1?'Finish Routine':'Next →'}</button></div></section>
     <section class="cr-sequence" aria-label="Session steps"><ol>${s.q.map((idx,i)=>`<li ${i===0?'aria-current="step"':''}><span>${esc(rt.steps[idx].icon)} ${esc(rt.steps[idx].label)}</span><span>${rt.steps[idx].dur}m</span></li>`).join('')}${Object.keys(s.done).map(idx=>`<li class="cr-step-done"><span>✓ ${esc(rt.steps[idx]?.label)}</span></li>`).join('')}</ol></section></div>`;
 }
@@ -4188,7 +4378,15 @@ function toggleHabit(id,key){
   renderDayChange(key);
 }
 // Explicit set (used by the LIGHT/FULL/CLEAR buttons on routine cards).
-function setHabitState(id,key,v){haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);if(key===todayKey())dayLogSyncCompletion(id,key,v);renderDayChange(key);}
+function setHabitState(id,key,v){
+  haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);
+  if(key===todayKey()){
+    dayLogSyncCompletion(id,key,v);
+    // Completing Today also ends its timer; historical edits never touch live sessions.
+    if(v===true&&sessions[id]&&id!=='work')endRoutineSession(id,true);
+  }
+  renderDayChange(key);
+}
 // One tap ticks (or clears) every habit in a level, combo sub-items included.
 function toggleLevelAll(lv,key){
   const C=cfgForDate(key), items=lv===1?C.L1:lv===2?C.L2:(coreLayoutFor(key)?C.L3.filter(i=>!i.combo):C.L3);
@@ -4271,6 +4469,24 @@ function closeRoutine(id){
   if(!anyRunning())audioKeepAlive(false);
   if(!liveSessions().length&&timerInterval){clearInterval(timerInterval);timerInterval=null;}
   saveRoutine(); render();
+}
+// End a single session without altering daily credit. Early sessions are independent
+// log entries so later check/uncheck actions cannot overwrite their recorded time.
+function endRoutineSession(id,completed=false){
+  const session=sessions[id],rt=ROUTINES[id];if(!session||!rt)return false;
+  const end=dayLogNowISO(),start=session.startedAt||end;
+  if(completed){
+    const key=todayKey(),old=dayLogFindLinked('routine',id,key);
+    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true,light:false};dayLogPersist(key);}
+    else dayLogAdd(rt.label,start,end,'routine',id,{meta:{completed:true}});
+  }else{
+    dayLogAdd(rt.label+' · incompleta',start,end,'routine',null,{meta:{completed:false,endedEarly:true,routineId:id}});
+  }
+  closeRoutine(id);return true;
+}
+function finishRoutineEarly(id=routineId){
+  if(!USER||!endRoutineSession(id,false))return;
+  haptic(10);setTab('today');
 }
 function finishRoutine(){
   const id=routineId; haptic([40,60,120]); chime(3);
@@ -4528,6 +4744,7 @@ function socialDirectoryToggle(){
  if(panel)panel.hidden=!groups;
 }
 var socialPeopleOpen=false;
+var socialBulkOpen=false;
 var socialFamilyIncluded=true;
 function socialPeople(){return `<section class="card sf-people-box" aria-label="People & Groups"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} People &amp; Groups <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading sf-directory-actions">${socialButton('+ Persona','socialNew',[''],true)}<button type="button" id="social-directory-toggle" class="sf-button" aria-controls="social-directory-results social-groups-view" aria-pressed="${socialDirectoryView==='groups'}" ${ui('click','socialDirectoryToggle')}>${socialDirectoryView==='groups'?'People':'Groups'}</button></div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory" ${socialDirectoryView==='groups'?'hidden':''}>${socialDirectoryRows()}</div><div id="social-groups-view" ${socialDirectoryView==='groups'?'':'hidden'}>${socialGroups()}</div></div></div></section>`;}
 function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div><p class="sf-muted">El foco de grupo filtra sugerencias de Friends y Strangers; todos siguen disponibles para registrar encuentros.</p></section>`;}

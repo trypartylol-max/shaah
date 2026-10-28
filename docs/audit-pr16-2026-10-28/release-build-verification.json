@@ -1,0 +1,13 @@
+{
+  "integrityTags": 6,
+  "fingerprints": {
+    "js": "assets/app.646f8e88291a2a3f.js",
+    "css": "assets/app.448b3db19a6574cf.css"
+  },
+  "sourceParity": true,
+  "cspPreserved": true,
+  "supplementalOrderPreserved": true,
+  "manualRepair": true,
+  "integratedMain": "399dd750ba36cf43fdef9c1186f4fcf8cb55b433",
+  "sourceValidation": "406/412 initially; contact-merge correction and QA expectation verified by 29 + 14 focused checks"
+}

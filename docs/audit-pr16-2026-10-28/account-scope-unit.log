@@ -1,0 +1,20 @@
+✔ legacy return repairs only known boundaries, preserves future eras and check-ins, and is idempotent (20.982458ms)
+✔ return repair preserves later live Vacation choice {"later":"2026-10-12"} (1.839792ms)
+✔ return repair preserves later live Vacation choice {"explicit":true} (1.349375ms)
+✔ migration does not run before return or repeat for v10 (3.946167ms)
+✔ missing return boundary is inserted from a deep copy without altering later eras (1.658833ms)
+✔ Settings disable/re-enable changes config without adding completions (2.860958ms)
+✔ return repair does not mutate an unrelated or missing identity null (1.799375ms)
+✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-other","email":"other@example.invalid"} (1.60775ms)
+✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-owner"} (1.541125ms)
+✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-owner","email":"trypartylol@gmail.com.evil"} (1.618583ms)
+✔ return repair does not mutate an unrelated or missing identity {"email":"trypartylol@gmail.com"} (1.424167ms)
+✔ confirmed account comparison accepts letter case and surrounding whitespace only (1.238125ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.976125

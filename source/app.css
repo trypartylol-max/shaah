@@ -2870,3 +2870,16 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
  .cr-bottom-dock .cr-controls{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;width:100%}
  .cr-bottom-dock .cr-controls button{min-height:52px;font-size:14px;border-radius:13px}
 }
+
+/* Empty white Day Log circle only while mobile Today is idle. */
+@media(max-width:879px){
+ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){background:#fff!important;border-color:#fff!important;box-shadow:none!important}
+ #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span{visibility:hidden!important}
+ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb)::after{content:none!important}
+}
+.history-day-editor .history-work-row{margin-bottom:3px;background:transparent!important;border:0!important;box-shadow:none!important;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.history-work-name{display:flex;align-items:center;gap:13px;min-width:0;flex:1}
+.history-work-name>span:last-child{font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-work-points{font-size:15px;color:#8a8aa0;flex-shrink:0;white-space:nowrap}
+.history-work-check{width:22px;height:22px;border-radius:7px;flex-shrink:0;border:1.5px solid}
+@media(min-width:880px){.history-work-check{width:26px;height:26px;border-radius:8px}}

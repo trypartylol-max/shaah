@@ -1003,6 +1003,7 @@ const UI_ACTIONS=Object.freeze({
   exitRoutine:uiRule('click',[],()=>exitRoutine()),
   discardCurrentRoutine:uiRule('click',[],()=>{if(confirm('Discard this routine session?'))closeRoutine();}),
   routineReset:uiRule('click',[],()=>routineReset()),
+  routineFinishEarly:uiRule('click',['string'],(n,e,id)=>finishRoutineEarly(id),true),
   routineToggle:uiRule('click',[],()=>routineToggle()),
   routineNext:uiRule('click',['string','integer'],(n,e,id,step)=>{if(e.detail<2)routineNext(id,step);},true),
   routineResume:uiRule('click',['string'],(n,e,id)=>resumeRoutine(id),true),
@@ -3928,7 +3929,7 @@ function renderDayLogTab(){
             const dur=dayLogDuration(e),running=!e.end&&!dayLogIsSleepWake(e);
             return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" role="button" tabindex="0" aria-label="Edit activity" ${ui('click','dayLogPanelSelect' ,e.id)} ${ui('keydown','activate')}>
               <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':' · NOW')}</div>
-              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(e.meta?.sleepRole==='sleep'?'SLEEP':'WAKE'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.completed?'COMPLETED':''))}</div></div>
+              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(e.meta?.sleepRole==='sleep'?'SLEEP':'WAKE'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.endedEarly?'INCOMPLETE':e.meta?.completed?'COMPLETED':''))}</div></div>
               <div><span class="logdesk-type ${esc(e.type)}">${dayLogTypeLabel(e.type)}</span></div>
               <div class="logdesk-duration">${dur==null?'—':dayLogFmt(dur)}</div>
               <button class="logdesk-edit" type="button" ${ui('click','dayLogPanelSelectNested' ,e.id)} aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
@@ -4301,7 +4302,8 @@ function routineDialogSync(){
     dialog.setAttribute('aria-labelledby','cr-title');document.body.appendChild(dialog);
     dialog.addEventListener('cancel',e=>{e.preventDefault();exitRoutine();});
     // Escape is handled above even when the browser dispatches its cancel event.
-    dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();exitRoutine();}});
+    dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const menu=dialog.querySelector('.cr-session-menu[open]');if(menu){menu.open=false;menu.querySelector('summary')?.focus();}else exitRoutine();}});
+    dialog.addEventListener('click',e=>{const menu=dialog.querySelector('.cr-session-menu[open]');if(menu&&!menu.contains(e.target))menu.open=false;});
   }
   const action=dialog.contains(document.activeElement)?document.activeElement.getAttribute('data-ui-click'):null;
   uiHTML(dialog,renderRoutine());
@@ -4323,7 +4325,7 @@ function renderRoutine(){
   const rt=ROUTINES[routineId],s=S();if(!rt||!s)return '';
   const index=s.q[0],step=rt.steps[index];if(!step)return '';
   const done=Object.keys(s.done).length;
-  return `<header class="cr-header"><div><h2 id="cr-title">${esc(rt.icon)} ${esc(rt.label)}</h2></div><button ${ui('click','exitRoutine')} aria-label="Close routine">✕</button></header>
+  return `<header class="cr-header"><div><h2 id="cr-title">${esc(rt.icon)} ${esc(rt.label)}</h2></div><div class="cr-header-actions"><details class="cr-session-menu"><summary aria-label="Routine options" title="Routine options">⋯</summary><div class="cr-session-menu-panel"><button type="button" ${ui('click','routineFinishEarly',routineId)}>Finalizar antes</button></div></details><button ${ui('click','exitRoutine')} aria-label="Close routine">✕</button></div></header>
     <div class="cr-body"><section class="cr-current"><div class="cr-step-label" role="status">STEP ${done+1} / ${rt.steps.length}${step.isBreak?' · BREAK':step.ses!==undefined?' · SESSION '+esc(step.ses):''}</div><h3><span class="cr-step-icon">${esc(step.icon)}</span>${esc(step.label)}</h3><div class="cr-timer-row"><button class="cr-reset" aria-label="Reset Step" title="Reset Step" ${ui('click','routineReset')}>↺</button><div class="cr-timer-face"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="cr-timer-track" cx="110" cy="110" r="96"/><circle id="timer-ring" class="cr-timer-progress" cx="110" cy="110" r="96" stroke-dasharray="${2*Math.PI*96}" stroke-dashoffset="${2*Math.PI*96*(1-s.secs/(step.dur*60))}"/></svg><div class="cr-timer-center"><div id="timer-clock" class="cr-clock" role="timer" aria-live="off">${routineTime(s.secs)}</div><span>REMAINING</span></div></div></div><div class="cr-controls"><button autofocus class="cr-primary" aria-label="${s.running?'Pause':s.paused?'Resume':'Start Step'}" ${ui('click','routineToggle')}>${s.running?'Ⅱ Pause':s.paused?'▶ Resume':'▶ Start Step'}</button><button ${ui('click','routineNext',routineId,index)}>${s.q.length===1?'Finish Routine':'Next →'}</button></div></section>
     <section class="cr-sequence" aria-label="Session steps"><ol>${s.q.map((idx,i)=>`<li ${i===0?'aria-current="step"':''}><span>${esc(rt.steps[idx].icon)} ${esc(rt.steps[idx].label)}</span><span>${rt.steps[idx].dur}m</span></li>`).join('')}${Object.keys(s.done).map(idx=>`<li class="cr-step-done"><span>✓ ${esc(rt.steps[idx]?.label)}</span></li>`).join('')}</ol></section></div>`;
 }
@@ -4376,7 +4378,15 @@ function toggleHabit(id,key){
   renderDayChange(key);
 }
 // Explicit set (used by the LIGHT/FULL/CLEAR buttons on routine cards).
-function setHabitState(id,key,v){haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);if(key===todayKey())dayLogSyncCompletion(id,key,v);renderDayChange(key);}
+function setHabitState(id,key,v){
+  haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);
+  if(key===todayKey()){
+    dayLogSyncCompletion(id,key,v);
+    // Completing Today also ends its timer; historical edits never touch live sessions.
+    if(v===true&&sessions[id]&&id!=='work')endRoutineSession(id,true);
+  }
+  renderDayChange(key);
+}
 // One tap ticks (or clears) every habit in a level, combo sub-items included.
 function toggleLevelAll(lv,key){
   const C=cfgForDate(key), items=lv===1?C.L1:lv===2?C.L2:(coreLayoutFor(key)?C.L3.filter(i=>!i.combo):C.L3);
@@ -4459,6 +4469,24 @@ function closeRoutine(id){
   if(!anyRunning())audioKeepAlive(false);
   if(!liveSessions().length&&timerInterval){clearInterval(timerInterval);timerInterval=null;}
   saveRoutine(); render();
+}
+// End a single session without altering daily credit. Early sessions are independent
+// log entries so later check/uncheck actions cannot overwrite their recorded time.
+function endRoutineSession(id,completed=false){
+  const session=sessions[id],rt=ROUTINES[id];if(!session||!rt)return false;
+  const end=dayLogNowISO(),start=session.startedAt||end;
+  if(completed){
+    const key=todayKey(),old=dayLogFindLinked('routine',id,key);
+    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true,light:false};dayLogPersist(key);}
+    else dayLogAdd(rt.label,start,end,'routine',id,{meta:{completed:true}});
+  }else{
+    dayLogAdd(rt.label+' · incompleta',start,end,'routine',null,{meta:{completed:false,endedEarly:true,routineId:id}});
+  }
+  closeRoutine(id);return true;
+}
+function finishRoutineEarly(id=routineId){
+  if(!USER||!endRoutineSession(id,false))return;
+  haptic(10);setTab('today');
 }
 function finishRoutine(){
   const id=routineId; haptic([40,60,120]); chime(3);

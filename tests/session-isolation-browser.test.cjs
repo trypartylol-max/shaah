@@ -50,7 +50,7 @@ test('returning to A through the auth callback restores only A routine and A scr
   assert.equal(await page.evaluate(()=>routineView&&timerRunning),true);
   assert.equal(await page.evaluate(()=>todayRoutinesOpen),false);
   assert.equal(await page.evaluate(()=>secOpen.hab),false);
-  assert.equal(await page.locator('#scroll').textContent().then(s=>s.includes('Synthetic A routine')),true);
+  assert.equal(await page.locator('#cr-dialog #cr-title').textContent(),await page.evaluate(()=>ROUTINES.work.icon+' '+ROUTINES.work.label));
 });
 
 test('same-owner refresh keeps the live runner and signed-out state shows no account activity',async t=>{

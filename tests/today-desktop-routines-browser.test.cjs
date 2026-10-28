@@ -39,7 +39,7 @@ test('desktop Production/WOD are readable and closed levels are header-sized',as
   await card.getByRole('button',{name:'½ LIGHT',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),0.5);
   await page.locator('.t-rout-body>div.sf-core-routine').filter({has:page.locator('[title="Upgrade to full credit"]')}).getByRole('button',{name:'⬆ FULL',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),true);
   await page.locator('[aria-label="Clear completed routine"]').click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),false);
-  await card.getByRole('button',{name:'▶ START',exact:true}).click();await page.locator('[aria-label="Back, timer keeps running"]').click();
+  await card.getByRole('button',{name:'▶ START',exact:true}).click();await page.locator('[aria-label="Close routine"]').click();
   await page.evaluate(id=>closeRoutine(id),id);
  }
  await page.evaluate(()=>{openSettings();closeSettings()});

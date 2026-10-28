@@ -32,7 +32,7 @@ for (const width of [320, 390, 1440]) {
   assert.equal(await select.inputValue(),'il');
   assert.deepEqual(await geometry(),layout);
   assert.equal(await snapshot(),before);
-  await page.screenshot({path:require('node:path').join(__dirname,'..','docs',`family-off-${width}.png`)});
+  await page.screenshot({path:require('node:path').join(__dirname,'..','test-results',`family-off-${width}.png`)});
   await button.press('Enter');
   assert.equal(await button.getAttribute('aria-pressed'),'true');
   assert.deepEqual(await names(),initial);
@@ -51,6 +51,6 @@ for (const width of [320, 390, 1440]) {
   await button.click();
   for(const name of family)assert.ok((await names()).includes(name));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  await page.screenshot({path:require('node:path').join(__dirname,'..','docs',`family-on-${width}.png`)});
+  await page.screenshot({path:require('node:path').join(__dirname,'..','test-results',`family-on-${width}.png`)});
  });
 }

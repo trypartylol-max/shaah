@@ -27,7 +27,7 @@ test('strict CSP permits bulk membership and Unicode contact editing without cha
   assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),['pa']);
   await page.getByRole('button',{name:'Abrir Social →',exact:true}).click();
   await page.getByRole('button',{name:/People & Groups/}).click();
-  await page.locator('#social-directory-results').locator('[data-ui-click="socialEdit"]').filter({hasText:'Editar'}).first().click();
+  await control(page,'click','socialEdit',[id],'button').filter({visible:true}).click();
   await control(page,'change','socialDraftLocation',['il'],'input').check();
   await page.locator('#sf-name').fill('Synthetic Unicode contact');
   await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();

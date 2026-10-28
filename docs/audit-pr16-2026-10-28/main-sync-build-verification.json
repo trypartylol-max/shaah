@@ -1,0 +1,12 @@
+{
+  "integrityTags": 6,
+  "fingerprints": {
+    "js": "assets/app.966f721ea3ac5b2f.js",
+    "css": "assets/app.fe6fd5dfca831c5f.css"
+  },
+  "sourceParity": true,
+  "cspPreserved": true,
+  "supplementalOrderPreserved": true,
+  "manualRepair": true,
+  "integratedMain": "a305cd8921b5fda2273707827a53b7e6b99d55a3"
+}

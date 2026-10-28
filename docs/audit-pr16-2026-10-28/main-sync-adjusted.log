@@ -1,0 +1,27 @@
+✔ login handles query text as readable text and still boots (1020.178542ms)
+✔ login handles hash text as readable text and still boots (612.322917ms)
+✔ login handles incomplete percent as readable text and still boots (602.676584ms)
+✔ login handles encoded percent as readable text and still boots (559.845167ms)
+✔ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (1509.763ms)
+✔ people import displays ordinary markup as text and keeps the imported identifier editable (1382.915833ms)
+✔ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (3051.723167ms)
+✔ malformed stored routine definitions do not break startup or rewrite metadata (930.306167ms)
+✔ adopting valid settings without a currently open routine keeps the app usable and its saved session (979.844042ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (2023.426125ms)
+✔ returning to A through the auth callback restores only A routine and A screen preferences (951.667042ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (914.398125ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (1573.31225ms)
+✔ own realtime echo completes once and clears the pending draft (84.126ms)
+✔ network failures keep the local draft for retry (9.495625ms)
+✔ a genuine conflicting edit is not overwritten (10.313ms)
+✔ an already saved draft is acknowledged without another write (10.694292ms)
+✔ a genuine edit during an echo is preserved and saved once more (21.212834ms)
+✔ Today shortcut opens Social even when its navigation tab is hidden (8.872ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17600.736334

@@ -21,7 +21,7 @@ test('centered native runner, keyboard closure, timer choices, Resume and respon
  await page.locator('.cr-orb-button').click();assert.equal(await dialog.isVisible(),true);await dialog.getByRole('button',{name:'Pause',exact:true}).click();await dialog.getByRole('button',{name:'Close routine'}).click();assert.equal(await page.evaluate(()=>sessions.production.paused),true);
  const secs=await page.evaluate(()=>sessions.production.secs);await page.locator('[data-routine-card="production"]').getByRole('button',{name:'START',exact:true}).click();assert.equal(await page.evaluate(()=>S().running),true);assert.ok(await page.evaluate(()=>S().secs)<=secs);
  assert.equal(await page.evaluate(()=>JSON.stringify(_state)),before);
- await page.screenshot({path:'docs/core-start-desktop.png'});await page.setViewportSize({width:390,height:844});await page.waitForTimeout(200);await page.screenshot({path:'docs/core-start-mobile.png'});
+ await page.screenshot({path:'test-results/core-start-desktop.png'});await page.setViewportSize({width:390,height:844});await page.waitForTimeout(200);await page.screenshot({path:'test-results/core-start-mobile.png'});
  await page.evaluate(()=>{S().running=true;S().endAt=Date.now()-1000;syncFromSession();exitRoutine()});await page.waitForTimeout(400);assert.equal(await dialog.count(),0);assert.equal(await page.evaluate(()=>sessions.production.running),false);
  await page.evaluate(()=>{openRoutine('production');while(S()?.q.length)routineNext()});assert.equal(await page.locator('[data-routine-card="production"] button[aria-pressed=true]').textContent(),'DONE');assert.equal(await page.evaluate(()=>dayLogEvents(todayKey()).filter(e=>e.type==='routine'&&e.sourceId==='production').length),1);
 });

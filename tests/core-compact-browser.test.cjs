@@ -43,8 +43,8 @@ test('compact routine parity across every selectable skin, widths and credit sta
  await page.evaluate(()=>exitRoutine());await card.getByRole('button',{name:'START',exact:true}).click();assert.equal(await page.evaluate(()=>sessions.production.secs),45);
  await page.evaluate(()=>exitRoutine());await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(()=>!!sessions.production),true);
  await page.evaluate(()=>{closeRoutine('production');document.querySelector('#scroll').scrollTop=0});
- await page.screenshot({path:'docs/core-compact-mobile.png'});
- await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'docs/core-compact-desktop.png'});
+ await page.screenshot({path:'test-results/core-compact-mobile.png'});
+ await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'test-results/core-compact-desktop.png'});
  assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),history);
  await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);assert.equal(await page.evaluate(()=>getChecked(todayKey()).production),true);
 });

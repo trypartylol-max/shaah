@@ -76,16 +76,18 @@ test('stored routine colors, Next text and Day Log IDs stay data while controls 
       steps: [{ label: 'First', icon: '1', dur: 5 }, { label: '<b>Next & rest</b>', icon: '<i>2</i>', dur: 2 }] };
     applyCfg(); startRoutine(id);
   });
-  assert.ok((await page.locator('#scroll').innerText()).includes('Next: <i>2</i> <b>Next & rest</b>'));
-  assert.equal(await page.locator('#scroll b, #scroll em, #scroll i').count(), 0);
+  assert.ok((await page.locator('#cr-dialog').innerText()).includes('<b>Next & rest</b>'));
+  assert.ok((await page.locator('#cr-dialog').innerText()).includes('<i>2</i>'));
+  assert.equal(await page.locator('#cr-dialog em, #cr-dialog i').count(),0);
+  assert.equal(await page.locator('#cr-dialog b').filter({hasText:'Next & rest'}).count(),0);
   assert.equal(await page.evaluate(() => ROUTINES[routineId].col), '#9090aa');
-  await page.evaluate(() => exitRoutine());
+  await page.evaluate(() => {exitRoutine();setTab('social');});
   for (const style of ['circle', 'slim', 'chips']) {
     await page.evaluate(style => { CFG.pill=style; render(); }, style);
     const id = "routine O'Neil & <id> \"";
-    assert.equal(await page.locator('#resume .rz-ct').getAttribute('id'), 'resume-clock-' + id);
-    assert.equal(await page.locator('#resume id, #resume b, #resume i').count(), 0);
-    await page.locator('#resume [aria-label="Open routine"]').first().click();
+    assert.equal(await page.locator('#resume b[id]').getAttribute('id'), 'resume-clock-' + id);
+    assert.equal(await page.locator('#resume id, #resume em, #resume i').count(), 0);
+    await page.locator('#resume button.cr-mini').first().click();
     assert.equal(await page.evaluate(() => routineId), id);
     await page.evaluate(() => exitRoutine());
   }

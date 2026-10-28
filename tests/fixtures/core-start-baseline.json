@@ -1,0 +1,782 @@
+{
+  "commit": "b0e8d7470288e1349bfb0a909b2847757868dbb9",
+  "completion": [
+    {
+      "existing": false,
+      "state": "b5c6635ef0eb39417e34dc4b4a7f95715c804645eafc43ddb381254f8920e6a8",
+      "score": {
+        "score": 15,
+        "l1": 15,
+        "l2": 0,
+        "l3": 0,
+        "l1max": 35,
+        "l2max": 10,
+        "l3max": 18,
+        "max": 63,
+        "pct": 24,
+        "done": 1
+      },
+      "events": [
+        {
+          "id": "evt_mvax11c0_4fzyo",
+          "title": "Create",
+          "start": "2026-10-16T12:00:00.000Z",
+          "end": "2026-10-16T12:00:00.000Z",
+          "type": "routine",
+          "sourceId": "production",
+          "completed": true,
+          "meta": {
+            "completed": true
+          }
+        }
+      ]
+    },
+    {
+      "existing": true,
+      "state": "9c86c55aac04b4c76fba2e7d56ecf9acfbb90dcd3ee5f6e2b8d81c2385f91606",
+      "score": {
+        "score": 15,
+        "l1": 15,
+        "l2": 0,
+        "l3": 0,
+        "l1max": 35,
+        "l2max": 10,
+        "l3max": 18,
+        "max": 63,
+        "pct": 24,
+        "done": 1
+      },
+      "events": [
+        {
+          "id": "evt_mvax11c0_4fzyo",
+          "title": "Create",
+          "start": "2026-10-16T12:00:00.000Z",
+          "end": "2026-10-16T12:00:00.000Z",
+          "type": "routine",
+          "sourceId": "production",
+          "light": true,
+          "completed": false,
+          "meta": {
+            "completed": true
+          }
+        }
+      ]
+    }
+  ],
+  "edgeChecks": [
+    {
+      "value": false,
+      "outputs": {
+        "calcScore(todayKey())": {
+          "score": 0,
+          "l1": 0,
+          "l2": 0,
+          "l3": 0,
+          "l1max": 35,
+          "l2max": 10,
+          "l3max": 18,
+          "max": 63,
+          "pct": 0,
+          "done": 0
+        },
+        "getHistory()": {
+          "2026-09-07": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-09-08": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-15": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-16": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-17": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-18": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-10-08": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-10-15": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          }
+        },
+        "getStreak()": 1,
+        "getBestStreak()": 1,
+        "habitStreak(\"production\")": 0,
+        "GRADE(calcScore(todayKey()).score,calcScore(todayKey()).max)": {
+          "l": "F",
+          "c": "#ef4444",
+          "g": "#ef444455",
+          "n": "LOST",
+          "bg": "rgba(239,68,68,0.05)"
+        },
+        "nextMove(todayKey())": {
+          "need": 10,
+          "target": 10,
+          "next": {
+            "l": "D",
+            "c": "#f97316",
+            "g": "#f9731655",
+            "n": "LOW",
+            "bg": "rgba(249,115,22,0.05)"
+          },
+          "item": {
+            "id": "meditation",
+            "label": "Meditate",
+            "icon": "M",
+            "pts": 10
+          },
+          "options": [
+            {
+              "id": "meditation",
+              "label": "Meditate",
+              "icon": "M",
+              "pts": 10
+            },
+            {
+              "id": "production",
+              "label": "Create",
+              "pts": 15
+            }
+          ],
+          "reaches": true
+        }
+      }
+    },
+    {
+      "value": 0.5,
+      "outputs": {
+        "calcScore(todayKey())": {
+          "score": 8,
+          "l1": 8,
+          "l2": 0,
+          "l3": 0,
+          "l1max": 35,
+          "l2max": 10,
+          "l3max": 18,
+          "max": 63,
+          "pct": 13,
+          "done": 1
+        },
+        "getHistory()": {
+          "2026-09-07": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-09-08": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-15": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-16": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-17": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-18": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-10-08": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-10-15": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-10-16": {
+            "score": 8,
+            "grade": "F",
+            "l1": 8,
+            "l2": 0,
+            "l3": 0,
+            "done": 1,
+            "max": 63,
+            "pct": 13,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          }
+        },
+        "getStreak()": 1,
+        "getBestStreak()": 1,
+        "habitStreak(\"production\")": 1,
+        "GRADE(calcScore(todayKey()).score,calcScore(todayKey()).max)": {
+          "l": "F",
+          "c": "#ef4444",
+          "g": "#ef444455",
+          "n": "LOST",
+          "bg": "rgba(239,68,68,0.05)"
+        },
+        "nextMove(todayKey())": {
+          "need": 2,
+          "target": 10,
+          "next": {
+            "l": "D",
+            "c": "#f97316",
+            "g": "#f9731655",
+            "n": "LOW",
+            "bg": "rgba(249,115,22,0.05)"
+          },
+          "item": {
+            "id": "flirt",
+            "label": "Flirting",
+            "icon": "F",
+            "pts": 2
+          },
+          "options": [
+            {
+              "id": "flirt",
+              "label": "Flirting",
+              "icon": "F",
+              "pts": 2
+            },
+            {
+              "id": "meditation",
+              "label": "Meditate",
+              "icon": "M",
+              "pts": 10
+            }
+          ],
+          "reaches": true
+        }
+      }
+    },
+    {
+      "value": true,
+      "outputs": {
+        "calcScore(todayKey())": {
+          "score": 15,
+          "l1": 15,
+          "l2": 0,
+          "l3": 0,
+          "l1max": 35,
+          "l2max": 10,
+          "l3max": 18,
+          "max": 63,
+          "pct": 24,
+          "done": 1
+        },
+        "getHistory()": {
+          "2026-09-07": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-09-08": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-15": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-16": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-17": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-18": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-10-08": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-10-15": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-10-16": {
+            "score": 15,
+            "grade": "D",
+            "l1": 15,
+            "l2": 0,
+            "l3": 0,
+            "done": 1,
+            "max": 63,
+            "pct": 24,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          }
+        },
+        "getStreak()": 1,
+        "getBestStreak()": 1,
+        "habitStreak(\"production\")": 1,
+        "GRADE(calcScore(todayKey()).score,calcScore(todayKey()).max)": {
+          "l": "D",
+          "c": "#f97316",
+          "g": "#f9731655",
+          "n": "LOW",
+          "bg": "rgba(249,115,22,0.05)"
+        },
+        "nextMove(todayKey())": {
+          "need": 4,
+          "target": 19,
+          "next": {
+            "l": "C",
+            "c": "#f59e0b",
+            "g": "#f59e0b55",
+            "n": "AVERAGE",
+            "bg": "rgba(245,158,11,0.05)"
+          },
+          "item": {
+            "id": "meditation",
+            "label": "Meditate",
+            "icon": "M",
+            "pts": 10
+          },
+          "options": [
+            {
+              "id": "meditation",
+              "label": "Meditate",
+              "icon": "M",
+              "pts": 10
+            },
+            {
+              "id": "friends",
+              "label": "Friends",
+              "icon": "P",
+              "pts": 16
+            }
+          ],
+          "reaches": true
+        }
+      }
+    },
+    {
+      "value": 1,
+      "outputs": {
+        "calcScore(todayKey())": {
+          "score": 0,
+          "l1": 0,
+          "l2": 0,
+          "l3": 0,
+          "l1max": 35,
+          "l2max": 10,
+          "l3max": 18,
+          "max": 63,
+          "pct": 0,
+          "done": 1
+        },
+        "getHistory()": {
+          "2026-09-07": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-09-08": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-15": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-16": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-17": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-09-18": {
+            "score": 7,
+            "grade": "D",
+            "l1": 0,
+            "l2": 3,
+            "l3": 4,
+            "done": 3,
+            "max": 45,
+            "pct": 16,
+            "l1max": 15,
+            "l2max": 6,
+            "l3max": 24
+          },
+          "2026-10-08": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          },
+          "2026-10-15": {
+            "score": 27,
+            "grade": "C",
+            "l1": 20,
+            "l2": 5,
+            "l3": 2,
+            "done": 3,
+            "max": 63,
+            "pct": 43,
+            "l1max": 35,
+            "l2max": 10,
+            "l3max": 18
+          }
+        },
+        "getStreak()": 1,
+        "getBestStreak()": 1,
+        "habitStreak(\"production\")": 1,
+        "GRADE(calcScore(todayKey()).score,calcScore(todayKey()).max)": {
+          "l": "F",
+          "c": "#ef4444",
+          "g": "#ef444455",
+          "n": "LOST",
+          "bg": "rgba(239,68,68,0.05)"
+        },
+        "nextMove(todayKey())": {
+          "need": 10,
+          "target": 10,
+          "next": {
+            "l": "D",
+            "c": "#f97316",
+            "g": "#f9731655",
+            "n": "LOW",
+            "bg": "rgba(249,115,22,0.05)"
+          },
+          "item": {
+            "id": "meditation",
+            "label": "Meditate",
+            "icon": "M",
+            "pts": 10
+          },
+          "options": [
+            {
+              "id": "meditation",
+              "label": "Meditate",
+              "icon": "M",
+              "pts": 10
+            },
+            {
+              "id": "friends",
+              "label": "Friends",
+              "icon": "P",
+              "pts": 16
+            }
+          ],
+          "reaches": true
+        }
+      }
+    }
+  ],
+  "protected": {
+    "safePts": "3d798b1d3d3b97222c681d6d8afb0155a35171cf00087872f46382c464c2f2e9",
+    "doneFrac": "37386ee09057d2362a5677f1078cf5c1865bff374260c4cc69e3fc8bf277ffc4",
+    "modePts": "675c621ae573e6c6186fb07f3244c26af1520a4fca5bb12c10a50b4284f06ff2",
+    "levelsFor": "54ed74c8cfcc538f9b687448f17d5cdace5c34feede9300e3a34ffced9f78f0e",
+    "calcScore": "c2bff59c50cb517c9e06c42aaf9351656e2ea30377bf13d6464ab5ddc0f7050c",
+    "GRADE": "e80d6dd42fefe43a259162a1315dfdfc0e8f0f0aea803cb3d1a6766e1903fb71",
+    "nextMove": "082e5e90cdb78a904c62756436fa8bac4560a61ba0d7e05f4ad51e082031c1ec",
+    "getStreak": "449d0ff575c2b553039c25aa329f9de6c6f1783229c2d59e086846a55c5daeb5",
+    "getBestStreak": "1798ddc9b75efb382e8ea6d50fac7295d8d4d6817980409e48084dc92d13863e",
+    "habitStreak": "836127c5e6ce86a5b14f32b50a19f99f2ca9bc6c1fd31d1824924a0b4f33b521",
+    "getHistory": "63e876a6b3859ef875ffd19644101e1cbdbcb6f0ecee3e58d5642241ede0823b",
+    "cfgForDate": "c0b07a55b780ffda443e19fc35dae359656b79d674a80ed68a8a2449496d203b",
+    "setHabitState": "222f94727850464fb949640a6f418ad7519ccf88bd2f356a5f6bfe42894faf50",
+    "quickComplete": "5e312f8ae065fadeea08a05a10e3e4ff4e46388716847241e1d690720dda160a",
+    "dayLogSyncCompletion": "cf3dfe3fd7565421ea4958885121dc479241acc8c60d7e9e0b182a6be8bc3382",
+    "dayLogAdd": "6e2a8f6fa97899fc003990126dc0a84d34f05b391b714c8f17c21773193b6483",
+    "dayLogPersist": "52cd2438e82035407d7806ca37c2378cf25c49560ec1e22696569624e1e48ef7",
+    "dayLogFindLinked": "26f49c55ba634e6f14edfa2529cba8b111ed94cdfb08345a469f5441d8863006",
+    "persistDay": "29f20118e03000e10d148bbd430a1b2c1cefda601b646a3ecc9bf81c17bbb075",
+    "finishRoutine": "bd8909bf641845ff49f941abdc1293427a8428f2af66e2e7ebfea00464e7a744",
+    "workPhaseSet": "1df9fc494076707dadeb63d28160f7335ba707dc3a1d0639989f1d3eef935ff7",
+    "workPhaseAdvance": "94d026ba68969fcb63f02cd9004b1f5cc795c86547f9bd98a75562c79e93a883",
+    "workWeeklyCash": "36f68de7cf8202c07f12ba47ee72e4e56652e1086dd5213bcd9183640084efa9",
+    "workPhaseCard": "38af0d1ee8896c1d2738639a45fd63a7fe9d2e1c28f4907623f39d65c6db6aa0"
+  },
+  "functionBaselines": {
+    "workPhaseCard": "6529de614f3d0d75728add5ddf99c94ffde40b9f"
+  }
+}

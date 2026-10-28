@@ -94,7 +94,7 @@ test('strict CSP permits activity create, edit and delete without changing older
   assert.equal(await history(page),before);await noEventAttributes(page);
 });
 
-test('strict CSP preserves routine step editors, timer controls and discard confirmation',async t=>{
+test('strict CSP preserves routine step editors, timer controls and session-preserving closure',async t=>{
   const data=locationFixture();data.config.h.meditation.routine=true;data.config.h.meditation.lv=1;
   for(const era of data.config.log){era.h.meditation.routine=true;era.h.meditation.lv=1;}
   data.config.routines.meditation={label:'Synthetic routine',icon:'W',col:'#4ade80',steps:[{label:'First step',icon:'1',dur:1},{label:'Second step',icon:'2',dur:1}]};
@@ -110,9 +110,11 @@ test('strict CSP preserves routine step editors, timer controls and discard conf
   await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),true);
   await control(page,'click','routineToggle',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.running),false);
   await control(page,'click','routineReset',[],'button').click();assert.equal(await page.evaluate(()=>timerSecs),120);
-  await control(page,'click','routineSendToEnd',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q[0]),1);
-  await control(page,'click','routineNext',[],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q.length),1);
-  page.once('dialog',dialog=>dialog.accept());await control(page,'click','discardCurrentRoutine',[],'button').click();
-  assert.equal(await page.evaluate(()=>routineView),false);assert.equal(await page.evaluate(()=>Object.keys(sessions).length),0);
+  assert.equal(await control(page,'click','routineSendToEnd',[],'button').count(),0);
+  await control(page,'click','routineNext',['meditation',0],'button').click();assert.equal(await page.evaluate(()=>sessions.meditation.q.length),1);
+
+  await page.getByRole('button',{name:'Close routine',exact:true}).click();
+  assert.equal(await page.evaluate(()=>routineView),false);assert.equal(await page.evaluate(()=>sessions.meditation.running),true);
+  await page.evaluate(()=>closeRoutine('meditation'));assert.equal(await page.evaluate(()=>Object.keys(sessions).length),0);
   assert.deepEqual(await page.evaluate(()=>calcScore('2026-09-16')),before);await noEventAttributes(page);
 });

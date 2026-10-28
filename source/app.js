@@ -1002,7 +1002,8 @@ const UI_ACTIONS=Object.freeze({
   discardCurrentRoutine:uiRule('click',[],()=>{if(confirm('Discard this routine session?'))closeRoutine();}),
   routineReset:uiRule('click',[],()=>routineReset()),
   routineToggle:uiRule('click',[],()=>routineToggle()),
-  routineNext:uiRule('click',[],()=>routineNext()),
+  routineNext:uiRule('click',['string','integer'],(n,e,id,step)=>{if(e.detail<2)routineNext(id,step);},true),
+  routineResume:uiRule('click',['string'],(n,e,id)=>resumeRoutine(id),true),
   routineSendToEnd:uiRule('click',[],()=>routineSendToEnd())
 });
 const UI_ENUMS=Object.freeze(Object.fromEntries(Object.entries({
@@ -3148,7 +3149,7 @@ document.addEventListener('keydown',e=>{
   if(tourStep!==null){tourDone();return;}
   if(settingsOpen){closeSettings();return;}
   if(editDayKey){closeEditDay();return;}
-  if(routineId&&routineView){exitRoutine();return;}   // keeps the clock running
+  if(routineId&&routineView){e.preventDefault();exitRoutine();return;}
 });
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
 let _lastTap=0;
@@ -3435,55 +3436,40 @@ function tourGo(i){
   tourStep=i;currentTab=TOUR[i].tab;haptic(8);render();
 }
 function tourDone(){tourStep=null;set(tourKey(),1);haptic(12);render();}
+let routineDockObserver=null;
+function positionCompactSessions(){
+  const el=document.getElementById('resume'),nav=document.getElementById('nav');
+  if(!el?.classList.contains('cr-mini-sessions')||!nav)return;
+  const inset=parseFloat(getComputedStyle(nav).bottom)||0;
+  const gap=window.innerWidth<=879?6:14;
+  el.style.bottom=(nav.offsetHeight+Math.max(0,inset)+gap)+'px';
+  if(!routineDockObserver&&typeof ResizeObserver!=='undefined'){
+    routineDockObserver=new ResizeObserver(()=>positionCompactSessions());routineDockObserver.observe(nav);
+  }
+}
+window.addEventListener('resize',()=>positionCompactSessions());
+function routineOrbId(){
+ const ids=liveSessions();return ids.find(id=>id===routineDialogReturnId&&sessions[id].running)||ids.find(id=>sessions[id].running)||ids.find(id=>sessions[id].paused)||ids[0]||null;
+}
+function routineOrb(){
+ const id=routineOrbId(),s=sessions[id],rt=ROUTINES[id];if(!id||!s||!rt)return '';
+ return `<div class="cr-log-orb"><button class="cr-orb-button" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${s.paused?'Resume':'Open'} ${esc(rt.label)}"><span class="cr-orb-icon">${esc(rt.icon)}</span><b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b><span class="cr-orb-step">${s.paused?'PAUSED · ':''}${Object.keys(s.done).length+1} / ${rt.steps.length}</span></button><button class="cr-orb-add" ${ui('click','openDayLogStart')} aria-label="Log an activity" title="Log an activity">+</button><span class="cr-orb-label">${esc(rt.label)}${liveSessions().length>1?' · +'+(liveSessions().length-1):''}</span></div>`;
+}
 function renderResume(){
   const el=document.getElementById("resume");if(!el)return;
   const ids=liveSessions().filter(id=>!(routineView&&id===routineId));
   const show=USER&&ids.length&&!settingsOpen&&!editDayKey&&tourStep===null;
   if(!show){el.className="";uiHTML(el,"");return;}
-  const style=CFG.pill||"chips";
-  const info=id=>{
-    const rt=ROUTINES[id],s=sessions[id];
-    if(!rt||!s||!Array.isArray(s.q))return null;
-    const step=s.q.length?rt.steps[s.q[0]]:null;
-    if(!step)return null;
-    const m=Math.floor(s.secs/60),x=s.secs%60;
-    return{id,rt,s,step,col:step.isBreak?"#f59e0b":rt.col,
-           t:`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`};
-  };
-  const items=ids.map(info).filter(Boolean);
-  if(!items.length){el.className="";uiHTML(el,"");return;}
-  el.className="on pill-"+style;
-
-  if(style==="circle"){
-    uiHTML(el,items.map(({id,rt,s,step,col,t})=>`
-      <div class="rz-circle" role="button" tabindex="0" aria-label="Open routine" ${ui('click','openRoutine' ,id)} ${ui('keydown','activate')} ${uiStyle(`border-color:${col}44`)}>
-        <div class="rz-cdot" ${uiStyle(`background:${col};opacity:${s.running?1:.35}`)}></div>
-        <div class="rz-ct" ${uiStyle(`color:${col}`)} id="resume-clock-${esc(id)}">${t}</div>
-        <div class="rz-ci">${esc(step.icon)}</div>
-      </div>`).join(""));
-    return;
+  {
+    el.className='on cr-mini-sessions'+(currentTab==='today'?' cr-mini-in-orb':'');
+    positionCompactSessions();
+    requestAnimationFrame(()=>positionCompactSessions());
+    uiHTML(el,ids.map(id=>{const rt=ROUTINES[id],s=sessions[id],step=rt?.steps[s.q[0]];if(!step)return '';
+      return `<button class="cr-mini" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${s.paused?'Resume':'Open'} ${esc(rt.label)}"><span class="cr-mini-icon">${esc(rt.icon)}</span><span class="cr-mini-text"><strong>${esc(rt.label)}</strong><span>${s.running?'Running':s.paused?'Paused':'Ready'} · Step ${Object.keys(s.done).length+1}/${rt.steps.length} · ${esc(step.label)}</span></span><b id="resume-clock-${esc(id)}">${routineTime(s.secs)}</b><span aria-hidden="true">↗</span></button>`;
+    }).join(''));return;
   }
-  if(style==="slim"){
-    uiHTML(el,items.map(({id,rt,s,step,col,t})=>`
-      <div class="rz-slim" role="button" tabindex="0" aria-label="Open routine" ${ui('click','openRoutine' ,id)} ${ui('keydown','activate')}>
-        <span class="rz-dot${s.running?" live":""}" ${uiStyle(`background:${col}`)}></span>
-        <span class="rz-lbl">${esc(step.icon)} ${esc(step.label)}</span>
-        <span class="rz-ct" ${uiStyle(`color:${col}`)} id="resume-clock-${esc(id)}">${t}</span>
-        <button class="rz-x" ${ui('click','discardRoutine' ,id)} aria-label="Discard">✕</button>
-      </div>`).join(""));
-    return;
-  }
-  // chips (default)
-  uiHTML(el,`<div class="rz-row">${items.map(({id,rt,s,step,col,t})=>`
-    <div class="rz-chip" role="button" tabindex="0" aria-label="Open routine" ${ui('click','openRoutine' ,id)} ${ui('keydown','activate')}>
-      <span class="rz-dot${s.running?" live":""}" ${uiStyle(`background:${col}`)}></span>
-      <span class="rz-cmid">
-        <span class="rz-ct" ${uiStyle(`color:${col}`)} id="resume-clock-${esc(id)}">${t}</span>
-        <span class="rz-cn">${esc(step.icon)} ${esc(step.label)}</span>
-      </span>
-      <button class="rz-x" ${ui('click','discardRoutine' ,id)} aria-label="Discard">✕</button>
-    </div>`).join("")}</div>`);
 }
+
 function renderTour(){
   const t=document.getElementById("tour");if(!t)return;
   if(tourStep===null||!USER){t.className="";uiHTML(t,"");return;}
@@ -3521,11 +3507,11 @@ function topbarHTML(){
 }
 function render(){
   socialGroupDialogSync();
+  routineDialogSync();
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
   if(!USER){uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
   if(settingsOpen){uiHTML(el,renderSettings());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
-  if(routineId&&routineView){uiHTML(el,renderRoutine());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   if(editDayKey){uiHTML(el,renderEditDay());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   nav.style.display="flex";
   const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
@@ -3715,9 +3701,9 @@ function renderToday(key,nested=false){
         <div ${uiStyle(`font-size:${RSZ>140?14:11.5}px;color:${gr.c};letter-spacing:0.12em;opacity:0.65`)}>${gr.n}</div>
       </div>
         </div>
-        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""}" type="button" ${ui('click','openDayLogStart')} aria-label="${dayLogActiveId()?"View active Day Log":"Log an activity"}">
+        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""} ${routineOrbId()?'cr-log-has-orb':''}" type="button" ${ui('click','openDayLogStart')} aria-label="${dayLogActiveId()?"View active Day Log":"Log an activity"}">
           <span>${dayLogActiveId()?"●":"+"}</span>${dayLogActiveId()?`<b>${dayLogFmt((Date.now()-new Date(dayLogEvents(todayKey()).find(e=>e.id===dayLogActiveId()).start).getTime())/60000)}</b>`:""}
-        </button>`:""}
+        </button>${routineOrb()}`:""}
       </div>
     <div class="t-grade t-nextmove t-levelstatus" ${uiStyle(`width:100%;max-width:520px;background:${gr.bg};border:1px solid ${gr.c}1a;border-radius:16px;padding:15px 20px;box-sizing:border-box`)}>
       ${(()=>{
@@ -3749,23 +3735,19 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         if(core&&item.id==='work')return workPhaseCard(key,item);
         if(core&&!item.routine)return coreHabitCard(key,item);
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
-        return`<div class="sf-core-routine" ${uiStyle(`background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px`)}>
-          <div ${uiStyle(`width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0`)}>${esc(rt.icon)}</div>
-          <div ${uiStyle(`flex:1;min-width:0`)}>
-            <div class="r-lab" ${uiStyle(`font-size:17px;color:${full?"#555":light?"#c0c0cd":"#e2e2e2"};font-weight:500;${full?"text-decoration:line-through":""}`)}>${esc(rt.label)}${light?` <span ${uiStyle(`font-size:13px;color:#f59e0b;font-weight:400`)}>· LIGHT · ${Math.round(item.pts*0.5)}%</span>`:""}${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:""}</div>
-            <div class="r-sub" ${uiStyle(`font-size:15px;color:#777;margin-top:3px`)}>${rt.steps.length} steps · ${totalMin} min</div>
-            ${!done?`<div ${uiStyle(`display:flex;gap:4px;margin-top:8px;flex-wrap:wrap`)}>${rt.steps.slice(0,4).map(s=>`<span class="r-step" ${uiStyle(`font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px`)}>${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span ${uiStyle(`font-size:14.5px;color:#adadbf`)}>+${rt.steps.length-4} more</span>`:""}</div>`:""}
+        const session=sessions[item.id];
+        // The three shared controls retain daily credit toggles and the existing runner.
+        return`<div class="sf-core-routine cr-compact-card" data-routine-card="${esc(item.id)}">
+          <div class="cr-compact-icon" aria-hidden="true">${esc(rt.icon)}</div>
+          <div class="cr-compact-copy">
+            <div class="r-lab">${esc(rt.label)}${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:''}</div>
+            <div class="r-sub">${rt.steps.length} steps · ${totalMin} min</div>
           </div>
-          ${full?`<div role="button" tabindex="0" aria-label="Clear completed routine" ${ui('click','setHabitState' ,item.id,key,false)} ${ui('keydown','activate')} ${uiStyle(`font-size:23px;cursor:pointer`)}>✅</div>`:light?`
-          <div ${uiStyle(`display:flex;flex-direction:column;gap:6px;flex-shrink:0`)}>
-            <button class="r-btn sf-routine-primary" ${ui('click','setHabitState' ,item.id,key,true)} title="Upgrade to full credit" ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px`)}>⬆ FULL</button>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,false)} title="Clear" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#a4a4ba;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer`)}>✕ CLEAR</button>
-          </div>`:`
-          <div ${uiStyle(`display:flex;flex-direction:column;gap:6px;flex-shrink:0`)}>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,0.5)} title="Light version — half credit" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#f59e0b;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer`)}>½ LIGHT</button>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,true)} title="Mark done without the timer" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px`)}>✓ DONE</button>
-            <button class="r-btn sf-routine-primary" ${ui('click','startRoutine' ,item.id)} ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap`)}>▶ START</button>
-          </div>`}
+          <div class="cr-compact-actions">
+            <button type="button" class="r-btn" aria-pressed="${light}" title="${light?'Clear light credit':'Light version — half credit'}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}>LIGHT</button>
+            <button type="button" class="r-btn" aria-pressed="${full}" title="${full?'Clear completed routine':'Mark done without the timer'}" ${ui('click','setHabitState',item.id,key,full?false:true)}>DONE</button>
+            <button type="button" class="r-btn sf-routine-primary" title="${session?(session.running?'Open running routine':session.paused?'Resume routine':'Start prepared step'):'Start routine'}" ${session&&!session.running?ui('click','routineResume',item.id):ui('click','startRoutine',item.id)} ${uiStyle(`background:${rt.col};color:#080810`)}>START</button>
+          </div>
         </div>`;
       }).join("")}</div>
     </div>`}
@@ -4284,64 +4266,48 @@ function renderHistYear(){
   </div>`;
 }
 
-function renderRoutine(){
-  if(!routineId)return"";
-  const rt=ROUTINES[routineId];if(!rt)return"";
-  const current=routineQueue[0]!==undefined?rt.steps[routineQueue[0]]:null;
-  const done=Object.keys(routineCompleted).length,total=rt.steps.length,pct=done/total;
-  const sesLabel=s=>{if(s==="break")return{label:"BREAK",col:"#f59e0b"};if(s===1)return{label:"SESSION 1",col:"#a78bfa"};if(s===2)return{label:"SESSION 2",col:"#4ade80"};return null;};
-  if(!current){
-    return`<div ${uiStyle(`height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:'DM Mono',monospace`)}>
-      <div ${uiStyle(`font-size:48px`)}>🏁</div>
-      <div ${uiStyle(`font-family:'Bebas Neue';font-size:32px;color:${rt.col};letter-spacing:0.1em`)}>COMPLETE</div>
-      <div ${uiStyle(`font-size:15px;color:#b0b0c2`)}>${esc(rt.label)} finished</div>
-      <button ${ui('click','finishRoutine')} ${uiStyle(`margin-top:16px;background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:14px 30px;border-radius:12px;cursor:pointer;font-weight:700`)}>✓ MARK AS DONE</button>
-    </div>`;
+// Session presentation only; daily checks and linked Day Log writes stay in the existing engine.
+let routineDialogReturnId=null;
+function routineState(s){return s.running?'Active':s.paused?'Paused':'Ready';}
+function routineTime(secs){return `${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;}
+function routineDialogSync(){
+  let dialog=document.getElementById('cr-dialog');
+  if(!USER||!routineView||!routineId||!S()||settingsOpen||editDayKey){
+    if(dialog){dialog.close();dialog.remove();
+      const id=routineDialogReturnId;setTimeout(()=>document.querySelector(`[data-routine-card="${CSS.escape(id||'')}"] button`)?.focus(),0);}
+    return;
   }
-  const timerPct=timerSecs/(current.dur*60),r=96,c=2*Math.PI*r,off=c-(1-timerPct)*c,col=current.isBreak?"#f59e0b":rt.col;
-  const mins=Math.floor(timerSecs/60),secs=timerSecs%60,fmtTime=`${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-  const sl=current.ses!==undefined?sesLabel(current.ses):null;
-  return`<div ${uiStyle(`height:100dvh;display:flex;flex-direction:column;background:#07070f;font-family:'DM Mono',monospace;overflow:hidden`)}>
-    <div ${uiStyle(`display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 20px 14px;border-bottom:1px solid #111120`)}>
-      <div ${uiStyle(`display:flex;align-items:center;gap:10px;min-width:0;flex:1`)}>
-        <span ${uiStyle(`font-size:21px;flex-shrink:0`)}>${esc(rt.icon)}</span>
-        <div ${uiStyle(`min-width:0`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;letter-spacing:0.1em;color:${rt.col};overflow:hidden;text-overflow:ellipsis;white-space:nowrap`)}>${esc(rt.label)}</div><div ${uiStyle(`font-size:14.5px;color:#a4a4ba;white-space:nowrap`)}>${done}/${total} STEPS</div></div>
-      </div>
-      <div ${uiStyle(`display:flex;align-items:center;gap:9px;flex-shrink:0`)}>
-        <div class="rn-bar" ${uiStyle(`width:80px`)}>${bar(pct*100,rt.col,rt.col+"44",4)}</div>
-        <button ${ui('click','exitRoutine')} title="Back — timer keeps running (Esc)" aria-label="Back, timer keeps running" ${uiStyle(`background:#0f0f1c;border:1px solid #23233a;color:#d0d0da;height:40px;padding:0 15px;border-radius:99px;cursor:pointer;font-size:14px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;gap:7px;flex-shrink:0;white-space:nowrap`)}>← <span ${uiStyle(`font-size:12px`)}>BACK</span></button>
-        <button ${ui('click','discardCurrentRoutine')} title="Discard session — timer stops and progress is lost" aria-label="Discard session" ${uiStyle(`background:none;border:1px solid #3a1f24;color:#c76;height:40px;padding:0 13px;border-radius:99px;cursor:pointer;font-size:13px;font-family:inherit;letter-spacing:.08em;line-height:1;display:flex;align-items:center;flex-shrink:0;white-space:nowrap`)}>✕ END</button>
-      </div>
-    </div>
-    ${sl?`<div ${uiStyle(`text-align:center;padding:10px 0 0`)}><span ${uiStyle(`font-size:14.5px;letter-spacing:0.12em;color:${sl.col};border:1px solid ${sl.col}44;border-radius:99px;padding:3px 12px`)}>${esc(sl.label)}</span></div>`:""}
-    <div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:0 24px`)}>
-      <div ${uiStyle(`position:relative;width:220px;height:220px`)}>
-        <svg width="220" height="220" ${uiStyle(`transform:rotate(-90deg);filter:drop-shadow(0 0 20px ${col}55);overflow:visible`)}>
-          <circle cx="110" cy="110" r="${r}" fill="none" stroke="#111122" stroke-width="10"/>
-          <circle id="timer-ring" cx="110" cy="110" r="${r}" fill="none" stroke="${col}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" ${uiStyle(`transition:stroke-dashoffset 0.5s linear`)}/>
-        </svg>
-        <div ${uiStyle(`position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px`)}>
-          <div ${uiStyle(`font-size:40px;margin-bottom:4px`)}>${esc(current.icon)}</div>
-          <div id="timer-clock" ${uiStyle(`font-family:'Bebas Neue';font-size:52px;line-height:1;color:${col};letter-spacing:-0.02em`)}>${fmtTime}</div>
-          <div ${uiStyle(`font-size:14.5px;color:#adadbf;letter-spacing:0.1em`)}>${current.dur} MIN</div>
-        </div>
-      </div>
-      <div ${uiStyle(`text-align:center`)}>
-        <div ${uiStyle(`font-size:19px;font-weight:500;color:#e2e2e2`)}>${esc(current.label)}</div>
-        ${routineQueue.length>1?`<div ${uiStyle(`font-size:15px;color:#9a9ab2;margin-top:6px`)}>Next: ${esc(rt.steps[routineQueue[1]]?.icon)} ${esc(rt.steps[routineQueue[1]]?.label)}</div>`:""}
-      </div>
-      <div ${uiStyle(`display:flex;align-items:center;gap:20px;margin-top:8px`)}>
-        <button ${ui('click','routineReset')} ${uiStyle(`width:48px;height:48px;border-radius:50%;background:#111120;border:1px solid #1e1e2e;color:#adadbf;font-size:19px;cursor:pointer`)}>↺</button>
-        <button ${ui('click','routineToggle')} ${uiStyle(`width:72px;height:72px;border-radius:50%;background:${timerRunning?col:"#1a1a2e"};border:2px solid ${timerRunning?col:"#2a2a4a"};color:${timerRunning?"#080810":"#e2e2e2"};font-size:27px;cursor:pointer;box-shadow:${timerRunning?`0 0 24px ${col}55`:"none"};transition:all 0.2s`)}>${timerRunning?"⏸":"▶"}</button>
-        <button ${ui('click','routineNext')} ${uiStyle(`width:48px;height:48px;border-radius:50%;background:#111120;border:1px solid #1e1e2e;color:#adadbf;font-size:19px;cursor:pointer`)}>⏭</button>
-      </div>
-      <button ${ui('click','routineSendToEnd')} ${uiStyle(`background:none;border:1px solid #161626;color:#a4a4ba;font-family:inherit;font-size:14.5px;letter-spacing:0.1em;padding:7px 18px;border-radius:8px;cursor:pointer`)}>MOVE TO END</button>
-    </div>
-    <div ${uiStyle(`border-top:1px solid #0f0f1e;max-height:180px;overflow-y:auto`)}>
-      ${routineQueue.map((idx,qi)=>{const s=rt.steps[idx],isCur=qi===0;return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;padding:8px 20px;background:${isCur?rt.col+"08":"transparent"};border-left:2px solid ${isCur?rt.col:"transparent"}`)}><span ${uiStyle(`font-size:17px;opacity:${isCur?1:0.4}`)}>${esc(s.icon)}</span><div ${uiStyle(`flex:1`)}><div ${uiStyle(`font-size:15px;color:${isCur?"#e2e2e2":"#333"};font-weight:${isCur?600:450}`)}>${esc(s.label)}</div></div><div ${uiStyle(`font-size:15px;color:${isCur?rt.col:"#252535"}`)}>${s.dur}m</div></div>`;}).join("")}
-      ${Object.keys(routineCompleted).length>0?`<div ${uiStyle(`padding:8px 20px 0;border-top:1px solid #0f0f1e;margin-top:4px`)}>${Object.keys(routineCompleted).map(idx=>{const s=rt.steps[idx];return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;padding:6px 0;opacity:0.3`)}><span ${uiStyle(`font-size:17px`)}>✓</span><div ${uiStyle(`font-size:15px;color:#b0b0c2;text-decoration:line-through`)}>${esc(s.label)}</div></div>`;}).join("")}</div>`:""}
-    </div>
-  </div>`;
+  if(!dialog){
+    routineDialogReturnId=routineId;
+    dialog=document.createElement('dialog');dialog.id='cr-dialog';dialog.className='cr-dialog';
+    dialog.setAttribute('aria-labelledby','cr-title');document.body.appendChild(dialog);
+    dialog.addEventListener('cancel',e=>{e.preventDefault();exitRoutine();});
+    // Escape is handled above even when the browser dispatches its cancel event.
+    dialog.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();exitRoutine();}});
+  }
+  const action=dialog.contains(document.activeElement)?document.activeElement.getAttribute('data-ui-click'):null;
+  uiHTML(dialog,renderRoutine());
+  placeRoutineControls(dialog);
+  if(!dialog.open)dialog.showModal();
+  (action?dialog.querySelector(`[data-ui-click="${action}"]`):null)?.focus();
+  if(!dialog.contains(document.activeElement))dialog.querySelector('[autofocus]')?.focus();
+}
+// Mobile keeps one set of controls in a fixed bottom row; desktop keeps them by the timer.
+function placeRoutineControls(dialog=document.getElementById('cr-dialog')){
+ if(!dialog)return;
+ const controls=dialog.querySelector('.cr-controls'),current=dialog.querySelector('.cr-current');if(!controls||!current)return;
+ let dock=dialog.querySelector('.cr-bottom-dock');
+ if(window.innerWidth<=879){if(!dock){dock=document.createElement('div');dock.className='cr-bottom-dock';dialog.append(dock);}dock.append(controls);}
+ else{current.append(controls);dock?.remove();}
+}
+window.addEventListener('resize',()=>placeRoutineControls());
+function renderRoutine(){
+  const rt=ROUTINES[routineId],s=S();if(!rt||!s)return '';
+  const index=s.q[0],step=rt.steps[index];if(!step)return '';
+  const done=Object.keys(s.done).length;
+  return `<header class="cr-header"><div><h2 id="cr-title">${esc(rt.icon)} ${esc(rt.label)}</h2></div><button ${ui('click','exitRoutine')} aria-label="Close routine">✕</button></header>
+    <div class="cr-body"><section class="cr-current"><div class="cr-step-label" role="status">STEP ${done+1} / ${rt.steps.length}${step.isBreak?' · BREAK':step.ses!==undefined?' · SESSION '+esc(step.ses):''}</div><h3><span class="cr-step-icon">${esc(step.icon)}</span>${esc(step.label)}</h3><div class="cr-timer-row"><button class="cr-reset" aria-label="Reset Step" title="Reset Step" ${ui('click','routineReset')}>↺</button><div class="cr-timer-face"><svg viewBox="0 0 220 220" aria-hidden="true"><circle class="cr-timer-track" cx="110" cy="110" r="96"/><circle id="timer-ring" class="cr-timer-progress" cx="110" cy="110" r="96" stroke-dasharray="${2*Math.PI*96}" stroke-dashoffset="${2*Math.PI*96*(1-s.secs/(step.dur*60))}"/></svg><div class="cr-timer-center"><div id="timer-clock" class="cr-clock" role="timer" aria-live="off">${routineTime(s.secs)}</div><span>REMAINING</span></div></div></div><div class="cr-controls"><button autofocus class="cr-primary" aria-label="${s.running?'Pause':s.paused?'Resume':'Start Step'}" ${ui('click','routineToggle')}>${s.running?'Ⅱ Pause':s.paused?'▶ Resume':'▶ Start Step'}</button><button ${ui('click','routineNext',routineId,index)}>${s.q.length===1?'Finish Routine':'Next →'}</button></div></section>
+    <section class="cr-sequence" aria-label="Session steps"><ol>${s.q.map((idx,i)=>`<li ${i===0?'aria-current="step"':''}><span>${esc(rt.steps[idx].icon)} ${esc(rt.steps[idx].label)}</span><span>${rt.steps[idx].dur}m</span></li>`).join('')}${Object.keys(s.done).map(idx=>`<li class="cr-step-done"><span>✓ ${esc(rt.steps[idx]?.label)}</span></li>`).join('')}</ol></section></div>`;
 }
 
 function setTab(t){currentTab=t;_lastY=0;tuckNav(false);render();}
@@ -4458,7 +4424,12 @@ function startRoutine(id){
   syncFromSession(); unlockAudio(); haptic(12);
   ensureTick(); saveRoutine(); render();
 }
-function exitRoutine(){syncToSession();routineView=false;routineId=null;haptic(8);saveRoutine();render();}
+function exitRoutine(){hideRoutine();}
+function hideRoutine(){syncToSession();routineView=false;routineId=null;haptic(8);saveRoutine();render();}
+function resumeRoutine(id){
+  if(!USER||!sessions[id]||!ROUTINES[id])return;
+  startRoutine(id);if(S()&&!S().running)routineToggle();
+}
 function openRoutine(id){startRoutine(id);}
 function reopenRoutine(id){startRoutine(id||liveSessions()[0]);}
 
@@ -4517,7 +4488,7 @@ function advanceSession(id){
   if(!s||!rt||!Array.isArray(s.q)||!s.q.length||s.q.some(i=>!rt.steps[i]))return;
   s.done[s.q[0]]=true; s.q=s.q.slice(1);
   s.secs=s.q.length?ROUTINES[id].steps[s.q[0]].dur*60:0;
-  s.running=false; s.endAt=null;
+  s.running=false; s.paused=false; s.endAt=null;
   if(!s.q.length){
     const end=dayLogNowISO(),start=s.startedAt||end,key=todayKey();
     quickComplete(id);
@@ -4532,36 +4503,39 @@ function advanceSession(id){
 function routineToggle(){
   const s=S(); if(!s)return;
   unlockAudio(); haptic(12);
-  s.running=!s.running;
+  s.running=!s.running;s.paused=!s.running;
   if(s.running){s.endAt=Date.now()+s.secs*1000;ensureTick();audioKeepAlive(true);}
   else{s.secs=Math.max(0,Math.round((s.endAt-Date.now())/1000));s.endAt=null;if(!anyRunning())audioKeepAlive(false);}
   syncFromSession(); saveRoutine(); render();
 }
 function routineReset(){
   const s=S(); if(!s)return;
-  haptic(12); s.running=false; s.endAt=null;
+  haptic(12); s.running=false; s.paused=false; s.endAt=null;
   if(s.q.length)s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
   if(!anyRunning())audioKeepAlive(false);
   syncFromSession(); saveRoutine(); render();
 }
-function routineNext(){
-  const s=S(); if(!s||!s.q.length)return;
-  advanceSession(routineId); syncFromSession();
+function routineNext(id=routineId,expected=S(id)?.q[0]){
+  const s=S(id);if(id!==routineId||!s||!s.q.length||s.q[0]!==expected)return;
+  advanceSession(id);
+  const next=S(id);
+  if(next){next.running=true;next.paused=false;next.endAt=Date.now()+next.secs*1000;unlockAudio();ensureTick();audioKeepAlive(true);}
+  syncFromSession();
   if(!anyRunning())audioKeepAlive(false);
   saveRoutine(); render();
 }
 function routineSendToEnd(){
   const s=S(); if(!s||s.q.length<2)return;
   haptic(12); s.q=[...s.q.slice(1),s.q[0]];
-  s.running=false; s.endAt=null; s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
+  s.running=false; s.paused=false; s.endAt=null; s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
   syncFromSession(); saveRoutine(); render();
 }
 function updateResumeClock(){
   for(const id of liveSessions()){
     const c=document.getElementById("resume-clock-"+id),s=sessions[id];
-    if(!c||!s)continue;
-    const m=Math.floor(s.secs/60),x=s.secs%60;
-    c.textContent=`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`;
+    if(!s)continue;
+    if(c)c.textContent=routineTime(s.secs);
+    for(const clock of document.querySelectorAll(`[data-routine-clock="${CSS.escape(id)}"]`))clock.textContent=routineTime(s.secs);
   }
 }
 function renderRoutineTimer(){
@@ -4574,7 +4548,7 @@ function renderRoutineTimer(){
   const ring=document.getElementById('timer-ring');
   if(ring){
     const r=96,c=2*Math.PI*r,pct=timerSecs/(current.dur*60);
-    ring.setAttribute('stroke-dashoffset',c-(1-pct)*c);
+    ring.setAttribute('stroke-dashoffset',c*(1-pct));
   }
 }
 

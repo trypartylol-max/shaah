@@ -1,5 +1,7 @@
 # Respaldo y reparación manual del historial
 
+> Validación posterior tras integrar main: [MAIN-SYNC.md](MAIN-SYNC.md), 382/382 pruebas aprobadas y assets actualizados.
+
 **373/373 pruebas aprobadas sobre el paquete generado**, sin fallos, cancelaciones ni pruebas omitidas.
 
 La reparación dejó de ejecutarse al cargar la cuenta. Ahora requiere descargar un respaldo, volver a seleccionar ese archivo para verificarlo, revisar sus efectos y confirmar expresamente. Solo la sesión autenticada de `trypartylol@gmail.com` puede aplicar o recuperar esta reparación. Otras cuentas pueden descargar sus propios datos.

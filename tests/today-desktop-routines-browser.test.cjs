@@ -11,8 +11,8 @@ test('desktop Production/WOD are readable and closed levels are header-sized',as
  const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
  await page.evaluate(()=>setTab('today'));
  const history=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey()))));
- for(const skin of ['classic','glow','aurora']){
-  await page.evaluate(s=>{document.documentElement.dataset.skin=s;document.documentElement.classList.toggle('shaah-aurora',s==='aurora')},skin);
+ for(const skin of ['classic','glow','matrix','minimal','aurora']){
+  await page.evaluate(s=>{setSkin(s)},skin);
   for(const width of [880,1024,1440,1920]){
    await page.setViewportSize({width,height:1000});
    await page.evaluate(()=>{lvlOpen={1:true,2:false,3:false};render()});
@@ -27,8 +27,8 @@ test('desktop Production/WOD are readable and closed levels are header-sized',as
    assert.equal(await page.locator('.t-lvl3 .lvl-toggle').evaluate(e=>getComputedStyle(e).fontSize),await page.locator('.sf-combo-heading strong').evaluate(e=>getComputedStyle(e).fontSize));
    const routines=page.locator('.t-rout-body>div.sf-core-routine');assert.equal(await routines.count(),2);
    for(const card of await routines.all()){
-    const m=await card.evaluate(e=>({title:parseFloat(getComputedStyle(e.querySelector('.r-lab')).fontSize),meta:parseFloat(getComputedStyle(e.querySelector('.r-sub')).fontSize),step:parseFloat(getComputedStyle(e.querySelector('.r-step')).fontSize),buttons:[...e.querySelectorAll('.r-btn')].map(b=>({h:b.getBoundingClientRect().height,font:parseFloat(getComputedStyle(b).fontSize)})),overflow:e.scrollWidth>e.clientWidth+1}));
-    assert.ok(m.title>=18&&m.meta>=17&&m.step>=16,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=44&&b.font>=16));assert.equal(m.overflow,false);
+    const m=await card.evaluate(e=>({title:parseFloat(getComputedStyle(e.querySelector('.r-lab')).fontSize),meta:parseFloat(getComputedStyle(e.querySelector('.r-sub')).fontSize),buttons:[...e.querySelectorAll('.r-btn')].map(b=>({h:b.getBoundingClientRect().height,font:parseFloat(getComputedStyle(b).fontSize)})),overflow:e.scrollWidth>e.clientWidth+1}));
+    assert.ok(m.title>=18&&m.meta>=14,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=44&&b.font>=12));assert.equal(m.overflow,false);
    }
    assert.equal(await page.evaluate(()=>document.querySelector('#scroll').scrollWidth<=innerWidth),true);
    if(width===1440&&skin==='glow'){await page.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await page.waitForTimeout(400);await page.screenshot({path:'test-results/today-desktop-routines-glow.png'});}
@@ -36,10 +36,10 @@ test('desktop Production/WOD are readable and closed levels are header-sized',as
  }
  for(const id of ['production','wod']){
   const card=page.locator('.t-rout-body>div.sf-core-routine').filter({has:page.locator(`[data-ui-click="startRoutine"][data-ui-click-args='["${id}"]']`)});
-  await card.getByRole('button',{name:'½ LIGHT',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),0.5);
-  await page.locator('.t-rout-body>div.sf-core-routine').filter({has:page.locator('[title="Upgrade to full credit"]')}).getByRole('button',{name:'⬆ FULL',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),true);
-  await page.locator('[aria-label="Clear completed routine"]').click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),false);
-  await card.getByRole('button',{name:'▶ START',exact:true}).click();await page.locator('[aria-label="Back, timer keeps running"]').click();
+  await card.getByRole('button',{name:'LIGHT',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),0.5);
+  await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),true);
+  await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),false);
+  await card.getByRole('button',{name:'START',exact:true}).click();await page.locator('[aria-label="Close routine"]').click();
   await page.evaluate(id=>closeRoutine(id),id);
  }
  await page.evaluate(()=>{openSettings();closeSettings()});

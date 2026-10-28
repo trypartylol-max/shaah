@@ -2,8 +2,8 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {openApp}=require('./browser-helpers.cjs');
 const {fixture}=require('./helpers.cjs');
-const baselinePath=path.join(__dirname,'fixtures/production-before-pr16.html');
-assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(baselinePath)).digest('hex'),'cc28e10fb66c474ebd3914dcd819aac630869a8e11d07b37a3a661a89465a142','Pinned production HTML before PR #16');
+const baselinePath=path.join(__dirname,'fixtures/production-main-a305cd8.html');
+assert.equal(require('node:crypto').createHash('sha256').update(fs.readFileSync(baselinePath)).digest('hex'),'d18b37f82b713fba7b05009a43b91d7256e3a65c0c094d682d4fe963d67ccb05','Pinned current main HTML at a305cd8');
 async function snapshot(page){
  // The new backup panel has its own browser coverage. Remove it for this
  // comparison so its added height does not change the legacy parent geometry.

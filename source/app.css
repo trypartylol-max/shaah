@@ -2730,3 +2730,162 @@ html[data-skin="matrix"] .sf-tile{background:var(--skin-panel)}
 html[data-skin="matrix"] .sf-tile .sf-button{border-color:var(--skin-edge);color:var(--skin-copy)}
 html[data-skin="matrix"]{--skin-input-bg:var(--skin-panel);--skin-input-border:var(--skin-edge)}
 html[data-skin="matrix"] :is(#work-settings-error,.sf-editor [role="alert"],.sf-group-dialog [role="alert"]){color:var(--skin-selected)}
+/* Core runner: native centered dialog; the daily score and layout stay outside. */
+dialog.cr-dialog{position:fixed;inset:0;margin:auto;width:min(720px,calc(100vw - 48px));max-width:none;height:90dvh;max-height:calc(100dvh - 48px);padding:0;overflow:auto;border:1px solid #44445e;border-radius:22px;background:#10101d;color:#eeeef6;box-shadow:0 24px 100px #0009;font-family:'DM Sans',sans-serif;color-scheme:dark}
+dialog.cr-dialog[open]{display:flex;flex-direction:column}
+dialog.cr-dialog.cr-prompt{height:auto}
+dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
+.cr-dialog *{box-sizing:border-box}
+.cr-dialog button{min-height:44px;min-width:44px;border:1px solid #52526d;border-radius:12px;background:#222235;color:#f3f3fb;font:600 14px 'DM Sans',sans-serif;padding:10px 16px;cursor:pointer;letter-spacing:normal}
+.cr-dialog button:focus-visible,.cr-card-session button:focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
+.cr-dialog .cr-primary{background:#c4b5fd;color:#171125;border-color:#c4b5fd}
+.cr-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 24px;border-bottom:1px solid #33334a}
+.cr-header h2{font-size:22px;margin:0 0 6px;overflow-wrap:anywhere;color:#f3f3fb}
+.cr-header span,.cr-step-label,.cr-next,.cr-footer{color:#b9b9cf;font-size:14px}
+.cr-body{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;padding:24px}
+.cr-current{min-width:0;text-align:center;align-self:center}
+.cr-current h3{font-size:22px;margin:14px 0;overflow-wrap:anywhere;color:#f3f3fb}
+.cr-clock{font:500 clamp(40px,7vw,64px) 'DM Mono',monospace;letter-spacing:-2px;font-variant-numeric:tabular-nums;margin:22px 0;color:#e9ddff}
+.cr-controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.cr-next{line-height:1.5;overflow-wrap:anywhere}
+.cr-dialog .cr-secondary{background:transparent}
+.cr-sequence{min-width:0;border-left:1px solid #33334a;padding-left:24px;min-height:0;overflow:auto}
+.cr-sequence h3{font-size:14px;color:#c2c2d6;margin:0 0 12px}
+.cr-sequence ol{list-style:none;margin:0;padding:0}
+.cr-sequence li{display:flex;justify-content:space-between;gap:12px;line-height:1.5;padding:10px;border-radius:10px;font-size:14px;color:#c6c6da;overflow-wrap:anywhere}
+.cr-sequence li span:first-child{min-width:0}
+.cr-sequence li span:last-child:not(:first-child){white-space:nowrap}
+.cr-sequence li[aria-current]{background:#c4b5fd1a;color:#f1eaff;border:1px solid #a78bfa55}
+.cr-sequence li.cr-step-done{color:#a1a1b7;text-decoration:line-through}
+.cr-footer{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 24px;border-top:1px solid #33334a;line-height:1.5}
+.cr-footer button{background:transparent;flex-shrink:0}
+.cr-close{padding:28px}
+.cr-close h2{margin:0 0 12px;font-size:24px;color:#f3f3fb}
+.cr-close p{color:#b9b9cf;line-height:1.5}
+.cr-choice{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.cr-card-state{font-size:12px;color:#b9b9ce;margin-top:6px}
+.sf-core-routine .cr-card-session{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;color:#d0c4ef;font-size:13px;line-height:1.5}
+.cr-card-session>span{min-width:0;overflow-wrap:anywhere}
+.cr-card-session b{font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sf-core-routine .cr-card-session button{min-height:44px;font:600 14px 'DM Sans',sans-serif;padding:8px 12px;border:1px solid #a78bfa66;border-radius:10px;background:#a78bfa20;color:#e9ddff;cursor:pointer}
+@media(max-width:879px){
+ dialog.cr-dialog{width:calc(100vw - 32px);height:94dvh;max-height:calc(100dvh - max(32px,env(safe-area-inset-top)) - env(safe-area-inset-bottom));border-radius:18px}
+ .cr-header{padding:16px}.cr-header h2{font-size:20px}.cr-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(100px,1fr);padding:20px 16px;gap:20px}
+ .cr-sequence{border-left:0;border-top:1px solid #33334a;padding:16px 0 0;max-height:none}
+ .cr-footer{padding:14px 16px;flex-wrap:wrap}.cr-close{padding:20px}.cr-choice{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){.cr-dialog,.cr-dialog *{animation:none!important;transition:none!important}}
+
+/* Focus panel refinement: one clear timer and a primary pair of actions. */
+.cr-current{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0;align-self:center}
+.cr-current .cr-step-label{font-size:10px;font-weight:600;letter-spacing:.12em;color:#c4b5ed;background:#c4b5fd10;border:1px solid #c4b5fd24;border-radius:99px;padding:7px 12px}
+.cr-current h3{display:flex;align-items:center;justify-content:center;gap:10px;font-size:24px;line-height:1.25;font-weight:600;letter-spacing:-.5px;margin:0;max-width:100%;text-wrap:balance}
+.cr-step-icon{font-size:26px;flex-shrink:0}
+.cr-timer-face{position:relative;width:clamp(160px,26dvh,240px);max-width:100%;aspect-ratio:1;margin:4px 0;background:radial-gradient(circle,#b799ff0d 0%,#b799ff04 60%,transparent 70%);border-radius:50%}
+.cr-timer-face svg{display:block;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.cr-timer-track,.cr-timer-progress{fill:none;stroke-width:4}
+.cr-timer-track{stroke:#292637}.cr-timer-progress{stroke:#bfacf5;stroke-linecap:round;filter:drop-shadow(0 0 5px #af8cf34d)}
+.cr-timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.cr-current .cr-clock{font-size:clamp(34px,5vw,54px);font-weight:400;letter-spacing:-2px;line-height:1;margin:0;color:#f0eaff}
+.cr-timer-center>span{font-size:9px;letter-spacing:.17em;color:#a09aaa}
+.cr-current .cr-controls{width:100%;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:10px}
+.cr-current .cr-controls button{min-height:48px;font-size:14px;padding:10px 8px;border-radius:13px}
+.cr-current .cr-primary{box-shadow:0 4px 22px #b39ae51c}
+.cr-dialog .cr-reset{background:transparent;border-color:transparent;color:#a7a0b7;font-size:12px;min-height:44px;padding:6px 14px;margin:-8px 0}
+.cr-dialog .cr-reset:hover{color:#e4d9f9;background:#c4b5fd0a}
+.cr-up-next{width:100%;padding:12px 14px;border-top:1px solid #333044;text-align:left}
+.cr-up-next>span{font-size:9px;font-weight:600;letter-spacing:.14em;color:#9f95b1}
+.cr-up-next p{font-size:13px;line-height:1.45;color:#d4ccdf;margin:5px 0 0;overflow-wrap:anywhere}
+@media(max-width:879px){.cr-current{gap:10px}.cr-current h3{font-size:22px}.cr-timer-face{width:180px}.cr-current .cr-clock{font-size:44px}.cr-current .cr-controls{max-width:340px}.cr-up-next{max-width:340px;padding:10px 12px}.cr-body{grid-template-rows:auto minmax(100px,1fr)}}
+@media(min-width:880px) and (max-height:760px){.cr-current{gap:8px}.cr-current h3{font-size:20px}.cr-timer-face{width:150px;margin:0}.cr-current .cr-clock{font-size:36px}.cr-up-next{padding:8px 10px}.cr-current .cr-step-label{padding:5px 10px}}
+
+/* Proposal: give the execution panel more room on desktop. Pending user approval. */
+@media(min-width:880px){dialog.cr-dialog{width:min(840px,calc(100vw - 48px))}.cr-body{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}}
+
+/* Mobile alternative: timer and controls together; only the sequence scrolls. */
+@media(max-width:879px){
+ .cr-header{padding:12px 16px}.cr-header h2{font-size:19px;margin-bottom:4px}.cr-header span{font-size:12px}
+ .cr-body{overflow:hidden;grid-template-rows:auto minmax(72px,1fr);gap:12px;padding:12px 16px}
+ .cr-current{gap:7px;padding:0;align-self:start}.cr-current h3{font-size:19px;line-height:1.25}.cr-step-icon{font-size:22px}
+ .cr-current .cr-step-label{font-size:9px;padding:5px 10px}
+ .cr-timer-face{width:144px;margin:0}.cr-current .cr-clock{font-size:36px}.cr-timer-center{gap:6px}.cr-timer-center>span{font-size:8px}
+ .cr-current .cr-controls{max-width:none;gap:10px}.cr-current .cr-controls button{min-height:48px}
+ .cr-dialog .cr-reset{min-height:44px;margin:-7px 0;font-size:11px}
+ .cr-up-next{display:flex;align-items:center;gap:10px;padding:8px 0;max-width:none}.cr-up-next>span{flex-shrink:0;font-size:8px}.cr-up-next p{font-size:12px;margin:0}
+ .cr-sequence{padding-top:10px;overscroll-behavior:contain}.cr-sequence h3{font-size:12px;margin-bottom:6px}.cr-sequence li{padding:8px 10px;font-size:13px}
+ .cr-footer{padding:6px 16px;gap:8px}.cr-footer>span{font-size:10px}.cr-footer>button{font-size:11px;padding:6px 10px;border-color:transparent;min-height:44px}
+}
+@media(max-width:879px) and (max-height:560px){.cr-timer-face{width:104px}.cr-current .cr-clock{font-size:28px}.cr-current{gap:4px}.cr-current h3{font-size:16px}.cr-up-next{display:none}.cr-body{gap:8px;padding-top:8px}}
+
+.cr-timer-row{display:grid;grid-template-columns:52px minmax(0,auto) 52px;align-items:center;justify-content:center;gap:4px;width:100%}
+.cr-timer-row .cr-timer-face{grid-column:2}
+.cr-dialog .cr-timer-row>.cr-reset{grid-column:1;width:48px;height:48px;min-width:48px;min-height:48px;margin:0;padding:0;line-height:1;font-size:34px;border:1px solid #a78bfa33;border-radius:50%;color:#cfbff5;background:#c4b5fd0a}
+.cr-dialog .cr-timer-row>.cr-reset:hover{background:#c4b5fd20;color:#f2eaff}
+.cr-dialog .cr-sequence,.cr-dialog .cr-body{scrollbar-width:none;-ms-overflow-style:none}
+.cr-dialog .cr-sequence::-webkit-scrollbar,.cr-dialog .cr-body::-webkit-scrollbar,.cr-dialog::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* Give the reclaimed header and roughly two list rows to the timer. */
+.cr-header h2{margin-bottom:0}
+.cr-dialog .cr-header>button{position:relative;isolation:isolate;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;background:transparent;border:0;font-size:12px;flex-shrink:0}
+.cr-dialog .cr-header>button::before{content:"";position:absolute;inset:2.5px;z-index:-1;border:1px solid #52526d;border-radius:11px;background:#222235}
+@media(min-width:880px){.cr-timer-face{width:clamp(200px,30dvh,280px)}}
+@media(min-width:880px) and (max-height:760px){.cr-timer-face{width:180px}}
+@media(max-width:879px){
+ .cr-header{padding-top:9px;padding-bottom:9px}.cr-header h2{margin-bottom:0}
+ .cr-timer-row{grid-template-columns:48px minmax(0,auto) 48px;gap:2px}
+ .cr-timer-face{width:236px}.cr-current .cr-clock{font-size:52px}.cr-timer-center>span{font-size:9px}
+}
+@media(max-width:879px) and (max-height:600px){.cr-timer-face{width:170px}.cr-current .cr-clock{font-size:40px}}
+@media(max-width:879px) and (max-height:420px){.cr-timer-face{width:104px}.cr-current .cr-clock{font-size:28px}}
+
+/* Compact background sessions remain visible even in Today. */
+#resume.cr-mini-sessions{left:12px;right:12px;max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:6px;bottom:calc(64px + env(safe-area-inset-bottom))}
+.cr-mini{display:flex;align-items:center;gap:10px;min-height:58px;width:100%;padding:10px 14px;border:1px solid #8f77c85c;border-radius:15px;background:#191525f5;box-shadow:0 8px 30px #0007;backdrop-filter:blur(12px);color:#eee8fa;text-align:left;font:inherit;cursor:pointer}
+.cr-mini-icon{font-size:23px;flex:none}.cr-mini-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.cr-mini-text strong{font-size:13px;font-weight:600}.cr-mini-text>span{font-size:11px;color:#bcb1cc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-mini>b{font:500 20px 'DM Mono',monospace;letter-spacing:-1px;color:#d9c7ff;flex:none}.cr-mini>span:last-child{color:#bca9da;font-size:17px}
+.cr-mini:focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
+
+/* Desktop uses a small horizontal tray; mobile sits closer to the dock. */
+@media(min-width:880px){
+ #resume.cr-mini-sessions{left:auto;right:24px;width:max-content;max-width:calc(100vw - 48px);margin:0;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+ .cr-mini{width:252px;min-height:48px;padding:8px 11px;gap:8px;border-radius:13px;border-color:#8f77c83d;box-shadow:0 4px 18px #0005}
+ .cr-mini-icon{font-size:20px}.cr-mini-text strong{font-size:12px}.cr-mini-text>span{font-size:10px}.cr-mini>b{font-size:18px}
+}
+@media(max-width:879px){#resume.cr-mini-sessions{gap:5px}.cr-mini{min-height:54px;padding:8px 12px}}
+
+/* Mobile Today proposal: the active routine lives inside the LOG circle. */
+.cr-log-orb{display:none}
+@media(max-width:879px){
+ #resume.cr-mini-in-orb{display:none!important}
+ #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.cr-log-has-orb{display:none!important}
+ #scroll .today:not(.history-day-editor) .t-score-hero .cr-log-orb{display:block!important;visibility:visible!important;grid-column:2;position:relative;width:94px;height:110px;margin:0 auto;align-self:center;justify-self:center;transform:none!important}
+ .cr-orb-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:88px;height:88px;padding:8px;border:1.5px solid #bba5f0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#b89aef20,#171323 75%);box-shadow:0 0 20px #b297e91a;color:#eee7fc;font:inherit;cursor:pointer}
+ .cr-orb-icon{font-size:18px;line-height:1}.cr-orb-button b{font:500 18px 'DM Mono',monospace;letter-spacing:-.6px}.cr-orb-step{font-size:9px;letter-spacing:.07em;color:#c2b3d9}
+ .cr-orb-add{position:absolute;right:-10px;top:57px;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:#e5d9fa;font:400 25px 'DM Sans',sans-serif;cursor:pointer;isolation:isolate}
+ .cr-orb-add::before{content:"";position:absolute;inset:6px;background:#282035;border:1px solid #9c85c566;border-radius:50%;z-index:-1}
+ .cr-orb-label{position:absolute;top:94px;left:-12px;right:-6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;color:#bfb2d0;font-size:10px}
+ .cr-orb-button:focus-visible,.cr-orb-add:focus-visible{outline:2px solid #d3c2fa;outline-offset:3px}
+}
+/* Desktop proposal: use the LOG circle as the routine's compact home too. */
+@media(min-width:880px){
+ #resume.cr-mini-in-orb{display:none!important}
+ #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.cr-log-has-orb{display:none!important}
+ #scroll .today:not(.history-day-editor) .t-score-hero .cr-log-orb{display:block!important;visibility:visible!important;position:relative;flex-shrink:0;width:132px;height:142px;margin:0 12px;align-self:center;transform:none!important}
+ .cr-orb-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;width:120px;height:120px;padding:12px;border:1.5px solid #bba5f0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#b89aef20,#171323 75%);box-shadow:0 0 24px #b297e91a;color:#eee7fc;font:inherit;cursor:pointer}
+ .cr-orb-icon{font-size:24px;line-height:1}.cr-orb-button b{font:500 25px 'DM Mono',monospace;letter-spacing:-.9px}.cr-orb-step{font-size:10px;letter-spacing:.08em;color:#c2b3d9}
+ .cr-orb-add{position:absolute;right:-1px;top:82px;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:#e5d9fa;font:400 27px 'DM Sans',sans-serif;cursor:pointer;isolation:isolate}
+ .cr-orb-add::before{content:"";position:absolute;inset:4px;background:#282035;border:1px solid #9c85c566;border-radius:50%;z-index:-1}
+ .cr-orb-label{position:absolute;top:129px;left:-6px;right:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;color:#bfb2d0;font-size:11px}
+ .cr-orb-button:focus-visible,.cr-orb-add:focus-visible{outline:2px solid #d3c2fa;outline-offset:3px}
+}
+
+/* Approved mobile bottom actions; five one-line steps fit in the 400x694 fixture. */
+
+@media(max-width:879px){
+ .cr-body{gap:8px;padding:10px 16px 8px;grid-template-rows:auto minmax(0,1fr)}
+ .cr-current{gap:6px}.cr-current h3{font-size:19px}
+ .cr-sequence{padding-top:6px;min-height:0}.cr-sequence li{min-height:36px;padding:8px 10px;font-size:13px;line-height:20px}
+ .cr-bottom-dock{flex:none;padding:8px 16px 12px;background:#10101d;border-top:1px solid #333044}
+ .cr-bottom-dock .cr-controls{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px;width:100%}
+ .cr-bottom-dock .cr-controls button{min-height:52px;font-size:14px;border-radius:13px}
+}

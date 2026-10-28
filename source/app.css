@@ -2874,7 +2874,7 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 /* Empty white Day Log circle only while mobile Today is idle. */
 @media(max-width:879px){
  html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){background:#fff!important;border-color:#fff!important;box-shadow:none!important}
- #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span{visibility:hidden!important}
+ #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span{visibility:visible!important;color:#080810!important;font-size:28px!important;font-weight:400!important;line-height:1!important}
  html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb)::after{content:none!important}
 }
 .history-day-editor .history-work-row{margin-bottom:3px;background:transparent!important;border:0!important;box-shadow:none!important;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -2895,5 +2895,8 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 .cr-session-menu>summary:focus-visible,.cr-session-menu-panel button:focus-visible{outline:2px solid #bba5f0;outline-offset:3px}
 /* Idle LOG has the same empty white state on desktop and mobile. */
 html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){background:#fff!important;border-color:#fff!important;box-shadow:none!important}
-#scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span{visibility:hidden!important}
+#scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span{visibility:visible!important;color:#080810!important;font-size:28px!important;font-weight:400!important;line-height:1!important}
 html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb)::after{content:none!important}
+
+/* Center the single +; no label or extra controls in the idle circle. */
+html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:0!important}

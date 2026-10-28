@@ -1,8 +1,8 @@
 // Reproducible, read-only Git export of the exact base for this change.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const {execFileSync}=require('node:child_process');
-const BASE='5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b';
-const HTML_SHA256='4cb2348633e404d8f240b42f90dea0496d8b7bce07c285df5400490c5497bcbd';
+const BASE='9d4de5bd66492bba55b834d8404c03490bbd3db8';
+const HTML_SHA256='21e2c4cfc25e649e5475ef0bf6ba77bc1ab4ace0f6a4d85a483fa1a6ef991f4e';
 function prepare(){
  const root=path.resolve(__dirname,'..'),folder=path.join(root,'.runtime','habit-baseline',BASE);
  fs.mkdirSync(folder,{recursive:true});

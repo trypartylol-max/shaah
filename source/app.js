@@ -3561,24 +3561,19 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         if(core&&item.id==='work')return workPhaseCard(key,item);
         if(core&&!item.routine)return coreHabitCard(key,item);
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);
-        return`<div class="sf-core-routine" data-routine-card="${esc(item.id)}" ${uiStyle(`background:${done?"rgba(255,255,255,0.03)":"#0d0d1a"};border:1px solid ${done?item.col+"22":"#111120"};border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px`)}>
-          <div ${uiStyle(`width:46px;height:46px;border-radius:12px;background:${done?rt.col+"18":"#111120"};display:flex;align-items:center;justify-content:center;font-size:23px;border:1px solid ${done?rt.col+"33":"#161626"};flex-shrink:0`)}>${esc(rt.icon)}</div>
-          <div ${uiStyle(`flex:1;min-width:0`)}>
-            <div class="r-lab" ${uiStyle(`font-size:17px;color:${full?"#555":light?"#c0c0cd":"#e2e2e2"};font-weight:500;${full?"text-decoration:line-through":""}`)}>${esc(rt.label)}${light?` <span ${uiStyle(`font-size:13px;color:#f59e0b;font-weight:400`)}>· LIGHT · ${Math.round(item.pts*0.5)}%</span>`:""}${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:""}</div>
-            <div class="r-sub" ${uiStyle(`font-size:15px;color:#777;margin-top:3px`)}>${rt.steps.length} steps · ${totalMin} min</div>
-            ${!done?`<div ${uiStyle(`display:flex;gap:4px;margin-top:8px;flex-wrap:wrap`)}>${rt.steps.slice(0,4).map(s=>`<span class="r-step" ${uiStyle(`font-size:14.5px;color:#a4a4ba;background:#111120;border:1px solid #161626;border-radius:6px;padding:2px 7px`)}>${esc(s.icon)} ${s.dur}m</span>`).join("")}${rt.steps.length>4?`<span ${uiStyle(`font-size:14.5px;color:#adadbf`)}>+${rt.steps.length-4} more</span>`:""}</div>`:""}
-            ${routineCardSession(item.id,full)}
+        const session=sessions[item.id];
+        // The three shared controls retain daily credit toggles and the existing runner.
+        return`<div class="sf-core-routine cr-compact-card" data-routine-card="${esc(item.id)}">
+          <div class="cr-compact-icon" aria-hidden="true">${esc(rt.icon)}</div>
+          <div class="cr-compact-copy">
+            <div class="r-lab">${esc(rt.label)}${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:''}</div>
+            <div class="r-sub">${rt.steps.length} steps · ${totalMin} min</div>
           </div>
-          ${full?`<div role="button" tabindex="0" aria-label="Clear completed routine" ${ui('click','setHabitState' ,item.id,key,false)} ${ui('keydown','activate')} ${uiStyle(`font-size:23px;cursor:pointer`)}>✅</div>`:light?`
-          <div ${uiStyle(`display:flex;flex-direction:column;gap:6px;flex-shrink:0`)}>
-            <button class="r-btn sf-routine-primary" ${ui('click','setHabitState' ,item.id,key,true)} title="Upgrade to full credit" ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:14px;letter-spacing:0.08em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;min-height:38px`)}>⬆ FULL</button>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,false)} title="Clear" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#a4a4ba;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer`)}>✕ CLEAR</button>
-          </div>`:`
-          <div ${uiStyle(`display:flex;flex-direction:column;gap:6px;flex-shrink:0`)}>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,0.5)} title="Light version — half credit" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#f59e0b;font-family:inherit;font-size:13px;letter-spacing:0.08em;padding:7px 14px;border-radius:10px;cursor:pointer`)}>½ LIGHT</button>
-            <button class="r-btn" ${ui('click','setHabitState' ,item.id,key,true)} title="Mark done without the timer" ${uiStyle(`background:none;border:1px solid #2a2a3e;color:#c0c0cd;font-family:inherit;font-size:14px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;min-height:38px`)}>✓ DONE</button>
-            ${sessions[item.id]?'':`<button class="r-btn sf-routine-primary" ${ui('click','startRoutine' ,item.id)} ${uiStyle(`background:${rt.col};color:#080810;border:none;font-family:inherit;font-size:15px;letter-spacing:0.1em;padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 16px ${rt.col}44;white-space:nowrap`)}>▶ START</button>`}
-          </div>`}
+          <div class="cr-compact-actions">
+            <button type="button" class="r-btn" aria-pressed="${light}" title="${light?'Clear light credit':'Light version — half credit'}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}>LIGHT</button>
+            <button type="button" class="r-btn" aria-pressed="${full}" title="${full?'Clear completed routine':'Mark done without the timer'}" ${ui('click','setHabitState',item.id,key,full?false:true)}>DONE</button>
+            <button type="button" class="r-btn sf-routine-primary" title="${session?(session.running?'Open running routine':session.paused?'Resume routine':'Start prepared step'):'Start routine'}" ${session&&!session.running?ui('click','routineResume',item.id):ui('click','startRoutine',item.id)} ${uiStyle(`background:${rt.col};color:#080810`)}>START</button>
+          </div>
         </div>`;
       }).join("")}</div>
     </div>`}
@@ -3586,7 +3581,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
     ${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>${core?'CORE HABITS':'⬛ LVL 1 — CORE'}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
-      ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return workPhaseCard(key,item);
+      ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
         return`
       <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
@@ -4105,12 +4100,6 @@ function renderHistYear(){
 let routineDialogReturnId=null;
 function routineState(s){return s.running?'Active':s.paused?'Paused':'Ready';}
 function routineTime(secs){return `${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;}
-function routineCardSession(id,full){
-  const s=sessions[id],rt=ROUTINES[id];
-  if(!s)return `<div class="cr-card-state">${full?'✓ Completed':'Ready'}</div>`;
-  const step=rt.steps[s.q[0]];if(!step)return '';
-  return `<div class="cr-card-session"><span>${routineState(s)} · Step ${Object.keys(s.done).length+1}/${rt.steps.length} · ${esc(step.label)} · <b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b></span><button class="r-btn" ${s.running?ui('click','startRoutine',id):ui('click','routineResume',id)}>${s.paused?'Resume':s.running?'Open':'Start Step'}</button></div>`;
-}
 function routineDialogSync(){
   let dialog=document.getElementById('cr-dialog');
   if(!USER||!routineView||!routineId||!S()||settingsOpen||editDayKey){
@@ -4702,6 +4691,14 @@ function workGeometry(count,completed){
   shape+=Array.from({length:count},(_,i)=>{const a=point(i),b=point(count===2?i+1:(i+1)%count);return `<path class="wg-segment${i<completed?' lit':''}${i===completed-1?' latest':''}" pathLength="1" d="M${a.join(' ')} L${b.join(' ')}"/>`;}).join('');
  }
  return `<svg class="wg-figure${count&&completed===count?' complete':''}" viewBox="0 0 48 48" aria-hidden="true">${shape}</svg>`;
+}
+// History uses the day's dated milestones; Today keeps its existing Work card.
+function workHistoryRow(key,item){
+ const fraction=doneFrac(getChecked(key).work),phases=workMilestonesFor(key);
+ const completed=phases.filter(p=>fraction+1e-9>=p[2]).length;
+ const full=fraction>=1,partial=fraction>0&&!full;
+ const box=partial?`<span class="history-work-check" ${uiStyle(`border-color:${item.col};background:linear-gradient(90deg,${item.col} ${fraction*100}%,transparent ${fraction*100}%)`)}></span>`:chk(full,item.col);
+ return `<div class="row history-work-row${fraction?' on':''}" role="checkbox" tabindex="${phases.length?'0':'-1'}" aria-checked="${partial?'mixed':full?'true':'false'}" aria-disabled="${!phases.length}" aria-label="${esc(item.label)} · ${completed} / ${phases.length} milestones · ${pointsLabel(item,getChecked(key).work)} puntos" ${phases.length?ui('click','workPhaseAdvance',key):''} ${ui('keydown','activate')}><div class="history-work-name">${box}<span>${esc(item.icon)} ${esc(item.label)}</span></div><span class="history-work-points">${pointsLabel(item,getChecked(key).work)}</span></div>`;
 }
 function workPhaseCard(key,item){
  const fraction=doneFrac(getChecked(key).work);

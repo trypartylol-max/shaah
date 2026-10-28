@@ -2,9 +2,9 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const {execFileSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
-const BASE='5e42f014d7c5e1c07f8faaaa57d52b1fc73a586b';
+const BASE='9d4de5bd66492bba55b834d8404c03490bbd3db8';
 const SITE='https://trypartylol-max.github.io/shaah/';
-const out=path.join(root,'docs/qa-habits-2026-10-28/final-release');
+const out=path.join(root,'docs/qa-habits-2026-10-28/release-pr-20');
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const gitFile=file=>execFileSync('git',['show',BASE+':'+file],{cwd:root,maxBuffer:32*1024*1024});
 function links(html){return [...html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="(\.\/assets\/[^"?#]+)(?:\?[^"#]*)?"[^>]*>/g)].map(m=>({file:m[1].slice(2),tag:m[0],url:m[0].match(/(?:src|href)="([^"]+)"/)[1]}));}

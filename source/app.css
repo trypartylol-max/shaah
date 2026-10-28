@@ -2807,8 +2807,8 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 
 /* Give the reclaimed header and roughly two list rows to the timer. */
 .cr-header h2{margin-bottom:0}
-.cr-dialog .cr-header>button{position:relative;isolation:isolate;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;background:transparent;border:0;font-size:12px;flex-shrink:0}
-.cr-dialog .cr-header>button::before{content:"";position:absolute;inset:2.5px;z-index:-1;border:1px solid #52526d;border-radius:11px;background:#222235}
+.cr-dialog .cr-header>button,.cr-dialog .cr-header-actions>button{position:relative;isolation:isolate;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;background:transparent;border:0;font-size:12px;flex-shrink:0}
+.cr-dialog .cr-header>button::before,.cr-dialog .cr-header-actions>button::before{content:"";position:absolute;inset:2.5px;z-index:-1;border:1px solid #52526d;border-radius:11px;background:#222235}
 @media(min-width:880px){.cr-timer-face{width:clamp(200px,30dvh,280px)}}
 @media(min-width:880px) and (max-height:760px){.cr-timer-face{width:180px}}
 @media(max-width:879px){
@@ -2883,3 +2883,17 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 .history-work-points{font-size:15px;color:#8a8aa0;flex-shrink:0;white-space:nowrap}
 .history-work-check{width:22px;height:22px;border-radius:7px;flex-shrink:0;border:1.5px solid}
 @media(min-width:880px){.history-work-check{width:26px;height:26px;border-radius:8px}}
+
+/* Session options float over the timer, preserving every layout measurement. */
+.cr-header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.cr-session-menu{position:relative}
+.cr-session-menu>summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;border:1px solid #52526d;border-radius:11px;background:#222235;color:#eeeef6;cursor:pointer;font-size:24px;line-height:1}
+.cr-session-menu>summary::-webkit-details-marker{display:none}
+.cr-session-menu-panel{position:absolute;z-index:20;right:0;top:calc(100% + 8px);min-width:180px;padding:5px;background:#171726;border:1px solid #52526d;border-radius:12px;box-shadow:0 8px 24px #0006}
+.cr-session-menu-panel button{width:100%;min-height:44px;padding:10px 14px;border:0;border-radius:8px;background:transparent;color:#eeeef6;font:500 14px 'DM Sans',sans-serif;text-align:left;white-space:nowrap;cursor:pointer}
+.cr-session-menu-panel button:hover{background:#29293e}
+.cr-session-menu>summary:focus-visible,.cr-session-menu-panel button:focus-visible{outline:2px solid #bba5f0;outline-offset:3px}
+/* Idle LOG has the same empty white state on desktop and mobile. */
+html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){background:#fff!important;border-color:#fff!important;box-shadow:none!important}
+#scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span{visibility:hidden!important}
+html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb)::after{content:none!important}

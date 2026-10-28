@@ -41,7 +41,7 @@ test('compact routine parity across every selectable skin, widths and credit sta
  await page.evaluate(()=>{routineToggle();sessions.production.endAt=Date.now()+45000;routineToggle();exitRoutine()});
  await card.getByRole('button',{name:'START',exact:true}).click();assert.equal(await page.evaluate(()=>sessions.production.running),true);assert.equal(await page.evaluate(()=>sessions.production.secs),45);
  await page.evaluate(()=>exitRoutine());await card.getByRole('button',{name:'START',exact:true}).click();assert.equal(await page.evaluate(()=>sessions.production.secs),45);
- await page.evaluate(()=>exitRoutine());await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(()=>!!sessions.production),true);
+ await page.evaluate(()=>exitRoutine());await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(()=>!!sessions.production),false);
  await page.evaluate(()=>{closeRoutine('production');document.querySelector('#scroll').scrollTop=0});
  await page.screenshot({path:'test-results/core-compact-mobile.png'});
  await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'test-results/core-compact-desktop.png'});

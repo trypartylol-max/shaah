@@ -99,3 +99,21 @@
   #scroll .today.sf-today-v27 .wg-card .wg-daily>strong {font-size:24px}
   #scroll .today.sf-today-v27 .wg-card .wg-weekly>strong {font-size:16px;white-space:nowrap;letter-spacing:-.03em}
 }
+
+/* Core metadata stays readable; icon order is LIGHT / PLAY / DONE. */
+#scroll .today.sf-today-v27 .wg-card .wg-points {font-size:14px;font-weight:600;color:var(--today-copy,var(--skin-copy,#e2e2e2))}
+#scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub,
+#scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {font-size:15px!important;font-weight:500;line-height:1.45!important;color:var(--today-copy)!important;opacity:.9}
+#scroll .today.sf-today-v27 .cr-compact-actions .r-btn {display:flex;align-items:center;justify-content:center}
+#scroll .today.sf-today-v27 .cr-compact-actions .cr-action-icon {width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+@media (min-width:880px) and (max-width:1439px) {
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] {grid-template-columns:minmax(0,1fr)!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon {display:none!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub,
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {font-size:14px!important}
+}
+@media (min-width:880px) and (max-width:1199px) {
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy {grid-template-columns:minmax(0,1fr) auto;row-gap:4px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {grid-column:2;grid-row:1}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub {grid-column:1/-1;grid-row:2}
+}

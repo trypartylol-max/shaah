@@ -2,6 +2,9 @@
   {
     "skin": "classic",
     "width": 320,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -15,6 +18,9 @@
   {
     "skin": "classic",
     "width": 375,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -28,6 +34,9 @@
   {
     "skin": "classic",
     "width": 390,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -41,6 +50,9 @@
   {
     "skin": "classic",
     "width": 600,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -54,6 +66,9 @@
   {
     "skin": "classic",
     "width": 879,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -67,6 +82,9 @@
   {
     "skin": "classic",
     "width": 880,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 53.546875,
@@ -80,6 +98,9 @@
   {
     "skin": "classic",
     "width": 1024,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -93,6 +114,9 @@
   {
     "skin": "classic",
     "width": 1440,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -106,6 +130,9 @@
   {
     "skin": "glow",
     "width": 320,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -119,6 +146,9 @@
   {
     "skin": "glow",
     "width": 375,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -132,6 +162,9 @@
   {
     "skin": "glow",
     "width": 390,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -145,6 +178,9 @@
   {
     "skin": "glow",
     "width": 600,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -158,6 +194,9 @@
   {
     "skin": "glow",
     "width": 879,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -171,6 +210,9 @@
   {
     "skin": "glow",
     "width": 880,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 53.546875,
@@ -184,6 +226,9 @@
   {
     "skin": "glow",
     "width": 1024,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -197,6 +242,9 @@
   {
     "skin": "glow",
     "width": 1440,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -210,6 +258,9 @@
   {
     "skin": "aurora",
     "width": 320,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -223,6 +274,9 @@
   {
     "skin": "aurora",
     "width": 375,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -236,6 +290,9 @@
   {
     "skin": "aurora",
     "width": 390,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -249,6 +306,9 @@
   {
     "skin": "aurora",
     "width": 600,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -262,6 +322,9 @@
   {
     "skin": "aurora",
     "width": 879,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -275,6 +338,9 @@
   {
     "skin": "aurora",
     "width": 880,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 53.546875,
@@ -288,6 +354,9 @@
   {
     "skin": "aurora",
     "width": 1024,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -301,6 +370,9 @@
   {
     "skin": "aurora",
     "width": 1440,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -314,6 +386,9 @@
   {
     "skin": "matrix",
     "width": 320,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -327,6 +402,9 @@
   {
     "skin": "matrix",
     "width": 375,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -340,6 +418,9 @@
   {
     "skin": "matrix",
     "width": 390,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -353,6 +434,9 @@
   {
     "skin": "matrix",
     "width": 600,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -366,6 +450,9 @@
   {
     "skin": "matrix",
     "width": 879,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -379,6 +466,9 @@
   {
     "skin": "matrix",
     "width": 880,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 49.546875,
@@ -392,6 +482,9 @@
   {
     "skin": "matrix",
     "width": 1024,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 37,
@@ -405,6 +498,9 @@
   {
     "skin": "matrix",
     "width": 1440,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 37,
@@ -418,6 +514,9 @@
   {
     "skin": "minimal",
     "width": 320,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -431,6 +530,9 @@
   {
     "skin": "minimal",
     "width": 375,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -444,6 +546,9 @@
   {
     "skin": "minimal",
     "width": 390,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -457,6 +562,9 @@
   {
     "skin": "minimal",
     "width": 600,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -470,6 +578,9 @@
   {
     "skin": "minimal",
     "width": 879,
+    "triangleWidth": 84,
+    "triangleHeight": 72.74612426757812,
+    "triangleInside": true,
     "w": 84,
     "h": 84,
     "top": 45,
@@ -483,6 +594,9 @@
   {
     "skin": "minimal",
     "width": 880,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 53.546875,
@@ -496,6 +610,9 @@
   {
     "skin": "minimal",
     "width": 1024,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,
@@ -509,6 +626,9 @@
   {
     "skin": "minimal",
     "width": 1440,
+    "triangleWidth": 72,
+    "triangleHeight": 62.35382080078125,
+    "triangleInside": true,
     "w": 72,
     "h": 72,
     "top": 41,

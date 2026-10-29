@@ -11,3 +11,9 @@ PWA: current shell has a data manifest but worker-src 'none', no serviceWorker r
 Validation: baseline visual-size test fails at 58px; fixed test passes 40 combinations: Classic, Glow, Aurora, Matrix, Minimal × 320/375/390/600/879/880/1024/1440. Exact SVG width/height, matching grid track, card containment and absence of horizontal overflow asserted. Screenshots use synthetic data. 14 targeted tests pass including milestone editor, 0/2/3/4/8 milestones, dated cash/points/history, reset, persistence, touch and keyboard. Chrome baseline; Brave/Chromium final (Chrome became unavailable during task). Physical iPhone/Safari not tested.
 
 Application release commit: f78cc4e8d6b6a11ed444972e01aa22012dc02f7e. Pages deployment run: 40793895958. Production Netlify automatic deployment skipped due to account credit limit; this documentation-only candidate preserves identical application bytes for deployment verification.
+
+## Visible-triangle correction (user approved)
+
+The first correction measured the SVG canvas rather than the polygon. The triangle occupied only 29.4449 of its 48 horizontal viewBox units, so 84px/72px canvases drew ~51.53px/~44.17px triangles. The user confirmed 84px mobile and 72px desktop must apply to the visible triangle.
+
+Fit only the three-milestone triangle's square viewBox to its geometric width and center it vertically. Paths, milestone states, other milestone geometries, scoring and handlers are unchanged. Existing CSS/grid dimensions remain 84px/72px. The test now measures polygon.getBoundingClientRect().width, verifies containment including a stroke margin, and checks all five skins at eight widths. Against the previous JS it fails at 51.53px; against this correction it passes at 84px/72px. All 14 focused WORK tests pass. Screenshots and measurements updated.

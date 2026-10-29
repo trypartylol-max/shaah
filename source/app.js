@@ -4908,7 +4908,11 @@ function workGeometry(count,completed){
   if(count>2)shape+=`<polygon class="wg-interior" points="${Array.from({length:count},(_,i)=>point(i).join(',')).join(' ')}"/>`;
   shape+=Array.from({length:count},(_,i)=>{const a=point(i),b=point(count===2?i+1:(i+1)%count);return `<path class="wg-segment${i<completed?' lit':''}${i===completed-1?' latest':''}" pathLength="1" d="M${a.join(' ')} L${b.join(' ')}"/>`;}).join('');
  }
- return `<svg class="wg-figure${count&&completed===count?' complete':''}" viewBox="0 0 48 48" aria-hidden="true">${shape}</svg>`;
+ // Fit the three-step triangle to its drawn bounds, not the old 48-unit canvas.
+ // The square viewBox keeps its proportions; CSS width now equals triangle width.
+ const triangleWidth=17*Math.sqrt(3);
+ const viewBox=count===3?`${24-triangleWidth/2} ${19.75-triangleWidth/2} ${triangleWidth} ${triangleWidth}`:'0 0 48 48';
+ return `<svg class="wg-figure${count&&completed===count?' complete':''}" viewBox="${viewBox}" aria-hidden="true">${shape}</svg>`;
 }
 // History uses the day's dated milestones; Today keeps its existing Work card.
 function workHistoryRow(key,item){

@@ -3708,7 +3708,6 @@ function renderToday(key,nested=false){
       <div ${uiStyle(`font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px`)}>${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}
     <div class="t-score-hero" ${uiStyle(`display:flex;align-items:center;justify-content:center;gap:18px;width:100%;max-width:760px`)}>
-      ${!nested&&isToday?`<div class="dt-hero-copy"><div class="dt-eyebrow">YOUR DAILY PRACTICE</div><h1>Make today count<span>.</span></h1><p>One routine. One habit. One step forward.</p><div class="dt-day-facts"><span><b>${done}</b> completed today</span><span><b>${streak}</b> day streak</span></div></div>`:''}
       <div class="t-score-stack" ${uiStyle(`display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px`)}>
         <div class="t-ring" ${uiStyle(`position:relative;width:${RSZ}px;height:${RSZ}px`)}>
       ${ring(score,dMax,RSZ,RSZ>140?12:9,gr.c,gr.g)}
@@ -4780,8 +4779,9 @@ function socialTimePill(p){
 function socialDenseContact(p,key){
  const on=getPeople(key).includes(p.id),category=socialCategoryName(p),sub=subsList().find(s=>s.id===p.sub);
  const timing=socialTimePill(p);
+ const timingTextColor={'#4ade80':'#a7f3c1','#f59e0b':'#ffe0a3','#ef4444':'#ffb7b7','#8888a4':'#c8c8dc'}[timing.color];
  const when=p.days==null?'Sin encuentros':p.days===0?'Hoy':p.days===1?'Ayer':'Hace '+p.days+' días';
- return `<div class="sd-contact${on?' sd-done':''}"><button class="sd-person" aria-pressed="${on}" aria-label="${on?'Deshacer encuentro con':'Registrar encuentro con'} ${esc(p.name)}" ${ui('click','socialRecord',p.id,key)}><span class="sd-icon" title="${esc(category)}">${on?'✓':esc(socialCategory(p)==='family'?'♧':sub?.icon||'◉')}</span><span class="sd-identity"><span class="w-name">${esc(p.name)}</span><span class="w-when">${when} <span class="sd-category">· ${esc(category)}</span></span></span><span class="sd-time-pill" aria-label="${esc(timing.description)}" ${uiStyle('color:'+timing.color)}><span class="sd-pill-fill" aria-hidden="true" ${uiStyle('width:'+timing.fill+'%;background:'+timing.color)}></span><span class="sd-pill-label">${timing.label}</span></span></button><button class="sd-edit" aria-label="Editar ${esc(p.name)}" title="Editar persona" ${ui('click','socialEdit',p.id)}>✎</button></div>`;
+ return `<div class="sd-contact${on?' sd-done':''}"><button class="sd-person" aria-pressed="${on}" aria-label="${on?'Deshacer encuentro con':'Registrar encuentro con'} ${esc(p.name)}" ${ui('click','socialRecord',p.id,key)}><span class="sd-icon" title="${esc(category)}">${on?'✓':esc(socialCategory(p)==='family'?'♧':sub?.icon||'◉')}</span><span class="sd-identity"><span class="w-name">${esc(p.name)}</span><span class="w-when">${when} <span class="sd-category">· ${esc(category)}</span></span></span><span class="sd-time-pill" aria-label="${esc(timing.description)}" ${uiStyle('color:'+timing.color)}><span class="sd-pill-fill" aria-hidden="true" ${uiStyle('width:'+timing.fill+'%;background:'+timing.color)}></span><span class="sd-pill-label" ${uiStyle("color:"+timingTextColor)}>${timing.label}</span></span></button><button class="sd-edit" aria-label="Editar ${esc(p.name)}" title="Editar persona" ${ui('click','socialEdit',p.id)}>✎</button></div>`;
 }
 
 function socialCategories(){return subsOn(subsList());}
@@ -4908,7 +4908,11 @@ function workGeometry(count,completed){
   if(count>2)shape+=`<polygon class="wg-interior" points="${Array.from({length:count},(_,i)=>point(i).join(',')).join(' ')}"/>`;
   shape+=Array.from({length:count},(_,i)=>{const a=point(i),b=point(count===2?i+1:(i+1)%count);return `<path class="wg-segment${i<completed?' lit':''}${i===completed-1?' latest':''}" pathLength="1" d="M${a.join(' ')} L${b.join(' ')}"/>`;}).join('');
  }
- return `<svg class="wg-figure${count&&completed===count?' complete':''}" viewBox="0 0 48 48" aria-hidden="true">${shape}</svg>`;
+ // Fit the three-step triangle to its drawn bounds, not the old 48-unit canvas.
+ // The square viewBox keeps its proportions; CSS width now equals triangle width.
+ const triangleWidth=17*Math.sqrt(3);
+ const viewBox=count===3?`${24-triangleWidth/2} ${19.75-triangleWidth/2} ${triangleWidth} ${triangleWidth}`:'0 0 48 48';
+ return `<svg class="wg-figure${count&&completed===count?' complete':''}" viewBox="${viewBox}" aria-hidden="true">${shape}</svg>`;
 }
 // History uses the day's dated milestones; Today keeps its existing Work card.
 function workHistoryRow(key,item){

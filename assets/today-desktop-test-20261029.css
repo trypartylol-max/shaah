@@ -125,3 +125,15 @@
  #scroll .today.sf-today-v27>.t-score-hero .t-grade .ls-bar{grid-area:2/1/3/3!important}
  #scroll .today.sf-today-v27>.t-score-hero .t-grade .ls-footer{grid-area:3/1/4/3!important}
 }
+/* Keep the current production Core header and 56px actions in the proposal. */
+@media(min-width:1180px) and (max-width:1439px){
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{grid-template-columns:minmax(0,1fr)!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon{display:none!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy{column-gap:5px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-routine-name{font-size:17px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{font-size:10px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{font-size:10px!important}
+}
+@media(min-width:1440px){
+ #scroll .today.sf-today-v27{grid-template-columns:1.35fr 1fr 1fr!important}
+}

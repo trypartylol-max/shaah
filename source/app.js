@@ -3759,9 +3759,9 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
             <div class="r-sub">${rt.steps.length} steps · ${totalMin} min</div>
           </div>
           <div class="cr-compact-actions">
-            <button type="button" class="r-btn" aria-pressed="${light}" title="${light?'Clear light credit':'Light version — half credit'}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}>LIGHT</button>
-            <button type="button" class="r-btn" aria-pressed="${full}" title="${full?'Clear completed routine':'Mark done without the timer'}" ${ui('click','setHabitState',item.id,key,full?false:true)}>DONE</button>
-            <button type="button" class="r-btn sf-routine-primary" title="${session?(session.running?'Open running routine':session.paused?'Resume routine':'Start prepared step'):'Start routine'}" ${session&&!session.running?ui('click','routineResume',item.id):ui('click','startRoutine',item.id)} ${uiStyle(`background:${rt.col};color:#080810`)}>START</button>
+            <button type="button" class="r-btn" aria-label="LIGHT" aria-pressed="${light}" title="${light?'Clear light credit':'Light version — half credit'}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor" stroke="none"/></svg></button>
+            <button type="button" class="r-btn sf-routine-primary" aria-label="${item.id==='production'?'PLAY':'START'}" title="${session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine'}" ${session&&!session.running?ui('click','routineResume',item.id):ui('click','startRoutine',item.id)} ${uiStyle(`background:${rt.col};color:#080810`)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4 20 12 8 20Z" fill="currentColor" stroke="none"/></svg></button>
+            <button type="button" class="r-btn" aria-label="DONE" aria-pressed="${full}" title="${full?'Clear completed routine':'Mark done without the timer'}" ${ui('click','setHabitState',item.id,key,full?false:true)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 5 5L20 6"/></svg></button>
           </div>
         </div>`;
       }).join("")}</div>

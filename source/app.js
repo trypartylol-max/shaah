@@ -3708,6 +3708,7 @@ function renderToday(key,nested=false){
       <div ${uiStyle(`font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px`)}>${keyToDate(key).toLocaleDateString("en-US",{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
     </div>`:""}
     <div class="t-score-hero" ${uiStyle(`display:flex;align-items:center;justify-content:center;gap:18px;width:100%;max-width:760px`)}>
+      ${!nested&&isToday?`<div class="dt-hero-copy"><div class="dt-eyebrow">YOUR DAILY PRACTICE</div><h1>Make today count<span>.</span></h1><p>One routine. One habit. One step forward.</p><div class="dt-day-facts"><span><b>${done}</b> completed today</span><span><b>${streak}</b> day streak</span></div></div>`:''}
       <div class="t-score-stack" ${uiStyle(`display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px`)}>
         <div class="t-ring" ${uiStyle(`position:relative;width:${RSZ}px;height:${RSZ}px`)}>
       ${ring(score,dMax,RSZ,RSZ>140?12:9,gr.c,gr.g)}

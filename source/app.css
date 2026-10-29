@@ -2900,3 +2900,12 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 
 /* Center the single +; no label or extra controls in the idle circle. */
 html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:0!important}
+
+/* Product activity controls are overlays and never enter the layout flow. */
+.product-orb-close,.product-end-menu{position:absolute;left:-8px;top:-8px;z-index:4}
+.product-orb-close,.product-end-menu button{display:grid;place-items:center;width:32px;height:32px;min-height:32px;padding:0;border:0;border-radius:50%;background:#282035;color:#e5d9fa;font:22px/1 sans-serif;cursor:pointer}
+.product-end-menu{display:flex;align-items:center;gap:6px;height:32px;padding-right:5px;border-radius:20px;background:#282035;box-shadow:0 5px 18px #0008;transform-origin:16px 16px;animation:product-end-pop .16s ease-out;white-space:nowrap}
+.product-end-menu span{font-size:11px;color:#ddd}.product-end-menu button:last-child{color:#86efac}
+.product-minimizing{position:fixed!important;pointer-events:none!important;z-index:9999!important;margin:auto!important;inset:0!important}
+@keyframes product-end-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.product-end-menu{animation:none}}

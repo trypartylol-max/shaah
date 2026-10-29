@@ -3755,7 +3755,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         return`<div class="sf-core-routine cr-compact-card" data-routine-card="${esc(item.id)}">
           <div class="cr-compact-icon" aria-hidden="true">${esc(rt.icon)}</div>
           <div class="cr-compact-copy">
-            <div class="r-lab">${esc(rt.label)}${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:''}</div>
+            <div class="r-lab"><span class="cr-routine-name">${esc(rt.label)}</span>${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:''}</div>
             <div class="r-sub">${rt.steps.length} steps · ${totalMin} min</div>
           </div>
           <div class="cr-compact-actions">

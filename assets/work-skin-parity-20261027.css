@@ -53,14 +53,3 @@ html[data-skin] .wg-figure.complete circle.lit{
   html[data-skin] .wg-figure.complete .wg-interior{animation:none;}
   html[data-skin] .wg-figure.complete .wg-interior{fill-opacity:.25;}
 }
-
-/* WORK geometry sizing approved 2026-10-29: 175% mobile, 150% desktop.
-   Scale the SVG and its matching grid track together; colors and behavior unchanged. */
-@media (max-width:879px){
-  #scroll .today .wg-card .wg-row{grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr)}
-  #scroll .today .wg-card .wg-figure{width:84px;height:84px}
-}
-@media (min-width:880px){
-  #scroll .today .wg-card .wg-row{grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr)}
-  #scroll .today .wg-card .wg-figure{width:72px;height:72px}
-}

@@ -11,6 +11,7 @@
 #scroll .sf-capture .sf-heading strong { font-size:19px !important; }
 #scroll .sf-tile .sf-name { font-size:19px !important; }
 @media (max-width:879px) {
+  #scroll .today.sf-today-v27 .t-rout-body > .wg-card {height:auto !important;min-height:142px !important}
   #scroll .sf-combo-category .sf-category-toggle > span { font-size:18px !important; }
 }
 
@@ -26,18 +27,18 @@
 
 /* WORK routine: approved larger interior, unchanged heading/points and card footprint. */
 #scroll .today.sf-today-v27 .t-rout-body > .wg-card {
-  height:122px !important;
+  height:auto !important;
   min-height:122px !important;
   gap:7px !important;
   justify-content:space-between !important;
 }
 #scroll .today.sf-today-v27 .wg-card .wg-row {
-  grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr);
   gap:10px;
 }
 #scroll .today.sf-today-v27 .wg-card .wg-figure {
-  width:70px;
-  height:70px;
+  width:72px;
+  height:72px;
 }
 #scroll .today.sf-today-v27 .wg-card .wg-daily > span,
 #scroll .today.sf-today-v27 .wg-card .wg-weekly > span {
@@ -49,12 +50,16 @@
 #scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {
   font-size:27px;
 }
+/* 48px baseline: 175% mobile, 150% desktop. Keep SVG and grid in sync. */
+@media (max-width:879px) {
+  #scroll .today.sf-today-v27 .t-rout-body > .wg-card {height:auto !important;min-height:142px !important}
+  #scroll .today.sf-today-v27 .wg-card .wg-row {grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr)}
+  #scroll .today.sf-today-v27 .wg-card .wg-figure {width:84px;height:84px}
+}
 @media (max-width:380px) {
   #scroll .today.sf-today-v27 .wg-card .wg-row {
-    grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);
     gap:6px;
   }
-  #scroll .today.sf-today-v27 .wg-card .wg-figure {width:58px;height:58px}
   #scroll .today.sf-today-v27 .wg-card .wg-daily > strong {font-size:27px}
   #scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {font-size:23px}
 }

@@ -2915,3 +2915,8 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 .product-end-menu button{width:var(--end-size);height:var(--end-size);min-height:var(--end-size);flex-shrink:0;font-size:25px}
 .product-end-menu span{font-size:13px;line-height:1.35}
 @media(max-width:879px){.product-end-menu{--end-size:48px;left:-16px;top:-16px;gap:12px;padding-right:10px;border-radius:28px;transform-origin:24px 24px}.product-end-menu button{font-size:28px}.product-end-menu span{font-size:15px}}
+
+/* Compact icon-only confirmation. Both icons remain centered on their targets. */
+.product-end-menu{--end-size:36px;left:-10px;top:-10px;height:36px;gap:4px;padding-right:4px;border-radius:20px;transform-origin:18px 18px}
+.product-end-menu button{font-size:24px}
+@media(max-width:879px){.product-end-menu{--end-size:40px;left:-12px;top:-12px;height:40px;gap:6px;padding-right:4px;border-radius:22px;transform-origin:20px 20px}.product-end-menu button{font-size:25px}}

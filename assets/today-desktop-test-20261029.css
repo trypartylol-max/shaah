@@ -1,0 +1,25 @@
+/* TEST desktop Today: native navigation and live cards, no duplicated state. */
+@media(min-width:1180px){
+ body:has(#nav .nav-btn.active) #nav{inset:0 auto 0 0!important;width:168px!important;max-width:none!important;transform:none!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:12px!important;padding:24px 12px!important;border-top:0!important;border-right:1px solid var(--today-card-border,#29293c);border-radius:0!important;box-sizing:border-box}
+ body:has(#nav .nav-btn.active) #nav .nav-btn{flex:0 0 auto!important;width:100%!important;min-height:66px!important;border-radius:12px;flex-direction:row!important;justify-content:flex-start!important;gap:12px!important;padding:12px!important;letter-spacing:.06em}
+ body:has(#nav .nav-btn.active) #scroll{margin-left:168px!important;width:calc(100% - 168px)!important}
+ #scroll .today.sf-today-v27{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:auto!important;gap:22px!important;padding:24px 28px 50px!important;max-width:1600px!important;margin:0 auto!important;width:100%!important;box-sizing:border-box;zoom:1!important}
+ #scroll .today.sf-today-v27>.t-score-hero{grid-area:1 / 1 / 2 / 4!important;grid-template-columns:200px minmax(0,1fr) 90px!important;gap:28px!important;height:auto!important;min-height:230px!important;padding:20px!important;border:1px solid var(--today-card-border,#29293c);border-radius:20px;background:var(--today-card-bg,#10101c)}
+ #scroll .today.sf-today-v27>.t-score-hero .t-grade{width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;transform:none!important}
+ #scroll .today.sf-today-v27>.t-rout{grid-area:2 / 1 / 3 / 2!important;align-self:start!important}
+ #scroll .today.sf-today-v27>.t-lvl2{grid-area:2 / 2 / 3 / 3!important}
+ #scroll .today.sf-today-v27>.t-lvl3{grid-area:2 / 3 / 3 / 4!important}
+ #scroll .today.sf-today-v27>.t-social-independent{grid-area:3 / 1 / 4 / 3!important}
+ #scroll .today.sf-today-v27>.t-note{grid-area:3 / 3 / 4 / 4!important}
+ #scroll .today.sf-today-v27>.t-daylog{grid-area:4 / 1 / 5 / 4!important;max-width:none!important}
+ #scroll .today.sf-today-v27>.t-reset{grid-area:5 / 1 / 6 / 4!important;justify-self:center}
+ #scroll .today.sf-today-v27 .t-rout .t-rout-body{grid-template-columns:minmax(0,1fr)!important}
+ #scroll .today.sf-today-v27 .t-rout-body>.sf-work{grid-column:1!important}
+ #scroll .today.sf-today-v27>.t-note textarea{min-height:170px!important}
+ #scroll .today.sf-today-v27>*{min-width:0!important}
+}
+@media(min-width:1180px){
+ html #scroll .today.sf-today-v27 .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb)::after{content:'Log'!important;font:600 14px/1 'DM Sans',sans-serif;color:inherit}
+ html #scroll .today.sf-today-v27 .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){width:80px!important;border-radius:14px!important;gap:6px!important}
+}
+@media(min-width:1180px){html #scroll .today.sf-today-v27 .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb)::after{color:#eef0f3!important}}

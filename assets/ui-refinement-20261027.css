@@ -63,3 +63,39 @@
   #scroll .today.sf-today-v27 .wg-card .wg-daily > strong {font-size:27px}
   #scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {font-size:23px}
 }
+
+/* Desktop Core: one header line; share the recovered subtitle row between
+   the name/header (12px) and the controls (12px). Mobile remains unchanged. */
+@media (min-width:880px) {
+  #scroll .today.sf-today-v27 .wg-card .wg-row {grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr);flex:1;align-items:center}
+  #scroll .today.sf-today-v27 .wg-card .wg-figure {width:84px;height:84px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] {grid-template-columns:24px minmax(0,1fr)!important;grid-template-rows:minmax(36px,1fr) 56px!important;gap:12px 8px!important;min-height:134px!important;align-items:center!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon {width:24px!important;height:36px!important;font-size:22px!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy {display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;column-gap:8px;width:100%;min-width:0;min-height:36px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-lab {display:contents!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-routine-name {grid-column:1;grid-row:1;font-size:22px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--today-copy)}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub {grid-column:2;grid-row:1;margin:0!important;font-size:12px!important;line-height:1.35!important;white-space:nowrap}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {grid-column:3;grid-row:1;font-size:12px!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-btn {min-height:56px!important;font-size:14px!important}
+}
+
+@media (min-width:880px) and (max-width:1199px) {
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] {grid-template-columns:minmax(0,1fr)!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon {display:none!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy {column-gap:4px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-routine-name {font-size:clamp(17px,1.8vw,20px);letter-spacing:0}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub {font-size:10px!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {font-size:11px!important}
+}
+
+/* Center WORK geometry in the whole card, independent of its header/cash labels. */
+@media (min-width:880px) {
+  #scroll .today.sf-today-v27 .t-rout-body>.wg-card {position:relative;min-height:134px!important;align-self:stretch!important}
+  #scroll .today.sf-today-v27 .wg-card .wg-daily {grid-column:1}
+  #scroll .today.sf-today-v27 .wg-card .wg-weekly {grid-column:3}
+  #scroll .today.sf-today-v27 .wg-card .wg-figure {position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+}
+@media (min-width:880px) and (max-width:1199px) {
+  #scroll .today.sf-today-v27 .wg-card .wg-daily>strong {font-size:24px}
+  #scroll .today.sf-today-v27 .wg-card .wg-weekly>strong {font-size:16px;white-space:nowrap;letter-spacing:-.03em}
+}

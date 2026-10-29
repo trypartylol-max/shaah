@@ -978,6 +978,9 @@ const UI_ACTIONS=Object.freeze({
   openDayLogStart:uiRule('click',[],()=>openDayLogStart()),
   toggleTodayRoutines:uiRule('click',[],n=>toggleTodayRoutines(n)),
   setHabitState:uiRule('click',['string','string','mark'],(n,e,id,key,value)=>setHabitState(id,key,value),true),
+  productEndAsk:uiRule('click',['string'],(n,e,id)=>{productEndId=id;render();},true),
+  productEndCancel:uiRule('click',[],()=>{productEndId=null;render();},true),
+  productEndConfirm:uiRule('click',['string'],(n,e,id)=>{productEndId=null;finishRoutineEarly(id);},true),
   startRoutine:uiRule('click',['string'],(n,e,id)=>startRoutine(id),true),
   startRoutineNested:uiRule('click',['string'],(n,e,id)=>startRoutine(id),true),
   toggleLvl:uiRule('click',['integer'],(n,e,level)=>toggleLvl(level)),
@@ -3466,9 +3469,10 @@ window.addEventListener('resize',()=>positionCompactSessions());
 function routineOrbId(){
  const ids=liveSessions();return ids.find(id=>id===routineDialogReturnId&&sessions[id].running)||ids.find(id=>sessions[id].running)||ids.find(id=>sessions[id].paused)||ids[0]||null;
 }
+let productEndId=null;
 function routineOrb(){
  const id=routineOrbId(),s=sessions[id],rt=ROUTINES[id];if(!id||!s||!rt)return '';
- return `<div class="cr-log-orb"><button class="cr-orb-button" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${s.paused?'Resume':'Open'} ${esc(rt.label)}"><span class="cr-orb-icon">${esc(rt.icon)}</span><b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b><span class="cr-orb-step">${s.paused?'PAUSED · ':''}${Object.keys(s.done).length+1} / ${rt.steps.length}</span></button><button class="cr-orb-add" ${ui('click','openDayLogStart')} aria-label="Log an activity" title="Log an activity">+</button><span class="cr-orb-label">${esc(rt.label)}${liveSessions().length>1?' · +'+(liveSessions().length-1):''}</span></div>`;
+ return `<div class="cr-log-orb"><button class="product-orb-close" ${ui('click','productEndAsk',id)} aria-label="End activity">×</button>${productEndId===id?`<div class="product-end-menu" role="group" aria-label="Save time and end activity"><button ${ui('click','productEndCancel')} aria-label="Cancel">×</button><span>Save time?</span><button ${ui('click','productEndConfirm',id)} aria-label="Confirm">✓</button></div>`:''}<button class="cr-orb-button" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${s.paused?'Resume':'Open'} ${esc(rt.label)}"><span class="cr-orb-icon">${esc(rt.icon)}</span><b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b><span class="cr-orb-step">${s.paused?'PAUSED · ':''}${Object.keys(s.done).length+1} / ${rt.steps.length}</span></button><button class="cr-orb-add" ${ui('click','openDayLogStart')} aria-label="Log an activity" title="Log an activity">+</button><span class="cr-orb-label">${esc(rt.label)}${liveSessions().length>1?' · +'+(liveSessions().length-1):''}</span></div>`;
 }
 function renderResume(){
   const el=document.getElementById("resume");if(!el)return;
@@ -4445,15 +4449,34 @@ function syncToSession(){
 }
 
 function startRoutine(id){
+  const productWasOpen=!!document.getElementById('cr-dialog');
+  const productOrigin=document.activeElement?.getBoundingClientRect?.();
+  productEndId=null;
   if(!USER||!ROUTINES[id])return;
   if(!sessions[id])sessions[id]=newSession(id);   // resume if it already exists
   routineId=id; routineView=true;
   if(!sessions[id].startedAt)sessions[id].startedAt=dayLogNowISO();
   syncFromSession(); unlockAudio(); haptic(12);
   ensureTick(); saveRoutine(); render();
+  const panel=document.getElementById('cr-dialog');
+  if(!productWasOpen&&panel&&productOrigin&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){
+    const box=panel.getBoundingClientRect();
+    panel.animate?.([{opacity:.15,transform:`translate(${productOrigin.left+productOrigin.width/2-box.left-box.width/2}px,${productOrigin.top+productOrigin.height/2-box.top-box.height/2}px) scale(.12)`},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'});
+  }
 }
 function exitRoutine(){hideRoutine();}
-function hideRoutine(){syncToSession();routineView=false;routineId=null;haptic(8);saveRoutine();render();}
+function hideRoutine(){
+  const panel=document.getElementById('cr-dialog'),from=panel?.getBoundingClientRect?.();
+  const ghost=panel?.cloneNode?.(true);
+  syncToSession();routineView=false;routineId=null;haptic(8);saveRoutine();render();
+  const target=ghost&&document.querySelector('.cr-orb-button')?.getBoundingClientRect?.();
+  if(ghost&&from&&target&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){
+    ghost.removeAttribute('id');ghost.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));ghost.setAttribute('aria-hidden','true');ghost.classList.add('product-minimizing');document.body.appendChild(ghost);
+    const box=ghost.getBoundingClientRect();
+    const animation=ghost.animate([{opacity:1,transform:'none'},{opacity:0,transform:`translate(${target.left+target.width/2-box.left-box.width/2}px,${target.top+target.height/2-box.top-box.height/2}px) scale(.08)`}],{duration:220,easing:'ease-in'});
+    animation.onfinish=()=>ghost.remove();animation.oncancel=()=>ghost.remove();
+  }
+}
 function resumeRoutine(id){
   if(!USER||!sessions[id]||!ROUTINES[id])return;
   startRoutine(id);if(S()&&!S().running)routineToggle();

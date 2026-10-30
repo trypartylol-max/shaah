@@ -2920,3 +2920,25 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 .product-end-menu{--end-size:36px;left:-10px;top:-10px;height:36px;gap:4px;padding-right:4px;border-radius:20px;transform-origin:18px 18px}
 .product-end-menu button{font-size:24px}
 @media(max-width:879px){.product-end-menu{--end-size:40px;left:-12px;top:-12px;height:40px;gap:6px;padding-right:4px;border-radius:22px;transform-origin:20px 20px}.product-end-menu button{font-size:25px}}
+
+/* Hybrid tutorial: isolated practice, modal keyboard access and responsive spotlight. */
+#tour .tour-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;}
+#tour-hole{position:fixed;border:2px solid #c4b5fd;border-radius:12px;box-shadow:0 0 0 200vmax rgba(4,4,10,.82);pointer-events:none;}
+#tour .tour-card{animation:none;width:calc(100% - 24px);z-index:1;max-height:calc(100dvh - 32px - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;box-sizing:border-box;}
+#tour .tour-meta{font-size:12px;color:#c4b5fd;letter-spacing:.08em;margin-bottom:12px;}
+#tour .tour-t{margin-top:0;}
+#tour button{min-height:44px;}
+#tour button:disabled{opacity:.35;cursor:default;}
+#tour :focus-visible{outline:3px solid #c4b5fd;outline-offset:3px;}
+#tour .tour-demo{margin-top:14px;border:1px solid #494161;border-radius:12px;padding:12px;color:#ddd;font-size:14px;}
+#tour .tour-demo p{margin:10px 0 0;}
+#tour .tour-example,#tour input{display:block;box-sizing:border-box;width:100%;border:1px solid #686080;border-radius:8px;background:#222033;color:#fff;padding:11px;font:inherit;margin-top:8px;}
+#tour input{font-size:16px;}
+#tour .tour-row{flex-wrap:wrap;}
+@media(min-width:880px){#tour.on{justify-content:flex-end;}#tour .tour-card{margin-right:28px;}}
+@media(max-width:380px){#tour .tour-card{padding:18px;}#tour .tour-b{font-size:14px;line-height:1.5;}#tour .tour-row{gap:4px;}}
+@media(prefers-reduced-motion:reduce){#tour *,#tour *::before{animation:none!important;transition:none!important;}}
+
+#tour-hole[hidden]{display:none;}
+#tour .tour-card{padding:24px;background:#10101e;color:#f2f2f2;}
+#tour .tour-card h2:focus{outline:none;}

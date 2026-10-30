@@ -969,6 +969,9 @@ const UI_ACTIONS=Object.freeze({
   discardRoutine:uiRule('click',['string'],(n,e,id)=>{if(confirm('Discard this session?'))closeRoutine(id);},true),
   tourDone:uiRule('click',[],()=>tourDone()),
   tourGo:uiRule('click',['integer'],(n,e,step)=>tourGo(step)),
+  tourPractice:uiRule('click',['string'],(n,e,kind)=>tourPractice(kind)),
+  tourPracticeEnter:uiRule('keydown',[],(n,e)=>{if(e.key==='Enter'){e.preventDefault();tourPractice('log');}}),
+  tourDraft:uiRule('input',[],(n,e)=>{if(tourStep!==null&&TOUR[tourStep].demo==='log')tourDemo.draft=n.value.slice(0,80);}),
   openSettings:uiRule('click',[],()=>openSettings()),
   handleSocial:uiRule('click',['string'],(n,e,key)=>handleSocial(key)),
   toggleSocialExpand:uiRule('click',['string'],(n,e,key)=>toggleSocialExpand(key),true),
@@ -2288,6 +2291,7 @@ function resetAccountView(){
   timerSecs=0;timerRunning=false;timerEndAt=null;
   settingsOpen=false;editDayKey=null;socialDay=null;socialExpanded=false;reviewOpen=false;
   currentTab='today';histTab='week';histMonth=null;tourStep=null;
+  tourDemo={};tourOwner=null;tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourFocusStep=null;tourScroll=0;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
   todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
@@ -3431,29 +3435,51 @@ function initScrollHide(){
 
 // ── First-run tour ────────────────────────────────────────────
 let tourStep=null;
+let tourDemo={},tourReturnTab=null,tourReturnFocus=null,tourScroll=0,tourInert=[],tourReturnSettings=false,tourOwner=null,tourFocusStep=null;
 const TOUR=[
- {tab:"today",ico:"👋",t:"WELCOME TO SHAAH",
-  b:"SHAAH turns your day into a <b>grade</b>, like a course. Every habit is worth a percentage — and by the end of the day you know exactly how you did.<br><br>Takes 30 seconds. Let's go."},
- {tab:"today",ico:"◎",t:"YOUR DAY SCORE",
-  b:("The ring shows <b>today's score</b> and the letter is your grade: <b>F</b> through <b>S+</b>.<br><br>Max is <b>118%</b> — yes, over 100. Bonus habits let you go past it, so a perfect day isn't the ceiling.<br><br><span "+uiStyle("color:#FFD700")+">100 + 18.</span> In Hebrew, 18 is <b>חי</b> — <i>chai</i>, life. A full day, plus a little life on top. 🥂")},
- {tab:"today",ico:"⬛",t:"THREE LEVELS",
-  b:"<b>LVL 1 · CORE</b> — the essentials — the few things that make or break your day. These weigh most.<br><br><b>LVL 2 · HABITS</b> — the ones that hold everything up.<br><br><b>LVL 3 · BONUS</b> — extras that push you past 100%."},
- {tab:"today",ico:"👆",t:"TAP TO CHECK",
-  b:"Tap any habit row to mark it done. Tap it again to undo.<br><br>The <b>✓</b> on a level header marks the whole level at once. Your score updates instantly."},
- {tab:"today",ico:"⚡",t:"TIMED ROUTINES",
-  b:"<b>▶ START</b> opens the routine step by step with a timer — it keeps running with your phone locked and chimes when each step ends.<br><br><b>✓ DONE</b> marks it complete without the timer."},
- {tab:"history",ico:"◈",t:"YOUR HISTORY",
-  b:"Review <b>7 days, 28 days or the year</b>. Tap any day to edit it or log one you missed.<br><br><b>STATS</b> shows streaks, averages and trends."},
- {tab:"today",ico:"⚙",t:"MAKE IT YOURS",
-  b:"The <b>⚙</b> at the top left opens Settings: change the weights, rename habits, turn off the ones you don't use, pick your timezone and export your data.<br><br>That's it — go build your streak."},
+ {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in eight short steps. You can skip, go back or replay this guide in Settings.'},
+ {tab:'today',target:'.t-ring',ico:'◎',t:'YOUR DAY SCORE',b:'Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.'},
+ {tab:'today',target:'.t-lvl1',ico:'⬛',t:'THREE LEVELS',b:'CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.'},
+ {tab:'today',target:'.t-lvl2',ico:'👆',t:'TRY A HABIT',demo:'habit',b:'Try checking this example habit, then undo it. This demo never changes your habits or score.'},
+ {tab:'today',target:'.t-rout-toggle',ico:'⚡',t:'TRY A ROUTINE',demo:'routine',b:'Routines guide you through timed steps. Try advancing this two-step example. No real timer or session is started.'},
+ {tab:'log',target:'.logdesk-card-title',ico:'◷',t:'TRY DAY LOG',demo:'log',b:'Day Log helps reconstruct your day. Add an example activity below; it stays only inside this tutorial.'},
+ {tab:'history',target:'.htab',ico:'◈',t:'HISTORY & STATS',b:'HISTORY lets you review dated entries. STATS shows trends and streaks. Historical scores use the configuration for that date. The navigation below takes you to each area after the guide.'},
+ {tab:'today',target:'#gear',ico:'⚙',t:'MAKE IT YOURS',b:'Open Settings to customize habits, weights, timezone and backups. Work/Vacation affects your current day. You can replay this tutorial with VIEW TUTORIAL. Ready for your next small action?'}
 ];
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
-function startTour(){tourStep=0;settingsOpen=false;currentTab=TOUR[0].tab;haptic(10);render();}
-function tourGo(i){
-  if(i>=TOUR.length)return tourDone();
-  tourStep=i;currentTab=TOUR[i].tab;haptic(8);render();
+function startTour(){
+ if(!USER||tourStep!==null)return;
+ tourOwner=USER.id;tourReturnSettings=settingsOpen;tourReturnTab=currentTab;tourReturnFocus=document.activeElement;tourScroll=document.getElementById('scroll').scrollTop;
+ tourDemo={};tourStep=0;settingsOpen=false;currentTab=TOUR[0].tab;haptic(10);render();
 }
-function tourDone(){tourStep=null;set(tourKey(),1);haptic(12);render();}
+function tourGo(i){
+ if(tourStep===null||!USER)return;
+ if(i>=TOUR.length)return tourDone();
+ if(!Number.isInteger(i)||i<0)return;
+ tourStep=i;currentTab=TOUR[i].tab;haptic(8);render();
+}
+function tourDone(){
+ if(tourStep===null)return;
+ const sameOwner=USER&&(!tourOwner||USER.id===tourOwner),returnSettings=tourReturnSettings;
+ tourStep=null;tourDemo={};tourFocusStep=null;
+ if(sameOwner){set(tourKey(),1);if(tourReturnTab)currentTab=tourReturnTab;settingsOpen=returnSettings;}
+ render();
+ if(sameOwner){
+  document.getElementById('scroll').scrollTop=tourScroll;
+  const focus=tourReturnFocus&&tourReturnFocus.isConnected?tourReturnFocus:
+   returnSettings?document.querySelector('[data-ui-click="startTour"]'):document.querySelector('.nav-btn[aria-current="page"]')||document.getElementById('gear');
+  if(focus)focus.focus({preventScroll:true});
+ }
+ tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourOwner=null;haptic(12);
+}
+function tourPractice(kind){
+ if(tourStep===null||TOUR[tourStep].demo!==kind)return;
+ if(kind==='habit')tourDemo.habit=!tourDemo.habit;
+ if(kind==='routine')tourDemo.routine=((tourDemo.routine||0)+1)%3;
+ if(kind==='log'){const input=document.getElementById('tour-activity');const value=input.value.trim();tourDemo.draft=input.value;if(!value){input.focus();return;}tourDemo.log=value.slice(0,80);}
+ renderTour();
+ const control=document.getElementById('tour-practice');if(control)control.focus();
+}
 let routineDockObserver=null;
 function positionCompactSessions(){
   const el=document.getElementById('resume'),nav=document.getElementById('nav');
@@ -3489,23 +3515,57 @@ function renderResume(){
   }
 }
 
-function renderTour(){
-  const t=document.getElementById("tour");if(!t)return;
-  if(tourStep===null||!USER){t.className="";uiHTML(t,"");return;}
-  const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
-  t.className="on";
-  uiHTML(t,`<div class="tour-scrim" role="button" tabindex="0" aria-label="Close tutorial" ${ui('click','tourDone')} ${ui('keydown','activate')}></div>
-    <div class="tour-card">
-      <div class="tour-dots">${TOUR.map((_,i)=>`<div class="tour-dot ${i===tourStep?"cur":i<tourStep?"done":""}"></div>`).join("")}</div>
-      <div class="tour-ico">${s.ico}</div>
-      <div class="tour-t">${s.t}</div>
-      <div class="tour-b">${s.b}</div>
-      <div class="tour-row">
-        <button class="tour-skip" ${ui('click','tourDone')}>${last?"":"SKIP"}</button>
-        <button class="tour-next" ${ui('click','tourGo' ,tourStep+1)}>${last?"START":"NEXT"}</button>
-      </div>
-    </div>`);
+function tourPosition(){
+ const hole=document.getElementById('tour-hole'),card=document.querySelector('#tour .tour-card');
+ if(!hole||!card||tourStep===null)return;
+ const target=document.querySelector(TOUR[tourStep].target||'#missing-tour-target');
+ const r=target&&target.getBoundingClientRect(),c=card.getBoundingClientRect();
+ const visible=r&&r.width&&r.height&&r.bottom>8&&r.top<c.top-12&&r.right>0&&r.left<innerWidth;
+ hole.hidden=!visible;
+ document.querySelector('#tour .tour-scrim').style.background=visible?'transparent':'rgba(4,4,10,.82)';
+ if(visible){const top=Math.max(4,r.top-5),left=Math.max(4,r.left-5);Object.assign(hole.style,{top:top+'px',left:left+'px',width:Math.max(0,Math.min(innerWidth-4,r.right+5)-left)+'px',height:Math.max(0,Math.min(c.top-16,r.bottom+5)-top)+'px'});}
 }
+function renderTour(){
+ const t=document.getElementById('tour');if(!t)return;
+ if(tourStep===null||!USER){t.className='';uiHTML(t,'');tourDemo={};tourFocusStep=null;tourInert.forEach(([el,value])=>el.inert=value);tourInert=[];return;}
+ if(!tourOwner)tourOwner=USER.id;
+ if(!tourInert.length)Array.from(document.getElementById('app').children).filter(el=>el!==t).forEach(el=>{tourInert.push([el,el.inert]);el.inert=true;});
+ const active=document.activeElement,focusId=t.contains(active)?active.id:null,selection=active?.selectionStart;
+ const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
+ let demo='';
+ if(s.demo==='habit')demo=`<button id="tour-practice" class="tour-example" aria-pressed="${!!tourDemo.habit}" ${ui('click','tourPractice','habit')}>${tourDemo.habit?'✓':'○'} Drink water · example</button><p role="status">${tourDemo.habit?'Example complete. Tap again to undo.':'Tap the example to complete it.'}</p>`;
+ if(s.demo==='routine')demo=`<p role="status">${['1 / 2 · Breathe','2 / 2 · Stretch','Example routine complete'][tourDemo.routine||0]}</p><button id="tour-practice" class="tour-example" ${ui('click','tourPractice','routine')}>${tourDemo.routine===2?'Restart example':'Complete example step'}</button>`;
+ if(s.demo==='log')demo=`<label for="tour-activity">Example activity</label><input id="tour-activity" maxlength="80" value="${esc(tourDemo.draft||'')}" placeholder="e.g. Reading" ${ui('keydown','tourPracticeEnter')} ${ui('input','tourDraft')}><button id="tour-practice" class="tour-example" ${ui('click','tourPractice','log')}>Add example</button><p role="status">${tourDemo.log?'Added to demo: '+esc(tourDemo.log):'Your real Day Log stays unchanged.'}</p>`;
+ t.className='on';
+ uiHTML(t,`<div class="tour-scrim" aria-hidden="true"></div><div id="tour-hole" hidden aria-hidden="true"></div>
+ <section class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-description">
+ <div class="tour-dots" aria-hidden="true">${TOUR.map((_,i)=>`<div class="tour-dot ${i===tourStep?'cur':i<tourStep?'done':''}"></div>`).join('')}</div>
+ <div class="tour-meta">STEP ${tourStep+1} OF ${TOUR.length} · ${s.demo?'SAFE DEMO':'GUIDED TOUR'}</div>
+ <div class="tour-ico" aria-hidden="true">${s.ico}</div><h2 id="tour-title" class="tour-t" tabindex="-1">${s.t}</h2>
+ <div id="tour-description" class="tour-b">${s.b}</div>${demo?`<div class="tour-demo">${demo}</div>`:''}
+ <div class="tour-row"><button id="tour-close" class="tour-skip" ${ui('click','tourDone')}>Skip / close</button><button id="tour-back" class="tour-skip" ${tourStep===0?'disabled':''} ${ui('click','tourGo',tourStep-1)}>Back</button><button id="tour-next" class="tour-next" ${ui('click','tourGo',tourStep+1)}>${last?'Finish':'Next'}</button></div></section>`);
+ const changed=tourFocusStep!==tourStep;tourFocusStep=tourStep;
+ if(changed){
+  document.getElementById('tour-title').focus({preventScroll:true});
+  const target=document.querySelector(s.target||'#missing-tour-target'),scroll=document.getElementById('scroll');
+  if(target)scroll.scrollTop+=target.getBoundingClientRect().top-20;
+ }
+ if(!changed&&focusId){const focus=document.getElementById(focusId);if(focus){focus.focus({preventScroll:true});if(typeof selection==='number'&&focus.setSelectionRange)focus.setSelectionRange(selection,selection);}}
+ tourPosition();
+ requestAnimationFrame(tourPosition);
+}
+document.addEventListener('keydown',event=>{
+ if(tourStep===null||!document.querySelector('#tour .tour-card'))return;
+ if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();tourDone();return;}
+ if(event.key==='Tab'){
+ const buttons=Array.from(document.querySelectorAll('#tour button:not(:disabled),#tour input'));
+ const first=buttons[0],last=buttons[buttons.length-1],active=document.activeElement;
+ if(event.shiftKey&&(active===first||!buttons.includes(active))){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&(active===last||!buttons.includes(active))){event.preventDefault();first.focus();}
+ }
+},true);
+window.addEventListener('resize',tourPosition);
+document.addEventListener('scroll',tourPosition,true);
 
 function topbarHTML(){
   const d=keyToDate(todayKey()),hr=new Date().getHours();

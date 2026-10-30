@@ -343,3 +343,18 @@ test('a token switch between read and RPC cannot submit an A settings draft as B
   assert.deepEqual(s.rows.find(r=>r.user_id===other&&r.date==='settings'),before);
   assert.equal(s.writes.length,0);assert.ok(app.values.get('shaah_cfg_pending_'+owner));
 });
+
+test('contact deletion survives revision save, stale device cache and orphan recovery',async()=>{
+  const s=server(),a=appFor(s),b=appFor(s);
+  a.run('personDel("pold03");');
+  await a.run('flushCfgSaves()');
+  assert.equal(settings(s).deletedPeople.pold03,true);
+  assert.equal(settings(s).people.some(p=>p.id==='pold03'),false);
+  b.run(`set(cfgKey(),CFG);rowToState(${JSON.stringify(s.rows.find(r=>r.date==='settings'&&r.user_id===owner))});recoverPeopleFromDays();`);
+  assert.equal(b.run('personById("pold03")'),null);
+  assert.equal(b.run('personWasDeleted("pold03")'),true);
+  b.run('personSet("pold01","name","Other edit");');
+  await b.run('flushCfgSaves()');
+  assert.equal(settings(s).people.some(p=>p.id==='pold03'),false);
+  assert.equal(settings(s).deletedPeople.pold03,true);
+});

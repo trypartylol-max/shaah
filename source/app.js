@@ -1661,12 +1661,16 @@ function repairHistoricalVacationTimeline(){
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
 // reconstruye como marcadores renombrables, en vez de dejar el pasado colgando.
+function personWasDeleted(id,config=CFG){
+  const deleted=config.deletedPeople;
+  return !!deleted&&typeof deleted==='object'&&!Array.isArray(deleted)&&Object.hasOwn(deleted,id)&&deleted[id]===true;
+}
 function recoverPeopleFromDays(){
   const known={}; for(const q of peopleList())known[q.id]=1;
   const found=[];
   for(const k of Object.keys(_state)){
     if(!DATE_RE.test(k))continue;
-    for(const id of getPeople(k)) if(!known[id]){known[id]=1;found.push(id);}
+    for(const id of getPeople(k)) if(!known[id]&&!personWasDeleted(id)){known[id]=1;found.push(id);}
   }
   if(!found.length)return 0;
   const sub=(subsOn(subsList())[0]||{id:"friends"}).id;
@@ -1923,6 +1927,17 @@ function getDayRecord(key){
   if(!hasDayData(key))return null;
   const{score,l1,l2,l3,done,max,pct,l1max,l2max,l3max}=calcScore(key);
   return{score,grade:GRADE(score,max).l,l1,l2,l3,done,max,pct,l1max,l2max,l3max};
+}
+
+// Statistics include every recorded day, including zero points. Streak history stays score-only.
+function getStatsHistory(){
+  const h={},tk=todayKey();
+  for(const key of Object.keys(_state)){
+    if(!DATE_RE.test(key)||key>tk)continue;
+    const record=getDayRecord(key);
+    if(record)h[key]=record;
+  }
+  return h;
 }
 
 // ── Writes — optimistic local, then push to server ─────────
@@ -2210,7 +2225,9 @@ function personSet(id,k,v){
 function personDel(id){
   const p=personById(id); if(!p)return;
   if(!confirm(`Remove ${p.name}? Days you already logged keep their record.`))return;
-  CFG.people=peopleList().filter(x=>x.id!==id); haptic(12); saveCfg(); render();
+  CFG.people=peopleList().filter(x=>x.id!==id);
+  CFG.deletedPeople={...(CFG.deletedPeople||{}),[id]:true};
+  haptic(12); saveCfg(); render();
 }
 // Last time each person shows up in the log, and how overdue they are.
 function peopleStatus(){
@@ -2523,7 +2540,7 @@ function rowToState(row){
       if(local&&Array.isArray(local.people)&&local.people.length){
         if(!Array.isArray(CFG.people))CFG.people=[];
         let back=0;
-        for(const q of local.people) if(q&&q.id&&!CFG.people.some(x=>x.id===q.id)){CFG.people.push(q);back++;}
+        for(const q of local.people) if(q&&q.id&&!personWasDeleted(q.id)&&!CFG.people.some(x=>x.id===q.id)){CFG.people.push(q);back++;}
         if(back&&USER){if(!_cfgDraft){_cfgDraftBase=cfgCopy(row.data._cfg);_cfgDraft=cfgCopy(CFG);keepCfgDraft();}}
       }
       applyCfg();migrateCfg();set(cfgKey(),CFG);
@@ -2734,11 +2751,11 @@ async function signOut(forget=false){
 }
 
 function renderReview(){
-  const days=getDays(7), h7=getHistory();
-  const logged=days.filter(d=>d.data&&d.data.score>0);
+  const days=getDays(7);
+  const logged=days.filter(d=>d.data);
   const avg=avgW(days), tr=weekTrend();
-  const best=logged.reduce((m,d)=>!m||d.data.score>m.data.score?d:m,null);
-  const worst=logged.reduce((m,d)=>!m||d.data.score<m.data.score?d:m,null);
+  const best=logged.reduce((m,d)=>!m||dPct(d.data)>dPct(m.data)?d:m,null);
+  const worst=logged.reduce((m,d)=>!m||dPct(d.data)<dPct(m.data)?d:m,null);
   const habits=[...LVL1,...LVL2,...LVL3];
   // completion rate per habit over the 7 days
   const rate=habits.map(x=>{
@@ -3123,6 +3140,7 @@ function importPrepare(input){
     &&optional(e,'subs',subs)&&optional(e,'mode',v=>['work','vacation'].includes(v));
   if(cfg){
     if(!habits(cfg.h)||!list(cfg.order,id)||!optional(cfg,'people',v=>list(v,p=>person(p,true)))
+      ||!optional(cfg,'deletedPeople',v=>obj(v)&&Object.entries(v).every(([k,x])=>id(k)&&x===true))
       ||!optional(cfg,'subs',subs)||!optional(cfg,'log',v=>list(v,era))
       ||!optional(cfg,'locationGroups',v=>list(v,g=>obj(g)&&id(g.id)&&text(g.name)))
       ||!optional(cfg,'selectedLocation',id)||!optional(cfg,'tz',v=>text(v,100))
@@ -3173,6 +3191,7 @@ function importApply(j){
       if(Array.isArray(q.locations))contact.locations=[...new Set(q.locations.filter(x=>typeof x==='string'))];
       if(typeof q.inactive==='boolean')contact.inactive=q.inactive;
       CFG.people.push(contact);
+      if(personWasDeleted(id))delete CFG.deletedPeople[id];
       added++;
     }
     alert(`${added} added.`);
@@ -3324,7 +3343,7 @@ function getBestStreak(){
 function weekTrend(){
   const d=getDays(14);
   const prev=avgW(d.slice(0,7)),cur=avgW(d.slice(7));
-  if(!prev||!cur)return null;
+  if(!d.slice(0,7).some(x=>x.data)||!d.slice(7).some(x=>x.data))return null;
   return{cur,prev,diff:cur-prev};
 }
 // key "YYYY-MM-DD" → Date at local noon (DST-safe for display)
@@ -3340,7 +3359,7 @@ function getDays(n){
 function getWeeks(){const d=getDays(28);return[0,1,2,3].map(w=>d.slice(w*7,w*7+7));}
 // Days can have different maxes now, so averages run on normalised percentages.
 const dPct=d=>d&&(d.pct!=null?d.pct:(d.max?Math.round(d.score/d.max*100):d.score));
-function avgW(days){const f=days.filter(d=>d.data&&d.data.score>0);return f.length?Math.round(f.reduce((a,d)=>a+dPct(d.data),0)/f.length):0;}
+function avgW(days){const f=days.filter(d=>d.data);return f.length?Math.round(f.reduce((a,d)=>a+dPct(d.data),0)/f.length):0;}
 
 function ring(score,max,size,thick,col,glow){
   const r=(size-thick)/2-2,c=2*Math.PI*r,off=c-(Math.min(score,max)/max)*c,cx=size/2;
@@ -4223,7 +4242,7 @@ function habitStreak(id){
   return s;
 }
 function weekdayAvg(){
-  const h=getHistory(), acc=[[],[],[],[],[],[],[]];
+  const h=getStatsHistory(), acc=[[],[],[],[],[],[],[]];
   for(const k of Object.keys(h)){ if(!DATE_RE.test(k))continue;
     acc[keyToDate(k).getDay()].push(dPct(h[k])); }
   return acc.map((xs,i)=>({dia:i,n:xs.length,
@@ -4266,7 +4285,7 @@ function renderWeekday(){
 }
 
 function renderStats(){
-  const tk=todayKey(),{score}=calcScore(tk),h=getHistory();
+  const tk=todayKey(),{score}=calcScore(tk),h=getStatsHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
   const total=allDays.length,best=allDays.reduce((m,[,d])=>Math.max(m,dPct(d)),0);
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+dPct(d),0)/total):0,streak=getStreak();
@@ -4283,8 +4302,8 @@ function renderStats(){
     {icon:"🔥",label:"CURRENT STREAK",val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`record ${bestStreak}d · `:``}days in a row ≥${Math.round(STREAK_MIN*100)}%`},
     {icon:review?.best?.icon||"✓",label:"MOST CONSISTENT",val:`${review?.best?.done??0}/${review?.best?.eligible??7}`,col:"#4ade80",sub:review?.best?.label||"—"},
     {icon:review?.worst?.icon||"·",label:"NEEDS WORK",val:`${review?.worst?.done??0}/${review?.worst?.eligible??7}`,col:"#ef4444",sub:review?.worst?.label||"—"},
-    {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:best>0?GRADE(best,100).c:"#333",sub:best>0?GRADE(best,100).n:"—"},
-    {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:oAvg>0?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(oAvg>0?GRADE(oAvg,100).n:"—")},
+    {icon:"🏆",label:"BEST DAY",val:`${best}%`,col:total?GRADE(best,100).c:"#333",sub:total?GRADE(best,100).n:"—"},
+    {icon:"📊",label:"AVERAGE",val:`${oAvg}%`,col:total?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% vs prev week`:(total?GRADE(oAvg,100).n:"—")},
     {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
   ];
   return`<div class="fade-up stats-page" ${uiStyle(`padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
@@ -4297,7 +4316,7 @@ function renderStats(){
       </div>`).join("")}
     </div>
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
-    ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),g=a>0?GRADE(a,100):null,bh=a>0?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${a>0?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>W${4-wi}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
+    ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>W${4-wi}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
     ${socialOwnTab()?"":renderWhoToSee()}
   </div>`;
 }

@@ -2365,6 +2365,7 @@ function resetAccountView(){
   resetDayRequest=null;
   if(timerInterval!==null)clearInterval(timerInterval);
   timerInterval=null;audioKeepAlive(false);
+  resetRoutineCloud();
   sessions={};routineId=null;routineView=false;routineQueue=[];routineCompleted={};
   timerSecs=0;timerRunning=false;timerEndAt=null;
   settingsOpen=false;editDayKey=null;socialDay=null;socialExpanded=false;reviewOpen=false;
@@ -2514,6 +2515,7 @@ function loadCfgLocal(){
   if(c||_cfgDraft){CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),_cfgDraft||c);applyCfg();migrateCfg();}
 }
 function rowToState(row){
+  if(String(row.date).startsWith('routine:'))return receiveRoutineRow(row);
   if(row.date==='cfgbak')return false;
   if(row.date==='settings'){
     if(row.data&&row.data._cfg){
@@ -2585,10 +2587,10 @@ async function loadAll(){
     if(error)throw error;
     const rows=data||[];
     const hadSettings=rows.some(r=>r.date==='settings');
-    const dayRows=rows.filter(r=>r.date!=='settings'&&r.date!=='cfgbak').length;
+    const dayRows=rows.filter(r=>DATE_RE.test(r.date)).length;
     bakLoad(rows);
     _state={};
-    rows.forEach(rowToState);
+    rows.filter(r=>!String(r.date).startsWith('routine:')).forEach(rowToState);
     restoreOfflineQueue();
     adoptLegacyIfVeteran(hadSettings,dayRows);
     _cfgReady=true;                       // a partir de aquí ya es seguro escribir
@@ -2602,6 +2604,7 @@ async function loadAll(){
     // Repair malformed legacy dates before the automatic return check.
     if(normalizeTravelResume())saveCfg();
     applyCfg();
+    hydrateRoutineRows(rows);
     checkTravelAuto();
     recoverPeopleFromDays();
     runShaahSocialCoreMigration();
@@ -2639,6 +2642,7 @@ async function reconcileDeletedDays(owner,epoch){
 function renderSyncedState(){
   if(document.hidden){_syncRenderQueued=true;return;}
   _syncRenderQueued=false;
+  if(_routineRenderDirty){_routineRenderDirty=false;routineDialogSync();renderResume();}
   const root=document.getElementById('scroll');
   if(USER&&!settingsOpen&&!(routineId&&routineView)&&root?.querySelector?.('.today,.soc')){
     renderDayChange(editDayKey||(currentTab==='social'?socialKey():todayKey()),true);
@@ -2661,6 +2665,7 @@ function subscribeRealtime(){
           if(payload.old?.user_id&&payload.old.user_id!==owner)return;
           const key=payload.old&&payload.old.date;
           if(key==='cfgbak')return;
+          if(String(key).startsWith('routine:')){refreshRoutineCloud();return;}
           if(payload.old?.user_id!==owner||!key)return reconcileDeletedDays(owner,epoch);
           // A remote DELETE must not erase a local edit that is still waiting to
           // be written. Once the local upsert completes, the echo is authoritative.
@@ -2685,7 +2690,7 @@ function subscribeRealtime(){
     .subscribe(s=>{
       if(USER?.id!==owner||_syncEpoch!==epoch)return;
       _live=(s==='SUBSCRIBED');
-      if(_live)cfgSyncStatus();
+      if(_live){cfgSyncStatus();refreshRoutineCloud();}
     });
 }
 
@@ -3468,8 +3473,8 @@ function audioKeepAlive(on){
 const RKEY=()=>`shaah_routine_${USER?USER.id:'anon'}`;
 function saveRoutine(){
   if(!USER)return;
-  if(!Object.keys(sessions).length){del(RKEY());return;}
-  set(RKEY(),{sessions,routineId,routineView,day:todayKey()});
+  if(!_routineApplying)queueRoutineChanges();
+  cacheRoutine();
 }
 function restoreRoutine(){
   if(!USER)return false;
@@ -3485,11 +3490,199 @@ function restoreRoutine(){
     const s=sessions[id];
     if(s.running&&s.endAt){
       s.secs=Math.max(0,Math.round((s.endAt-Date.now())/1000));
-      if(s.secs<=0){s.running=false;s.endAt=null;advanceSession(id);}
+      if(s.secs<=0&&!navigator.onLine){s.running=false;s.endAt=null;advanceSession(id);}
     }
   }
   syncFromSession(); ensureTick();
   return true;
+}
+
+// Each routine has its own account-owned row. CAS uses the complete JSON base,
+// so stale/offline devices cannot resurrect a session another device ended.
+// Countdown seconds derive from endAt; ticking never writes to the server.
+var _routineBase={},_routineSeen={},_routinePending={},_routineFlights={},_routineClaims={},_routineApplying=false,_routinePoll=null,_routineRead=null,_routineDay=null,_routineRenderDirty=false;
+const routineRowKey=id=>`routine:${encodeURIComponent(id)}`;
+const routineQueueKey=()=>RKEY()+':pending';
+function routineCopy(value){return JSON.parse(JSON.stringify(value));}
+function routineSnapshot(s){
+  if(!s)return null;
+  return {q:[...s.q],done:{...s.done},secs:s.running?null:s.secs,running:!!s.running,paused:!!s.paused,endAt:s.running?s.endAt:null,startedAt:s.startedAt||null};
+}
+function routineValid(id,s){
+  const rt=ROUTINES[id];
+  return !!rt&&s&&Array.isArray(s.q)&&s.q.length>0&&s.q.length<=rt.steps.length&&new Set(s.q).size===s.q.length&&s.q.every(i=>Number.isInteger(i)&&!!rt.steps[i])&&s.done&&typeof s.done==='object'&&!Array.isArray(s.done)&&typeof s.running==='boolean'&&typeof s.paused==='boolean'&&(s.running?Number.isFinite(s.endAt):Number.isFinite(s.secs)&&s.secs>=0);
+}
+function cacheRoutine(){
+  if(!USER)return;
+  if(!Object.keys(sessions).length)del(RKEY());
+  else set(RKEY(),{sessions,routineId,routineView,day:todayKey()});
+  if(Object.keys(_routinePending).length)set(routineQueueKey(),{day:todayKey(),pending:_routinePending});
+  else del(routineQueueKey());
+}
+function resetRoutineCloud(){
+  if(_routinePoll)clearInterval(_routinePoll);
+  _routineBase={};_routineSeen={};_routinePending={};_routineFlights={};_routineClaims={};_routineApplying=false;_routinePoll=null;_routineRead=null;_routineDay=null;_routineRenderDirty=false;
+}
+function routineRecord(id,session){return {v:1,day:todayKey(),id,revision:crypto.randomUUID?.()||dayLogId()+Math.random().toString(36).slice(2),session};}
+function installRoutine(id,record){
+  const before=JSON.stringify(routineSnapshot(sessions[id]));
+  if(record.session&&routineValid(id,record.session)){
+    sessions[id]=routineCopy(record.session);
+    if(sessions[id].running)sessions[id].secs=Math.max(0,Math.round((sessions[id].endAt-Date.now())/1000));
+  }else{
+    delete sessions[id];
+    if(routineId===id){routineId=null;routineView=false;routineQueue=[];routineCompleted={};timerSecs=0;timerRunning=false;timerEndAt=null;}
+  }
+  _routineSeen[id]=JSON.stringify(routineSnapshot(sessions[id]));
+  syncFromSession();cacheRoutine();ensureTick();
+  if(!anyRunning())audioKeepAlive(false);
+  const changed=before!==_routineSeen[id];
+  if(changed)_routineRenderDirty=true;
+  return changed;
+}
+function receiveRoutineRow(row){
+  const d=row.data,id=d?.id;
+  if(!USER||row.user_id&&row.user_id!==USER.id||!d||d.v!==1||!DATE_RE.test(d.day)||typeof id!=='string'||row.date!==routineRowKey(id)||typeof d.revision!=='string'||!ROUTINES[id]||(d.session!==null&&!routineValid(id,d.session)))return false;
+  if(_routinePending[id]||_routineClaims[id])return false;
+  const previous=_routineBase[id];
+  if(previous&&Number(previous.sequence)>Number(d.sequence))return false;
+  _routineBase[id]=routineCopy(d);
+  if(d.day!==todayKey())return false;
+  return installRoutine(id,d);
+}
+function queueRoutineChanges(){
+  if(!USER)return;
+  const ids=new Set([...Object.keys(sessions),...Object.keys(_routineSeen)]);
+  for(const id of ids){
+    const snapshot=routineSnapshot(sessions[id]),text=JSON.stringify(snapshot);
+    if(text===(_routineSeen[id]??'null'))continue;
+    _routineSeen[id]=text;
+    const old=_routinePending[id];
+    _routinePending[id]={base:old?old.base:(_routineBase[id]||null),next:routineRecord(id,snapshot)};
+  }
+  cacheRoutine();flushRoutineCloud();
+}
+function hydrateRoutineRows(rows){
+  if(_routineDay!==todayKey()){
+    if(_routineDay!==null){sessions={};routineId=null;routineView=false;}
+    _routineBase={};_routineSeen={};_routinePending={};_routineDay=todayKey();
+    const stored=get(routineQueueKey());
+    if(stored?.day===todayKey()&&stored.pending&&typeof stored.pending==='object'){
+      for(const [id,item] of Object.entries(stored.pending)){
+        if(item?.next?.id===id&&item.next.day===todayKey()&&(item.next.session===null||routineValid(id,item.next.session))){
+          _routinePending[id]=item;installRoutine(id,item.next);
+        }
+      }
+    }
+  }
+  for(const row of rows)if(String(row.date).startsWith('routine:'))receiveRoutineRow(row);
+  // First opening after upgrade publishes a browser-local session only when no
+  // cloud record/tombstone exists. A remote end always wins over a stale cache.
+  queueRoutineChanges();
+  if(!_routinePoll)_routinePoll=setInterval(()=>{if(!document.hidden)refreshRoutineCloud();},5000);
+}
+async function readRoutineRow(id,owner){
+  const result=await sb.from('day_logs').select('date,data').eq('user_id',owner).eq('date',routineRowKey(id));
+  if(result.error)throw result.error;
+  return result.data?.[0]||null;
+}
+async function writeRoutineRecord(id,base,next,owner){
+  next.sequence=(base?.sequence||0)+1;
+  const row={user_id:owner,date:routineRowKey(id),data:next};
+  const result=base
+    ?await sb.from('day_logs').update({data:next}).eq('user_id',owner).eq('date',row.date).eq('data',JSON.stringify(base)).select('date,data')
+    :await sb.from('day_logs').insert(row).select('date,data');
+  if(result.error?.code==='23505')return false;
+  if(result.error)throw result.error;
+  return Array.isArray(result.data)&&result.data.length===1;
+}
+function flushRoutineCloud(){
+  if(!USER||!navigator.onLine)return Promise.resolve();
+  const owner=USER.id,epoch=_syncEpoch,day=todayKey();
+  const flights=_routineFlights,pending=_routinePending;
+  for(const id of Object.keys(pending)){
+    if(flights[id]||_routineClaims[id])continue;
+    flights[id]=(async()=>{
+      while(pending[id]&&USER?.id===owner&&_syncEpoch===epoch&&todayKey()===day){
+        const item=pending[id];
+        try{
+          const accepted=await writeRoutineRecord(id,item.base,item.next,owner);
+          if(USER?.id!==owner||_syncEpoch!==epoch||todayKey()!==day)return;
+          if(accepted){
+            _routineBase[id]=item.next;
+            if(pending[id]===item)delete pending[id];
+            else pending[id].base=item.next;
+          }else{
+            const remote=await readRoutineRow(id,owner);
+            if(USER?.id!==owner||_syncEpoch!==epoch||todayKey()!==day)return;
+            delete pending[id];
+            if(remote)receiveRoutineRow(remote);
+            else{delete _routineBase[id];installRoutine(id,{session:null});}
+            renderSyncedState();
+          }
+          cacheRoutine();
+        }catch(e){setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');break;}
+      }
+    })().finally(()=>{delete flights[id];});
+  }
+  return Promise.all(Object.values(flights));
+}
+function refreshRoutineCloud(){
+  if(!USER||!navigator.onLine)return Promise.resolve();
+  if(_routineRead)return _routineRead;
+  const owner=USER.id,epoch=_syncEpoch,day=todayKey();
+  const task=(async()=>{
+    try{
+      const result=await sb.from('day_logs').select('date,data').eq('user_id',owner).like('date','routine:%');
+      if(result.error)throw result.error;
+      if(USER?.id!==owner||_syncEpoch!==epoch||todayKey()!==day)return;
+      const before=JSON.stringify(Object.fromEntries(Object.entries(sessions).map(([id,s])=>[id,routineSnapshot(s)])));
+      hydrateRoutineRows(result.data||[]);
+      if(before!==JSON.stringify(Object.fromEntries(Object.entries(sessions).map(([id,s])=>[id,routineSnapshot(s)]))))renderSyncedState();
+      await flushRoutineCloud();
+    }catch(e){/* Keep local countdown and pending actions available offline. */}
+  })();
+  _routineRead=task;
+  task.finally(()=>{if(_routineRead===task)_routineRead=null;});return task;
+}
+window.addEventListener('online',()=>refreshRoutineCloud());
+window.addEventListener('focus',()=>refreshRoutineCloud());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRoutineCloud();});
+// Claim the transition before producing credit/Day Log effects. Only one online
+// device can advance a shared revision, including the final automatic expiry.
+async function advanceSharedRoutine(id,runNext=false){
+  if(_routineClaims[id])return;
+  const owner=USER?.id,epoch=_syncEpoch,original=sessions[id],day=todayKey();
+  if(!owner||!original)return;
+  const claims=_routineClaims;
+  // A prior Start/Pause save must finish before claiming its successor.
+  if(_routineFlights[id])await _routineFlights[id];
+  if(USER?.id!==owner||_syncEpoch!==epoch||todayKey()!==day||_routineClaims[id])return;
+  claims[id]=true;
+  try{
+    if(_routinePending[id]){delete claims[id];await flushRoutineCloud();return;}
+    const base=_routineBase[id];
+    if(!base||sessions[id]!==original||base.session?.q[0]!==original.q[0]||!cfgEqual(base.session,routineSnapshot(original)))return;
+    const next=routineSnapshot(original),index=next.q.shift();next.done[index]=true;
+    next.secs=next.q.length?ROUTINES[id].steps[next.q[0]].dur*60:0;
+    next.running=!!runNext&&next.q.length>0;next.paused=false;next.endAt=next.running?Date.now()+next.secs*1000:null;
+    if(next.running)next.secs=null;
+    const record=routineRecord(id,next.q.length?next:null);
+    const accepted=await writeRoutineRecord(id,base,record,owner);
+    if(USER?.id!==owner||_syncEpoch!==epoch||todayKey()!==day)return;
+    if(!accepted){
+      const remote=await readRoutineRow(id,owner);
+      if(USER?.id===owner&&_syncEpoch===epoch&&todayKey()===day){delete claims[id];if(remote)receiveRoutineRow(remote);renderSyncedState();}
+      return;
+    }
+    _routineBase[id]=record;
+    if(!runNext)alertStepDone();
+    if(next.running){unlockAudio();audioKeepAlive(true);}
+    _routineApplying=true;
+    try{advanceSession(id);}finally{_routineApplying=false;}
+    installRoutine(id,record);cacheRoutine();render();
+  }catch(e){setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');}
+  finally{delete claims[id];}
 }
 
 // ── Dock auto-hide: content rises, dock tucks away ──────────
@@ -4630,7 +4823,7 @@ function startRoutine(id){
   const productWasOpen=!!document.getElementById('cr-dialog');
   const productOrigin=document.activeElement?.getBoundingClientRect?.();
   productEndId=null;
-  if(!USER||!ROUTINES[id])return;
+  if(!USER||!ROUTINES[id]||_routineClaims[id])return;
   if(!sessions[id])sessions[id]=newSession(id);   // resume if it already exists
   routineId=id; routineView=true;
   if(!sessions[id].startedAt)sessions[id].startedAt=dayLogNowISO();
@@ -4664,7 +4857,7 @@ function reopenRoutine(id){startRoutine(id||liveSessions()[0]);}
 
 // Discard just this session
 function closeRoutine(id){
-  const target=id||routineId; if(!target)return;
+  const target=id||routineId; if(!target||_routineClaims[target])return;
   delete sessions[target];
   if(routineId===target){routineId=null;routineView=false;routineQueue=[];routineCompleted={};timerSecs=0;timerRunning=false;timerEndAt=null;}
   if(!anyRunning())audioKeepAlive(false);
@@ -4674,7 +4867,7 @@ function closeRoutine(id){
 // End a single session without altering daily credit. Early sessions are independent
 // log entries so later check/uncheck actions cannot overwrite their recorded time.
 function endRoutineSession(id,completed=false){
-  const session=sessions[id],rt=ROUTINES[id];if(!session||!rt)return false;
+  const session=sessions[id],rt=ROUTINES[id];if(!session||!rt||_routineClaims[id])return false;
   const end=dayLogNowISO(),start=session.startedAt||end;
   if(completed){
     const key=todayKey(),old=dayLogFindLinked('routine',id,key);
@@ -4712,12 +4905,16 @@ function ensureTick(){
     if(USER?.id!==owner||_syncEpoch!==epoch){
       clearInterval(interval);if(timerInterval===interval)timerInterval=null;return;
     }
+    if(_routineDay&&_routineDay!==todayKey()){refreshRoutineCloud();return;}
     let dirty=false;
     for(const id of liveSessions()){
       const s=sessions[id];
       if(!s.running||!s.endAt)continue;
       s.secs=Math.max(0,Math.round((s.endAt-Date.now())/1000));
-      if(s.secs<=0){s.running=false;s.endAt=null;alertStepDone();advanceSession(id);dirty=true;}
+      if(s.secs<=0){
+        if(navigator.onLine&&(_routineBase[id]||_routinePending[id])){advanceSharedRoutine(id);continue;}
+        s.running=false;s.endAt=null;alertStepDone();advanceSession(id);dirty=true;
+      }
     }
     if(!anyRunning())audioKeepAlive(false);
     syncFromSession();
@@ -4748,7 +4945,7 @@ function advanceSession(id){
 }
 
 function routineToggle(){
-  const s=S(); if(!s)return;
+  const s=S(); if(!s||_routineClaims[routineId])return;
   unlockAudio(); haptic(12);
   s.running=!s.running;s.paused=!s.running;
   if(s.running){s.endAt=Date.now()+s.secs*1000;ensureTick();audioKeepAlive(true);}
@@ -4756,7 +4953,7 @@ function routineToggle(){
   syncFromSession(); saveRoutine(); render();
 }
 function routineReset(){
-  const s=S(); if(!s)return;
+  const s=S(); if(!s||_routineClaims[routineId])return;
   haptic(12); s.running=false; s.paused=false; s.endAt=null;
   if(s.q.length)s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
   if(!anyRunning())audioKeepAlive(false);
@@ -4764,6 +4961,7 @@ function routineReset(){
 }
 function routineNext(id=routineId,expected=S(id)?.q[0]){
   const s=S(id);if(id!==routineId||!s||!s.q.length||s.q[0]!==expected)return;
+  if(navigator.onLine&&(_routineBase[id]||_routinePending[id]))return advanceSharedRoutine(id,true);
   advanceSession(id);
   const next=S(id);
   if(next){next.running=true;next.paused=false;next.endAt=Date.now()+next.secs*1000;unlockAudio();ensureTick();audioKeepAlive(true);}
@@ -4772,7 +4970,7 @@ function routineNext(id=routineId,expected=S(id)?.q[0]){
   saveRoutine(); render();
 }
 function routineSendToEnd(){
-  const s=S(); if(!s||s.q.length<2)return;
+  const s=S(); if(!s||s.q.length<2||_routineClaims[routineId])return;
   haptic(12); s.q=[...s.q.slice(1),s.q[0]];
   s.running=false; s.paused=false; s.endAt=null; s.secs=ROUTINES[routineId].steps[s.q[0]].dur*60;
   syncFromSession(); saveRoutine(); render();

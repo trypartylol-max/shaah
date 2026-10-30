@@ -2958,3 +2958,19 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 /* Work tutorial uses the product geometry renderer with isolated demo progress. */
 #tour .tour-work-figure{display:flex;justify-content:center;padding:8px;}
 #tour .tour-work-figure .wg-figure{width:64px;height:64px;flex:none;}
+
+/* Reserve scroll space below Today so Reset can clear the fixed mobile dock. */
+.today>.t-reset{position:relative;display:flex;align-items:center;justify-content:center;align-self:center;justify-self:center;width:max-content;margin-top:6px}
+.reset-day-trigger{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 18px;border:1px solid #29293c;border-radius:12px;background:transparent;color:var(--skin-muted,#a2a2b6);font-family:inherit;font-size:13px;font-weight:500;line-height:1.4;letter-spacing:.1em;cursor:pointer;scroll-margin-bottom:88px}
+.reset-day-trigger>span{font:25px/1 sans-serif;letter-spacing:0}
+.reset-day-trigger[aria-expanded="true"]{visibility:hidden}
+.reset-day-confirm.product-end-menu{top:0;left:0;height:44px;transform-origin:22px 22px}
+.reset-day-confirm.product-end-menu button{width:44px;height:44px;min-height:44px}
+.reset-day-confirm.product-end-menu button:last-child{color:#f87171}
+.reset-day-warning{position:absolute;bottom:calc(100% + 8px);left:0;width:210px;white-space:normal;padding:8px 10px;border:1px solid #52526d;border-radius:9px;background:#171726;color:#eeeef6;font:13px/1.4 sans-serif;box-shadow:0 5px 18px #0008}
+.reset-day-trigger:focus-visible,.reset-day-confirm button:focus-visible{outline:2px solid #bba5f0;outline-offset:3px}
+#scroll .today.sf-today-v27:not(.history-day-editor){padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
+@media(max-width:879px){
+  #scroll .today.sf-today-v27:not(.history-day-editor){padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
+  #scroll .today:not(.history-day-editor)>.t-reset{min-height:44px;scroll-margin-bottom:calc(88px + env(safe-area-inset-bottom))}
+}

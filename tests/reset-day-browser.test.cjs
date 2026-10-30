@@ -1,0 +1,27 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const {openApp}=require('./browser-helpers.cjs');
+for(const width of [390,1440])test(`animated X confirmation cancels safely and deletes the whole day after confirm at ${width}px`,async t=>{
+ const p=await openApp(t,undefined,{width,height:900});
+ const otherDays=await p.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey()))));
+ await p.evaluate(()=>{setHabitState('meditation',todayKey(),true);setPeople(todayKey(),['pold01']);setNote(todayKey(),'Synthetic private note');dayLogAdd('Synthetic manual',dayLogNowISO(),null);setTab('today');window.resetBefore=JSON.stringify(_state);window.configBefore=JSON.stringify(CFG)});
+ await p.evaluate(()=>{const el=document.getElementById('scroll');el.scrollTop=el.scrollHeight});
+ const trigger=p.getByRole('button',{name:'Reset day',exact:true});await trigger.click();
+ assert.equal(await p.evaluate(()=>JSON.stringify(_state)),await p.evaluate(()=>window.resetBefore));
+ assert.equal(await p.locator('.reset-day-confirm').evaluate(el=>getComputedStyle(el).animationName),'product-end-pop');
+ assert.equal(await p.locator('#reset-day-cancel').evaluate(el=>document.activeElement===el),true);
+ await p.locator('.reset-day-confirm').evaluate(el=>Promise.all(el.getAnimations().map(a=>a.finished.catch(()=>{}))));
+ await p.screenshot({path:`test-results/reset-confirm-${width}.png`});
+ await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();
+ assert.equal(await p.evaluate(()=>JSON.stringify(_state)),await p.evaluate(()=>window.resetBefore));
+ await trigger.click();await p.keyboard.press('Escape');assert.equal(await p.locator('.reset-day-confirm').count(),0);
+ await trigger.click();await p.getByRole('button',{name:'Borrar todos los datos de hoy',exact:true}).click();
+ assert.equal(await p.evaluate(()=>hasDayData(todayKey())),false);
+ assert.equal(await p.evaluate(()=>JSON.stringify(CFG)),await p.evaluate(()=>window.configBefore));
+ await p.waitForFunction(()=>!JSON.parse(localStorage.getItem('shaah_mock_rows')).some(r=>r.date===todayKey()));
+ await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);
+ assert.equal(await p.evaluate(()=>hasDayData(todayKey())),false);
+ assert.equal(await p.evaluate(()=>dayLogEvents(todayKey()).length),0);
+ assert.equal(await p.evaluate(()=>getPeople(todayKey()).length),0);
+ assert.equal(await p.evaluate(()=>getNote(todayKey())), '');
+ assert.equal(await p.evaluate(()=>dayLogActiveId()),null);
+ assert.equal(await p.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),otherDays);
+});

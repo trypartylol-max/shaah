@@ -528,7 +528,15 @@ function dayLogDelete(id,key=todayKey()){
 function dayLogFindLinked(type,sourceId,key=todayKey()){
   return dayLogEvents(key).find(e=>e.type===type&&e.sourceId===sourceId);
 }
-function dayLogSyncCompletion(id,key,state){
+function dayLogSyncCompletion(id,key,state,{create=true}={}){
+  const fraction=doneFrac(state),arr=dayLogEvents(key);
+  // Only explicit completion changes reconcile linked events. Manual activities
+  // and unlinked timer records are independent of habit credit.
+  if(!fraction){
+    const kept=arr.filter(e=>!(e.type!=='manual'&&e.sourceId===id));
+    if(kept.length!==arr.length){_state[key]._daylog=kept;dayLogPersist(key);}
+    return;
+  }
   const C=cfgForDate(key);
   const all=[...C.L1,...C.L2,...C.L3];
   const item=all.find(x=>x.id===id);
@@ -536,6 +544,19 @@ function dayLogSyncCompletion(id,key,state){
   const type=item.routine?'routine':'habit';
   const title=item.routine?(ROUTINES[id]?.label||item.label):item.label;
   const existing=dayLogFindLinked(type,id,key);
+
+  // Historical edits never invent a timestamp or overwrite recorded times.
+  // Bulk completion cannot reconstruct Wake/Sleep times either.
+  if(key!==todayKey()||!create){
+    let changed=false;
+    for(let i=arr.length-1;i>=0;i--){
+      const e=arr[i];if(e.type==='manual'||e.sourceId!==id)continue;
+      if(id==='sleep'&&fraction<1&&e.meta?.sleepRole==='sleep'){arr.splice(i,1);changed=true;continue;}
+      e.meta={...(e.meta||{}),completed:fraction===1,light:fraction<1};changed=true;
+    }
+    if(changed)dayLogPersist(key);
+    return;
+  }
 
   // Wake Up and Sleep Early is deliberately TWO independent timestamp events:
   // first tap = WAKE, second tap = SLEEP. Neither event has an end time and
@@ -574,22 +595,22 @@ function dayLogSyncCompletion(id,key,state){
     return;
   }
 
-  if(state===true){
+  if(fraction>0){
+    const meta={completed:fraction===1,light:fraction<1};
     if(existing){
-      existing.title=title;existing.end=existing.end||existing.start;existing.meta={...(existing.meta||{}),completed:true};
+      existing.title=title;existing.meta={...(existing.meta||{}),...meta};
       dayLogPersist(key);
     }else{
       const now=dayLogNowISO();
-      dayLogAdd(title,now,now,type,id,{completed:true});
+      dayLogAdd(title,now,now,type,id,{meta});
     }
-  }else if(state===0.5){
-    if(existing){
-      existing.title=title;existing.meta={...(existing.meta||{}),light:true,completed:false};dayLogPersist(key);
-    }else{
-      const now=dayLogNowISO();dayLogAdd(title,now,now,type,id,{light:true,completed:false});
-    }
-  }else if(existing){
-    const arr=dayLogEvents(key),i=arr.indexOf(existing);if(i>=0)arr.splice(i,1);dayLogPersist(key);
+  }
+}
+function dayLogSyncChangedCompletions(key,before){
+  const after=getChecked(key);
+  for(const id of new Set([...Object.keys(before),...Object.keys(after)])){
+    if(doneFrac(before[id])===doneFrac(after[id]))continue;
+    dayLogSyncCompletion(id,key,after[id],{create:id!=='sleep'});
   }
 }
 function dayLogSyncAllCompleted(key){
@@ -992,7 +1013,10 @@ const UI_ACTIONS=Object.freeze({
   dayLogToggle:uiRule('click',[],()=>dayLogToggle()),
   noteGrow:uiRule('input',[],n=>noteGrow(n)),
   setNote:uiRule('change',['string'],(n,e,key)=>setNote(key,n.value)),
-  resetDay:uiRule('click',['string'],(n,e,key)=>{if(confirm('Clear all habits for this day?'))resetDay(key);}),
+  resetDay:uiRule('click',['string'],(n,e,key)=>requestResetDay(key),true),
+  resetDayCancel:uiRule('click',[],()=>{resetDayRequest=null;render();},true),
+  resetDayConfirm:uiRule('click',['string'],(n,e,key)=>confirmResetDay(key),true),
+  resetDayEscape:uiRule('keydown',[],(n,e)=>{if(e.key==='Escape'){resetDayRequest=null;render();}},true),
   dayLogPanelSelect:uiRule('click',['string'],(n,e,id)=>dayLogPanelSelect(id)),
   dayLogPanelSelectNested:uiRule('click',['string'],(n,e,id)=>dayLogPanelSelect(id),true),
   dayLogPanelNew:uiRule('click',[],()=>dayLogPanelNew()),
@@ -2114,6 +2138,7 @@ const getPeople=k=>{const v=_state[k]&&_state[k].people;return Array.isArray(v)?
 function setPeople(k,arr){if(!_state[k])_state[k]={checks:{},social:blankSocial(),note:'',people:[]};_state[k].people=arr;}
 function togglePerson(id,key){
   haptic(8);
+  const before={...getChecked(key)};
   const cur=getPeople(key), next=cur.includes(id)?cur.filter(x=>x!==id):cur.concat([id]);
   setPeople(key,next);
   // seeing someone implies the part they belong to happened
@@ -2122,6 +2147,7 @@ function togglePerson(id,key){
     const soc={...getSocial(key)}; soc[p.sub]=true; setPeople(key,next); setSocial(key,soc);
     const ch={...getChecked(key)}; ch.social=true; setChecked(key,ch);
   }
+  dayLogSyncChangedCompletions(key,before);
   persistDay(key); renderDayChange(key);
 }
 function personAdd(sub,key){
@@ -2285,6 +2311,7 @@ function changeSyncUser(user){
 // A new identity must never inherit the previous account's live controls. Saved
 // drafts and routine copies stay under their original keys for later recovery.
 function resetAccountView(){
+  resetDayRequest=null;
   if(timerInterval!==null)clearInterval(timerInterval);
   timerInterval=null;audioKeepAlive(false);
   sessions={};routineId=null;routineView=false;routineQueue=[];routineCompleted={};
@@ -3498,6 +3525,21 @@ function routineOrbId(){
  const ids=liveSessions();return ids.find(id=>id===routineDialogReturnId&&sessions[id].running)||ids.find(id=>sessions[id].running)||ids.find(id=>sessions[id].paused)||ids[0]||null;
 }
 let productEndId=null;
+let resetDayRequest=null;
+function requestResetDay(key){
+  if(!USER||key!==todayKey())return;
+  resetDayRequest={key,owner:USER.id,epoch:_syncEpoch};
+  render();document.getElementById('reset-day-cancel')?.focus();
+}
+function confirmResetDay(key){
+  const request=resetDayRequest;resetDayRequest=null;
+  if(!request||request.key!==key||request.owner!==USER?.id||request.epoch!==_syncEpoch||key!==todayKey())return;
+  resetDay(key);
+}
+function resetDayControl(key){
+  const armed=resetDayRequest?.key===key&&resetDayRequest.owner===USER?.id&&resetDayRequest.epoch===_syncEpoch;
+  return `<div class="t-reset" ${ui('keydown','resetDayEscape')}><button class="reset-day-trigger" ${ui('click','resetDay',key)} aria-label="Reset day" aria-expanded="${armed}"><span aria-hidden="true">×</span> RESET DAY</button>${armed?`<div class="product-end-menu reset-day-confirm" role="group" aria-label="Confirmar borrado de todos los datos de hoy"><span class="reset-day-warning">¿Borrar todos los datos de hoy?</span><button id="reset-day-cancel" ${ui('click','resetDayCancel')} aria-label="Cancelar borrado">×</button><button ${ui('click','resetDayConfirm',key)} aria-label="Borrar todos los datos de hoy">✓</button></div>`:''}</div>`;
+}
 function routineOrb(){
  const id=routineOrbId(),s=sessions[id],rt=ROUTINES[id];if(!id||!s||!rt)return '';
  return `<div class="cr-log-orb"><button class="product-orb-close" ${ui('click','productEndAsk',id)} aria-label="End activity">×</button>${productEndId===id?`<div class="product-end-menu" role="group" aria-label="Save time and end activity"><button ${ui('click','productEndCancel')} aria-label="Cancel">×</button><button ${ui('click','productEndConfirm',id)} aria-label="Confirm">✓</button></div>`:''}<button class="cr-orb-button" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${s.paused?'Resume':'Open'} ${esc(rt.label)}"><span class="cr-orb-icon">${esc(rt.icon)}</span><b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b><span class="cr-orb-step">${s.paused?'PAUSED · ':''}${Object.keys(s.done).length+1} / ${rt.steps.length}</span></button><button class="cr-orb-add" ${ui('click','openDayLogStart')} aria-label="Log an activity" title="Log an activity">+</button><span class="cr-orb-label">${esc(rt.label)}${liveSessions().length>1?' · +'+(liveSessions().length-1):''}</span></div>`;
@@ -3905,15 +3947,18 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         ${getNote(key)?`<div ${uiStyle(`position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088`)}>SAVED</div>`:""}
       </div>
     </div>
-    ${isToday?`<button class="t-reset" ${ui('click','resetDay' ,key)} ${uiStyle(`background:none;border:1px solid #111120;color:#a2a2b6;font-family:inherit;font-size:14.5px;letter-spacing:0.12em;padding:10px 24px;border-radius:10px;cursor:pointer;margin-top:6px`)}>RESET DAY</button>`:""}
+    ${isToday?resetDayControl(key):""}
   </div>`;
 }
 
 
 function openDayLogStart(){
+  const activeId=dayLogActiveId();
+  window.__dayLogSelectedId=activeId;
+  window.__dayLogPanelMode=activeId?'edit':'new';
   setTab('log');
   setTimeout(()=>{
-    const input=document.querySelector('#dayLogInput');
+    const input=document.querySelector('#logPanelName')||document.querySelector('#logPanelStart');
     if(input){
       input.focus();
       input.scrollIntoView({behavior:'smooth',block:'center'});
@@ -3962,7 +4007,7 @@ function renderDayLogTab(){
   if(!window.__dayLogSelectedId || !evs.some(e=>e.id===window.__dayLogSelectedId)) window.__dayLogSelectedId=evs[0]?.id||null;
   const selected=evs.find(e=>e.id===window.__dayLogSelectedId)||null;
   const mode=window.__dayLogPanelMode==='new'?'new':(selected?'edit':'new');
-  if(!selected && mode==='edit')window.__dayLogPanelMode='new';
+  window.__dayLogPanelMode=mode;
   const panelEv=mode==='edit'?selected:null;
   const panelTitle=panelEv?.title||'';
   const panelStart=panelEv?dayLogPanelTime(panelEv.start):'';
@@ -4397,7 +4442,7 @@ function renderRoutine(){
     <section class="cr-sequence" aria-label="Session steps"><ol>${s.q.map((idx,i)=>`<li ${i===0?'aria-current="step"':''}><span>${esc(rt.steps[idx].icon)} ${esc(rt.steps[idx].label)}</span><span>${rt.steps[idx].dur}m</span></li>`).join('')}${Object.keys(s.done).map(idx=>`<li class="cr-step-done"><span>✓ ${esc(rt.steps[idx]?.label)}</span></li>`).join('')}</ol></section></div>`;
 }
 
-function setTab(t){currentTab=t;_lastY=0;tuckNav(false);render();}
+function setTab(t){resetDayRequest=null;currentTab=t;_lastY=0;tuckNav(false);render();}
 function setHistTab(t){histTab=t;if(t==="month"&&!histMonth)histMonth=todayKey().slice(0,7);render();}
 function monthShift(ym,d){let[y,m]=ym.split('-').map(Number);m+=d;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return`${y}-${String(m).padStart(2,'0')}`;}
 function histMonthShift(d){
@@ -4441,14 +4486,14 @@ function toggleHabit(id,key){
   if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
   else ch[id]=!ch[id];
   setChecked(key,ch);persistDay(key);
-  if(key===todayKey())dayLogSyncCompletion(id,key,ch[id]);
+  dayLogSyncCompletion(id,key,ch[id]);
   renderDayChange(key);
 }
 // Explicit set (used by the LIGHT/FULL/CLEAR buttons on routine cards).
 function setHabitState(id,key,v){
   haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);
+  dayLogSyncCompletion(id,key,v);
   if(key===todayKey()){
-    dayLogSyncCompletion(id,key,v);
     // Completing Today also ends its timer; historical edits never touch live sessions.
     if(v===true&&sessions[id]&&id!=='work')endRoutineSession(id,true);
   }
@@ -4458,12 +4503,13 @@ function setHabitState(id,key,v){
 function toggleLevelAll(lv,key){
   const C=cfgForDate(key), items=lv===1?C.L1:lv===2?C.L2:(coreLayoutFor(key)?C.L3.filter(i=>!i.combo):C.L3);
   if(!items.length)return;
-  const ch={...getChecked(key)};
+  const before={...getChecked(key)},ch={...before};
   const v=!items.every(i=>ch[i.id]===true);
   let soc=null;
   for(const i of items){ ch[i.id]=v; if(i.combo){soc={};for(const x of C.subs)soc[x.id]=v;} }
   haptic(v?18:10);
   setChecked(key,ch); if(soc)setSocial(key,soc);
+  dayLogSyncChangedCompletions(key,before);
   persistDay(key); renderDayChange(key);
 }
 function quickComplete(id){haptic(18);const k=todayKey(),ch={...getChecked(k)};ch[id]=true;setChecked(k,ch);persistDay(k);dayLogSyncCompletion(id,k,true);renderDayChange(k);}
@@ -4473,6 +4519,7 @@ function handleSocial(key){ haptic(10); socialExpanded=!socialExpanded; renderDa
 function toggleSocialExpand(key){socialExpanded=!socialExpanded;renderDayChange(key);}
 function toggleSub(id,key){
   haptic(8);
+  const before={...getChecked(key)};
   const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);
   // Una sola persona en esta parte = no hay a quien elegir: se marca sola.
   // Con dos o mas, decide el usuario. Al apagar la parte se sueltan sus personas.
@@ -4482,9 +4529,21 @@ function toggleSub(id,key){
   else ppl=ppl.filter(pid=>!peopleList().some(x=>x.id===pid&&x.sub===id));
   setPeople(key,ppl);
   const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
+  dayLogSyncChangedCompletions(key,before);
   persistDay(key);renderDayChange(key);
 }
-function resetDay(key){haptic([30,40,30]);setChecked(key,{});setSocial(key,blankSocial());persistDay(key);renderDayChange(key);}
+function resetDay(key){
+  haptic([30,40,30]);resetDayRequest=null;
+  if(key===todayKey()){
+    // Stop timers without recording a final event that would refill the day.
+    for(const id of Object.keys(sessions))closeRoutine(id);
+    productEndId=null;window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
+  }
+  _state[key]={checks:{},social:blankSocial(),note:'',people:[],_daylog:[]};
+  // Persist the empty cache and enqueue deletion through the existing owner-bound
+  // offline protocol, so reload/reconnect cannot replay the earlier day snapshot.
+  dayLogSaveLocal(key);persistDay(key);renderDayChange(key);
+}
 function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
@@ -4877,14 +4936,16 @@ function socialCategoryName(p){const id=socialCategory(p);return socialCategorie
 function socialTile(p,key,manage=false){const on=getPeople(key).includes(p.id),last=socialLast(p.id);return `<article class="sf-tile${manage?' sf-managed':''}${on?' sf-seen':''}"><div class="sf-heading"><span class="sf-category">${esc(socialCategoryName(p))}</span>${socialButton('Editar','socialEdit',[p.id])}</div><strong class="sf-name">${esc(p.name)}</strong><div class="sf-muted">${last===todayKey()?'Visto hoy':last?'Último encuentro · '+esc(last):'Sin encuentros registrados'}<br>Cada ${p.every||14} días · ${socialPlaces(p)}</div>${manage?'':`<button class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}>${on?'✓ Registrado · quitar':'Lo vi hoy'}</button>`}</article>`;}
 function socialRecord(id,key){
  const p=personById(id);if(!p)return;
+ const before={...getChecked(key)};
  const category=socialCategory(p),cur=getPeople(key),next=cur.includes(id)?cur.filter(x=>x!==id):cur.concat(id);setPeople(key,next);
  if(next.includes(id)&&cfgForDate(key).subs.some(s=>s.id===category)){const soc={...getSocial(key),[category]:true};setSocial(key,soc);setChecked(key,{...getChecked(key),social:true});}
- persistDay(key);renderDayChange(key);
+ dayLogSyncChangedCompletions(key,before);persistDay(key);renderDayChange(key);
 }
 function socialCategoryToggle(id,key){
+ const before={...getChecked(key)};
  const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);
  const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
- persistDay(key);renderDayChange(key);
+ dayLogSyncChangedCompletions(key,before);persistDay(key);renderDayChange(key);
 }
 function comboBlock(key,alwaysOpen){
  if(socialDraft&&socialDraft.key===key&&currentTab!=='social')return socialEditor();

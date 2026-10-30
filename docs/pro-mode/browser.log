@@ -1,0 +1,35 @@
+✔ strict CSP permits bulk membership and Unicode contact editing without changing history (1736.464875ms)
+✔ strict CSP preserves separate Work/Vacation editor values and score history (634.489084ms)
+✔ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (611.131333ms)
+✔ strict CSP keeps Original login control usable without real Auth requests (299.498875ms)
+✔ strict CSP permits activity create, edit and delete without changing older history (1304.406ms)
+✔ strict CSP preserves routine step editors, timer controls and session-preserving closure (1655.043416ms)
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (284.50525ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (641.308416ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (394.985333ms)
+✔ all skins and main screens remain usable under the strict style policy (1679.88975ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (1106.013791ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (920.807416ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (1600.482708ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (2496.639375ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (1759.635ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (903.626125ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (480.061583ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (520.660542ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (981.32125ms)
+✔ hybrid tutorial: nine safe steps at 320px (7955.391709ms)
+✔ hybrid tutorial: nine safe steps at 390px (7223.380625ms)
+✔ hybrid tutorial: nine safe steps at 879px (7291.441416ms)
+✔ hybrid tutorial: nine safe steps at 880px (7342.8795ms)
+✔ hybrid tutorial: nine safe steps at 1440px (8731.925542ms)
+✔ tutorial cleanup on account reset and absent spotlight target (468.877084ms)
+✔ tutorial visual preview and short viewport at 390px (488.219334ms)
+✔ tutorial visual preview and short viewport at 1440px (485.923708ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61465.243875

@@ -1,0 +1,11 @@
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (1083.631958ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (866.8335ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (1473.9295ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3712.124667

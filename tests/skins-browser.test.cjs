@@ -78,7 +78,7 @@ test('low stimulation disables glow and motion; Matrix respects system reduced m
 
 test('all result grades stay distinct, readable and numerically identical in each skin, including SVG', async t => {
   const page = await openApp(t, locationFixture());
-  for (const id of ['classic', 'glow', 'matrix', 'minimal', 'aurora']) {
+  for (const id of ['classic', 'glow', 'matrix', 'minimal', 'aurora', 'pro']) {
     await page.evaluate(id => {
       setSkin(id);
       let probe = document.getElementById('skin-grade-probe');

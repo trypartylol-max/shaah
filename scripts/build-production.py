@@ -14,7 +14,7 @@ for ext in ['js','css']:
     html,count=re.subn(pattern,replace,html)
     assert count==1,(ext,count)
 # Version optional skin assets atomically with the entrypoint, under the same CSP.
-for name in ['aurora-skin.css','aurora-skin.js','work-skin-parity-20261027.css','ui-refinement-20261027.css']:
+for name in ['aurora-skin.css','aurora-skin.js','work-skin-parity-20261027.css','ui-refinement-20261027.css','pro-mode.css']:
     data=(r/'assets'/name).read_bytes()
     version=hashlib.sha256(data).hexdigest()[:16]
     sri='sha384-'+base64.b64encode(hashlib.sha384(data).digest()).decode()

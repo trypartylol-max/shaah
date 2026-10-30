@@ -77,7 +77,8 @@ const SKINS=[
   {id:'glow',label:'Glow',detail:'Anillo azul-violeta, Work azul-cian y brillo suave.'},
   {id:'matrix',label:'Matrix',detail:'Negro profundo, verde y detalles de terminal.'},
   {id:'minimal',label:'Bajo estímulo',detail:'Tonos neutros, sin brillos ni animaciones.'},
-  {id:'aurora',label:'Aurora',detail:'Azul eléctrico, violeta y rosa, con brillo moderado.'}
+  {id:'aurora',label:'Aurora',detail:'Azul eléctrico, violeta y rosa, con brillo moderado.'},
+  {id:'pro',label:'Pro Mode',detail:'Escritorio en cajas, progreso amplio y navegación lateral. Móvil conserva su formato.'}
 ];
 let _skin='classic',_skinObserver=null;
 const _skinColors=new Set(["000000","04040a","07070f","073b34","080810","0a0a13","0a0a14","0b0b14","0b0b15","0b0b16","0b0c16","0b3a32","0c0c16","0c0c18","0d0d18","0d0d19","0d0d1a","0d1b31","0e1020","0f0f1c","0f0f1d","10101c","10101d","10101e","111120","111124","11172b","12121f","12cfa8","141424","141426","14142a","151524","151525","15152a","151a2b","15315a","15d6ad","160d13","161626","16162a","16a98a","17172a","17172b","178ee8","18182b","1a1a2c","1b2238","1c1c30","1c1d32","1d1d33","1d2a22","1e1e2e","1e1e33","1f9c7f","202033","202036","202039","20203a","222239","22223a","23233a","24243a","24253b","25253a","26263c","26324a","27283d","29200f","2a2a3a","2a2a40","2c2615","2e2e4a","303046","303047","342263","36a5ff","38d6ad","3a3a55","3a3a5a","3b36ff","45455b","4a4a7a","4ade80","4b25f5","4b5a86","4d2bff","4f4f66","4f8dff","5268ff","556cff","57576e","5d5d75","5f5f77","60a5fa","62627a","65657d","65708d","66667d","66667e","68687e","68687f","6e5a29","6f6f87","70708a","73738c","77758e","77778f","79aaff","7aa2ff","7e7e97","8278b4","8888a4","8a8a9a","8a8aa0","8b63ff","8c8ca3","8f8da6","9090aa","9a9ab0","9a9ab2","9a9ab4","9b45e9","9d2d45","9fa9bc","a0a0b6","a4a4b7","a4a4ba","a9a1c8","aaa6c4","aaaabd","aaaabe","adadbf","b0b0bf","b0b0c0","b497ff","b58d31","b8b8c7","c0c0cd","c4c4d2","c7c7d2","c8c8d4","d0d0da","d0d0db","d5d5df","d69e2e","d8d8e1","d9d7e3","d9d9e2","dedee6","e0e0e8","e1e1e8","e2e2e2","e2e2ea","e4e4eb","e8e8ee","e8e8f0","ececf2","f2f2f2","f4b62b","f59e0b","f87171","fbbf24","ffb400","ffffff"]);
@@ -90,7 +91,7 @@ function skinColorParts(value){
   const parts=value.match(/[\d.]+/g).map(Number);return [...parts.slice(0,3),parts[3]??1];
 }
 function skinTone(hex,id=_skin){
-  const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic'||id==='glow')return classic;
+  const [r,g,b]=skinColorParts('#'+hex),classic=[r,g,b];if(id==='classic'||id==='glow'||id==='pro')return classic;
   // Aurora shares the same palette in CSS, generated templates and SVG charts.
   // Keep success / warning / danger distinct from interactive cyan / violet.
   if(id==='aurora'){
@@ -3829,7 +3830,7 @@ function renderToday(key,nested=false){
     </div>`:""}
     <div class="t-score-hero" ${uiStyle(`display:flex;align-items:center;justify-content:center;gap:18px;width:100%;max-width:760px`)}>
       <div class="t-score-stack" ${uiStyle(`display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px`)}>
-        <div class="t-ring" ${uiStyle(`position:relative;width:${RSZ}px;height:${RSZ}px`)}>
+        <div class="t-ring" ${uiStyle(`position:relative;width:${RSZ}px;height:${RSZ}px;color:${gr.c}`)}>
       ${ring(score,dMax,RSZ,RSZ>140?12:9,gr.c,gr.g)}
       <div ${uiStyle(`position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px`)}>
         <div ${uiStyle(`font-family:'Bebas Neue';font-size:${RSZ>140?54:38}px;line-height:1;color:${gr.c};text-shadow:0 0 40px ${gr.g}`)}>${score}%</div>

@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');
-for(const width of [320,390,879,880,1440])test(`hybrid tutorial: eight safe steps at ${width}px`,async t=>{
+for(const width of [320,390,879,880,1440])test(`hybrid tutorial: nine safe steps at ${width}px`,async t=>{
  const page=await openApp(t,undefined,{width,height:844});
  // Let the existing startup migration/backup finish before measuring tutorial writes.
  await page.waitForTimeout(2300);
@@ -13,15 +13,25 @@ for(const width of [320,390,879,880,1440])test(`hybrid tutorial: eight safe step
  await page.getByRole('button',{name:/VIEW TUTORIAL/}).click();
  for(const skin of ['classic','aurora','glow','matrix','minimal']){
   await page.evaluate(id=>setSkin(id),skin);
-  for(let step=0;step<8;step++){
+  for(let step=0;step<9;step++){
    assert.equal(await page.evaluate(()=>tourStep),step);
    const box=await page.locator('.tour-card').boundingBox();
    assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=845,`${skin}/${step}: card fits ${JSON.stringify(box)}`);
    assert.equal(await page.locator('#scroll').evaluate(el=>el.inert),true);
    if(step===1)assert.equal(await page.locator('#tour-hole').isVisible(),true);
-   if(step===3){await page.locator('#tour-practice').click();assert.equal(await page.locator('#tour-practice').getAttribute('aria-pressed'),'true');await page.locator('#tour-practice').click();}
-   if(step===4){await page.locator('#tour-practice').click();await page.locator('#tour-practice').click();await page.getByRole('status').filter({hasText:'Example routine complete'}).waitFor();}
-   if(step===5){
+   if(step===3){
+    assert.equal(await page.locator('.tour-work-figure .wg-segment').count(),3);
+    for(let complete=1;complete<=3;complete++){
+     await page.locator('#tour-practice').click();
+     assert.equal(await page.locator('.tour-work-figure .wg-segment.lit').count(),complete);
+    }
+    assert.equal(await page.locator('.tour-work-figure .wg-figure.complete').count(),1);
+    await page.locator('#tour-practice').click();
+    assert.equal(await page.locator('.tour-work-figure .wg-segment.lit').count(),0);
+   }
+   if(step===4){await page.locator('#tour-practice').click();assert.equal(await page.locator('#tour-practice').getAttribute('aria-pressed'),'true');await page.locator('#tour-practice').click();}
+   if(step===5){await page.locator('#tour-practice').click();await page.locator('#tour-practice').click();await page.getByRole('status').filter({hasText:'Example routine complete'}).waitFor();}
+   if(step===6){
     await page.locator('#tour-activity').fill('<img src=x onerror=alert(1)>');await page.locator('#tour-activity').press('Enter');
     assert.equal(await page.locator('.tour-demo img').count(),0);
     await page.locator('#tour-back').click();await page.locator('#tour-next').click();assert.equal(await page.locator('#tour-activity').inputValue(),'<img src=x onerror=alert(1)>');
@@ -29,7 +39,7 @@ for(const width of [320,390,879,880,1440])test(`hybrid tutorial: eight safe step
    }
    assert.ok((await snapshot())===before,'No account/config/history/session/queue changes');
    assert.equal(await page.evaluate(()=>window.__mockWrites.length),writes,'No backend writes');
-   if(step===7)break;
+   if(step===8)break;
    await page.locator('#tour-next').click();
   }
   await page.locator('#tour-next').click();
@@ -45,7 +55,7 @@ for(const width of [320,390,879,880,1440])test(`hybrid tutorial: eight safe step
 });
 test('tutorial cleanup on account reset and absent spotlight target',async t=>{
  const page=await openApp(t);
- await page.evaluate(()=>{startTour();tourGo(4);document.querySelector('.t-rout-toggle')?.remove();tourPosition();});
+ await page.evaluate(()=>{startTour();tourGo(5);document.querySelector('.t-rout-toggle')?.remove();tourPosition();});
  assert.equal(await page.locator('#tour-hole').isVisible(),false);
  await page.evaluate(()=>{tourDemo.log='private example';changeSyncUser(null);render();});
  assert.equal(await page.locator('#tour .tour-card').count(),0);
@@ -55,9 +65,9 @@ test('tutorial cleanup on account reset and absent spotlight target',async t=>{
 for(const width of [390,1440])test(`tutorial visual preview and short viewport at ${width}px`,async t=>{
  const page=await openApp(t,undefined,{width,height:844});
  await page.evaluate(()=>{startTour();tourGo(3);});
- await page.screenshot({path:`docs/tutorial-${width}.png`});
+ await page.screenshot({path:`docs/tutorial-work-${width}.png`});
  await page.setViewportSize({width,height:400});
- await page.evaluate(()=>tourGo(5));
+ await page.evaluate(()=>tourGo(6));
  const card=await page.locator('.tour-card').boundingBox();
  assert.ok(card.y>=0&&card.y+card.height<=401);
  await page.locator('#tour-activity').fill('Reading');

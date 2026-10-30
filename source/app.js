@@ -3437,9 +3437,10 @@ function initScrollHide(){
 let tourStep=null;
 let tourDemo={},tourReturnTab=null,tourReturnFocus=null,tourScroll=0,tourInert=[],tourReturnSettings=false,tourOwner=null,tourFocusStep=null;
 const TOUR=[
- {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in eight short steps. You can skip, go back or replay this guide in Settings.'},
+ {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.'},
  {tab:'today',target:'.t-ring',ico:'◎',t:'YOUR DAY SCORE',b:'Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.'},
  {tab:'today',target:'.t-lvl1',ico:'⬛',t:'THREE LEVELS',b:'CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.'},
+ {tab:'today',target:'.wg-card',ico:'△',t:'WORK & ITS GEOMETRY',demo:'work',b:'Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.'},
  {tab:'today',target:'.t-lvl2',ico:'👆',t:'TRY A HABIT',demo:'habit',b:'Try checking this example habit, then undo it. This demo never changes your habits or score.'},
  {tab:'today',target:'.t-rout-toggle',ico:'⚡',t:'TRY A ROUTINE',demo:'routine',b:'Routines guide you through timed steps. Try advancing this two-step example. No real timer or session is started.'},
  {tab:'log',target:'.logdesk-card-title',ico:'◷',t:'TRY DAY LOG',demo:'log',b:'Day Log helps reconstruct your day. Add an example activity below; it stays only inside this tutorial.'},
@@ -3474,6 +3475,7 @@ function tourDone(){
 }
 function tourPractice(kind){
  if(tourStep===null||TOUR[tourStep].demo!==kind)return;
+ if(kind==='work')tourDemo.work=((tourDemo.work||0)+1)%4;
  if(kind==='habit')tourDemo.habit=!tourDemo.habit;
  if(kind==='routine')tourDemo.routine=((tourDemo.routine||0)+1)%3;
  if(kind==='log'){const input=document.getElementById('tour-activity');const value=input.value.trim();tourDemo.draft=input.value;if(!value){input.focus();return;}tourDemo.log=value.slice(0,80);}
@@ -3533,6 +3535,7 @@ function renderTour(){
  const active=document.activeElement,focusId=t.contains(active)?active.id:null,selection=active?.selectionStart;
  const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
  let demo='';
+ if(s.demo==='work')demo=`<div class="tour-work-figure">${workGeometry(3,tourDemo.work||0)}</div><p role="status">${tourDemo.work===3?'3 / 3 · Triangle complete. Next tap resets the example.':`${tourDemo.work||0} / 3 · Example milestones completed`}</p><button id="tour-practice" class="tour-example" ${ui('click','tourPractice','work')}>${tourDemo.work===3?'Reset Work example':'Complete example milestone'}</button>`;
  if(s.demo==='habit')demo=`<button id="tour-practice" class="tour-example" aria-pressed="${!!tourDemo.habit}" ${ui('click','tourPractice','habit')}>${tourDemo.habit?'✓':'○'} Drink water · example</button><p role="status">${tourDemo.habit?'Example complete. Tap again to undo.':'Tap the example to complete it.'}</p>`;
  if(s.demo==='routine')demo=`<p role="status">${['1 / 2 · Breathe','2 / 2 · Stretch','Example routine complete'][tourDemo.routine||0]}</p><button id="tour-practice" class="tour-example" ${ui('click','tourPractice','routine')}>${tourDemo.routine===2?'Restart example':'Complete example step'}</button>`;
  if(s.demo==='log')demo=`<label for="tour-activity">Example activity</label><input id="tour-activity" maxlength="80" value="${esc(tourDemo.draft||'')}" placeholder="e.g. Reading" ${ui('keydown','tourPracticeEnter')} ${ui('input','tourDraft')}><button id="tour-practice" class="tour-example" ${ui('click','tourPractice','log')}>Add example</button><p role="status">${tourDemo.log?'Added to demo: '+esc(tourDemo.log):'Your real Day Log stays unchanged.'}</p>`;

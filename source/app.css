@@ -2942,3 +2942,7 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 #tour-hole[hidden]{display:none;}
 #tour .tour-card{padding:24px;background:#10101e;color:#f2f2f2;}
 #tour .tour-card h2:focus{outline:none;}
+
+/* Work tutorial uses the product geometry renderer with isolated demo progress. */
+#tour .tour-work-figure{display:flex;justify-content:center;padding:8px;}
+#tour .tour-work-figure .wg-figure{width:64px;height:64px;flex:none;}

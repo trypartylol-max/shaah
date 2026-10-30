@@ -53,3 +53,15 @@
     width:100%;
   }
 }
+
+/* History / Edit Day follows the approved mobile sequence independently of Today. */
+@media (max-width:879px) {
+  #scroll .today.history-day-editor > .t-score-hero {order:10 !important;}
+  #scroll .today.history-day-editor > .t-lvl1 {order:30 !important;}
+  #scroll .today.history-day-editor > .t-lvl2 {order:40 !important;}
+  #scroll .today.history-day-editor > .t-lvl3 {order:50 !important;}
+  #scroll .today.history-day-editor > .t-daylog {order:55 !important;}
+  #scroll .today.history-day-editor > .t-social-independent {order:58 !important;}
+  #scroll .today.history-day-editor > .t-note {order:60 !important;}
+  #scroll .today.history-day-editor > .t-reset {order:70 !important;}
+}

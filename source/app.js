@@ -354,6 +354,7 @@ function restoreLiveTravelMode(){
    DAY LOG — phases 1 + 2 + 3
    ========================= */
 const DAYLOG_KEY='dayLogV2';
+let dayLogRefreshTimer=null;
 const dayLogLocalKey=()=>USER?DAYLOG_KEY+':'+USER.id:null;
 
 function dayLogLegacyStore(){
@@ -468,11 +469,15 @@ function dayLogNormalizeSleepWake(key){
   if(changed)dayLogPersist(key);
   return changed;
 }
-function dayLogDuration(e){
+function dayLogDuration(e,now=Date.now()){
   if(dayLogIsSleepWake(e))return null;
-  const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);
-  return a!=null&&b!=null&&b>=a?b-a:null;
+  const a=Date.parse(e?.start),b=e?.end?Date.parse(e.end):now;
+  if(!Number.isFinite(a)||!Number.isFinite(b)||b<a)return null;
+  // A missing end on an old day is unknown, not an activity running for days.
+  if(!e.end&&dateKey(new Date(a))!==todayKey())return null;
+  return (b-a)/60000;
 }
+function dayLogIsRunning(e){return !!e&&!e.end&&!dayLogIsSleepWake(e)&&dayLogDuration(e)!==null;}
 function dayLogSaveLocal(key){
   const storageKey=dayLogLocalKey();if(!storageKey)return false;
   try{
@@ -638,7 +643,7 @@ function dayLogSyncAllCompleted(key){
 }
 function dayLogActiveId(){
   const evs=dayLogEvents(todayKey());
-  const open=dayLogSort(evs).reverse().find(e=>!e.end&&!dayLogIsSleepWake(e));
+  const open=dayLogSort(evs).reverse().find(dayLogIsRunning);
   return open?.id||null;
 }
 function dayLogStart(){
@@ -708,17 +713,18 @@ function dayLogEditSave(id,key){
   dayLogPersist(key);dayLogEditClose();render();
 }
 function dayLogGapEvents(key){
-  const evs=dayLogSort(dayLogEvents(key)).filter(e=>!dayLogIsSleepWake(e));let prev=null,gaps=[];
+  const evs=dayLogSort(_state[key]?._daylog||[]).filter(e=>!dayLogIsSleepWake(e));let prev=null,gaps=[];
   for(const e of evs){
-    const s=dayLogMinutes(e.start),en=dayLogMinutes(e.end);
-    if(s==null)continue;
-    if(prev!=null&&s>prev)gaps.push({start:prev,end:s,duration:s-prev});
-    if(en!=null)prev=Math.max(prev??0,en);else prev=Math.max(prev??0,s);
+    const duration=dayLogDuration(e),start=Date.parse(e.start);
+    if(duration==null||!Number.isFinite(start))continue;
+    const end=start+duration*60000;
+    if(prev!=null&&start>prev)gaps.push({start:dayLogMinutes(new Date(prev).toISOString()),end:dayLogMinutes(e.start),duration:(start-prev)/60000});
+    prev=Math.max(prev??start,end);
   }
   return gaps;
 }
 function dayLogSummary(key){
-  const evs=dayLogSort(dayLogEvents(key)),gaps=dayLogGapEvents(key);
+  const evs=dayLogSort(_state[key]?._daylog||[]),gaps=dayLogGapEvents(key);
   const tracked=evs.reduce((n,e)=>n+(dayLogDuration(e)||0),0);
   return {tracked,gap:gaps.reduce((n,g)=>n+g.duration,0),events:evs.length,gaps};
 }
@@ -727,9 +733,9 @@ function dayLogRender(key=todayKey()){
   if(!box)return;
   const evs=dayLogSort(dayLogEvents(key));let html='';
   evs.forEach(e=>{
-    const dur=dayLogDuration(e), running=!e.end&&!dayLogIsSleepWake(e);
+    const dur=dayLogDuration(e), running=dayLogIsRunning(e);
     html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
-      <div class="dl-time">${new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:' · NOW'}</div>
+      <div class="dl-time">${new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:dayLogIsSleepWake(e)?'':running?' · NOW':' · END MISSING'}</div>
       <div class="dl-main" role="button" tabindex="0" aria-label="Edit activity" ${ui('click','dayLogEdit' ,e.id,key)} ${ui('keydown','activate')}>
         <div class="dl-title">${dayLogEsc(e.title)} ${e.meta?.light?'<span class="dl-light">½</span>':''}</div>
         <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}${running?' · RUNNING':''}</div>
@@ -752,29 +758,45 @@ function dayLogRender(key=todayKey()){
   const btn=document.querySelector('#dayLogStartBtn');
   if(btn)btn.textContent=dayLogActiveId()?'STOP':'START';
 }
-function dayLogRenderRecap(key=todayKey()){
-  const el=document.querySelector('#dayLogRecap');if(!el)return;
-  const s=dayLogSummary(key),evs=s.events?dayLogSort(dayLogEvents(key)):[];
+function dayLogRecapHTML(key=todayKey()){
+  const s=dayLogSummary(key),evs=s.events?dayLogSort(_state[key]?._daylog||[]):[];
   const by={manual:0,habit:0,routine:0};
   evs.forEach(e=>{by[e.type]=(by[e.type]||0)+(dayLogDuration(e)||0);});
-  const top=Object.entries(by).sort((a,b)=>b[1]-a[1]);
-  const longest=[...evs].filter(e=>dayLogDuration(e)!=null).sort((a,b)=>dayLogDuration(b)-dayLogDuration(a)).slice(0,3);
-  uiHTML(el,`
+  const ongoing=evs.filter(dayLogIsRunning).length;
+  const longest=[...evs].filter(e=>dayLogDuration(e)>0).sort((a,b)=>dayLogDuration(b)-dayLogDuration(a)).slice(0,3);
+  return `
     <div class="dl-recap-grid">
-      <div><b>${dayLogFmt(s.tracked)}</b><span>TRACKED</span></div>
-      <div><b>${dayLogFmt(s.gap)}</b><span>UNTRACKED</span></div>
+      <div><b data-summary-time>${dayLogFmt(s.tracked)}</b><span>ACTIVITY TIME</span></div>
       <div><b>${s.events}</b><span>EVENTS</span></div>
+      <div><b data-summary-ongoing>${ongoing}</b><span>ONGOING</span></div>
     </div>
     <div class="dl-recap-row"><span>MANUAL</span><b>${dayLogFmt(by.manual)}</b></div>
     <div class="dl-recap-row"><span>HABITS</span><b>${dayLogFmt(by.habit)}</b></div>
     <div class="dl-recap-row"><span>ROUTINES</span><b>${dayLogFmt(by.routine)}</b></div>
     ${longest.length?`<div class="dl-longest"><div class="dl-recap-label">LONGEST BLOCKS</div>${longest.map(e=>`<div><span>${dayLogEsc(e.title)}</span><b>${dayLogFmt(dayLogDuration(e))}</b></div>`).join('')}</div>`:''}
-  `);
+    <p class="daylog-summary-note">Simultaneous activities count separately. Ongoing activities count up to now.</p>
+  `;
+}
+function dayLogRenderRecap(key=todayKey()){
+  const el=document.querySelector('#dayLogRecap');if(el)uiHTML(el,dayLogRecapHTML(key));
+}
+function dayLogRefreshLive(){
+  if(!USER||!_cfgReady||document.visibilityState==='hidden')return;
+  const recap=document.querySelector('#dayLogRecap');
+  if(recap&&recap.getAttribute('data-daylog-owner')!==USER.id)return;
+  if(recap)dayLogRenderRecap(recap.getAttribute('data-daylog-key')||todayKey());
+  for(const el of document.querySelectorAll('[data-daylog-duration]')){
+    const key=el.getAttribute('data-daylog-key'),id=el.getAttribute('data-daylog-duration');
+    const event=_state[key]?._daylog?.find(e=>e.id===id);
+    if(event)el.textContent=dayLogFmt(dayLogDuration(event));
+  }
 }
 function dayLogInit(){
   dayLogMigrateLocal();
   window.__dayLogActive=dayLogActiveId();
   dayLogRender();
+  if(dayLogRefreshTimer!==null)clearInterval(dayLogRefreshTimer);
+  dayLogRefreshTimer=setInterval(dayLogRefreshLive,30000);
 }
 
 const BUILD="20260920-rebuild-v1";
@@ -4034,12 +4056,13 @@ function renderDayLogTab(){
   return `<div class="fade-up logdesk-shell">
     <div class="logdesk-grid">
       <div class="logdesk-left">
+        <section class="logdesk-list-card logdesk-summary" aria-label="Day summary"><div class="logdesk-card-title">DAY SUMMARY</div><div id="dayLogRecap" data-daylog-key="${esc(key)}" data-daylog-owner="${esc(USER?.id||'')}">${dayLogRecapHTML(key)}</div></section>
         <div class="logdesk-timeline-card">
           <div class="logdesk-card-title">TODAY'S TIMELINE</div>
           <div class="logdesk-ticks">${ticks.map(h=>`<span>${String(h).padStart(2,'0')}</span>`).join('')}</div>
           <div class="logdesk-timeline">
             ${evs.filter(e=>!dayLogIsSleepWake(e)).map((e,i)=>{
-              const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end);if(a==null)return '';
+              const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end||(dayLogIsRunning(e)?new Date(Date.now()).toISOString():null));if(a==null)return '';
               const aa=Math.max(totalStart,Math.min(totalEnd,a)),bb=Math.max(aa+2,Math.min(totalEnd,b??Math.min(totalEnd,a+20)));
               const left=((aa-totalStart)/span)*100,width=((bb-aa)/span)*100;
               return `<button type="button" class="logdesk-seg s${i%4} ${e.id===window.__dayLogSelectedId?'selected':''}" ${uiStyle(`left:${left}%;width:${Math.max(1.2,width)}%`)} title="${dayLogEsc(e.title)}" ${ui('click','dayLogPanelSelect' ,e.id)} aria-label="Edit ${dayLogEsc(e.title)}"></button>`;
@@ -4052,12 +4075,12 @@ function renderDayLogTab(){
           <div class="logdesk-list-head"><div class="logdesk-card-title">ACTIVITY LOGS</div><select class="logdesk-sort" aria-label="Sort activity logs"><option>Sort by: Time</option></select></div>
           <div class="logdesk-table-head"><span>TIME</span><span>ACTIVITY</span><span>TYPE</span><span>DURATION</span><span></span></div>
           ${evs.length?evs.map(e=>{
-            const dur=dayLogDuration(e),running=!e.end&&!dayLogIsSleepWake(e);
+            const dur=dayLogDuration(e),running=dayLogIsRunning(e);
             return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" role="button" tabindex="0" aria-label="Edit activity" ${ui('click','dayLogPanelSelect' ,e.id)} ${ui('keydown','activate')}>
-              <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':' · NOW')}</div>
+              <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':running?' · NOW':' · END MISSING')}</div>
               <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(dayLogSleepRole(e)==='sleep'?'SLEEP':dayLogSleepRole(e)==='wake'?'WAKE':'RECORDED TIME'):(running?'<span class="logdesk-running"><span class="logdesk-running-dot"></span>RUNNING</span>':(e.meta?.endedEarly?'INCOMPLETE':e.meta?.completed?'COMPLETED':''))}</div></div>
               <div><span class="logdesk-type ${esc(e.type)}">${dayLogTypeLabel(e.type)}</span></div>
-              <div class="logdesk-duration">${dur==null?'—':dayLogFmt(dur)}</div>
+              <div class="logdesk-duration" data-daylog-duration="${esc(e.id)}" data-daylog-key="${esc(key)}">${dayLogFmt(dur)}</div>
               <button class="logdesk-edit" type="button" ${ui('click','dayLogPanelSelectNested' ,e.id)} aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
             </div>`;
           }).join(''):`<div class="logdesk-empty">No activities logged yet.<br>Use <b>LOG ACTIVITY</b> to add your first entry.</div>`}

@@ -108,6 +108,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
             order(key){sortKey=key;return query;},
             range(from,to){bounds=[from,to];return query;},
             eq(k,v){if(k==='user_id'&&!allowedOwners.has(v))throw new Error('Unexpected owner');filters.push([k,v]);return query;},
+            like(k,v){filters.push([k,v,'prefix']);return query;},
             upsert(row){action='upsert';payload=copy(row);return query;},
             insert(row){action='insert';payload=copy(row);return query;},
             update(row){action='update';payload=copy(row);return query;},
@@ -116,7 +117,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
               const owner=filters.find(([k])=>k==='user_id')?.[1]||payload?.user_id;
               if(!allowedOwners.has(owner))throw new Error('Missing or unexpected owner');
               let rows=getRows(owner).map(r=>({user_id:owner,...r}));
-              const matches=r=>filters.every(([k,v])=>k==='data'?equal(r.data,JSON.parse(v)):r[k]===v);
+              const matches=r=>filters.every(([k,v,op])=>op==='prefix'?String(r[k]).startsWith(v.slice(0,-1)):k==='data'?equal(r.data,JSON.parse(v)):r[k]===v);
               if(action==='select'){const found=rows.filter(matches);if(sortKey)found.sort((a,b)=>String(a[sortKey]).localeCompare(String(b[sortKey])));return {data:copy(bounds?found.slice(bounds[0],bounds[1]+1):found),count:countExact?found.length:null,error:null};}
               if((action==='upsert'||action==='insert')&&payload.user_id!==owner)throw new Error('Unexpected write owner');
               if(action==='insert'&&rows.some(r=>r.date===payload.date))return {data:null,error:{code:'23505'}};

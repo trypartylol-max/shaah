@@ -23,6 +23,7 @@ function syncBackend(rows = []) {
     const query = {
       select() { if (action !== 'select') returning = true; return query; },
       eq(k,v) { filters.push([k,v]); return query; },
+      like(k,v) { filters.push([k,v,'prefix']);return query; },
       update(data) { action='update';payload=clone(data);return query; },
       insert(data) { action='insert';payload=clone(data);return query; },
       upsert(data) { action='upsert';payload=clone(data);return query; },
@@ -31,7 +32,7 @@ function syncBackend(rows = []) {
     };
     async function execute() {
       if(action!=='select') await state.beforeMutation?.({action,payload,filters});
-      const matches = r => filters.every(([k,v]) => k==='data' ? isDeepStrictEqual(r.data,JSON.parse(v)) : r[k]===v);
+      const matches = r => filters.every(([k,v,op]) => op==='prefix'?String(r[k]).startsWith(v.slice(0,-1)):k==='data' ? isDeepStrictEqual(r.data,JSON.parse(v)) : r[k]===v);
       if(action==='select') {await state.beforeSelect?.({filters});return {data:clone(state.rows.filter(matches)),error:null};}
       if(action==='insert' && state.rows.some(r=>r.user_id===payload.user_id&&r.date===payload.date)) return {data:null,error:{code:'23505'}};
       let changed=[];

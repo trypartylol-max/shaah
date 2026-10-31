@@ -271,6 +271,7 @@ function applySkin(){
   const theme=document.querySelector('meta[name="theme-color"]');
   if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
+  syncProComboDOM();
   // Skin selection changes presentation only; preserve interactive DOM and state.
 
 }
@@ -954,7 +955,8 @@ const UI_ACTIONS=Object.freeze({
   socialDirectoryGroup:uiRule('change',[],n=>socialDirectorySet('group',n.value)),
   socialDirectoryCategory:uiRule('change',[],n=>socialDirectorySet('category',n.value)),
   socialRomanticLimitSet:uiRule('change',[],n=>socialRomanticLimitSet(n.value)),
-  socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
+  socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>proComboActive()?proComboToggle(id,k):socialCategoryToggle(id,k),true),
+  proCategoryCredit:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
   socialNewCategory:uiRule('click',['string','string'],(n,e,k,id)=>socialNew(k,id),true),
   workMilestonesSummary:uiRule('input',[],()=>workMilestonesSummary(),true),
   workMilestonesAdd:uiRule('click',[],()=>workMilestonesChange(-1),true),
@@ -3761,7 +3763,7 @@ function positionCompactSessions(){
   if(!el?.classList.contains('cr-mini-sessions')||!nav)return;
   const inset=parseFloat(getComputedStyle(nav).bottom)||0;
   const gap=window.innerWidth<=879?6:14;
-  el.style.bottom=(nav.offsetHeight+Math.max(0,inset)+gap)+'px';
+  el.style.bottom=(_skin==='pro'&&window.innerWidth>=1180)?'16px':(nav.offsetHeight+Math.max(0,inset)+gap)+'px';
   if(!routineDockObserver&&typeof ResizeObserver!=='undefined'){
     routineDockObserver=new ResizeObserver(()=>positionCompactSessions());routineDockObserver.observe(nav);
   }
@@ -3899,6 +3901,7 @@ function render(){
   else if(currentTab==="log")uiHTML(el,bar+renderDayLogTab());
   else if(currentTab==="stats")uiHTML(el,bar+renderStats());
   else if(currentTab==="history")uiHTML(el,bar+renderHistory());
+  syncProComboDOM();
   renderTour();
   renderResume();
   initScrollHide();
@@ -5063,7 +5066,7 @@ function socialSearch(value){
 }
 function socialKeyForView(){return editDayKey|| (currentTab==='social'?socialKey():todayKey());}
 function socialButton(label,action,args=[],primary=false){return `<button type="button" class="sf-button${primary?' sf-primary':''}" ${ui('click',action,...args)}>${label}</button>`;}
-function socialPersonButton(p,key){const on=getPeople(key).includes(p.id);return `<button type="button" class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}>${on?'✓ ':''}${esc(p.name)}</button>`;}
+function socialPersonButton(p,key){const on=getPeople(key).includes(p.id);return `<button type="button" class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}><span class="sf-person-check">${on?'✓ ':''}</span><span class="sf-person-name">${esc(p.name)}</span></button>`;}
 function socialSearchRows(key){
   if(!socialQuery.trim())return '';
   const q=socialQuery.trim().toLocaleLowerCase();
@@ -5201,11 +5204,30 @@ function socialCategoryToggle(id,key){
  const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
  dayLogSyncChangedCompletions(key,before);persistDay(key);renderDayChange(key);
 }
+// Disclosure is transient UI state, separate from credited categories/encounters.
+var proComboOpen=null;
+function proComboActive(){return _skin==='pro'&&currentTab==='today'&&!editDayKey;}
+function proComboIsOpen(id,key){return !!(proComboOpen&&proComboOpen.owner===USER?.id&&proComboOpen.key===key&&proComboOpen.id===id);}
+function proComboToggle(id,key){
+ proComboOpen=proComboIsOpen(id,key)?null:{owner:USER?.id,key,id};
+ renderDayChange(key);
+}
+function syncProComboDOM(){
+ if(typeof document.querySelectorAll!=='function')return;
+ for(const card of document.querySelectorAll('.today:not(.history-day-editor) .sf-combo-category[data-combo-id]')){
+  const button=card.querySelector('.sf-category-toggle'),panel=card.querySelector('.sf-reveal');if(!button||!panel)continue;
+  const open=proComboActive()?proComboIsOpen(card.dataset.comboId,card.dataset.comboKey):button.getAttribute('aria-pressed')==='true';
+  button.setAttribute('aria-expanded',String(open));panel.setAttribute('aria-hidden',String(!open));panel.toggleAttribute('inert',!open);panel.classList.toggle('is-open',open);
+ }
+}
 function comboBlock(key,alwaysOpen){
  if(socialDraft&&socialDraft.key===key&&currentTab!=='social')return socialEditor();
  const C=cfgForDate(key),soc=getSocial(key),checked=getChecked(key).social;
  const total=C.subs.reduce((n,s)=>n+s.p,0),earned=checked?(C.subs.some(s=>soc[s.id])?C.subs.reduce((n,s)=>n+(soc[s.id]?s.p:0),0):total):0;
- return `<section class="card sf-compact-combo" aria-label="Social Combo"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>👥 Social Combo</strong><span>${alwaysOpen?earned+' / '+total+' pts':earned+'/'+total}</span></div>${C.subs.map(s=>`<div class="sf-combo-category"><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${!!soc[s.id]}" ${ui('click','socialCategoryToggle',s.id,key)}><span>${soc[s.id]?'✓':'○'} ${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span></button><div class="sf-reveal${soc[s.id]?' is-open':''}" aria-hidden="${!soc[s.id]}" ${soc[s.id]?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton('+ Persona','socialNewCategory',[key,s.id])}</div></div></div></div>`).join('')}</section>`;
+ return `<section class="card sf-compact-combo" aria-label="Social Combo"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>👥 Social Combo</strong><span>${alwaysOpen?earned+' / '+total+' pts':earned+'/'+total}</span></div>${C.subs.map(s=>{
+ const open=proComboActive()?proComboIsOpen(s.id,key):!!soc[s.id];
+ return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="pro-category-row"><button type="button" class="pro-category-credit" aria-label="${esc('Credit '+s.label)}" aria-pressed="${!!soc[s.id]}" ${ui('click','proCategoryCredit',s.id,key)}>${soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}><span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span><span class="pro-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton('+ Persona','socialNewCategory',[key,s.id])}</div></div></div></div>`;
+ }).join('')}</section>`;
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
 function socialRomanticLimitSet(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>1000)return;CFG.socialRules={...(CFG.socialRules||{}),romanticLimit:n};saveCfg();render();}

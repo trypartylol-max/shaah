@@ -42,9 +42,9 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
   assert.equal(m.ring.h,m.next.h);assert.equal(m.next.h,m.log.h);
   assert.ok(Math.abs(m.ring.y-m.log.y)<1);assert.equal(m.overflow,false);
   assert.equal(new Set(m.headings).size,1,JSON.stringify(m));assert.equal(new Set(m.items).size,1,JSON.stringify(m));
-  if(width>=1180){assert.equal(m.nav.w,180);assert.ok(m.ring.x>=180);}
-  for(const card of await p.locator('.t-rout-body>.sf-core-routine').all())assert.equal(await card.evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
-  if(width===1672){await p.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await p.waitForTimeout(250);assert.ok(await p.locator('#tb-date').evaluate(e=>Math.abs(e.getBoundingClientRect().x-document.querySelector('.t-ring').getBoundingClientRect().x)<2));await p.screenshot({path:'test-results/pro-mode-desktop.png'});}
+  if(width>=1180){assert.equal(m.nav.w,208);assert.ok(m.ring.x>=208);}
+  for(const card of await p.locator('.t-rout-body>.sf-core-routine').all())assert.equal(await card.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,JSON.stringify({width,card:await card.evaluate(e=>({text:e.textContent,w:e.clientWidth,s:e.scrollWidth}))}));
+  if(width===1672){await p.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await p.waitForTimeout(250);assert.ok(await p.locator('#tb-date').evaluate(e=>e.getBoundingClientRect().x<208));await p.screenshot({path:'test-results/pro-mode-desktop.png'});}
  }
  await p.evaluate(()=>setSkin('classic'));
  assert.ok(await p.locator('#nav').evaluate(e=>e.getBoundingClientRect().width>1000));
@@ -69,6 +69,35 @@ test('Pro Mode mobile retains original geometry; desktop controls and routine or
  await p.locator('.cr-orb-add').click();await p.locator('#logPanelName').waitFor();
  await p.locator('.nav-btn[data-tab="today"]').click();await p.getByRole('button',{name:'Settings',exact:true}).click();
  assert.equal(await p.locator('#nav').isVisible(),false);await p.evaluate(()=>closeSettings());
- for(const tab of ['log','social','stats','history','today']){await p.locator(`.nav-btn[data-tab="${tab}"]`).click();assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);}
+ for(const tab of ['log','social','stats','history','today']){await p.locator(`.nav-btn[data-tab="${tab}"]`).click();assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);if(tab!=='today'){const tray=await p.locator('#resume').boundingBox();assert.ok(tray.y>=0&&tray.y+tray.height<=1000);}}
  assert.equal(await p.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),before);
+});
+
+
+test('refined sidebar, two-row single-open Social, note and confirmed Reset preserve state',async t=>{
+ const data=proFixture();
+ const family={id:'family',label:'Family',icon:'👪',p:2,pWork:2,pVacation:2};data.config.subs.push(family);for(const e of data.config.log)e.subs.push({...family});
+ data.config.people.push(...Array.from({length:20},(_,i)=>({id:'ref'+i,name:'Person '+i,sub:i<10?'friends':'family',every:14})));
+ const p=await openApp(t,data,{width:1440,height:900});
+ await p.evaluate(()=>{setSkin('pro');setTab('today');todayRoutinesOpen=true;lvlOpen={1:true,2:true,3:true};render()});
+ await p.waitForTimeout(200);await p.screenshot({path:'test-results/pro-refined-desktop.png'});
+ const before=await state(p),writes=await p.evaluate(()=>__mockWrites.length);
+ const cat=id=>p.locator(`[data-combo-id="${id}"]`);
+ await cat('friends').locator('.sf-category-toggle').click();
+ assert.equal(await cat('friends').locator('.sf-category-toggle').getAttribute('aria-expanded'),'true');
+ await cat('family').locator('.sf-category-toggle').click();
+ assert.equal(await cat('friends').locator('.sf-category-toggle').getAttribute('aria-expanded'),'false');
+ assert.equal(await cat('family').locator('.sf-category-toggle').getAttribute('aria-expanded'),'true');
+ assert.equal(await state(p),before);assert.equal(await p.evaluate(()=>__mockWrites.length),writes);
+ const list=cat('family').locator('.sf-buttons');assert.ok(await list.evaluate(e=>e.scrollHeight>e.clientHeight));assert.ok(await list.evaluate(e=>e.clientHeight)<=90);
+ const person=cat('family').getByRole('button',{name:'Person 10',exact:true});await person.click();assert.equal(await person.getAttribute('aria-pressed'),'true');assert.equal(await person.innerText(),'Person 10');
+ const selected=await p.evaluate(()=>JSON.stringify(getPeople(todayKey())));
+ await cat('friends').locator('.sf-category-toggle').click();assert.equal(await p.evaluate(()=>JSON.stringify(getPeople(todayKey()))),selected);
+ const note=p.locator('textarea');await note.fill('Sidebar note persists');await note.blur();
+ assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
+ const geometry=await p.evaluate(()=>{const r=s=>{const a=document.querySelector(s).getBoundingClientRect();return {x:a.x,y:a.y,b:a.bottom,w:a.width,h:a.height}};return {note:r('.t-note'),status:r('#mode-status'),settings:r('.pro-nav-settings'),reset:r('.t-reset'),date:r('#tb-date'),lower:r('.t-lvl2')}});
+ assert.ok(geometry.note.x<208&&geometry.note.b<=geometry.status.y);assert.ok(geometry.status.b<=geometry.settings.y&&geometry.settings.b<=geometry.reset.y);
+ assert.ok(geometry.date.x<208);assert.ok(geometry.lower.b<=902&&geometry.lower.b>=860,JSON.stringify(geometry));
+ await p.getByRole('button',{name:'Reset day',exact:true}).click();await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
+ for(const size of [{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);}
 });

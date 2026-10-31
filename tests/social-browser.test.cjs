@@ -34,7 +34,7 @@ for (const [mode, maximum] of [['work', 18], ['vacation', 24]]) {
     data.config.travel.mode = mode;
     data.config.log[2].mode = mode;
     const page = await openApp(t, data);
-    await category(page,'strangers');
+    await category(page,'strangers');await control(page,'click','comboCategoryCredit',['strangers','2026-10-16'],'button').click();
     assert.equal(await page.locator('.sf-combo-heading > span').innerText(), `0 / ${maximum} PTS`);
     assert.equal(await page.evaluate(() => calcScore(todayKey()).l3), 0);
     assert.equal(await control(page,'click','socialCategoryToggle',['strangers','2026-10-16'],'button').getAttribute('aria-pressed'),'true');

@@ -271,7 +271,7 @@ function applySkin(){
   const theme=document.querySelector('meta[name="theme-color"]');
   if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
-  syncProComboDOM();
+  syncComboDisclosureDOM();
   // Skin selection changes presentation only; preserve interactive DOM and state.
 
 }
@@ -955,8 +955,8 @@ const UI_ACTIONS=Object.freeze({
   socialDirectoryGroup:uiRule('change',[],n=>socialDirectorySet('group',n.value)),
   socialDirectoryCategory:uiRule('change',[],n=>socialDirectorySet('category',n.value)),
   socialRomanticLimitSet:uiRule('change',[],n=>socialRomanticLimitSet(n.value)),
-  socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>proComboActive()?proComboToggle(id,k):socialCategoryToggle(id,k),true),
-  proCategoryCredit:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
+  socialCategoryToggle:uiRule('click',['string','string'],(n,e,id,k)=>comboDisclosureToggle(id,k),true),
+  comboCategoryCredit:uiRule('click',['string','string'],(n,e,id,k)=>socialCategoryToggle(id,k),true),
   socialNewCategory:uiRule('click',['string','string'],(n,e,k,id)=>socialNew(k,id),true),
   workMilestonesSummary:uiRule('input',[],()=>workMilestonesSummary(),true),
   workMilestonesAdd:uiRule('click',[],()=>workMilestonesChange(-1),true),
@@ -3901,7 +3901,7 @@ function render(){
   else if(currentTab==="log")uiHTML(el,bar+renderDayLogTab());
   else if(currentTab==="stats")uiHTML(el,bar+renderStats());
   else if(currentTab==="history")uiHTML(el,bar+renderHistory());
-  syncProComboDOM();
+  syncComboDisclosureDOM();
   renderTour();
   renderResume();
   initScrollHide();
@@ -5205,18 +5205,17 @@ function socialCategoryToggle(id,key){
  dayLogSyncChangedCompletions(key,before);persistDay(key);renderDayChange(key);
 }
 // Disclosure is transient UI state, separate from credited categories/encounters.
-var proComboOpen=null;
-function proComboActive(){return _skin==='pro'&&currentTab==='today'&&!editDayKey;}
-function proComboIsOpen(id,key){return !!(proComboOpen&&proComboOpen.owner===USER?.id&&proComboOpen.key===key&&proComboOpen.id===id);}
-function proComboToggle(id,key){
- proComboOpen=proComboIsOpen(id,key)?null:{owner:USER?.id,key,id};
+var comboDisclosureOpen=null;
+function comboDisclosureIsOpen(id,key){return !!(comboDisclosureOpen&&comboDisclosureOpen.owner===USER?.id&&comboDisclosureOpen.key===key&&comboDisclosureOpen.id===id);}
+function comboDisclosureToggle(id,key){
+ comboDisclosureOpen=comboDisclosureIsOpen(id,key)?null:{owner:USER?.id,key,id};
  renderDayChange(key);
 }
-function syncProComboDOM(){
+function syncComboDisclosureDOM(){
  if(typeof document.querySelectorAll!=='function')return;
- for(const card of document.querySelectorAll('.today:not(.history-day-editor) .sf-combo-category[data-combo-id]')){
+ for(const card of document.querySelectorAll('.sf-compact-combo .sf-combo-category[data-combo-id]')){
   const button=card.querySelector('.sf-category-toggle'),panel=card.querySelector('.sf-reveal');if(!button||!panel)continue;
-  const open=proComboActive()?proComboIsOpen(card.dataset.comboId,card.dataset.comboKey):button.getAttribute('aria-pressed')==='true';
+  const open=comboDisclosureIsOpen(card.dataset.comboId,card.dataset.comboKey);
   button.setAttribute('aria-expanded',String(open));panel.setAttribute('aria-hidden',String(!open));panel.toggleAttribute('inert',!open);panel.classList.toggle('is-open',open);
  }
 }
@@ -5225,8 +5224,8 @@ function comboBlock(key,alwaysOpen){
  const C=cfgForDate(key),soc=getSocial(key),checked=getChecked(key).social;
  const total=C.subs.reduce((n,s)=>n+s.p,0),earned=checked?(C.subs.some(s=>soc[s.id])?C.subs.reduce((n,s)=>n+(soc[s.id]?s.p:0),0):total):0;
  return `<section class="card sf-compact-combo" aria-label="Social Combo"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>👥 Social Combo</strong><span>${alwaysOpen?earned+' / '+total+' pts':earned+'/'+total}</span></div>${C.subs.map(s=>{
- const open=proComboActive()?proComboIsOpen(s.id,key):!!soc[s.id];
- return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="pro-category-row"><button type="button" class="pro-category-credit" aria-label="${esc('Credit '+s.label)}" aria-pressed="${!!soc[s.id]}" ${ui('click','proCategoryCredit',s.id,key)}>${soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}><span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span><span class="pro-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton('+ Persona','socialNewCategory',[key,s.id])}</div></div></div></div>`;
+ const open=comboDisclosureIsOpen(s.id,key);
+ return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="combo-category-row"><button type="button" class="combo-category-credit" aria-label="${esc('Credit '+s.label)}" aria-pressed="${!!soc[s.id]}" ${ui('click','comboCategoryCredit',s.id,key)}>${soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}><span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span><span class="combo-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton('+ Persona','socialNewCategory',[key,s.id])}</div></div></div></div>`;
  }).join('')}</section>`;
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}

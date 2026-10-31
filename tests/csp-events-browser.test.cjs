@@ -57,7 +57,7 @@ test('strict CSP preserves keyboard activation, nested contact clicks, note edit
   const friends=control(page,'click','socialCategoryToggle',['friends','2026-10-16'],'button');await friends.focus();await friends.press('Enter');
   const chosen=await page.evaluate(()=>getSocial(todayKey()).friends);
   await page.locator('.sf-combo-category').filter({has:friends}).getByRole('button',{name:'Ana Existing',exact:true}).click();
-  assert.equal(await page.evaluate(()=>getSocial(todayKey()).friends),chosen,'Child tagging does not activate the parent row');
+  assert.equal(await page.evaluate(()=>getSocial(todayKey()).friends),true,'Choosing a person grants category credit');assert.equal(await friends.getAttribute('aria-expanded'),'true','Child tagging keeps disclosure open');
   await page.locator('.nav-btn[data-tab="today"]').click();
   const note=page.locator('textarea').first();await note.fill('Synthetic note under strict CSP');await note.press('Tab');
   assert.equal(await page.evaluate(()=>getNote(todayKey())),'Synthetic note under strict CSP');

@@ -54,9 +54,9 @@ test('locations filter discovery while every contact remains available in the So
  const category=page.locator('.sf-combo-category').filter({has:control(page,'click','socialCategoryToggle',['flirt','2026-10-16'],'button')});
  assert.equal(await category.getByRole('button',{name:'Alex Existing',exact:true}).isVisible(),true);
  assert.deepEqual(await page.evaluate(()=>getPeople(todayKey())),[]);
- assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),2);
+ assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),0);
  await page.getByLabel('Current social location').selectOption('il');
- assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),2);assert.equal(await history(page),before);
+ assert.equal(await page.evaluate(()=>calcScore(todayKey()).l3),0);assert.equal(await history(page),before);
 });
 test('an empty discovery view retains a selector while unfiltered categories remain visible',async t=>{
  const d=locationFixture();d.config.people=d.config.people.filter(p=>p.locations?.length);d.config.people.forEach(p=>{p.sub='friends'});d.config.selectedLocation='empty';

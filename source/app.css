@@ -2982,3 +2982,20 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
   #scroll .today.sf-today-v27:not(.history-day-editor){padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
   #scroll .today:not(.history-day-editor)>.t-reset{min-height:44px;scroll-margin-bottom:calc(88px + env(safe-area-inset-bottom))}
 }
+
+
+/* Social Combo disclosure is application behavior, independent of appearance. */
+#scroll .sf-compact-combo{--combo-option-height:44px}
+#scroll .soc .sf-compact-combo{--combo-option-height:48px}
+#scroll .sf-compact-combo .combo-category-row{display:flex;align-items:center;gap:6px}
+#scroll .sf-compact-combo .combo-category-credit{display:grid;place-items:center;flex:0 0 28px;width:28px;min-height:44px;padding:0;border:0;background:transparent;color:var(--skin-muted,#adadbf);font:20px/1 'DM Sans',sans-serif;cursor:pointer}
+#scroll .sf-compact-combo .combo-category-credit[aria-pressed=true]{color:var(--today-accent,var(--skin-copy,#e2e2e2))}
+#scroll .sf-compact-combo .sf-category-mark{display:none}
+#scroll .sf-compact-combo .sf-category-toggle{flex:1;min-width:0;gap:8px}
+#scroll .sf-compact-combo .sf-category-toggle>span:first-child{flex:1;min-width:0;text-align:left}
+#scroll .sf-compact-combo .sf-category-toggle>span:nth-child(2){white-space:nowrap;flex:none}
+#scroll .sf-compact-combo .sf-category-toggle>.combo-category-chevron:last-child{display:block;flex:none;font:22px/1 sans-serif!important;transition:transform .15s}
+#scroll .sf-compact-combo .sf-category-toggle[aria-expanded=true]>.combo-category-chevron{transform:rotate(90deg)}
+#scroll .sf-compact-combo .sf-reveal .sf-buttons{display:flex;flex-wrap:wrap;align-content:start;align-items:start;gap:6px;margin:0;padding:4px 2px;max-height:calc(var(--combo-option-height)*2 + 14px);overflow-y:auto;scrollbar-width:thin}
+#scroll .sf-compact-combo .sf-reveal .sf-buttons>.sf-button{min-height:var(--combo-option-height)!important;height:var(--combo-option-height)!important;display:inline-flex;align-items:center;justify-content:center;margin:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(prefers-reduced-motion:reduce){#scroll .sf-compact-combo .combo-category-chevron{transition:none}}

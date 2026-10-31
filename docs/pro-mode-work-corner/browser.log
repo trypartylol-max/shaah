@@ -1,0 +1,14 @@
+✔ Social disclosure is independent of theme and credit at 390px (7012.372333ms)
+✔ Social disclosure is independent of theme and credit at 1440px (5824.777542ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (2197.522459ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (1811.147833ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (2190.144708ms)
+✔ refined sidebar, two-row single-open Social, note and confirmed Reset preserve state (2479.797959ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22679.274916

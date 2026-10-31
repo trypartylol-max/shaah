@@ -39,8 +39,8 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
    return {ring:box('.t-ring'),next:box('.t-grade'),log:box('.today-log-start'),nav:box('#nav'),headings:['.t-lvl2 .lvl-toggle','.t-lvl3 .lvl-toggle','.sf-combo-heading strong'].map(font),items:['.t-lvl2 .row>div>span','.t-lvl3 .row>div>span','.sf-category-toggle>span'].map(font),overflow:document.querySelector('#scroll').scrollWidth>document.querySelector('#scroll').clientWidth+1};
   });
   assert.ok(m.next.w>m.ring.w*1.5&&m.next.w>m.log.w*1.5,JSON.stringify(m));
-  assert.equal(m.ring.h,m.next.h);assert.equal(m.next.h,m.log.h);
-  assert.ok(Math.abs(m.ring.y-m.log.y)<1);assert.equal(m.overflow,false);
+  assert.equal(m.ring.h,m.next.h);assert.ok(Math.abs(m.next.h-m.log.h-(width>=1180?44:0))<1);
+  assert.ok(Math.abs(m.log.y-m.ring.y-(width>=1180?44:0))<1);assert.equal(m.overflow,false);
   assert.equal(new Set(m.headings).size,1,JSON.stringify(m));assert.equal(new Set(m.items).size,1,JSON.stringify(m));
   if(width>=1180){assert.equal(m.nav.w,208);assert.ok(m.ring.x>=208);}
   for(const card of await p.locator('.t-rout-body>.sf-core-routine').all())assert.equal(await card.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,JSON.stringify({width,card:await card.evaluate(e=>({text:e.textContent,w:e.clientWidth,s:e.scrollWidth}))}));
@@ -96,8 +96,8 @@ test('refined sidebar, two-row single-open Social, note and confirmed Reset pres
  const note=p.locator('textarea');await note.fill('Sidebar note persists');await note.blur();
  assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
  const geometry=await p.evaluate(()=>{const r=s=>{const a=document.querySelector(s).getBoundingClientRect();return {x:a.x,y:a.y,b:a.bottom,w:a.width,h:a.height}};return {note:r('.t-note'),status:r('#mode-status'),settings:r('.pro-nav-settings'),reset:r('.t-reset'),date:r('#tb-date'),lower:r('.t-lvl2')}});
- assert.ok(geometry.note.x<208&&geometry.note.b<=geometry.status.y);assert.ok(geometry.status.b<=geometry.settings.y&&geometry.settings.b<=geometry.reset.y);
+ assert.ok(geometry.note.x<208&&geometry.note.b<=geometry.settings.y);assert.ok(geometry.settings.b<=geometry.reset.y);assert.ok(geometry.status.x>1200&&geometry.status.y===20,JSON.stringify(geometry));
  assert.ok(geometry.date.x<208);assert.ok(geometry.lower.b<=902&&geometry.lower.b>=860,JSON.stringify(geometry));
  await p.getByRole('button',{name:'Reset day',exact:true}).click();await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
- for(const size of [{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);}
+ for(const size of [{width:1180,height:900},{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);const align=await p.evaluate(()=>{const mode=document.querySelector('#mode-status').getBoundingClientRect(),log=document.querySelector('.today-log-start').getBoundingClientRect();return {x:Math.abs(mode.x-log.x),right:Math.abs(mode.right-log.right),gap:log.y-mode.bottom}});assert.ok(align.x<1&&align.right<1&&align.gap>=7,JSON.stringify({size,align}));}
 });

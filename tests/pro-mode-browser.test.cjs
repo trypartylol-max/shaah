@@ -34,7 +34,7 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
  for(const width of [880,1024,1180,1280,1440,1672,1920]){
   await p.setViewportSize({width,height:1000});
   const m=await p.evaluate(()=>{
-   const box=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,overflow:e.scrollWidth>e.clientWidth+1}};
+   const box=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();const z=parseFloat(getComputedStyle(document.documentElement).zoom)||1;return {x:r.x/z,y:r.y/z,w:r.width/z,h:r.height/z,overflow:e.scrollWidth>e.clientWidth+1}};
    const font=s=>getComputedStyle(document.querySelector(s)).fontSize;
    return {ring:box('.t-ring'),next:box('.t-grade'),log:box('.today-log-start'),nav:box('#nav'),headings:['.t-lvl2 .lvl-toggle','.t-lvl3 .lvl-toggle','.sf-combo-heading strong'].map(font),items:['.t-lvl2 .row>div>span','.t-lvl3 .row>div>span','.sf-category-toggle>span'].map(font),overflow:document.querySelector('#scroll').scrollWidth>document.querySelector('#scroll').clientWidth+1};
   });

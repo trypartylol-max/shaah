@@ -3232,7 +3232,7 @@ function exportData(){
 }
 
 function renderLogin(){
-  return`<div ${uiStyle(`height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px`)}>
+  return`<div ${uiStyle(`height:calc(100 * var(--app-vh, 1dvh));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:32px`)}>
     <div ${uiStyle(`text-align:center`)}>
       <div class="matrix-wordmark" ${uiStyle(`font-family:'Bebas Neue';font-size:56px;letter-spacing:0.16em;color:#e2e2e2;line-height:1`)}>SHAAH</div>
       <div ${uiStyle(`font-size:15px;letter-spacing:0.11em;color:#adadbf;margin-top:8px`)}>שעה · THE HOUR</div>
@@ -3815,7 +3815,7 @@ function tourPosition(){
  const visible=r&&r.width&&r.height&&r.bottom>8&&r.top<c.top-12&&r.right>0&&r.left<innerWidth;
  hole.hidden=!visible;
  document.querySelector('#tour .tour-scrim').style.background=visible?'transparent':'rgba(4,4,10,.82)';
- if(visible){const top=Math.max(4,r.top-5),left=Math.max(4,r.left-5);Object.assign(hole.style,{top:top+'px',left:left+'px',width:Math.max(0,Math.min(innerWidth-4,r.right+5)-left)+'px',height:Math.max(0,Math.min(c.top-16,r.bottom+5)-top)+'px'});}
+ if(visible){const scale=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-display-scale'))||1;const top=Math.max(4,r.top-5)/scale,left=Math.max(4,r.left-5)/scale;Object.assign(hole.style,{top:top+'px',left:left+'px',width:Math.max(0,Math.min(innerWidth-4,r.right+5)/scale-left)+'px',height:Math.max(0,Math.min(c.top-16,r.bottom+5)/scale-top)+'px'});}
 }
 function renderTour(){
  const t=document.getElementById('tour');if(!t)return;
@@ -4487,7 +4487,7 @@ function renderStats(){
   const oAvg=total?Math.round(allDays.reduce((a,[,d])=>a+dPct(d),0)/total):0,streak=getStreak();
   const bestStreak=getBestStreak(),trend=weekTrend(),review=weekReview();
   if(total===0&&score===0){
-    return`<div class="fade-up" ${uiStyle(`height:calc(100dvh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center`)}>
+    return`<div class="fade-up" ${uiStyle(`height:calc(calc(100 * var(--app-vh, 1dvh)) - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center`)}>
       <div ${uiStyle(`font-size:44px;opacity:.5`)}>📊</div>
       <div ${uiStyle(`font-family:'Bebas Neue';font-size:23px;letter-spacing:0.12em;color:#c0c0cd`)}>NO DATA YET</div>
       <div ${uiStyle(`font-size:15px;color:#adadbf;max-width:260px;line-height:1.6`)}>Log your first habit in <b ${uiStyle(`color:#d0d0da`)}>TODAY</b> and your stats start building.</div>

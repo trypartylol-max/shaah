@@ -10,7 +10,7 @@ html,body{height:100%;background:rgba(var(--skin-rgb-07070f,7,7,15),1);color:rgb
 input,textarea{-webkit-user-select:text;user-select:text;}
 button:focus-visible,[role=button]:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid rgba(var(--skin-rgb-7aa2ff,122,162,255),1);outline-offset:2px;}
 
-#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+#app{height:calc(100 * var(--app-vh, 1dvh));display:flex;flex-direction:column;overflow:hidden;}
 #scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:auto;}
 #scroll::-webkit-scrollbar{display:none;}
 /* El hueco que cada vista reserva abajo es calc(68px + safe-area): el dock mide
@@ -1217,7 +1217,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
 
 .daylog-edit-modal{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;padding:max(20px,env(safe-area-inset-top)) 16px;box-sizing:border-box}
 .daylog-edit-backdrop{position:absolute;inset:0;background:rgba(var(--skin-rgb-000000,0,0,0),.75)}
-.daylog-edit-card{position:relative;width:min(100%,420px);max-height:85dvh;overflow:auto;box-sizing:border-box;padding:22px;border-radius:16px;background:rgba(var(--skin-rgb-111120,17,17,32),1);border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);font:14px 'DM Mono',monospace}
+.daylog-edit-card{position:relative;width:min(100%,420px);max-height:calc(85 * var(--app-vh, 1dvh));overflow:auto;box-sizing:border-box;padding:22px;border-radius:16px;background:rgba(var(--skin-rgb-111120,17,17,32),1);border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1);font:14px 'DM Mono',monospace}
 .daylog-edit-head,.daylog-edit-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .daylog-edit-kicker{font-size:11px;letter-spacing:.12em;margin-bottom:5px}
 .daylog-edit-title{font-size:22px}
@@ -1735,7 +1735,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
     grid-row:1 !important;
     justify-self:center !important;
     align-self:center !important;
-    width:min(720px, calc(100vw - 520px)) !important;
+    width:min(720px, calc(calc(100 * var(--app-vw, 1vw)) - 520px)) !important;
     max-width:720px !important;
     min-width:560px !important;
     margin:0 !important;
@@ -1762,7 +1762,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
   }
   #scroll .today .t-score-hero .t-grade{
     min-width:500px !important;
-    width:min(650px, calc(100vw - 430px)) !important;
+    width:min(650px, calc(calc(100 * var(--app-vw, 1vw)) - 430px)) !important;
   }
 }
 
@@ -2544,7 +2544,7 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 @media(prefers-reduced-motion:reduce){.sf-work-meter-part{transition:none}}
 
 /* Group edits live in the browser top layer, independent of page scroll. */
-.sf-group-dialog{position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0;padding:0;width:min(420px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--skin-edge);border-radius:16px;background:var(--skin-panel);color:var(--skin-copy);box-shadow:0 18px 60px rgba(var(--skin-rgb-000000,0,0,0),0.5333333333333333);font:inherit}
+.sf-group-dialog{position:fixed;inset:50% auto auto 50%;transform:translate(-50%,-50%);margin:0;padding:0;width:min(420px,calc(calc(100 * var(--app-vw, 1vw)) - 32px));max-height:calc(calc(100 * var(--app-vh, 1dvh)) - 40px);overflow:auto;border:1px solid var(--skin-edge);border-radius:16px;background:var(--skin-panel);color:var(--skin-copy);box-shadow:0 18px 60px rgba(var(--skin-rgb-000000,0,0,0),0.5333333333333333);font:inherit}
 .sf-group-dialog::backdrop{background:rgba(var(--skin-rgb-000000,0,0,0),0.6);backdrop-filter:blur(3px)}
 .sf-group-dialog-card{padding:22px}.sf-group-dialog h2{font-size:19px;font-weight:500;margin:0 0 16px}.sf-group-dialog .sf-field{margin:0;color:var(--skin-muted)}
 .sf-group-dialog input{background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy)}
@@ -2724,7 +2724,7 @@ html[data-skin="glow"] .sf-work-next:focus-visible{outline:2px solid #62ddec;out
 @media(prefers-reduced-motion:reduce){.wg-segment.latest{animation:none}}
 
 /* Core runner: native centered dialog; the daily score and layout stay outside. */
-dialog.cr-dialog{position:fixed;inset:0;margin:auto;width:min(720px,calc(100vw - 48px));max-width:none;height:90dvh;max-height:calc(100dvh - 48px);padding:0;overflow:auto;border:1px solid #44445e;border-radius:22px;background:#10101d;color:#eeeef6;box-shadow:0 24px 100px #0009;font-family:'DM Sans',sans-serif;color-scheme:dark}
+dialog.cr-dialog{position:fixed;inset:0;margin:auto;width:min(720px,calc(calc(100 * var(--app-vw, 1vw)) - 48px));max-width:none;height:calc(90 * var(--app-vh, 1dvh));max-height:calc(calc(100 * var(--app-vh, 1dvh)) - 48px);padding:0;overflow:auto;border:1px solid #44445e;border-radius:22px;background:#10101d;color:#eeeef6;box-shadow:0 24px 100px #0009;font-family:'DM Sans',sans-serif;color-scheme:dark}
 dialog.cr-dialog[open]{display:flex;flex-direction:column}
 dialog.cr-dialog.cr-prompt{height:auto}
 dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
@@ -2738,7 +2738,7 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 .cr-body{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;padding:24px}
 .cr-current{min-width:0;text-align:center;align-self:center}
 .cr-current h3{font-size:22px;margin:14px 0;overflow-wrap:anywhere;color:#f3f3fb}
-.cr-clock{font:500 clamp(40px,7vw,64px) 'DM Mono',monospace;letter-spacing:-2px;font-variant-numeric:tabular-nums;margin:22px 0;color:#e9ddff}
+.cr-clock{font:500 clamp(40px,calc(7 * var(--app-vw, 1vw)),64px) 'DM Mono',monospace;letter-spacing:-2px;font-variant-numeric:tabular-nums;margin:22px 0;color:#e9ddff}
 .cr-controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 .cr-next{line-height:1.5;overflow-wrap:anywhere}
 .cr-dialog .cr-secondary{background:transparent}
@@ -2762,7 +2762,7 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 .cr-card-session b{font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sf-core-routine .cr-card-session button{min-height:44px;font:600 14px 'DM Sans',sans-serif;padding:8px 12px;border:1px solid #a78bfa66;border-radius:10px;background:#a78bfa20;color:#e9ddff;cursor:pointer}
 @media(max-width:879px){
- dialog.cr-dialog{width:calc(100vw - 32px);height:94dvh;max-height:calc(100dvh - max(32px,env(safe-area-inset-top)) - env(safe-area-inset-bottom));border-radius:18px}
+ dialog.cr-dialog{width:calc(calc(100 * var(--app-vw, 1vw)) - 32px);height:calc(94 * var(--app-vh, 1dvh));max-height:calc(calc(100 * var(--app-vh, 1dvh)) - max(32px,env(safe-area-inset-top)) - env(safe-area-inset-bottom));border-radius:18px}
  .cr-header{padding:16px}.cr-header h2{font-size:20px}.cr-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(100px,1fr);padding:20px 16px;gap:20px}
  .cr-sequence{border-left:0;border-top:1px solid #33334a;padding:16px 0 0;max-height:none}
  .cr-footer{padding:14px 16px;flex-wrap:wrap}.cr-close{padding:20px}.cr-choice{flex-direction:column}
@@ -2774,12 +2774,12 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 .cr-current .cr-step-label{font-size:10px;font-weight:600;letter-spacing:.12em;color:#c4b5ed;background:#c4b5fd10;border:1px solid #c4b5fd24;border-radius:99px;padding:7px 12px}
 .cr-current h3{display:flex;align-items:center;justify-content:center;gap:10px;font-size:24px;line-height:1.25;font-weight:600;letter-spacing:-.5px;margin:0;max-width:100%;text-wrap:balance}
 .cr-step-icon{font-size:26px;flex-shrink:0}
-.cr-timer-face{position:relative;width:clamp(160px,26dvh,240px);max-width:100%;aspect-ratio:1;margin:4px 0;background:radial-gradient(circle,#b799ff0d 0%,#b799ff04 60%,transparent 70%);border-radius:50%}
+.cr-timer-face{position:relative;width:clamp(160px,calc(26 * var(--app-vh, 1dvh)),240px);max-width:100%;aspect-ratio:1;margin:4px 0;background:radial-gradient(circle,#b799ff0d 0%,#b799ff04 60%,transparent 70%);border-radius:50%}
 .cr-timer-face svg{display:block;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
 .cr-timer-track,.cr-timer-progress{fill:none;stroke-width:4}
 .cr-timer-track{stroke:#292637}.cr-timer-progress{stroke:#bfacf5;stroke-linecap:round;filter:drop-shadow(0 0 5px #af8cf34d)}
 .cr-timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-.cr-current .cr-clock{font-size:clamp(34px,5vw,54px);font-weight:400;letter-spacing:-2px;line-height:1;margin:0;color:#f0eaff}
+.cr-current .cr-clock{font-size:clamp(34px,calc(5 * var(--app-vw, 1vw)),54px);font-weight:400;letter-spacing:-2px;line-height:1;margin:0;color:#f0eaff}
 .cr-timer-center>span{font-size:9px;letter-spacing:.17em;color:#a09aaa}
 .cr-current .cr-controls{width:100%;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:10px}
 .cr-current .cr-controls button{min-height:48px;font-size:14px;padding:10px 8px;border-radius:13px}
@@ -2793,7 +2793,7 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 @media(min-width:880px) and (max-height:760px){.cr-current{gap:8px}.cr-current h3{font-size:20px}.cr-timer-face{width:150px;margin:0}.cr-current .cr-clock{font-size:36px}.cr-up-next{padding:8px 10px}.cr-current .cr-step-label{padding:5px 10px}}
 
 /* Proposal: give the execution panel more room on desktop. Pending user approval. */
-@media(min-width:880px){dialog.cr-dialog{width:min(840px,calc(100vw - 48px))}.cr-body{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}}
+@media(min-width:880px){dialog.cr-dialog{width:min(840px,calc(calc(100 * var(--app-vw, 1vw)) - 48px))}.cr-body{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}}
 
 /* Mobile alternative: timer and controls together; only the sequence scrolls. */
 @media(max-width:879px){
@@ -2821,7 +2821,7 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 .cr-header h2{margin-bottom:0}
 .cr-dialog .cr-header>button,.cr-dialog .cr-header-actions>button{position:relative;isolation:isolate;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;background:transparent;border:0;font-size:12px;flex-shrink:0}
 .cr-dialog .cr-header>button::before,.cr-dialog .cr-header-actions>button::before{content:"";position:absolute;inset:2.5px;z-index:-1;border:1px solid #52526d;border-radius:11px;background:#222235}
-@media(min-width:880px){.cr-timer-face{width:clamp(200px,30dvh,280px)}}
+@media(min-width:880px){.cr-timer-face{width:clamp(200px,calc(30 * var(--app-vh, 1dvh)),280px)}}
 @media(min-width:880px) and (max-height:760px){.cr-timer-face{width:180px}}
 @media(max-width:879px){
  .cr-header{padding-top:9px;padding-bottom:9px}.cr-header h2{margin-bottom:0}
@@ -2840,7 +2840,7 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 
 /* Desktop uses a small horizontal tray; mobile sits closer to the dock. */
 @media(min-width:880px){
- #resume.cr-mini-sessions{left:auto;right:24px;width:max-content;max-width:calc(100vw - 48px);margin:0;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+ #resume.cr-mini-sessions{left:auto;right:24px;width:max-content;max-width:calc(calc(100 * var(--app-vw, 1vw)) - 48px);margin:0;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:8px}
  .cr-mini{width:252px;min-height:48px;padding:8px 11px;gap:8px;border-radius:13px;border-color:#8f77c83d;box-shadow:0 4px 18px #0005}
  .cr-mini-icon{font-size:20px}.cr-mini-text strong{font-size:12px}.cr-mini-text>span{font-size:10px}.cr-mini>b{font-size:18px}
 }
@@ -2936,7 +2936,7 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 /* Hybrid tutorial: isolated practice, modal keyboard access and responsive spotlight. */
 #tour .tour-scrim{backdrop-filter:none;-webkit-backdrop-filter:none;}
 #tour-hole{position:fixed;border:2px solid #c4b5fd;border-radius:12px;box-shadow:0 0 0 200vmax rgba(4,4,10,.82);pointer-events:none;}
-#tour .tour-card{animation:none;width:calc(100% - 24px);z-index:1;max-height:calc(100dvh - 32px - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;box-sizing:border-box;}
+#tour .tour-card{animation:none;width:calc(100% - 24px);z-index:1;max-height:calc(calc(100 * var(--app-vh, 1dvh)) - 32px - env(safe-area-inset-bottom));overflow:auto;overscroll-behavior:contain;box-sizing:border-box;}
 #tour .tour-meta{font-size:12px;color:#c4b5fd;letter-spacing:.08em;margin-bottom:12px;}
 #tour .tour-t{margin-top:0;}
 #tour button{min-height:44px;}

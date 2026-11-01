@@ -152,7 +152,7 @@ html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .s
  html[data-skin="pro"] #tb-date .tb-gr{flex:0 0 100%;font:400 14px/1.5 'DM Sans',sans-serif;letter-spacing:.03em}
  html[data-skin="pro"] #app #scroll #mode-status{position:fixed;left:46px;bottom:132px;z-index:1001;min-width:112px;height:34px;border:1px solid #a78bfa55;border-radius:9px;background:#0b0e1a;color:var(--pro-copy);font:500 13px/32px 'DM Sans',sans-serif;letter-spacing:.05em;padding:0 12px 0 36px;margin:0}
  html[data-skin="pro"] #app #scroll #sync-status{position:fixed;left:52px;bottom:132px;z-index:1002;width:30px;height:34px}
- html[data-skin="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){animation:none!important;transform:none!important;max-width:none!important;height:auto!important;min-height:100dvh!important;grid-template-rows:216px auto auto!important;align-content:start!important;align-items:start!important;padding:20px!important}
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){animation:none!important;transform:none!important;max-width:none!important;height:auto!important;min-height:calc(100 * var(--app-vh, 1dvh))!important;grid-template-rows:216px auto auto!important;align-content:start!important;align-items:start!important;padding:20px!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-score-hero{grid-template-rows:minmax(216px,1fr)!important;min-height:216px;align-self:stretch!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-ring,
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-grade,
@@ -193,7 +193,7 @@ html[data-skin="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.comb
 
 /* Today desktop: mode/status borrows a small band from the Log column. */
 @media(min-width:1180px){
- html[data-skin="pro"] #app:has(.today.sf-today-v27) #scroll #mode-status{top:20px;right:20px;bottom:auto;left:auto;width:max(120px,calc((100vw - var(--pro-sidebar) - 72px)*.14));min-width:0;height:36px;padding:0 36px 0 12px;text-align:center;line-height:34px;border-color:var(--pro-edge);border-radius:12px;background:var(--pro-panel)}
+ html[data-skin="pro"] #app:has(.today.sf-today-v27) #scroll #mode-status{top:20px;right:20px;bottom:auto;left:auto;width:max(120px,calc((calc(100 * var(--app-vw, 1vw)) - var(--pro-sidebar) - 72px)*.14));min-width:0;height:36px;padding:0 36px 0 12px;text-align:center;line-height:34px;border-color:var(--pro-edge);border-radius:12px;background:var(--pro-panel)}
  html[data-skin="pro"] #app:has(.today.sf-today-v27) #scroll #sync-status{top:20px;right:24px;bottom:auto;left:auto;width:30px;height:36px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start,
  html[data-skin="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{height:calc(100% - 44px)!important;min-height:172px!important;align-self:end!important}

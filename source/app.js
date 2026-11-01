@@ -3860,6 +3860,19 @@ document.addEventListener('keydown',event=>{
 window.addEventListener('resize',tourPosition);
 document.addEventListener('scroll',tourPosition,true);
 
+function dayNoteHTML(key,sidebar=false){
+  return `<div class="t-note${sidebar?" pro-sidebar-note":""}" ${uiStyle(`width:100%;max-width:390px`)}>
+      <div class="sec">✎ DAY NOTE</div>
+      <div class="notecard${getNote(key)?" filled":""}">
+        <div class="notebar"></div>
+        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
+          ${ui('input','noteGrow')} ${ui('change','setNote' ,key)}
+          ${uiStyle(`width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text`)}>${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
+        ${getNote(key)?`<div ${uiStyle(`position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088`)}>SAVED</div>`:""}
+      </div>
+    </div>`;
+}
+
 function topbarHTML(){
   const d=keyToDate(todayKey()),hr=new Date().getHours();
   const greet=hr<12?"MORNING":hr<18?"AFTERNOON":"EVENING";
@@ -3901,6 +3914,7 @@ function render(){
   else if(currentTab==="log")uiHTML(el,bar+renderDayLogTab());
   else if(currentTab==="stats")uiHTML(el,bar+renderStats());
   else if(currentTab==="history")uiHTML(el,bar+renderHistory());
+  if(currentTab!=="today"){const note=document.createElement("div");uiHTML(note,dayNoteHTML(todayKey(),true));el.append(note.firstElementChild);}
   syncComboDisclosureDOM();
   renderTour();
   renderResume();
@@ -4186,16 +4200,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         <div class="t-daylog-meta">${dayLogActiveId()?"LOGGING NOW":"Track an activity"} · ${dayLogFmt(dayLogSummary(key).tracked)} tracked</div>
       </div>
     </div>`:""}
-    <div class="t-note" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec">✎ DAY NOTE</div>
-      <div class="notecard${getNote(key)?" filled":""}">
-        <div class="notebar"></div>
-        <textarea id="note-${key}" placeholder="How was your day? What did you learn?"
-          ${ui('input','noteGrow')} ${ui('change','setNote' ,key)}
-          ${uiStyle(`width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text`)}>${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
-        ${getNote(key)?`<div ${uiStyle(`position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088`)}>SAVED</div>`:""}
-      </div>
-    </div>
+    ${dayNoteHTML(key)}
     ${isToday?resetDayControl(key):""}
   </div>`;
 }

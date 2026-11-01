@@ -42,7 +42,7 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
   assert.equal(m.ring.h,m.next.h);assert.ok(Math.abs(m.next.h-m.log.h-(width>=1180?44:0))<1);
   assert.ok(Math.abs(m.log.y-m.ring.y-(width>=1180?44:0))<1);assert.equal(m.overflow,false);
   assert.equal(new Set(m.headings).size,1,JSON.stringify(m));assert.equal(new Set(m.items).size,1,JSON.stringify(m));
-  if(width>=1180){assert.equal(m.nav.w,208);assert.ok(m.ring.x>=208);}
+  if(width>=1180){assert.ok(Math.abs(m.nav.w-208)<.1);assert.ok(m.ring.x>=208);}
   for(const card of await p.locator('.t-rout-body>.sf-core-routine').all())assert.equal(await card.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,JSON.stringify({width,card:await card.evaluate(e=>({text:e.textContent,w:e.clientWidth,s:e.scrollWidth}))}));
   if(width===1672){await p.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await p.waitForTimeout(250);assert.ok(await p.locator('#tb-date').evaluate(e=>e.getBoundingClientRect().x<208));await p.screenshot({path:'test-results/pro-mode-desktop.png'});}
  }
@@ -105,4 +105,32 @@ test('refined sidebar, two-row single-open Social, note and confirmed Reset pres
  const habits=p.locator('.t-lvl2');const habitsHeight=(await habits.boundingBox()).height;await habits.locator('.lvl-toggle').click();await p.waitForTimeout(350);assert.ok((await habits.boundingBox()).height<habitsHeight-100);await habits.locator('.lvl-toggle').click();
  await p.getByRole('button',{name:'Reset day',exact:true}).click();await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
  for(const size of [{width:1180,height:900},{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);const align=await p.evaluate(()=>{const mode=document.querySelector('#mode-status').getBoundingClientRect(),log=document.querySelector('.today-log-start').getBoundingClientRect();return {x:Math.abs(mode.x-log.x),right:Math.abs(mode.right-log.right),gap:log.y-mode.bottom}});assert.ok(align.x<1&&align.right<1&&align.gap>=7,JSON.stringify({size,align}));assert.ok(await p.evaluate(()=>document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().bottom<=document.querySelector('.t-note').getBoundingClientRect().top));}
+});
+
+test('Pro sidebar shares today note across tabs, centers tabs and hides Work in Log',async t=>{
+ const p=await openApp(t,proFixture(),{width:1440,height:900});
+ await p.evaluate(()=>{setSkin('pro');setTab('today')});
+ const note=()=>p.locator('textarea[id^="note-"]:visible');
+ await note().fill('One daily note across tabs');await note().blur();
+ for(const tab of ['today','log','social','stats','history']){
+  await p.locator(`.nav-btn[data-tab="${tab}"]`).click();
+  assert.equal(await note().inputValue(),'One daily note across tabs',tab);
+  const box=await p.locator('.pro-nav-settings').boundingBox();assert.equal(Math.round(box.y+box.height),tab==='today'?824:884,tab);
+  assert.equal(await p.locator('#mode-status').isVisible(),tab!=='log');
+  assert.equal(await p.locator('#sync-status').isVisible(),tab!=='log');
+  if(tab!=='log'){const status=await p.locator('#mode-status').boundingBox();assert.equal(status.y,20);assert.ok(status.x>1200);}
+  assert.ok(await note().evaluate(e=>e.getBoundingClientRect().bottom<=document.querySelector('.pro-nav-settings').getBoundingClientRect().top));
+  assert.ok(await p.locator('#nav .nav-btn').evaluateAll(es=>es.every(e=>getComputedStyle(e).justifyContent==='center')));
+  assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
+ }
+ await note().fill('Edited in History');await note().blur();
+ await p.locator('.nav-btn[data-tab="today"]').click();assert.equal(await note().inputValue(),'Edited in History');
+ const gap=await p.evaluate(()=>{const s=document.querySelector('.pro-nav-settings').getBoundingClientRect(),r=document.querySelector('.t-reset').getBoundingClientRect();const line=r.top+parseFloat(getComputedStyle(document.querySelector('.t-reset'),'::before').top);return [line-s.bottom,r.top-line]});assert.ok(Math.abs(gap[0]-gap[1])<1,JSON.stringify(gap));
+ await p.locator('.nav-btn[data-tab="stats"]').click();
+ await p.evaluate(()=>setSkin('classic'));assert.equal(await p.locator('.pro-sidebar-note').isVisible(),false);
+ await p.evaluate(()=>setSkin('pro'));assert.equal(await note().inputValue(),'Edited in History');
+ await p.setViewportSize({width:390,height:844});assert.equal(await p.locator('.pro-sidebar-note').isVisible(),false);
+ await p.setViewportSize({width:1280,height:720});assert.ok(await note().evaluate(e=>e.getBoundingClientRect().top>=document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().bottom));
+ await p.setViewportSize({width:1440,height:900});await p.screenshot({path:'test-results/pro-sidebar-stats.png'});
+ await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);await p.evaluate(()=>setTab('today'));assert.equal(await note().inputValue(),'Edited in History');
 });

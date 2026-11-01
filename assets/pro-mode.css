@@ -99,7 +99,7 @@
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-lvl{padding:14px!important}
 }
 
-/* Refined Pro layout, approved 2026-10-31. Disclosure never edits credit. */
+/* Content-sized Pro cards. Disclosure remains an application-wide behavior. */
 html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-row{display:flex;align-items:center;gap:6px}
 html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-credit{display:grid;place-items:center;flex:0 0 24px;width:24px;height:36px;border:0;background:transparent;color:var(--skin-muted,#b3aec9);font:20px/1 'DM Sans',sans-serif;cursor:pointer}
 html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-credit[aria-pressed="true"]{color:#bba5fa}
@@ -152,7 +152,7 @@ html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .s
  html[data-skin="pro"] #tb-date .tb-gr{flex:0 0 100%;font:400 14px/1.5 'DM Sans',sans-serif;letter-spacing:.03em}
  html[data-skin="pro"] #app #scroll #mode-status{position:fixed;left:46px;bottom:132px;z-index:1001;min-width:112px;height:34px;border:1px solid #a78bfa55;border-radius:9px;background:#0b0e1a;color:var(--pro-copy);font:500 13px/32px 'DM Sans',sans-serif;letter-spacing:.05em;padding:0 12px 0 36px;margin:0}
  html[data-skin="pro"] #app #scroll #sync-status{position:fixed;left:52px;bottom:132px;z-index:1002;width:30px;height:34px}
- html[data-skin="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){animation:none!important;transform:none!important;max-width:none!important;height:100dvh!important;min-height:794px!important;grid-template-rows:minmax(216px,27fr) minmax(174px,22fr) minmax(332px,51fr)!important;align-content:stretch!important;align-items:stretch!important;padding:20px!important}
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){animation:none!important;transform:none!important;max-width:none!important;height:auto!important;min-height:100dvh!important;grid-template-rows:216px auto auto!important;align-content:start!important;align-items:start!important;padding:20px!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-score-hero{grid-template-rows:minmax(216px,1fr)!important;min-height:216px;align-self:stretch!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-ring,
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-grade,
@@ -160,7 +160,7 @@ html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .s
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .cr-log-orb{height:100%!important;min-height:216px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-rout{display:flex!important;flex-direction:column!important;min-height:174px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-rout .t-rout-body{flex:1;min-height:140px}
- html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-lvl{align-self:stretch!important;min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#45405d transparent}
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-lvl{align-self:start!important;min-height:0;overflow:visible}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl){align-self:start!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-note{position:fixed!important;top:var(--pro-note-top)!important;bottom:178px!important;left:16px!important;width:calc(var(--pro-sidebar) - 32px)!important;max-width:none!important;height:auto!important;min-height:70px!important;margin:0!important;padding:10px 0 0!important;border:0!important;border-top:1px solid var(--pro-edge)!important;border-radius:0!important;background:transparent!important;display:flex;flex-direction:column;z-index:1000;grid-row:auto!important;grid-column:auto!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-note>.sec{flex:none;font:500 14px/1.4 'DM Sans',sans-serif!important;min-height:26px!important;border:0;padding:0 6px 8px!important;margin:0!important}

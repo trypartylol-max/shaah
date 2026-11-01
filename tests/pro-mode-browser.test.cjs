@@ -97,7 +97,12 @@ test('refined sidebar, two-row single-open Social, note and confirmed Reset pres
  assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
  const geometry=await p.evaluate(()=>{const r=s=>{const a=document.querySelector(s).getBoundingClientRect();return {x:a.x,y:a.y,b:a.bottom,w:a.width,h:a.height}};return {note:r('.t-note'),status:r('#mode-status'),settings:r('.pro-nav-settings'),reset:r('.t-reset'),date:r('#tb-date'),lower:r('.t-lvl2')}});
  assert.ok(geometry.note.x<208&&geometry.note.b<=geometry.settings.y);assert.ok(geometry.settings.b<=geometry.reset.y);assert.ok(geometry.status.x>1200&&geometry.status.y===20,JSON.stringify(geometry));
- assert.ok(geometry.date.x<208);assert.ok(geometry.lower.b<=902&&geometry.lower.b>=860,JSON.stringify(geometry));
+ assert.ok(geometry.date.x<208);assert.ok(geometry.lower.b<850,JSON.stringify(geometry));
+ const cards=await p.locator('.t-lvl2,.t-lvl3,.t-social-independent').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {y:r.y,w:r.width,h:r.height}}));
+ assert.equal(cards.length,3);assert.ok(cards.every(c=>Math.abs(c.y-cards[0].y)<1&&Math.abs(c.w-cards[0].w)<1));assert.ok(cards[0].h>cards[1].h+50,JSON.stringify(cards));
+ await p.waitForTimeout(350);const social=p.locator('.t-social-independent');const expandedHeight=(await social.boundingBox()).height;
+ await cat('friends').locator('.sf-category-toggle').click();await p.waitForTimeout(350);assert.ok((await social.boundingBox()).height<expandedHeight-30);
+ const habits=p.locator('.t-lvl2');const habitsHeight=(await habits.boundingBox()).height;await habits.locator('.lvl-toggle').click();await p.waitForTimeout(350);assert.ok((await habits.boundingBox()).height<habitsHeight-100);await habits.locator('.lvl-toggle').click();
  await p.getByRole('button',{name:'Reset day',exact:true}).click();await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
  for(const size of [{width:1180,height:900},{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);const align=await p.evaluate(()=>{const mode=document.querySelector('#mode-status').getBoundingClientRect(),log=document.querySelector('.today-log-start').getBoundingClientRect();return {x:Math.abs(mode.x-log.x),right:Math.abs(mode.right-log.right),gap:log.y-mode.bottom}});assert.ok(align.x<1&&align.right<1&&align.gap>=7,JSON.stringify({size,align}));assert.ok(await p.evaluate(()=>document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().bottom<=document.querySelector('.t-note').getBoundingClientRect().top));}
 });

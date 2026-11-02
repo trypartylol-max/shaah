@@ -818,6 +818,154 @@ const set=(k,v)=>{
 const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 
 // ═══ CONFIG (editable in Settings, synced via Supabase) ═══
+// Starter is a separate, versioned profile. DEFAULT_CFG remains the legacy
+// fallback; reducing it would silently change accounts and imported backups.
+var _starterGate='ready',_starterChoice=null,_starterText='',_starterBusy=false,_starterError='',_starterEditor=false,_starterEditId=null,_starterRoutineId=null;
+const STARTER_TEMPLATES=[
+  {id:'move',name:'Movimiento',label:'Moverme durante 5 minutos',icon:'↗'},
+  {id:'focus',name:'Enfoque',label:'Dedicar 10 minutos a algo importante para mí',icon:'◎'},
+  {id:'rest',name:'Descanso',label:'Hacer una pausa de 5 minutos',icon:'☾'},
+  {id:'create',name:'Crear',label:'Crear algo durante 10 minutos',icon:'✧'}
+];
+function starterProfile(config=CFG){return config?.starter?.version===1;}
+function starterSimple(){return starterProfile()&&CFG.starter.view!=='full';}
+const starterPendingKey=()=>`shaah_start_pending_${USER?USER.id:'anon'}`;
+function starterHasLocalData(){
+  // Local absence is never enough to classify an account. These copies only
+  // veto an otherwise successful, exact, empty server read.
+  return !!get(cfgKey())||!!get(cfgPendingKey())||!!get(RKEY())||!!get(routineQueueKey())||
+    !!_cfgDraft||Object.keys(_state).some(k=>DATE_RE.test(k))||Object.keys(_offlineQueue).length>0||
+    (get(bakKey())||[]).length>0||!!get(DAYLOG_KEY+':'+USER.id);
+}
+function starterHabit(choice,text,id){
+  const template=STARTER_TEMPLATES.find(t=>t.id===choice);
+  const label=choice==='custom'?String(text||'').trim().slice(0,120):template?.label;
+  if(!label)throw Error('Elige un hábito o escribe el tuyo.');
+  return {id,h:{l:label,p:10,pWork:10,pVacation:10,i:template?.icon||'○',lv:2,on:true,starterTemplate:choice}};
+}
+function starterNewId(){let id;do{id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0');}while(CFG.h[id]);return id;}
+function starterBuild(choice,text,token){
+  const day=todayKey(),h={},order=[];
+  if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
+  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines:{},people:[],subs:[],locationGroups:[],
+    travel:{mode:'work',auto:false,resumeOn:''},v:4,
+    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple'},
+    log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
+      {from:day,h:cfgCopy(h),order:[...order],subs:[],mode:'work'}]};
+}
+function starterPick(choice){
+  if(_starterBusy||!['custom',...STARTER_TEMPLATES.map(t=>t.id)].includes(choice))return;
+  _starterChoice=choice;_starterError='';render();
+  if(choice==='custom')document.getElementById('starter-custom')?.focus();
+  else document.querySelector('.starter-option[aria-pressed="true"]')?.focus();
+}
+function starterDraft(value){
+  _starterText=String(value||'').slice(0,120);
+  const button=document.getElementById('starter-confirm');if(button)button.disabled=!_starterText.trim();
+}
+function starterAdopt(row){
+  if(!row?.data?._cfg||typeof row.data._cfg!=='object'||Array.isArray(row.data._cfg)||!row.data._cfg.h||!Array.isArray(row.data._cfg.order))throw Error('No pudimos verificar la configuración guardada. Reintenta la carga.');
+  // Initialization never participates in the ordinary three-way settings merge.
+  _cfgDraft=null;_cfgDraftBase=null;del(cfgPendingKey());
+  CFG=Object.assign(cfgCopy(DEFAULT_CFG),cfgCopy(row.data._cfg));_cfgBase=cfgCopy(row.data);
+  _cfgReady=true;_starterGate='ready';_starterError='';_starterEditor=false;_starterEditId=null;
+  del(starterPendingKey());applyCfg();set(cfgKey(),CFG);
+}
+async function starterConfirm(skip=false){
+  if(!USER||_starterBusy||(_starterGate!=='choose'&&!_starterEditor))return;
+  const choice=skip?'skip':_starterChoice;
+  if(!choice)return;
+  if(_starterEditor){
+    if(skip){_starterEditor=false;_starterEditId=null;render();return;}
+    try{
+      const id=_starterEditId||starterNewId(),item=starterHabit(choice,_starterText,id);
+      const changed=cfgEdit(()=>{
+        if(_starterEditId){const old=CFG.h[id];if(!old)throw Error('Este hábito ya no está disponible.');CFG.h[id]={...old,l:item.h.l,i:item.h.i,starterTemplate:choice};}
+        else {if(CFG.order.length>=40)throw Error('Ya tienes 40 hábitos.');CFG.h[id]=item.h;CFG.order.push(id);}
+      });
+      if(changed){_starterEditor=false;_starterEditId=null;render();}
+    }catch(e){_starterError=e.message;render();}return;
+  }
+  const owner=USER.id,epoch=_syncEpoch,current=()=>USER?.id===owner&&_syncEpoch===epoch;
+  _starterBusy=true;_starterError='';render();
+  try{
+    // Recheck before CAS. A successful empty count is required, not a missing
+    // browser flag, a failed query or a missing settings entry in a partial load.
+    const read=await sb.from('day_logs').select('date,data,settings_revision',{count:'exact'}).eq('user_id',owner);
+    if(!current())return;
+    if(read.error||!Array.isArray(read.data)||!Number.isSafeInteger(read.count)||read.count!==read.data.length)throw Error('No pudimos verificar tus datos. Reintenta cuando tengas conexión.');
+    const existing=read.data.find(r=>r.date==='settings');
+    if(existing){starterAdopt(existing);await loadAll();return;}
+    if(read.count!==0||starterHasLocalData())throw Error('Encontramos datos de esta cuenta. Recarga para recuperarlos antes de empezar.');
+    const previous=get(starterPendingKey());
+    const token=previous?.owner===owner&&typeof previous.token==='string'?previous.token:(crypto.randomUUID?.()||dayLogId()+Math.random().toString(36).slice(2));
+    const config=starterBuild(choice,_starterText,token),data={_cfg:config};
+    if(!set(starterPendingKey(),{owner,token,choice,text:_starterText}))throw Error('No pudimos conservar tu elección en este navegador. Reintenta.');
+    const result=await sb.rpc('shaah_save_settings_v1',{p_expected_revision:null,p_data:{owner_id:owner,data}});
+    if(!current())return;
+    if(result.error){
+      // Another device may have won, or our acknowledgement may have been lost.
+      // Always adopt its entire confirmed profile; never add our losing habit.
+      const check=await sb.from('day_logs').select('date,data,settings_revision').eq('user_id',owner).eq('date','settings');
+      if(!current())return;
+      if(!check.error&&Array.isArray(check.data)&&check.data.length===1){starterAdopt(check.data[0]);await loadAll();return;}
+      throw Error('Tu elección aún no está confirmada. Se conserva aquí; pulsa Reintentar.');
+    }
+    if(!result.data||!Number.isSafeInteger(result.data.settings_revision)||result.data.settings_revision<1||!cfgEqual(result.data.data,data))throw Error('No recibimos confirmación del guardado. Pulsa Reintentar para comprobarlo.');
+    starterAdopt({data:result.data.data});currentTab='today';saveCache();cfgSyncStatus();
+  }catch(e){if(current())_starterError=e.message||'No pudimos guardar. Reintenta.';}
+  finally{if(current()){_starterBusy=false;render();}}
+}
+function starterOpen(id=''){
+  if(!_cfgReady||_cfgConflict)return;
+  _starterEditId=id&&CFG.h[id]?id:null;_starterEditor=true;_starterRoutineId=null;_starterError='';
+  _starterChoice=_starterEditId?(CFG.h[id].starterTemplate||'custom'):null;
+  _starterText=_starterEditId?CFG.h[id].l:'';render();
+}
+function starterView(view){if(!starterProfile()||!['simple','full'].includes(view))return;CFG.starter.view=view;saveCfg();render();}
+function starterChoicesHTML(){
+  const add=_starterEditor;
+  return `<section class="starter-screen" aria-labelledby="starter-title"><div class="starter-brand">SHAAH</div><p class="starter-kicker">${add?'A TU RITMO':'EMPIEZA PEQUEÑO'}</p><h1 id="starter-title">${_starterEditId?'Cambia tu compromiso':add?'¿Qué quieres añadir?':'¿Con qué quieres empezar?'}</h1>
+    <p class="starter-muted">Elige una cosa pequeña para hoy. Puedes cambiarla cuando quieras.</p>
+    <div class="starter-options">${STARTER_TEMPLATES.map(t=>`<button type="button" class="starter-option" aria-pressed="${_starterChoice===t.id}" ${_starterBusy?'disabled':''} ${ui('click','starterPick',t.id)}><span aria-hidden="true">${esc(t.icon)}</span><strong>${esc(t.name)}</strong><small>${esc(t.label)}</small></button>`).join('')}</div>
+    <button type="button" class="starter-link" ${_starterBusy?'disabled':''} ${ui('click','starterPick','custom')}>＋ Escribir el mío</button>
+    ${_starterChoice==='custom'?`<label class="starter-custom-label" for="starter-custom">Mi compromiso</label><input id="starter-custom" class="starter-input" maxlength="120" value="${esc(_starterText)}" placeholder="Algo pequeño que quieras hacer hoy" ${_starterBusy?'disabled':''} ${ui('input','starterDraft')}>`:''}
+    ${_starterError?`<p class="starter-error" role="alert">${esc(_starterError)}</p>`:''}
+    <div class="starter-actions"><button id="starter-confirm" type="button" class="starter-primary" ${_starterBusy||!_starterChoice||(_starterChoice==='custom'&&!_starterText.trim())?'disabled':''} ${ui('click','starterConfirm',false)}>${_starterBusy?'Guardando…':_starterError?'Reintentar':_starterEditId?'Guardar cambio':add?'Añadir a mi plan':'Empezar con esto'} →</button><button type="button" class="starter-link" ${_starterBusy?'disabled':''} ${ui('click','starterConfirm',true)}>${add?'Volver a Today':'Entrar sin elegir'}</button></div>
+    ${add?'<p class="starter-muted starter-small">El cambio cuenta desde hoy. Los días anteriores conservan su plan.</p>':`<p class="starter-muted starter-small">Sin rutinas ni metas añadidas automáticamente.</p><button type="button" class="starter-link starter-small" ${_starterBusy?'disabled':''} ${ui('click','signOut',false)}>Salir de esta cuenta</button>`}</section>`;
+}
+function starterGateHTML(){
+  if(_starterGate==='choose')return starterChoicesHTML();
+  return `<section class="starter-screen" aria-labelledby="starter-title"><div class="starter-brand">SHAAH</div><h1 id="starter-title">${_starterGate==='error'?'Vamos a recuperar tu cuenta.':'Preparando tu espacio…'}</h1><p class="starter-muted" role="status">${_starterGate==='error'?'No pudimos confirmar tus datos. Tu configuración no se ha sustituido.':'Estamos cargando tus hábitos y tu historial.'}</p>${_starterGate==='error'?`<button class="starter-primary" type="button" ${ui('click','starterRetry')}>Reintentar carga</button>`:''}</section>`;
+}
+function starterItems(key){const c=cfgForDate(key);return [...c.L1,...c.L2,...c.L3];}
+function starterSummary(key){const items=starterItems(key),ch=getChecked(key);return {items,done:items.filter(i=>ch[i.id]===true).length};}
+function starterRoutineSteps(id){
+  const kind=CFG.h[id]?.starterTemplate;
+  if(kind==='move')return [{id:'prepare',label:'Prepararme',dur:1,icon:'○'},{id:'move',label:'Moverme a mi manera',dur:3,icon:'↗'},{id:'close',label:'Terminar con calma',dur:1,icon:'✓'}];
+  if(kind==='rest')return [{id:'prepare',label:'Hacer espacio para una pausa',dur:1,icon:'○'},{id:'rest',label:'Descansar a mi manera',dur:3,icon:'☾'},{id:'close',label:'Volver con calma',dur:1,icon:'✓'}];
+  return [{id:'prepare',label:'Preparar mi espacio',dur:1,icon:'○'},{id:'focus',label:kind==='create'?'Desarrollar una idea':'Dedicarme a una cosa',dur:8,icon:'◎'},{id:'close',label:'Cerrar y guardar',dur:1,icon:'✓'}];
+}
+function starterAddRoutine(id){
+  if(!starterProfile()||!CFG.h[id]||CFG.routines[id])return;
+  cfgEdit(()=>{CFG.h[id].routine=true;CFG.routines[id]={label:CFG.h[id].l,icon:CFG.h[id].i,col:'#a78bfa',steps:starterRoutineSteps(id)};});
+  _starterRoutineId=null;render();
+}
+function renderStarterToday(key){
+  const {items,done}=starterSummary(key),ch=getChecked(key);
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">TU PLAN DE HOY</p><h1>Tu día, a tu ritmo.</h1><p class="starter-muted" role="status">${items.length?`${done} de ${items.length} de tu plan`:'Sin plan de hábitos'}</p></div>
+    ${items.length?items.map(item=>{
+      // The simple view must still expose EVERY active item and its real controls.
+      if(item.combo)return legacyComboBlock(key,true);
+      if(item.id==='work'&&coreLayoutFor(key))return workPhaseCard(key,item);
+      const full=ch[item.id]===true,partial=ch[item.id]===0.5,rt=ROUTINES[item.id];
+      return `<section class="starter-habit" data-starter-habit="${esc(item.id)}"><p class="starter-kicker">${full?'✓ COMPROMISO COMPLETADO':'TU COMPROMISO DE HOY'}</p><h2>${esc(item.icon)} ${esc(item.label)}</h2>${partial?'<p class="starter-muted">Versión ligera completada · medio crédito</p>':''}<div class="starter-actions"><button type="button" class="${full?'starter-secondary':'starter-primary'}" ${ui('click','setHabitState',item.id,key,!full)}>${full?'✓ Hecho':'Marcar como hecho'}</button>${full?`<button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,false)}>Deshacer</button>`:`<button class="starter-link" type="button" ${ui('click','starterOpen',item.id)}>Cambiar</button>`}</div>
+      ${rt?`<div class="starter-routine"><span class="starter-muted">${rt.steps.length} pasos · ${rt.steps.reduce((n,s)=>n+s.dur,0)} min</span><button class="starter-secondary" type="button" ${ui('click','startRoutine',item.id)}>${sessions[item.id]?'Abrir rutina':'Empezar rutina'}</button><button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,partial?false:0.5)}>Versión ligera</button></div>`:!full?`<button class="starter-link starter-small" type="button" ${ui('click','starterRoutinePreview',item.id)}>Dividir en pasos · opcional</button>`:''}
+      ${_starterRoutineId===item.id&&!rt?`<div class="starter-routine-preview"><p>Una rutina opcional. El compromiso sigue siendo uno.</p><ol>${starterRoutineSteps(item.id).map(s=>`<li>${esc(s.label)} <span>${s.dur} min</span></li>`).join('')}</ol><p class="starter-muted starter-small">Puedes editar los pasos y tiempos en Settings → Routines.</p><div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterAddRoutine',item.id)}>Añadir esta rutina</button><button type="button" class="starter-link" ${ui('click','starterRoutinePreview','')}>Ahora no</button></div></div>`:''}</section>`;
+    }).join(''):`<section class="starter-habit"><h2>Tu día empieza aquí.</h2><p class="starter-muted">Puedes elegir un hábito o registrar algo que ya hiciste.</p><button type="button" class="starter-primary" ${ui('click','starterOpen','')}>Elegir mi primer hábito</button></section>`}
+    <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>＋ Añadir otro hábito</button>`:''}<button type="button" class="starter-secondary" ${ui('click','openDayLogStart')}>Registrar actividad</button></div>
+    ${dayNoteHTML(key)}<div class="starter-actions starter-view">${starterProfile()?`<button type="button" class="starter-link starter-small" ${ui('click','starterView','full')}>Ver vista completa</button>`:''}<button type="button" class="starter-link starter-small" ${ui('click','startTour')}>Ver tutorial</button></div></div>`;
+}
 const DEFAULT_CFG={
   tz:'device',
   pill:'chips',   // 'chips' | 'slim' | 'circle'
@@ -927,6 +1075,14 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
+  starterPick:uiRule('click',['string'],(n,e,id)=>starterPick(id)),
+  starterDraft:uiRule('input',[],n=>starterDraft(n.value)),
+  starterConfirm:uiRule('click',['boolean'],(n,e,skip)=>starterConfirm(skip)),
+  starterOpen:uiRule('click',['string'],(n,e,id)=>starterOpen(id)),
+  starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
+  starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
+  starterRoutinePreview:uiRule('click',['string'],(n,e,id)=>{_starterRoutineId=id||null;render();}),
+  starterAddRoutine:uiRule('click',['string'],(n,e,id)=>starterAddRoutine(id)),
   historyBackupDownload:uiRule('click',[],()=>historyBackupDownload()),
   historyBackupVerifyFile:uiRule('change',[],n=>historyBackupVerify(n.files?.[0])),
   historyRestoreFile:uiRule('change',[],n=>historyRestorePreview(n.files?.[0])),
@@ -1805,6 +1961,7 @@ function applyCfg(){
 const STREAK_MIN=0.30;   // una racha mide que no abandonaste, no que fuiste perfecto
 const GRADE=(s,mx)=>{
   const M=(mx==null?MAX:mx);
+  if(!(M>0))return {l:'—',c:'#9090aa',g:'#9090aa00',n:'SIN PLAN',bg:'transparent'};
   const p=M>0?(s/M)*100:0;
   if(p>=95)return{l:"S+",c:"#FFF1A8",g:"#FFD70099",n:"UNSTOPPABLE",bg:"rgba(255,241,168,0.07)"};
   if(p>=85)return{l:"S",c:"#FFD700",g:"#FFD70055",n:"LEGENDARY",bg:"rgba(255,215,0,0.05)"};
@@ -1845,6 +2002,10 @@ function nextMove(key){
 }
 // La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
 function scoreStripHTML(key){
+  if(starterSimple()||calcScore(key).max===0){
+    const {items,done}=starterSummary(key);
+    return `<div id="tb-score" class="starter-score" role="status">${items.length?`${done} de ${items.length} de tu plan`:'Sin plan de hábitos'}</div>`;
+  }
   const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
   const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
   return`<div id="tb-score">
@@ -2359,6 +2520,7 @@ function changeSyncUser(user){
   clearTimeout(_bakT);_bakT=null;_bak=[];
   if(_realtimeChannel){sb.removeChannel?.(_realtimeChannel);_realtimeChannel=null;}
   resetAccountView();
+  _starterGate=user?'loading':'ready';_starterChoice=null;_starterText='';_starterBusy=false;_starterError='';_starterEditor=false;_starterEditId=null;_starterRoutineId=null;
   USER=user;_live=false;_state={};CFG=cfgCopy(DEFAULT_CFG);_dayCfgCache={};applyCfg();selectOfflineOwner();
 }
 // A new identity must never inherit the previous account's live controls. Saved
@@ -2384,6 +2546,10 @@ function resetAccountView(){
 function restoreAccountLocal(){
   if(!USER)return;
   loadCfgLocal();loadCache();loadLvl();loadSec();loadTodayRoutines();restoreRoutine();
+  // Known accounts keep the existing offline experience. Only an unknown
+  // identity waits behind the first-load gate; an empty read is still required
+  // before that identity can be offered initialization.
+  if(get(cfgKey())||_cfgDraft)_starterGate='ready';
 }
 async function resolveCfgConflict(choice){
   if(!USER||!_cfgConflict||!['server','local'].includes(choice))return;
@@ -2489,6 +2655,7 @@ function saveCfg(){
 }
 // One-time migration: Pomodoro 6→5 so MAX lands on 118 (100 + חי)
 function migrateCfg(){
+  if(starterProfile()){applyCfg();return;}
   // Canonical habit name: wake happens first, sleep second.
   if(CFG.h&&CFG.h.sleep&&/^(Sleep|Wake Up) (?:&|and) (?:Wake Up |Sleep )?Early$/i.test(String(CFG.h.sleep.l||''))){
     CFG.h.sleep.l='Wake Up and Sleep Early';
@@ -2520,6 +2687,7 @@ function rowToState(row){
   if(String(row.date).startsWith('routine:'))return receiveRoutineRow(row);
   if(row.date==='cfgbak')return false;
   if(row.date==='settings'){
+    if(_starterGate==='choose'&&row.data?._cfg){starterAdopt(row);return true;}
     if(row.data&&row.data._cfg){
       const previousCfg=CFG,previousConflict=_cfgConflict;
       const local=get(cfgKey());
@@ -2584,10 +2752,22 @@ async function loadAll(){
   const owner=USER.id,epoch=_syncEpoch;
   setStatus('SYNC…','#f59e0b');
   try{
-    const{data,error}=await sb.from('day_logs').select('date,data').eq('user_id',owner);
+    const{data,error,count}=await sb.from('day_logs').select('date,data',{count:'exact'}).eq('user_id',owner);
     if(USER?.id!==owner||_syncEpoch!==epoch)return;
-    if(error)throw error;
-    const rows=data||[];
+    if(error||!Array.isArray(data))throw error||Error('LOAD_INCOMPLETE');
+    const rows=data;
+    if(Number.isSafeInteger(count)&&count!==rows.length)throw Error('LOAD_INCOMPLETE');
+    // Only a verified empty remote account with no recovery data enters Starter.
+    // Do not seed anything (or run legacy migrations) while the user chooses.
+    if(rows.length===0&&!starterHasLocalData()){
+      if(count!==0)throw Error('LOAD_INCOMPLETE');
+      _cfgReady=false;_starterGate='choose';
+      const pending=get(starterPendingKey());
+      if(pending?.owner===owner){_starterChoice=pending.choice==='skip'?null:pending.choice;_starterText=String(pending.text||'').slice(0,120);}
+      render();return;
+    }
+    const settings=rows.find(r=>r.date==='settings');
+    if(settings&&(!settings.data?._cfg||typeof settings.data._cfg!=='object'||Array.isArray(settings.data._cfg)||!settings.data._cfg.h||!Array.isArray(settings.data._cfg.order)))throw Error('SETTINGS_INVALID');
     const hadSettings=rows.some(r=>r.date==='settings');
     const dayRows=rows.filter(r=>DATE_RE.test(r.date)).length;
     bakLoad(rows);
@@ -2596,6 +2776,8 @@ async function loadAll(){
     restoreOfflineQueue();
     adoptLegacyIfVeteran(hadSettings,dayRows);
     _cfgReady=true;                       // a partir de aquí ya es seguro escribir
+    _starterGate='ready';_starterEditor=false;del(starterPendingKey());
+    if(!starterProfile()){
     ensureBaseline();
     // Historical modes come from the dated configuration timeline.
     // Do not rewrite completed days to Vacation on every load.
@@ -2610,12 +2792,14 @@ async function loadAll(){
     checkTravelAuto();
     recoverPeopleFromDays();
     runShaahSocialCoreMigration();
+    }else{applyCfg();hydrateRoutineRows(rows);}
     saveCache();
     cfgSyncStatus();
     if(_cfgDraft&&!_cfgConflict){_cfgDraft=cfgCopy(CFG);keepCfgDraft();flushCfgSaves();}
     if(Object.keys(_offlineQueue).length)flushOfflineQueue();
   }catch(e){
     if(USER?.id!==owner||_syncEpoch!==epoch)return;
+    if(_starterGate!=='ready')_starterGate='error';
     setStatus('OFFLINE','#ef4444');
   }
   render();
@@ -2718,15 +2902,15 @@ function signOutNoticeHTML(){return _signOutNotice?`<p role="status" ${uiStyle(`
 function accountCopyStatus(owner){
   try{
     const read=key=>{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):null;};
-    const days=read(_offlineKey+':'+owner),draft=read('shaah_cfg_pending_'+owner),routine=read('shaah_routine_'+owner);
+    const days=read(_offlineKey+':'+owner),draft=read('shaah_cfg_pending_'+owner),routine=read('shaah_routine_'+owner),startDraft=read('shaah_start_pending_'+owner);
     if(days&&(typeof days!=='object'||Array.isArray(days)))return {blocked:true};
     const live=USER?.id===owner&&(_cfgDraft||_cfgFlushPromise||Object.keys(_pending).length||_offlineFlushing.has(owner)||Object.keys(sessions).length);
-    return {blocked:!!(live||(days&&Object.keys(days).length)||draft||routine)};
+    return {blocked:!!(live||(days&&Object.keys(days).length)||draft||routine||startDraft)};
   }catch(e){return {blocked:true};}
 }
 function removeAccountCopies(owner){
   // An explicit allowlist: never erase another account, preferences or recovery queues.
-  const keys=['cache','cfg','bak','routine','today_routines','lvl','sec','tour'].map(kind=>'shaah_'+kind+'_'+owner);
+  const keys=['cache','cfg','bak','routine','today_routines','lvl','sec','tour','start_pending'].map(kind=>'shaah_'+kind+'_'+owner);
   keys.push('travelMode:'+owner,DAYLOG_KEY+':'+owner);
   let removed=true;
   for(const key of keys)try{localStorage.removeItem(key);}catch(e){removed=false;}
@@ -2997,7 +3181,7 @@ function renderSettings(){
           </div>
           <button ${ui('click','bakRestore' ,b.i)} ${uiStyle(`flex-shrink:0;background:none;border:1px solid #222;color:#c0c0cd;font-family:inherit;font-size:13px;letter-spacing:.08em;padding:7px 12px;border-radius:8px;cursor:pointer`)}>RESTORE</button>
         </div>`).join(""):`<div ${uiStyle(`font-size:14px;color:#9a9ab2;padding:6px 0`)}>No versions saved yet — the first one appears after your next settings change.</div>`}`,"st-col-b")}
-      ${stCard("appearance","APPEARANCE · SKINS","#9090aa",skinPickerHTML(),"skin-settings")}
+      ${stCard("appearance","APPEARANCE · SKINS","#9090aa",`${starterProfile()?`<div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterView','simple')}>Usar Today sencillo</button><button type="button" class="starter-secondary" ${ui('click','starterView','full')}>Usar vista completa</button></div>`:''}${skinPickerHTML()}`,"skin-settings")}
 </div></div>
   </div>`;
 }
@@ -3137,7 +3321,7 @@ function importPrepare(input){
   const person=(p,requireId)=>obj(p)&&optional(p,'id',id)&&(!requireId||id(p.id))&&text(p.name,10000)
     &&optional(p,'sub',id)&&optional(p,'every',number)&&optional(p,'locations',v=>list(v,id))&&optional(p,'inactive',v=>typeof v==='boolean');
   if(ppl&&!list(ppl,p=>person(p,false)))bad();
-  const habits=h=>obj(h)&&Object.keys(h).length>0&&Object.entries(h).every(([k,x])=>id(k)&&obj(x)
+  const habits=h=>obj(h)&&(Object.keys(h).length>0||starterProfile(cfg))&&Object.entries(h).every(([k,x])=>id(k)&&obj(x)
     &&[1,2,3].includes(x.lv)&&optional(x,'l',text)&&optional(x,'i',text)
     &&['p','pWork','pVacation'].every(k=>optional(x,k,number))
     &&['on','combo','routine'].every(k=>optional(x,k,v=>typeof v==='boolean')));
@@ -3308,7 +3492,7 @@ async function boot(){
 
   if(USER){
     restoreAccountLocal();
-    if(!get(tourKey()))tourStep=0,currentTab=TOUR[0].tab;
+    // The nine-step tutorial is voluntary, opened from Today or Settings.
     render();
     const owner=USER.id,epoch=_syncEpoch;
     await loadAll();
@@ -3884,7 +4068,7 @@ function topbarHTML(){
       <span class="tb-dt">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</span>
       <span class="tb-gr">${greet}</span>
     </div>
-    <div id="mode-status" title="Current mode">${travelMode()==='vacation'?'VACATION':'WORK'}</div>
+    <div id="mode-status" title="${starterProfile()?'Tu plan de hábitos':'Current mode'}">${starterProfile()?'MI PLAN':travelMode()==='vacation'?'VACATION':'WORK'}</div>
     <div id="sync-status" title="${esc(_syncText)}" aria-label="${esc(_syncText)}"><span ${uiStyle(`background:${dot}`)}></span></div>
   </div>
   ${syncNoticeHTML()}
@@ -3895,6 +4079,7 @@ function render(){
   routineDialogSync();
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
   if(!USER){uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
+  if(_starterGate!=='ready'||_starterEditor){uiHTML(el,_starterEditor?starterChoicesHTML():starterGateHTML());nav.style.display='none';tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
   if(settingsOpen){uiHTML(el,renderSettings());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   if(editDayKey){uiHTML(el,renderEditDay());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
@@ -4049,6 +4234,7 @@ function pointsLabel(item,state){
 }
 
 function renderToday(key,nested=false){
+  if(!nested&&key===todayKey()&&(starterSimple()||calcScore(key).max===0))return renderStarterToday(key);
   const _hr=new Date().getHours();
   const greetShort=_hr<12?"MORNING":_hr<18?"AFTERNOON":"EVENING";
   const C=cfgForDate(key);
@@ -5041,6 +5227,7 @@ function upgradeShaahSocialCoreConfig(input,from,owner){
   return {config:c,changed:true};
 }
 function runShaahSocialCoreMigration(){
+  if(starterProfile())return false;
   if(!USER||!_cfgReady||_cfgConflict||SUPABASE_URL!=='https://llpyxktcfubhmthqujpa.supabase.co')return false;
   try{
     const result=upgradeShaahSocialCoreConfig(CFG,todayKey(),USER.id);

@@ -1,0 +1,37 @@
+✔ strict CSP permits bulk membership and Unicode contact editing without changing history (1255.303708ms)
+✔ strict CSP preserves separate Work/Vacation editor values and score history (630.061583ms)
+✔ strict CSP preserves keyboard activation, nested contact clicks, note editing and history controls (606.489083ms)
+✔ strict CSP keeps Original login control usable without real Auth requests (289.192291ms)
+✔ strict CSP permits activity create, edit and delete without changing older history (625.608458ms)
+✔ strict CSP preserves routine step editors, timer controls and session-preserving closure (1333.394ms)
+✔ Day Log first activity survives save, edit, reload and deletion at 390px (1274.281167ms)
+✔ Today Log opens a new activity or selects the running event at 390px (561.3715ms)
+✔ Day Log first activity survives save, edit, reload and deletion at 1440px (954.327333ms)
+✔ Today Log opens a new activity or selects the running event at 1440px (597.164791ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (1022.464791ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (946.547625ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (1458.280708ms)
+✔ refined sidebar, two-row single-open Social, note and confirmed Reset preserve state (3154.697958ms)
+✔ Pro sidebar shares today note across tabs, centers tabs and hides Work in Log (954.601167ms)
+✔ desktop and mobile share timer, pause, resume, next, early finish and cold reopening (2174.124417ms)
+✔ first session uses a real habit and real Day Log, survives refresh, no automatic tour (1171.505375ms)
+✔ skip stays neutral across refresh; custom name is escaped and editable (584.568833ms)
+✔ responsive Starter is usable in six skins; full/simple switches keep all active habits (974ms)
+✔ optional generic routine opens the existing runner without duplicate points; tutorial stays a memory demo (1079.661375ms)
+✔ new browser for an existing account never starts the old automatic tutorial (476.3735ms)
+✔ hybrid tutorial: nine safe steps at 320px (7466.97275ms)
+✔ hybrid tutorial: nine safe steps at 390px (7008.251708ms)
+✔ hybrid tutorial: nine safe steps at 879px (7223.019833ms)
+✔ hybrid tutorial: nine safe steps at 880px (7188.766916ms)
+✔ hybrid tutorial: nine safe steps at 1440px (7833.732334ms)
+✔ tutorial cleanup on account reset and absent spotlight target (473.3535ms)
+✔ tutorial visual preview and short viewport at 390px (534.432042ms)
+✔ tutorial visual preview and short viewport at 1440px (461.178666ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61933.292417

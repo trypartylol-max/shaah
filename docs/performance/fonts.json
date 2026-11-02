@@ -1,0 +1,56 @@
+[
+  {
+    "family": "Bebas Neue",
+    "weight": "400",
+    "ttf_bytes": 56136,
+    "woff2_bytes": 20276,
+    "glyphs": 497,
+    "cmap_and_metrics_unchanged": true,
+    "file": "bebas-neue-400.bf7132a31e7ad38f.woff2"
+  },
+  {
+    "family": "DM Mono",
+    "weight": "400",
+    "ttf_bytes": 44784,
+    "woff2_bytes": 19068,
+    "glyphs": 383,
+    "cmap_and_metrics_unchanged": true,
+    "file": "dm-mono-400.6d1177cfe7e683de.woff2"
+  },
+  {
+    "family": "DM Mono",
+    "weight": "500",
+    "ttf_bytes": 45308,
+    "woff2_bytes": 19300,
+    "glyphs": 383,
+    "cmap_and_metrics_unchanged": true,
+    "file": "dm-mono-500.444e10abbed84d93.woff2"
+  },
+  {
+    "family": "DM Sans",
+    "weight": "400",
+    "ttf_bytes": 48280,
+    "woff2_bytes": 19164,
+    "glyphs": 439,
+    "cmap_and_metrics_unchanged": true,
+    "file": "dm-sans-400.2ea1bf6e4127eebf.woff2"
+  },
+  {
+    "family": "DM Sans",
+    "weight": "500",
+    "ttf_bytes": 48308,
+    "woff2_bytes": 19412,
+    "glyphs": 439,
+    "cmap_and_metrics_unchanged": true,
+    "file": "dm-sans-500.5db7ec8890b78af7.woff2"
+  },
+  {
+    "family": "DM Sans",
+    "weight": "700",
+    "ttf_bytes": 48200,
+    "woff2_bytes": 19488,
+    "glyphs": 439,
+    "cmap_and_metrics_unchanged": true,
+    "file": "dm-sans-700.9b1a44756787bbc9.woff2"
+  }
+]

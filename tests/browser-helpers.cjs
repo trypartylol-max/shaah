@@ -26,6 +26,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
   await context.route('**/*', async route => {
     const url = route.request().url();
     const parsed = new URL(url);
+    if(options.realAssets&&parsed.origin===appOrigin&&route.request().method()==='GET')return route.continue();
     if (options.worker && parsed.origin === appOrigin) {
       if (route.request().method() !== 'GET') { unexpectedRequests.push('Unmocked method: ' + route.request().method()); return route.abort(); }
       if (parsed.pathname === '/sdk.js') return route.fulfill({ contentType: 'application/javascript', body: '/* local SDK test double already installed */' });
@@ -154,19 +155,26 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     Object.defineProperty(window,'supabase',{configurable:true,get:()=>syntheticSDK,set(){}});
   }, { rows: options.emptyAccount?[]:serverRows(data), loggedOut: !!options.loggedOut, authEmail: options.authEmail ?? 'synthetic@example.invalid',extraRows:Object.fromEntries(Object.entries(options.syntheticAccounts||{}).map(([owner,data])=>[owner,serverRows(data)])) });
   const page = await context.newPage();
+  if(options.beforePage)await options.beforePage(context,page);
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => errors.push(error.message));
   page.on('console',message=>{
     if(message.type()==='error'&&/content security policy|violates the following|refused to execute inline|integrity|digest/i.test(message.text()))errors.push('Unexpected CSP or integrity violation');
   });
-  await page.clock.setFixedTime(new Date('2026-10-16T12:00:00Z'));
+  // Benchmarks need native performance entries and high-resolution timestamps.
+  // Freeze only calendar time; leave timers, animation frames and Performance intact.
+  if(options.nativePerformance)await context.addInitScript(()=>{
+    const NativeDate=Date,instant=NativeDate.parse('2026-10-16T12:00:00Z');
+    window.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[instant]));}static now(){return instant;}};
+  });
+  else await page.clock.setFixedTime(new Date('2026-10-16T12:00:00Z'));
   await page.goto(options.url || 'http://shaah.test/');
   if (options.loggedOut) await page.getByRole('button', { name: options.loginButtonName || 'Continue with Google' }).waitFor();
   else if(options.emptyAccount){
     await page.waitForFunction(()=>typeof _starterGate!=='undefined'&&_starterGate==='choose');
   }else {
     await page.waitForFunction(() => typeof _cfgReady !== 'undefined' && _cfgReady && _live);
-    await page.locator('.nav-btn[data-tab="social"]').click();
+    if(!options.stayOnToday)await page.locator('.nav-btn[data-tab="social"]').click();
   }
   t.after(() => {
     assert.deepEqual(errors, [], 'No browser runtime exceptions');

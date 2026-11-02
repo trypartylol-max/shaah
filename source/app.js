@@ -936,7 +936,7 @@ function starterChoicesHTML(){
 }
 function starterGateHTML(){
   if(_starterGate==='choose')return starterChoicesHTML();
-  return `<section class="starter-screen" aria-labelledby="starter-title"><div class="starter-brand">SHAAH</div><h1 id="starter-title">${_starterGate==='error'?'Vamos a recuperar tu cuenta.':'Preparando tu espacio…'}</h1><p class="starter-muted" role="status">${_starterGate==='error'?'No pudimos confirmar tus datos. Tu configuración no se ha sustituido.':'Estamos cargando tus hábitos y tu historial.'}</p>${_starterGate==='error'?`<button class="starter-primary" type="button" ${ui('click','starterRetry')}>Reintentar carga</button>`:''}</section>`;
+  return `<section class="starter-screen" aria-labelledby="starter-title" aria-busy="${_starterGate==='loading'}"><div class="starter-brand">SHAAH</div><h1 id="starter-title">${_starterGate==='error'?'Vamos a recuperar tu cuenta.':'Preparando tu espacio…'}</h1><p class="starter-muted" role="status">${_starterGate==='error'?'No pudimos confirmar tus datos. Tu configuración no se ha sustituido.':'Estamos cargando tus hábitos y tu historial.'}</p>${_starterGate==='error'?`<button class="starter-primary" type="button" ${ui('click','starterRetry')}>Reintentar carga</button>`:'<div class="loading-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>'}</section>`;
 }
 function starterItems(key){const c=cfgForDate(key);return [...c.L1,...c.L2,...c.L3];}
 function starterSummary(key){const items=starterItems(key),ch=getChecked(key);return {items,done:items.filter(i=>ch[i.id]===true).length};}
@@ -2018,10 +2018,17 @@ function scoreStripHTML(key){
 }
 
 
+// Reuse the formatter, never the date: midnight, DST and timezone changes still
+// take effect on every call. Keep at most the current configured timezone.
+var _dateKeyZone,_dateKeyFormatter;
 function dateKey(d){
   const tz=CFG.tz&&CFG.tz!=='device'?CFG.tz:undefined;
-  try{ return new Intl.DateTimeFormat('sv-SE',tz?{timeZone:tz}:{}).format(d); }
-  catch(e){ return new Intl.DateTimeFormat('sv-SE').format(d); }
+  if(!_dateKeyFormatter||_dateKeyZone!==tz){
+    try{_dateKeyFormatter=new Intl.DateTimeFormat('sv-SE',tz?{timeZone:tz}:{});}
+    catch(e){_dateKeyFormatter=new Intl.DateTimeFormat('sv-SE');}
+    _dateKeyZone=tz;
+  }
+  return _dateKeyFormatter.format(d);
 }
 const todayKey=()=>dateKey(new Date());
 // pure date arithmetic on YYYY-MM-DD (DST-safe)
@@ -2415,7 +2422,7 @@ function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),
 // ── Server load + realtime ─────────────────────────────────
 var _cfgReady=false;   // ¿ya leímos la config del servidor en esta sesión?
 var _syncEpoch=0,_cfgBase=null,_cfgDraft=null,_cfgDraftBase=null,_cfgConflict=false,_cfgSaveFailed=false,_cfgFlushPromise=null;
-var _realtimeChannel=null,_syncRenderQueued=false;
+var _realtimeChannel=null,_syncRenderQueued=false,_loadFlight=null;
 const cfgPendingKey=()=>`shaah_cfg_pending_${USER?USER.id:'anon'}`;
 const cfgCopy=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
 function cfgEqual(a,b){
@@ -2747,9 +2754,16 @@ function adoptLegacyIfVeteran(hadSettingsRow,rowCount){
   CFG.v=3; applyCfg(); set(cfgKey(),CFG); saveCfg();
   return true;
 }
-async function loadAll(){
-  if(!USER)return;
+function loadAll(){
+  if(!USER)return Promise.resolve();
   const owner=USER.id,epoch=_syncEpoch;
+  if(_loadFlight?.owner===owner&&_loadFlight.epoch===epoch)return _loadFlight.promise;
+  const flight={owner,epoch,promise:null};
+  _loadFlight=flight;
+  flight.promise=loadAccountRows(owner,epoch).finally(()=>{if(_loadFlight===flight)_loadFlight=null;});
+  return flight.promise;
+}
+async function loadAccountRows(owner,epoch){
   setStatus('SYNC…','#f59e0b');
   try{
     const{data,error,count}=await sb.from('day_logs').select('date,data',{count:'exact'}).eq('user_id',owner);
@@ -2842,7 +2856,9 @@ document.addEventListener('visibilitychange',()=>{
 function subscribeRealtime(){
   if(!USER)return;
   const owner=USER.id,epoch=_syncEpoch;
-  if(_realtimeChannel)sb.removeChannel?.(_realtimeChannel);
+  // Boot and INITIAL_SESSION can finish the same load together. Account changes
+  // already remove the previous channel in changeSyncUser().
+  if(_realtimeChannel)return;
   const onChange=payload=>{
         if(USER?.id!==owner||_syncEpoch!==epoch)return;
         let changed=false;
@@ -4078,6 +4094,7 @@ function render(){
   socialGroupDialogSync();
   routineDialogSync();
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
+  nav.classList.remove('boot-nav');
   if(!USER){uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   if(_starterGate!=='ready'||_starterEditor){uiHTML(el,_starterEditor?starterChoicesHTML():starterGateHTML());nav.style.display='none';tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
@@ -5250,7 +5267,7 @@ function socialViewSet(view){
   socialView=view;socialQuery='';socialDraft=null;socialFormError='';bulkPeopleSelection=[];render();
 }
 function socialManage(){settingsOpen=false;currentTab='social';socialViewSet('register');}
-function socialLast(id){return Object.keys(_state).filter(k=>DATE_RE.test(k)&&k<=todayKey()&&getPeople(k).includes(id)).sort().pop()||'';}
+function socialLast(id){const today=todayKey();return Object.keys(_state).filter(k=>DATE_RE.test(k)&&k<=today&&getPeople(k).includes(id)).sort().pop()||'';}
 function socialSearch(value){
   socialQuery=String(value).slice(0,80);
   const box=document.getElementById('social-search-results');

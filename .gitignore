@@ -8,3 +8,5 @@ supabase/.temp/
 supabase/.branches/
 
 .runtime/
+docs/performance/baseline-app.js
+docs/performance/baseline-index.html

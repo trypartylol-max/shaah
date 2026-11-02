@@ -1,0 +1,10 @@
+✔ mobile shows an accessible loading placeholder during auth and data, then replaces it with the real account (834.82025ms)
+✔ all WOFF2 faces load under CSP and retain the original font measurements (619.756958ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1722.635917

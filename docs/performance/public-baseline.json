@@ -1,0 +1,413 @@
+{
+  "base_commit": "5337019be1748b05e26d93bf757a6abbb29e4547",
+  "origin": "https://trypartylol-max.github.io/shaah/",
+  "all_match": true,
+  "files": [
+    {
+      "url": "https://trypartylol-max.github.io/shaah/",
+      "sha256": "704be4d86a76a48524e313633b3e95b0c06da30032dfb1a758ac4477172ca77e",
+      "matches_baseline": true,
+      "encoded_bytes": 5635,
+      "decoded_bytes": 17059,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-42a3\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530036-MRS",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/fonts.f979be2919756976.css",
+      "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201",
+      "matches_baseline": true,
+      "encoded_bytes": 194438,
+      "decoded_bytes": 388984,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-5ef78\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530073-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/app.1c8338af6b988ed7.css",
+      "sha256": "1c8338af6b988ed7b5e9c21cfaa8ada1e6a59af6527bbcf697655a717feaf258",
+      "matches_baseline": true,
+      "encoded_bytes": 41926,
+      "decoded_bytes": 209940,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-33414\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530051-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/mobile-circular-log-20261026.css",
+      "sha256": "2dc701b7fc3f5db574656de3e836229a85508f1b68ac0d021dc9a792aa8a6fe0",
+      "matches_baseline": true,
+      "encoded_bytes": 701,
+      "decoded_bytes": 2429,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-97d\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530073-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/aurora-skin.css?v=797ee01cb04edf92",
+      "sha256": "797ee01cb04edf92d74e47cf6fe244e02088cbd74c2083aebbe23d941bd2ff5c",
+      "matches_baseline": true,
+      "encoded_bytes": 2238,
+      "decoded_bytes": 7444,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-1d14\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530035-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/work-skin-parity-20261027.css?v=5d6343542ea09f4e",
+      "sha256": "5d6343542ea09f4ed19f8dd84b04b29b4213a86a9c1e4f8f817e3946185c9137",
+      "matches_baseline": true,
+      "encoded_bytes": 777,
+      "decoded_bytes": 2486,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-9b6\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530023-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/ui-refinement-20261027.css?v=8a2360d7885412d1",
+      "sha256": "8a2360d7885412d121070d607af8aa8b4ca7ee2bcf29482e4f8b73b5786ad41b",
+      "matches_baseline": true,
+      "encoded_bytes": 1883,
+      "decoded_bytes": 8685,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-21ed\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530058-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-disclosure-20261027.css",
+      "sha256": "0b94ee84df2cd85b669ca38c9a8cca389b2efa44f179cac94dea181f18dc2e20",
+      "matches_baseline": true,
+      "encoded_bytes": 591,
+      "decoded_bytes": 1754,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-6da\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530039-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-desktop-20261027.css",
+      "sha256": "b92ad68b3455da3311dec2be2cafa73e28b98b1c49d216ea0c5842aa62e16f4f",
+      "matches_baseline": true,
+      "encoded_bytes": 646,
+      "decoded_bytes": 2633,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-a49\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530057-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-type-20261027.css?v=typography-20261029",
+      "sha256": "745a28377d9db4b65b0c678fa7cb9d5e603c5e5e7d01741ba9f6991a7df76a7f",
+      "matches_baseline": true,
+      "encoded_bytes": 642,
+      "decoded_bytes": 2650,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-a5a\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-mrs1530021-MRS",
+        "x-cache": "MISS",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/mobile-width-test-20261027.css",
+      "sha256": "f23f5346472c2b9d290955a27ecb30be917b981704c735df9d7acbc6aed37161",
+      "matches_baseline": true,
+      "encoded_bytes": 736,
+      "decoded_bytes": 2555,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-9fb\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210023-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-mobile-order-20261027.css?v=9bea039-verified",
+      "sha256": "dacca273f2f0cb87b41394caa32adffce036e33a0429a0bf4be0b93e0ae4279a",
+      "matches_baseline": true,
+      "encoded_bytes": 803,
+      "decoded_bytes": 3096,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-c18\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210051-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-mobile-density-20261028.css",
+      "sha256": "6bb06fd8cd75437051ea91026f83deb34e39ec8a689bf3eaa373f30545df85c7",
+      "matches_baseline": true,
+      "encoded_bytes": 895,
+      "decoded_bytes": 3823,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-eef\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210051-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-mobile-disclosure-20261027.css?v=98156df-core-collapse",
+      "sha256": "0770c4a5fad419941f934148060a4eccaeb0433c171b551149b3ff2772affc17",
+      "matches_baseline": true,
+      "encoded_bytes": 604,
+      "decoded_bytes": 1954,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-7a2\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210048-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/core-routines-compact-20261028.css",
+      "sha256": "e2f1ff31340ef706cd3d2bc3af7f354cd9266cc9de05a617d149e1edf61fef0a",
+      "matches_baseline": true,
+      "encoded_bytes": 745,
+      "decoded_bytes": 2218,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-8aa\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210025-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/social-capsules-20261029.css",
+      "sha256": "056bf2a49cc9fe2b347afd7e2d7e782c181f37c5c957bda5eb82e24746d2523d",
+      "matches_baseline": true,
+      "encoded_bytes": 230,
+      "decoded_bytes": 230,
+      "headers": {
+        "cache-control": "max-age=600",
+        "etag": "\"6ae7e350-e6\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210050-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/pro-mode.css?v=73bd98bbd73d7008",
+      "sha256": "73bd98bbd73d700829971e36957100c4ce614aba3b22954b2c29de665126fa59",
+      "matches_baseline": true,
+      "encoded_bytes": 5035,
+      "decoded_bytes": 30547,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-7753\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210022-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/display-adaptation.css?v=5b579190b447ed2f",
+      "sha256": "5b579190b447ed2f06ec32cc4c20868b4f17f1aa86d981ece9558967a1b60375",
+      "matches_baseline": true,
+      "encoded_bytes": 561,
+      "decoded_bytes": 1269,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-4f5\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210034-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/display-adaptation.js?v=2df7737ebff32b41",
+      "sha256": "2df7737ebff32b41876af286e51c1f815c4628903f03e1fb7a7505746a7016fa",
+      "matches_baseline": true,
+      "encoded_bytes": 543,
+      "decoded_bytes": 1079,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-437\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210035-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/supabase-2.118.0.js",
+      "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3",
+      "matches_baseline": true,
+      "encoded_bytes": 56388,
+      "decoded_bytes": 218252,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-3548c\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210038-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/app.0899c5a98a201f84.js",
+      "sha256": "0899c5a98a201f8470774a2a16902806f632cd354cc4ec51593b7f71dc699bfc",
+      "matches_baseline": true,
+      "encoded_bytes": 118022,
+      "decoded_bytes": 379858,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-5cbd2\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210021-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/history-back-first-click-20261026.js",
+      "sha256": "51376aafaddc17ddb9ed165c70cc928d32397a2780e3a863f41d66fa23cb0731",
+      "matches_baseline": true,
+      "encoded_bytes": 333,
+      "decoded_bytes": 506,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-1fa\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210049-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/aurora-skin.js?v=85b841c8e7ba2ff9",
+      "sha256": "85b841c8e7ba2ff9d19fa5f38ca0b5947c15a85ad57e5fda57d945bf2994a495",
+      "matches_baseline": true,
+      "encoded_bytes": 151,
+      "decoded_bytes": 151,
+      "headers": {
+        "cache-control": "max-age=600",
+        "etag": "\"6ae7e350-97\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210028-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    },
+    {
+      "url": "https://trypartylol-max.github.io/shaah/assets/today-mobile-disclosure-20261027.js?v=9bea039-verified",
+      "sha256": "335c6b373a683c90e9ec9d7b0830ea2d9096355fe3b191116f1f2f9c4f320175",
+      "matches_baseline": true,
+      "encoded_bytes": 648,
+      "decoded_bytes": 1367,
+      "headers": {
+        "cache-control": "max-age=600",
+        "content-encoding": "gzip",
+        "etag": "W/\"6ae7e350-557\"",
+        "vary": "Accept-Encoding",
+        "server": "GitHub.com",
+        "x-served-by": "cache-bgy-lime1210025-BGY",
+        "x-cache": "HIT",
+        "age": "0"
+      }
+    }
+  ]
+}

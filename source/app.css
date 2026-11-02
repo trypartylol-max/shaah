@@ -3008,3 +3008,8 @@ html #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(
 html[data-pro-mode=true] .today.starter-today,.pro-mode .today.starter-today{display:block!important;max-width:700px}
 html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){display:block!important;grid-template-columns:none!important;width:100%!important;max-width:700px!important;padding:22px 24px calc(90px + env(safe-area-inset-bottom))!important;margin:0 auto!important;zoom:1!important}
 @media(max-width:520px){html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){padding-left:18px!important;padding-right:18px!important}}
+/* Stable placeholders while auth/account data arrives; no fake progress. */
+#nav.boot-nav{display:none}
+.loading-skeleton{display:grid;gap:12px;width:min(100%,360px);margin:24px auto}
+.loading-skeleton i{display:block;height:48px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff0d}
+.loading-skeleton i:last-child{width:70%}

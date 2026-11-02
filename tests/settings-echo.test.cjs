@@ -44,8 +44,8 @@ test('Today shortcut opens Social even when its navigation tab is hidden',()=>{
  const app=loadApp();
  app.run(source.slice(source.indexOf('function render(){'),source.indexOf('\n// Keep local day interactions')));
  app.run(`USER={id:'synthetic-A'};CFG.socialTab=false;
- document.getElementById=id=>id==='cr-dialog'?null:({style:{},querySelector:()=>null});document.querySelectorAll=()=>[];
- uiHTML=(el,html)=>{window.lastView=html};topbarHTML=()=>'';renderSocial=()=> 'SOCIAL_VIEW';renderToday=()=> 'TODAY_VIEW';
+ const viewRoot={style:{},classList:{remove(){}},querySelector:()=>null,append(){}};document.getElementById=id=>id==='cr-dialog'?null:viewRoot;document.querySelectorAll=()=>[];document.createElement=()=>({firstElementChild:{}});
+ uiHTML=(el,html)=>{if(el===viewRoot)window.lastView=html};topbarHTML=()=>'';renderSocial=()=> 'SOCIAL_VIEW';renderToday=()=> 'TODAY_VIEW';
  renderTour=()=>{};routineDialogSync=()=>{};renderResume=()=>{};initScrollHide=()=>{};tuckNav=()=>{};
  UI_ACTIONS.setTab.run(null,null,'social');`);
  assert.equal(app.read('window.lastView'),'SOCIAL_VIEW');assert.equal(app.read('CFG.socialTab'),false);

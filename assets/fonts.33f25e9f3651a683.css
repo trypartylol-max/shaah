@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'Bebas Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./bebas-neue-400.bf7132a31e7ad38f.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./dm-mono-400.6d1177cfe7e683de.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./dm-mono-500.444e10abbed84d93.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./dm-sans-400.2ea1bf6e4127eebf.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./dm-sans-500.5db7ec8890b78af7.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./dm-sans-700.9b1a44756787bbc9.woff2') format('woff2');
+}

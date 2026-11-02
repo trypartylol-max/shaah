@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-02",
+  "status": "verified-upload-authorized",
+  "base_commit": "5337019be1748b05e26d93bf757a6abbb29e4547",
+  "primary_url": "https://trypartylol-max.github.io/shaah/",
+  "production_changed": false,
+  "real_user_data_written": false,
+  "unit_passed": 330,
+  "browser_group_passed": 45,
+  "loading_font_group_passed": 2,
+  "public_baseline_files": 24,
+  "report": "docs/performance/REPORT.md",
+  "upload_rejected_by_automatic_review": true,
+  "remote_branch_created": false,
+  "pull_request_created": false,
+  "upload_authorized_by_user": true
+}

@@ -1,0 +1,1164 @@
+[
+  {
+    "device": "desktop-100ms-API",
+    "days": 365,
+    "startup": {
+      "readyMs": 389.79999999701977,
+      "reads": 4,
+      "subscriptions": 2,
+      "metrics": {
+        "skinPaintTree": {
+          "calls": 375,
+          "ms": 8.300000004470348
+        },
+        "render": {
+          "calls": 5,
+          "ms": 56.50000000745058
+        },
+        "calcScore": {
+          "calls": 1113,
+          "ms": 42.79999998956919
+        },
+        "getHistory": {
+          "calls": 3,
+          "ms": 42.899999998509884
+        },
+        "renderToday": {
+          "calls": 3,
+          "ms": 50.19999999552965
+        }
+      }
+    },
+    "tabs": {
+      "today": [
+        {
+          "syncMs": 18,
+          "paintMs": 24.299999997019768,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 15.100000001490116
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 14.899999998509884
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 16.299999997019768
+            },
+            "render": {
+              "calls": 1,
+              "ms": 18
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 2.3000000044703484
+            }
+          }
+        },
+        {
+          "syncMs": 15.399999998509884,
+          "paintMs": 31.399999998509884,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 12.600000001490116
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 12.5
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 13.799999997019768
+            },
+            "render": {
+              "calls": 1,
+              "ms": 15.399999998509884
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 2.4000000059604645
+            }
+          }
+        },
+        {
+          "syncMs": 15.299999997019768,
+          "paintMs": 32.100000001490116,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 12.5
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 12.5
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 13.800000004470348
+            },
+            "render": {
+              "calls": 1,
+              "ms": 15.299999997019768
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 2.100000001490116
+            }
+          }
+        },
+        {
+          "syncMs": 14.700000002980232,
+          "paintMs": 31.600000001490116,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 12.300000004470348
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 12
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 13.199999995529652
+            },
+            "render": {
+              "calls": 1,
+              "ms": 14.700000002980232
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 2.0999999940395355
+            }
+          }
+        },
+        {
+          "syncMs": 14.799999997019768,
+          "paintMs": 31.899999998509884,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 12.200000002980232
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 12
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 13.299999997019768
+            },
+            "render": {
+              "calls": 1,
+              "ms": 14.799999997019768
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 2.4000000059604645
+            }
+          }
+        }
+      ],
+      "social": [
+        {
+          "syncMs": 93.79999999701977,
+          "paintMs": 99.69999999552965,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 93.79999999701977
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 0.8999999985098839
+            }
+          }
+        },
+        {
+          "syncMs": 93.10000000149012,
+          "paintMs": 96.39999999850988,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 93.10000000149012
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 0.8999999985098839
+            }
+          }
+        },
+        {
+          "syncMs": 94.5,
+          "paintMs": 97.60000000149012,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 94.5
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 0.7999999970197678
+            }
+          }
+        },
+        {
+          "syncMs": 95,
+          "paintMs": 115.89999999850988,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 95
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 0.7999999970197678
+            }
+          }
+        },
+        {
+          "syncMs": 100.10000000149012,
+          "paintMs": 115.80000000447035,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 100
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 1
+            }
+          }
+        }
+      ],
+      "stats": [
+        {
+          "syncMs": 62.5,
+          "paintMs": 67.89999999850988,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 57.30000000447035
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 30.700000002980232
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 61.399999998509884
+            },
+            "render": {
+              "calls": 1,
+              "ms": 62.5
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 2.2000000029802322
+            }
+          }
+        },
+        {
+          "syncMs": 57.399999998509884,
+          "paintMs": 61.20000000298023,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 53.900000005960464
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 24.5
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 56.5
+            },
+            "render": {
+              "calls": 1,
+              "ms": 57.399999998509884
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 2.2000000029802322
+            }
+          }
+        },
+        {
+          "syncMs": 56.599999994039536,
+          "paintMs": 60.5,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 53.80000000447035
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 27.30000000447035
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 55.70000000298023
+            },
+            "render": {
+              "calls": 1,
+              "ms": 56.599999994039536
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 2.0000000074505806
+            }
+          }
+        },
+        {
+          "syncMs": 53.599999994039536,
+          "paintMs": 59,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 50.50000000745058
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 24.5
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 52.5
+            },
+            "render": {
+              "calls": 1,
+              "ms": 53.599999994039536
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 2.100000001490116
+            }
+          }
+        },
+        {
+          "syncMs": 58.100000001490116,
+          "paintMs": 62.30000000447035,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 55.400000005960464
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 27.19999999552965
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 57.100000001490116
+            },
+            "render": {
+              "calls": 1,
+              "ms": 58.100000001490116
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 2
+            }
+          }
+        }
+      ],
+      "history": [
+        {
+          "syncMs": 2.5999999940395355,
+          "paintMs": 32.899999998509884,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 0.5999999940395355
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 1.5
+            },
+            "render": {
+              "calls": 1,
+              "ms": 2.5999999940395355
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 6.100000001490116
+            }
+          }
+        },
+        {
+          "syncMs": 2.5,
+          "paintMs": 32.29999999701977,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 0.6999999955296516
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 1.2000000029802322
+            },
+            "render": {
+              "calls": 1,
+              "ms": 2.5
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 7
+            }
+          }
+        },
+        {
+          "syncMs": 2.5,
+          "paintMs": 29.799999997019768,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 0.8000000044703484
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 1.1000000014901161
+            },
+            "render": {
+              "calls": 1,
+              "ms": 2.5
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 7
+            }
+          }
+        },
+        {
+          "syncMs": 2.5,
+          "paintMs": 32.20000000298023,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 0.7999999970197678
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 1.1999999955296516
+            },
+            "render": {
+              "calls": 1,
+              "ms": 2.5
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 6.700000010430813
+            }
+          }
+        },
+        {
+          "syncMs": 2.5,
+          "paintMs": 31.69999999552965,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 0.6000000014901161
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 1.0999999940395355
+            },
+            "render": {
+              "calls": 1,
+              "ms": 2.5
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 6.999999992549419
+            }
+          }
+        }
+      ],
+      "log": [
+        {
+          "syncMs": 1.6000000014901161,
+          "paintMs": 32.100000001490116,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 1.6000000014901161
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.30000000447034836
+            }
+          }
+        },
+        {
+          "syncMs": 1.1000000014901161,
+          "paintMs": 32,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 1
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.30000000447034836
+            }
+          }
+        },
+        {
+          "syncMs": 0.8999999985098839,
+          "paintMs": 32.29999999701977,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 0.8999999985098839
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.3999999985098839
+            }
+          }
+        },
+        {
+          "syncMs": 1,
+          "paintMs": 32.29999999701977,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 1
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.3999999985098839
+            }
+          }
+        },
+        {
+          "syncMs": 1.2000000029802322,
+          "paintMs": 32.20000000298023,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 1.2000000029802322
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.5
+            }
+          }
+        }
+      ]
+    },
+    "habit": {
+      "id": "nofap",
+      "immediate": true,
+      "syncMs": 23.899999998509884,
+      "paintMs": 31.700000002980232,
+      "metrics": {
+        "calcScore": {
+          "calls": 373,
+          "ms": 14
+        },
+        "getHistory": {
+          "calls": 1,
+          "ms": 13.799999997019768
+        },
+        "renderToday": {
+          "calls": 1,
+          "ms": 15.299999997019768
+        },
+        "skinPaintTree": {
+          "calls": 58,
+          "ms": 6.799999997019768
+        },
+        "renderDayChange": {
+          "calls": 1,
+          "ms": 18.5
+        }
+      }
+    }
+  },
+  {
+    "device": "mobile-4x-CPU-600ms-API",
+    "days": 365,
+    "startup": {
+      "readyMs": 1245.6000000014901,
+      "reads": 4,
+      "subscriptions": 2,
+      "metrics": {
+        "skinPaintTree": {
+          "calls": 256,
+          "ms": 26.799999989569187
+        },
+        "render": {
+          "calls": 4,
+          "ms": 148.79999999701977
+        },
+        "calcScore": {
+          "calls": 742,
+          "ms": 111.30000001192093
+        },
+        "getHistory": {
+          "calls": 2,
+          "ms": 110.30000000447035
+        },
+        "renderToday": {
+          "calls": 2,
+          "ms": 131.10000000149012
+        }
+      }
+    },
+    "tabs": {
+      "today": [
+        {
+          "syncMs": 59.100000001490116,
+          "paintMs": 79.30000000447035,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 47.89999998360872
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 48
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 53.399999998509884
+            },
+            "render": {
+              "calls": 1,
+              "ms": 59.100000001490116
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 8.50000000745058
+            }
+          }
+        },
+        {
+          "syncMs": 59.5,
+          "paintMs": 82.79999999701977,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 47.899999998509884
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 48.29999999701977
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 54.099999994039536
+            },
+            "render": {
+              "calls": 1,
+              "ms": 59.5
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 10.400000005960464
+            }
+          }
+        },
+        {
+          "syncMs": 58.599999994039536,
+          "paintMs": 157,
+          "metrics": {
+            "calcScore": {
+              "calls": 742,
+              "ms": 96.99999998509884
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 98
+            },
+            "renderToday": {
+              "calls": 2,
+              "ms": 108.79999999701977
+            },
+            "render": {
+              "calls": 2,
+              "ms": 118.89999999850988
+            },
+            "skinPaintTree": {
+              "calls": 237,
+              "ms": 15.300000004470348
+            }
+          }
+        },
+        {
+          "syncMs": 57.399999998509884,
+          "paintMs": 76.80000000447035,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 47.19999999552965
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 47.29999999701977
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 52.69999999552965
+            },
+            "render": {
+              "calls": 1,
+              "ms": 57.399999998509884
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 7.9000000059604645
+            }
+          }
+        },
+        {
+          "syncMs": 59.899999998509884,
+          "paintMs": 80.69999999552965,
+          "metrics": {
+            "calcScore": {
+              "calls": 371,
+              "ms": 50.29999998956919
+            },
+            "getHistory": {
+              "calls": 1,
+              "ms": 49.79999999701977
+            },
+            "renderToday": {
+              "calls": 1,
+              "ms": 55
+            },
+            "render": {
+              "calls": 1,
+              "ms": 59.899999998509884
+            },
+            "skinPaintTree": {
+              "calls": 118,
+              "ms": 10.099999994039536
+            }
+          }
+        }
+      ],
+      "social": [
+        {
+          "syncMs": 369.20000000298023,
+          "paintMs": 390.90000000596046,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 369.20000000298023
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 3.5
+            }
+          }
+        },
+        {
+          "syncMs": 365.70000000298023,
+          "paintMs": 379.29999999701977,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 365.70000000298023
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 3.1999999955296516
+            }
+          }
+        },
+        {
+          "syncMs": 364.69999999552965,
+          "paintMs": 382.19999999552965,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 364.69999999552965
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 3.3000000044703484
+            }
+          }
+        },
+        {
+          "syncMs": 373.59999999403954,
+          "paintMs": 387,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 373.59999999403954
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 2.9000000059604645
+            }
+          }
+        },
+        {
+          "syncMs": 369.20000000298023,
+          "paintMs": 386.70000000298023,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 369.20000000298023
+            },
+            "skinPaintTree": {
+              "calls": 47,
+              "ms": 3.100000001490116
+            }
+          }
+        }
+      ],
+      "stats": [
+        {
+          "syncMs": 234.60000000149012,
+          "paintMs": 255.70000000298023,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 213.6000000089407
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 109.30000000447035
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 230.59999999403954
+            },
+            "render": {
+              "calls": 1,
+              "ms": 234.60000000149012
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 8.799999997019768
+            }
+          }
+        },
+        {
+          "syncMs": 228.39999999850988,
+          "paintMs": 244.69999999552965,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 215.5
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 108.60000000149012
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 224.10000000149012
+            },
+            "render": {
+              "calls": 1,
+              "ms": 228.39999999850988
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 8.899999998509884
+            }
+          }
+        },
+        {
+          "syncMs": 220.70000000298023,
+          "paintMs": 235.30000000447035,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 207.6000000089407
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 102.29999999701977
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 217.19999999552965
+            },
+            "render": {
+              "calls": 1,
+              "ms": 220.70000000298023
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 8.800000004470348
+            }
+          }
+        },
+        {
+          "syncMs": 212.10000000149012,
+          "paintMs": 226.70000000298023,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 199.10000000149012
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 95.89999999850988
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 207.5
+            },
+            "render": {
+              "calls": 1,
+              "ms": 212.10000000149012
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 8.200000002980232
+            }
+          }
+        },
+        {
+          "syncMs": 209.90000000596046,
+          "paintMs": 225.20000000298023,
+          "metrics": {
+            "calcScore": {
+              "calls": 1517,
+              "ms": 198.19999999552965
+            },
+            "getHistory": {
+              "calls": 2,
+              "ms": 96.89999999850988
+            },
+            "renderStats": {
+              "calls": 1,
+              "ms": 205.29999999701977
+            },
+            "render": {
+              "calls": 1,
+              "ms": 209.90000000596046
+            },
+            "skinPaintTree": {
+              "calls": 139,
+              "ms": 8.799999997019768
+            }
+          }
+        }
+      ],
+      "history": [
+        {
+          "syncMs": 10.299999997019768,
+          "paintMs": 43.600000001490116,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 2.799999989569187
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 5.100000001490116
+            },
+            "render": {
+              "calls": 1,
+              "ms": 10.199999995529652
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 23.69999999552965
+            }
+          }
+        },
+        {
+          "syncMs": 9.100000001490116,
+          "paintMs": 41.600000001490116,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 2
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 5
+            },
+            "render": {
+              "calls": 1,
+              "ms": 9.100000001490116
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 24.600000001490116
+            }
+          }
+        },
+        {
+          "syncMs": 8.299999997019768,
+          "paintMs": 46.70000000298023,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 2.399999998509884
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 4.399999998509884
+            },
+            "render": {
+              "calls": 1,
+              "ms": 8.299999997019768
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 29.600000008940697
+            }
+          }
+        },
+        {
+          "syncMs": 9.200000002980232,
+          "paintMs": 40.100000001490116,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 3.5999999940395355
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 4.100000001490116
+            },
+            "render": {
+              "calls": 1,
+              "ms": 9.200000002980232
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 24.600000001490116
+            }
+          }
+        },
+        {
+          "syncMs": 11.100000001490116,
+          "paintMs": 41.80000000447035,
+          "metrics": {
+            "calcScore": {
+              "calls": 14,
+              "ms": 4.100000001490116
+            },
+            "renderHistory": {
+              "calls": 1,
+              "ms": 5.399999998509884
+            },
+            "render": {
+              "calls": 1,
+              "ms": 11.100000001490116
+            },
+            "skinPaintTree": {
+              "calls": 229,
+              "ms": 24
+            }
+          }
+        }
+      ],
+      "log": [
+        {
+          "syncMs": 5.399999998509884,
+          "paintMs": 44.29999999701977,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 5.399999998509884
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.7999999970197678
+            }
+          }
+        },
+        {
+          "syncMs": 4.299999997019768,
+          "paintMs": 28.799999997019768,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 4.299999997019768
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 1.4000000059604645
+            }
+          }
+        },
+        {
+          "syncMs": 3.600000001490116,
+          "paintMs": 31.399999998509884,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 3.600000001490116
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 1.1000000014901161
+            }
+          }
+        },
+        {
+          "syncMs": 3.6999999955296516,
+          "paintMs": 32.599999994039536,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 3.6999999955296516
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 0.7999999970197678
+            }
+          }
+        },
+        {
+          "syncMs": 3.5,
+          "paintMs": 32.20000000298023,
+          "metrics": {
+            "render": {
+              "calls": 1,
+              "ms": 3.399999998509884
+            },
+            "skinPaintTree": {
+              "calls": 11,
+              "ms": 1.1000000014901161
+            }
+          }
+        }
+      ]
+    },
+    "habit": {
+      "id": "nofap",
+      "immediate": true,
+      "syncMs": 75.70000000298023,
+      "paintMs": 104.60000000149012,
+      "metrics": {
+        "calcScore": {
+          "calls": 373,
+          "ms": 52.6000000089407
+        },
+        "getHistory": {
+          "calls": 1,
+          "ms": 49.5
+        },
+        "renderToday": {
+          "calls": 1,
+          "ms": 55
+        },
+        "skinPaintTree": {
+          "calls": 58,
+          "ms": 25.700000002980232
+        },
+        "renderDayChange": {
+          "calls": 1,
+          "ms": 67
+        }
+      }
+    }
+  }
+]

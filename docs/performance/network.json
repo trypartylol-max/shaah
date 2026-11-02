@@ -1,0 +1,267 @@
+[
+  {
+    "label": "before",
+    "profile": "390x844;4x CPU;1.6Mbps down;150ms latency;600ms synthetic API;gzip;fresh browser context",
+    "readyMs": 3603.5,
+    "fcp": 1780,
+    "resources": [
+      {
+        "name": "/before/assets/fonts.f979be2919756976.css",
+        "bytes": 192249,
+        "duration": 1498
+      },
+      {
+        "name": "/before/assets/mobile-circular-log-20261026.css",
+        "bytes": 703,
+        "duration": 191.29999999701977
+      },
+      {
+        "name": "/before/assets/app.1c8338af6b988ed7.css",
+        "bytes": 40753,
+        "duration": 694.2000000029802
+      },
+      {
+        "name": "/before/assets/aurora-skin.css",
+        "bytes": 2216,
+        "duration": 237
+      },
+      {
+        "name": "/before/assets/work-skin-parity-20261027.css",
+        "bytes": 776,
+        "duration": 205.80000000447035
+      },
+      {
+        "name": "/before/assets/ui-refinement-20261027.css",
+        "bytes": 1845,
+        "duration": 242.09999999403954
+      },
+      {
+        "name": "/before/assets/today-disclosure-20261027.css",
+        "bytes": 587,
+        "duration": 355.69999999552965
+      },
+      {
+        "name": "/before/assets/today-desktop-20261027.css",
+        "bytes": 630,
+        "duration": 377.80000000447035
+      },
+      {
+        "name": "/before/assets/today-type-20261027.css",
+        "bytes": 634,
+        "duration": 407.5
+      },
+      {
+        "name": "/before/assets/mobile-width-test-20261027.css",
+        "bytes": 735,
+        "duration": 415.1000000014901
+      },
+      {
+        "name": "/before/assets/today-mobile-order-20261027.css",
+        "bytes": 801,
+        "duration": 527.2000000029802
+      },
+      {
+        "name": "/before/assets/today-mobile-density-20261028.css",
+        "bytes": 889,
+        "duration": 549.8999999985099
+      },
+      {
+        "name": "/before/assets/today-mobile-disclosure-20261027.css",
+        "bytes": 602,
+        "duration": 579.1000000014901
+      },
+      {
+        "name": "/before/assets/core-routines-compact-20261028.css",
+        "bytes": 740,
+        "duration": 592.8999999985099
+      },
+      {
+        "name": "/before/assets/social-capsules-20261029.css",
+        "bytes": 169,
+        "duration": 698.8999999985099
+      },
+      {
+        "name": "/before/assets/display-adaptation.css",
+        "bytes": 561,
+        "duration": 751.2000000029802
+      },
+      {
+        "name": "/before/assets/pro-mode.css",
+        "bytes": 4894,
+        "duration": 773.7999999970198
+      },
+      {
+        "name": "/before/assets/display-adaptation.js",
+        "bytes": 542,
+        "duration": 764.8000000044703
+      },
+      {
+        "name": "/before/assets/supabase-2.118.0.js",
+        "bytes": 55763,
+        "duration": 435.79999999701977
+      },
+      {
+        "name": "/before/assets/app.0899c5a98a201f84.js",
+        "bytes": 117743,
+        "duration": 745.5
+      },
+      {
+        "name": "/before/assets/history-back-first-click-20261026.js",
+        "bytes": 332,
+        "duration": 160.69999999552965
+      },
+      {
+        "name": "/before/assets/aurora-skin.js",
+        "bytes": 133,
+        "duration": 154.60000000149012
+      },
+      {
+        "name": "/before/assets/today-mobile-disclosure-20261027.js",
+        "bytes": 643,
+        "duration": 155.29999999701977
+      }
+    ],
+    "overflow": false,
+    "live": true
+  },
+  {
+    "label": "after",
+    "profile": "390x844;4x CPU;1.6Mbps down;150ms latency;600ms synthetic API;gzip;fresh browser context",
+    "readyMs": 3006.60000000149,
+    "fcp": 872,
+    "resources": [
+      {
+        "name": "/after/assets/fonts.33f25e9f3651a683.css",
+        "bytes": 278,
+        "duration": 161.20000000298023
+      },
+      {
+        "name": "/after/assets/app.40a66ec253d839b3.css",
+        "bytes": 40871,
+        "duration": 454.5
+      },
+      {
+        "name": "/after/assets/mobile-circular-log-20261026.css",
+        "bytes": 703,
+        "duration": 175.39999999850988
+      },
+      {
+        "name": "/after/assets/work-skin-parity-20261027.css",
+        "bytes": 776,
+        "duration": 191.29999999701977
+      },
+      {
+        "name": "/after/assets/aurora-skin.css",
+        "bytes": 2216,
+        "duration": 213.29999999701977
+      },
+      {
+        "name": "/after/assets/ui-refinement-20261027.css",
+        "bytes": 1845,
+        "duration": 220.19999999552965
+      },
+      {
+        "name": "/after/assets/today-disclosure-20261027.css",
+        "bytes": 587,
+        "duration": 316.8999999985099
+      },
+      {
+        "name": "/after/assets/today-desktop-20261027.css",
+        "bytes": 630,
+        "duration": 339.8999999985099
+      },
+      {
+        "name": "/after/assets/today-type-20261027.css",
+        "bytes": 634,
+        "duration": 354.29999999701977
+      },
+      {
+        "name": "/after/assets/mobile-width-test-20261027.css",
+        "bytes": 735,
+        "duration": 377.1000000014901
+      },
+      {
+        "name": "/after/assets/today-mobile-order-20261027.css",
+        "bytes": 801,
+        "duration": 390.69999999552965
+      },
+      {
+        "name": "/after/assets/today-mobile-density-20261028.css",
+        "bytes": 889,
+        "duration": 473.20000000298023
+      },
+      {
+        "name": "/after/assets/today-mobile-disclosure-20261027.css",
+        "bytes": 602,
+        "duration": 495.79999999701977
+      },
+      {
+        "name": "/after/assets/core-routines-compact-20261028.css",
+        "bytes": 740,
+        "duration": 510.40000000596046
+      },
+      {
+        "name": "/after/assets/social-capsules-20261029.css",
+        "bytes": 169,
+        "duration": 533
+      },
+      {
+        "name": "/after/assets/pro-mode.css",
+        "bytes": 4894,
+        "duration": 570.2999999970198
+      },
+      {
+        "name": "/after/assets/display-adaptation.css",
+        "bytes": 561,
+        "duration": 606.8999999985099
+      },
+      {
+        "name": "/after/assets/display-adaptation.js",
+        "bytes": 542,
+        "duration": 629
+      },
+      {
+        "name": "/after/assets/supabase-2.118.0.js",
+        "bytes": 55763,
+        "duration": 735.7000000029802
+      },
+      {
+        "name": "/after/assets/bebas-neue-400.bf7132a31e7ad38f.woff2",
+        "bytes": 20304,
+        "duration": 575.2000000029802
+      },
+      {
+        "name": "/after/assets/dm-sans-500.5db7ec8890b78af7.woff2",
+        "bytes": 19259,
+        "duration": 552.8000000044703
+      },
+      {
+        "name": "/after/assets/dm-sans-400.2ea1bf6e4127eebf.woff2",
+        "bytes": 19018,
+        "duration": 561
+      },
+      {
+        "name": "/after/assets/app.a35ae0eff8d3f760.js",
+        "bytes": 118086,
+        "duration": 744.5
+      },
+      {
+        "name": "/after/assets/history-back-first-click-20261026.js",
+        "bytes": 332,
+        "duration": 155.69999999552965
+      },
+      {
+        "name": "/after/assets/aurora-skin.js",
+        "bytes": 133,
+        "duration": 164.20000000298023
+      },
+      {
+        "name": "/after/assets/today-mobile-disclosure-20261027.js",
+        "bytes": 643,
+        "duration": 161.29999999701977
+      }
+    ],
+    "overflow": false,
+    "live": true
+  }
+]

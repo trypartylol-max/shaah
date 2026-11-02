@@ -139,7 +139,7 @@ html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .s
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{font:400 14px/1.4 'DM Sans',sans-serif!important;font-variant-numeric:tabular-nums}
 }
 @media(min-width:1180px){
- html[data-skin="pro"]{--pro-sidebar:208px;--pro-note-top:426px}
+ html[data-skin="pro"]{--pro-sidebar:176px;--pro-note-top:426px}
  html[data-skin="pro"] #app:has(#nav[style*="display: flex"])>#scroll{margin-left:var(--pro-sidebar)}
  html[data-skin="pro"] #nav{width:var(--pro-sidebar);padding:20px 16px;gap:4px}
  html[data-skin="pro"] #nav::before{padding:0 8px 100px;font-size:20px}
@@ -168,7 +168,7 @@ html[data-skin="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .s
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-note textarea{height:100%!important;min-height:0!important;overflow-y:auto!important;padding:12px!important;font:400 14px/1.5 'DM Sans',sans-serif!important;resize:none}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset{position:fixed!important;bottom:16px!important;left:16px!important;width:calc(var(--pro-sidebar) - 32px)!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;z-index:1003;grid-row:auto!important;grid-column:auto!important}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset::before{content:"";position:absolute;left:0;right:0;top:-12px;border-top:1px solid #45405d}
- html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger{width:100%;justify-content:center;font-size:12px;letter-spacing:.04em;padding:8px}
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger{width:100%;justify-content:flex-start;gap:10px;font-size:12px;letter-spacing:.04em;padding:8px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .reset-day-warning{width:176px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy{grid-template-columns:minmax(0,1fr) auto!important;row-gap:2px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{grid-column:2;grid-row:1}
@@ -223,7 +223,7 @@ html[data-skin="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.comb
 /* Shared desktop sidebar: centered navigation and today's note on every tab. */
 .pro-sidebar-note{display:none}
 @media(min-width:1180px){
- html[data-skin="pro"] #nav .nav-btn{justify-content:center}
+ html[data-skin="pro"] #nav .nav-btn{justify-content:flex-start;gap:10px;padding-left:10px;padding-right:10px}
  html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset::before{top:-8px}
  html[data-skin="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #nav .pro-nav-settings{bottom:16px}
  html[data-skin="pro"] #app #scroll>.pro-sidebar-note{position:fixed;top:var(--pro-note-top);bottom:76px;left:16px;width:calc(var(--pro-sidebar) - 32px)!important;max-width:none!important;height:auto;min-height:70px;margin:0;padding:10px 0 0;border:0;border-top:1px solid var(--pro-edge);border-radius:0;background:transparent;display:flex;flex-direction:column;z-index:1000}
@@ -238,3 +238,13 @@ html[data-skin="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.comb
  html[data-skin="pro"] #app:has(#nav .nav-btn[data-tab="log"].active) #sync-status{display:none}
 }
 @media(min-width:1180px) and (max-height:600px){html[data-skin="pro"] #app #scroll>.pro-sidebar-note{display:none}}
+
+@media(min-width:1180px){
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger{padding-left:10px;padding-right:10px;font-size:13px}
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger>.navigation-icon{width:20px;height:20px}
+ html[data-skin="pro"] #app #scroll .today.sf-today-v27 .reset-day-warning{width:calc(var(--pro-sidebar) - 32px)}
+}
+@media(min-width:1180px){
+ html[data-skin="pro"] #nav .nav-symbol{width:20px;height:20px}
+ html[data-skin="pro"] #nav .nav-btn.active{padding-left:9px}
+}

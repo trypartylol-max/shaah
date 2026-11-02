@@ -3013,3 +3013,8 @@ html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){di
 .loading-skeleton{display:grid;gap:12px;width:min(100%,360px);margin:24px auto}
 .loading-skeleton i{display:block;height:48px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff0d}
 .loading-skeleton i:last-child{width:70%}
+
+/* The navigation vocabulary is global; skins control color, not the icon shape. */
+.navigation-icon{display:block;width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+#nav .nav-symbol{display:grid;place-items:center;flex:none;line-height:1}
+.reset-day-trigger>.navigation-icon{width:18px;height:18px}

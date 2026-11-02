@@ -42,9 +42,9 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
   assert.equal(m.ring.h,m.next.h);assert.ok(Math.abs(m.next.h-m.log.h-(width>=1180?44:0))<1);
   assert.ok(Math.abs(m.log.y-m.ring.y-(width>=1180?44:0))<1);assert.equal(m.overflow,false);
   assert.equal(new Set(m.headings).size,1,JSON.stringify(m));assert.equal(new Set(m.items).size,1,JSON.stringify(m));
-  if(width>=1180){assert.ok(Math.abs(m.nav.w-208)<.1);assert.ok(m.ring.x>=208);}
+  if(width>=1180){assert.ok(Math.abs(m.nav.w-176)<.1);assert.ok(m.ring.x>=176);}
   for(const card of await p.locator('.t-rout-body>.sf-core-routine').all())assert.equal(await card.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,JSON.stringify({width,card:await card.evaluate(e=>({text:e.textContent,w:e.clientWidth,s:e.scrollWidth}))}));
-  if(width===1672){await p.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await p.waitForTimeout(250);assert.ok(await p.locator('#tb-date').evaluate(e=>e.getBoundingClientRect().x<208));await p.screenshot({path:'test-results/pro-mode-desktop.png'});}
+  if(width===1672){await p.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await p.waitForTimeout(250);assert.ok(await p.locator('#tb-date').evaluate(e=>e.getBoundingClientRect().x<176));await p.screenshot({path:'test-results/pro-mode-desktop.png'});}
  }
  await p.evaluate(()=>setSkin('classic'));
  assert.ok(await p.locator('#nav').evaluate(e=>e.getBoundingClientRect().width>1000));
@@ -96,8 +96,8 @@ test('refined sidebar, two-row single-open Social, note and confirmed Reset pres
  const note=p.locator('textarea');await note.fill('Sidebar note persists');await note.blur();
  assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
  const geometry=await p.evaluate(()=>{const r=s=>{const a=document.querySelector(s).getBoundingClientRect();return {x:a.x,y:a.y,b:a.bottom,w:a.width,h:a.height}};return {note:r('.t-note'),status:r('#mode-status'),settings:r('.pro-nav-settings'),reset:r('.t-reset'),date:r('#tb-date'),lower:r('.t-lvl2')}});
- assert.ok(geometry.note.x<208&&geometry.note.b<=geometry.settings.y);assert.ok(geometry.settings.b<=geometry.reset.y);assert.ok(geometry.status.x>1200&&geometry.status.y===20,JSON.stringify(geometry));
- assert.ok(geometry.date.x<208);assert.ok(geometry.lower.b<850,JSON.stringify(geometry));
+ assert.ok(geometry.note.x<176&&geometry.note.b<=geometry.settings.y);assert.ok(geometry.settings.b<=geometry.reset.y);assert.ok(geometry.status.x>1200&&geometry.status.y===20,JSON.stringify(geometry));
+ assert.ok(geometry.date.x<176);assert.ok(geometry.lower.b<850,JSON.stringify(geometry));
  const cards=await p.locator('.t-lvl2,.t-lvl3,.t-social-independent').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {y:r.y,w:r.width,h:r.height}}));
  assert.equal(cards.length,3);assert.ok(cards.every(c=>Math.abs(c.y-cards[0].y)<1&&Math.abs(c.w-cards[0].w)<1));assert.ok(cards[0].h>cards[1].h+50,JSON.stringify(cards));
  await p.waitForTimeout(350);const social=p.locator('.t-social-independent');const expandedHeight=(await social.boundingBox()).height;
@@ -107,7 +107,7 @@ test('refined sidebar, two-row single-open Social, note and confirmed Reset pres
  for(const size of [{width:1180,height:900},{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);const align=await p.evaluate(()=>{const mode=document.querySelector('#mode-status').getBoundingClientRect(),log=document.querySelector('.today-log-start').getBoundingClientRect();return {x:Math.abs(mode.x-log.x),right:Math.abs(mode.right-log.right),gap:log.y-mode.bottom}});assert.ok(align.x<1&&align.right<1&&align.gap>=7,JSON.stringify({size,align}));assert.ok(await p.evaluate(()=>document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().bottom<=document.querySelector('.t-note').getBoundingClientRect().top));}
 });
 
-test('Pro sidebar shares today note across tabs, centers tabs and hides Work in Log',async t=>{
+test('Pro sidebar shares today note across tabs, aligns tabs and hides Work in Log',async t=>{
  const p=await openApp(t,proFixture(),{width:1440,height:900});
  await p.evaluate(()=>{setSkin('pro');setTab('today')});
  const note=()=>p.locator('textarea[id^="note-"]:visible');
@@ -120,7 +120,7 @@ test('Pro sidebar shares today note across tabs, centers tabs and hides Work in 
   assert.equal(await p.locator('#sync-status').isVisible(),tab!=='log');
   if(tab!=='log'){const status=await p.locator('#mode-status').boundingBox();assert.equal(status.y,20);assert.ok(status.x>1200);}
   assert.ok(await note().evaluate(e=>e.getBoundingClientRect().bottom<=document.querySelector('.pro-nav-settings').getBoundingClientRect().top));
-  assert.ok(await p.locator('#nav .nav-btn').evaluateAll(es=>es.every(e=>getComputedStyle(e).justifyContent==='center')));
+  assert.ok(await p.locator('#nav .nav-btn').evaluateAll(es=>es.every(e=>getComputedStyle(e).justifyContent==='flex-start')));
   assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
  }
  await note().fill('Edited in History');await note().blur();
@@ -133,4 +133,25 @@ test('Pro sidebar shares today note across tabs, centers tabs and hides Work in 
  await p.setViewportSize({width:1280,height:720});assert.ok(await note().evaluate(e=>e.getBoundingClientRect().top>=document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().bottom));
  await p.setViewportSize({width:1440,height:900});await p.screenshot({path:'test-results/pro-sidebar-stats.png'});
  await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);await p.evaluate(()=>setTab('today'));assert.equal(await note().inputValue(),'Edited in History');
+});
+
+test('navigation icons stay consistent across all skins on mobile and desktop',async t=>{
+ const p=await openApp(t,proFixture());
+ await p.evaluate(()=>setTab('today'));
+ const writes=await p.evaluate(()=>__mockWrites.length),before=await state(p);
+ for(const width of [390,1440]){
+  await p.setViewportSize({width,height:900});
+  for(const skin of ['classic','glow','matrix','minimal','aurora','pro']){
+   await p.evaluate(s=>setSkin(s),skin);
+   const ids=await p.locator('#nav .nav-btn[data-tab] .navigation-icon').evaluateAll(es=>es.map(e=>e.dataset.navigationIcon));
+   assert.deepEqual(ids,['today','log','social','stats','history']);
+   const settings=p.locator(skin==='pro'&&width>=1180?'.pro-nav-settings .navigation-icon':'#gear .navigation-icon');assert.equal(await settings.isVisible(),true,skin+' '+width);
+   assert.equal(await p.locator('.reset-day-trigger .navigation-icon[data-navigation-icon="reset"]').isVisible(),true);
+   assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
+  }
+ }
+ assert.equal(await state(p),before);assert.equal(await p.evaluate(()=>__mockWrites.length),writes);
+ await p.evaluate(()=>setSkin('pro'));
+ const aligned=await p.evaluate(()=>{const r=e=>e.getBoundingClientRect();const nav=r(document.querySelector('.nav-btn[data-tab="today"] .navigation-icon')),settings=r(document.querySelector('.pro-nav-settings .navigation-icon')),reset=r(document.querySelector('.reset-day-trigger .navigation-icon'));return [nav.x,settings.x,reset.x]});assert.ok(Math.max(...aligned)-Math.min(...aligned)<1,JSON.stringify(aligned));
+ await p.screenshot({path:'test-results/pro-narrow-global-icons.png'});
 });

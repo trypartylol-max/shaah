@@ -3984,9 +3984,15 @@ function confirmResetDay(key){
   if(!request||request.key!==key||request.owner!==USER?.id||request.epoch!==_syncEpoch||key!==todayKey())return;
   resetDay(key);
 }
+// Application navigation icons are shared across every skin and breakpoint.
+function navigationIcon(name){
+ const icons={"today":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>","log":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>","social":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","stats":"<path d=\"M8 18v-4m8 4V6M12 18v-8\"/>","history":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8m0-5v5h5m4-1v5l4 2\"/>","settings":"<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.32-1.915\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>","reset":"<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8m0-5v5h5\"/>"};
+ return `<svg class="navigation-icon" data-navigation-icon="${name}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${icons[name]||""}</svg>`;
+}
+
 function resetDayControl(key){
   const armed=resetDayRequest?.key===key&&resetDayRequest.owner===USER?.id&&resetDayRequest.epoch===_syncEpoch;
-  return `<div class="t-reset" ${ui('keydown','resetDayEscape')}><button class="reset-day-trigger" ${ui('click','resetDay',key)} aria-label="Reset day" aria-expanded="${armed}"><span aria-hidden="true">×</span> RESET DAY</button>${armed?`<div class="product-end-menu reset-day-confirm" role="group" aria-label="Confirmar borrado de todos los datos de hoy"><span class="reset-day-warning">¿Borrar todos los datos de hoy?</span><button id="reset-day-cancel" ${ui('click','resetDayCancel')} aria-label="Cancelar borrado">×</button><button ${ui('click','resetDayConfirm',key)} aria-label="Borrar todos los datos de hoy">✓</button></div>`:''}</div>`;
+  return `<div class="t-reset" ${ui('keydown','resetDayEscape')}><button class="reset-day-trigger" ${ui('click','resetDay',key)} aria-label="Reset day" aria-expanded="${armed}">${navigationIcon("reset")} RESET DAY</button>${armed?`<div class="product-end-menu reset-day-confirm" role="group" aria-label="Confirmar borrado de todos los datos de hoy"><span class="reset-day-warning">¿Borrar todos los datos de hoy?</span><button id="reset-day-cancel" ${ui('click','resetDayCancel')} aria-label="Cancelar borrado">×</button><button ${ui('click','resetDayConfirm',key)} aria-label="Borrar todos los datos de hoy">✓</button></div>`:''}</div>`;
 }
 function routineOrb(){
  const id=routineOrbId(),s=sessions[id],rt=ROUTINES[id];if(!id||!s||!rt)return '';
@@ -4078,7 +4084,7 @@ function topbarHTML(){
   const greet=hr<12?"MORNING":hr<18?"AFTERNOON":"EVENING";
   const dot=_cfgConflict?'#f59e0b':_cfgSaveFailed?'#ef4444':_live?"#4ade80":"#f59e0b";
   return`<div id="topbar">
-    <button id="gear" ${ui('click','openSettings')} aria-label="Settings">⚙</button>
+    <button id="gear" ${ui('click','openSettings')} aria-label="Settings">${navigationIcon("settings")}</button>
     <div id="tb-date">
       <span class="tb-day">${d.toLocaleDateString("en-US",{weekday:"short"}).toUpperCase()}</span>
       <span class="tb-dt">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</span>

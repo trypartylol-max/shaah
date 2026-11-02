@@ -1,0 +1,10 @@
+✔ mobile demo preserves all visible metrics; other skins and desktop paint unchanged (8453.04375ms)
+✔ mobile picker preserves drafts, data and persistent selection (1414.668ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10286.818041

@@ -1,4 +1,30 @@
 /* Pro Mode: presentation only. Native controls, DOM, history and timers stay intact. */
+/* Mobile demo: paint only. Keep native metrics, flow, hit areas and score colors. */
+@media(max-width:879px){
+ html[data-skin='pro']{--pro-panel:#101321;--pro-edge:#35334e;--pro-copy:#eeeaf8;--pro-muted:#b9b4ce;--pro-accent:#b7a0ff}
+ html[data-skin='pro'] body{background:#090b14;color:var(--pro-copy)}
+ html[data-skin='pro'] #topbar{background:#0d101d;border-color:var(--pro-edge)}
+ html[data-skin='pro'] .tb-dt,html[data-skin='pro'] .tb-gr{color:var(--pro-muted)}
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27{--today-card-bg:var(--pro-panel);--today-card-border:var(--pro-edge);--today-title:var(--pro-copy);--today-copy:var(--pro-copy);--today-muted:var(--pro-muted);--today-accent:var(--pro-accent);--today-active:#b7a0ff18}
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-lvl,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-rout,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-note,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine{box-shadow:0 5px 16px #00000026,inset 0 1px 0 #ffffff06!important}
+ html[data-skin='pro'] .t-ring>svg{filter:drop-shadow(0 0 9px #b7a0ff24)}
+ html[data-skin='pro'] .t-ring>svg>circle:first-child{stroke:#292a43!important}
+ html[data-skin='pro'] .t-ring>div{font-variant-numeric:tabular-nums}
+ html[data-skin='pro'] .t-grade{background:#151529;border-color:#514669;box-shadow:inset 0 1px 0 #ffffff08}
+ html[data-skin='pro'] .ls-bar{background:#24243a;border-color:var(--pro-edge)}
+ html[data-skin='pro'] .ls-kicker,html[data-skin='pro'] .lvl-toggle,html[data-skin='pro'] .sf-combo-heading strong{color:var(--pro-copy)!important}
+ html[data-skin='pro'] .lvl-n,html[data-skin='pro'] .ls-footer,html[data-skin='pro'] .r-sub{color:var(--pro-muted)!important}
+ html[data-skin='pro'] .row.on{background:#b7a0ff14}
+ html[data-skin='pro'] .notecard{background:#0b0e19;border-color:var(--pro-edge)}
+ html[data-skin='pro'] textarea{color:var(--pro-copy)}
+ html[data-skin='pro'] #nav{background:#0e1120f5;border-color:var(--pro-edge);box-shadow:0 -5px 20px #00000030}
+ html[data-skin='pro'] #nav .nav-btn{color:var(--pro-muted)}
+ html[data-skin='pro'] #nav .nav-btn.active{color:#d5c7ff;border-color:var(--pro-accent);background:linear-gradient(180deg,#b7a0ff1c,transparent)}
+ html[data-skin='pro'] #nav .nav-btn:focus-visible,html[data-skin='pro'] .today button:focus-visible{outline:2px solid var(--pro-accent);outline-offset:-2px}
+}
 .pro-nav-settings{display:none}
 .skin-preview-pro{background:#0d0f1d;border-color:#35304c}
 .skin-preview-pro .skin-preview-ring{color:#f87171;border-color:#f87171}

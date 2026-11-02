@@ -1,0 +1,21 @@
+✔ mobile demo preserves all visible metrics; other skins and desktop paint unchanged (10680.11625ms)
+✔ mobile picker preserves drafts, data and persistent selection (1163.267667ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (2163.296042ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (1709.309875ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (2649.640417ms)
+✔ refined sidebar, two-row single-open Social, note and confirmed Reset preserve state (3861.86125ms)
+✔ Pro sidebar shares today note across tabs, centers tabs and hides Work in Log (1401.30025ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (3596.045041ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (2147.020084ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (1649.018375ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (771.070791ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (1228.585375ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (2444.357375ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37057.893375

@@ -152,7 +152,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     // their normal SRI. The SDK export cannot replace this synthetic adapter.
     const syntheticSDK=window.supabase;
     Object.defineProperty(window,'supabase',{configurable:true,get:()=>syntheticSDK,set(){}});
-  }, { rows: serverRows(data), loggedOut: !!options.loggedOut, authEmail: options.authEmail ?? 'synthetic@example.invalid',extraRows:Object.fromEntries(Object.entries(options.syntheticAccounts||{}).map(([owner,data])=>[owner,serverRows(data)])) });
+  }, { rows: options.emptyAccount?[]:serverRows(data), loggedOut: !!options.loggedOut, authEmail: options.authEmail ?? 'synthetic@example.invalid',extraRows:Object.fromEntries(Object.entries(options.syntheticAccounts||{}).map(([owner,data])=>[owner,serverRows(data)])) });
   const page = await context.newPage();
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => errors.push(error.message));
@@ -162,7 +162,9 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
   await page.clock.setFixedTime(new Date('2026-10-16T12:00:00Z'));
   await page.goto(options.url || 'http://shaah.test/');
   if (options.loggedOut) await page.getByRole('button', { name: options.loginButtonName || 'Continue with Google' }).waitFor();
-  else {
+  else if(options.emptyAccount){
+    await page.waitForFunction(()=>typeof _starterGate!=='undefined'&&_starterGate==='choose');
+  }else {
     await page.waitForFunction(() => typeof _cfgReady !== 'undefined' && _cfgReady && _live);
     await page.locator('.nav-btn[data-tab="social"]').click();
   }

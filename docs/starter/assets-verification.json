@@ -1,0 +1,99 @@
+{
+  "base": "24064cde98ebbd4aa4f8dd27e9c1867334390abf",
+  "files": [
+    {
+      "path": "assets/fonts.f979be2919756976.css",
+      "sha256": "f979be2919756976d14a82d8e580357df7f39bd704653fd1d9bdd0dd4933b201"
+    },
+    {
+      "path": "assets/app.1c8338af6b988ed7.css",
+      "sha256": "1c8338af6b988ed7b5e9c21cfaa8ada1e6a59af6527bbcf697655a717feaf258"
+    },
+    {
+      "path": "assets/mobile-circular-log-20261026.css",
+      "sha256": "2dc701b7fc3f5db574656de3e836229a85508f1b68ac0d021dc9a792aa8a6fe0"
+    },
+    {
+      "path": "assets/aurora-skin.css",
+      "sha256": "797ee01cb04edf92d74e47cf6fe244e02088cbd74c2083aebbe23d941bd2ff5c"
+    },
+    {
+      "path": "assets/work-skin-parity-20261027.css",
+      "sha256": "5d6343542ea09f4ed19f8dd84b04b29b4213a86a9c1e4f8f817e3946185c9137"
+    },
+    {
+      "path": "assets/ui-refinement-20261027.css",
+      "sha256": "8a2360d7885412d121070d607af8aa8b4ca7ee2bcf29482e4f8b73b5786ad41b"
+    },
+    {
+      "path": "assets/today-disclosure-20261027.css",
+      "sha256": "0b94ee84df2cd85b669ca38c9a8cca389b2efa44f179cac94dea181f18dc2e20"
+    },
+    {
+      "path": "assets/today-desktop-20261027.css",
+      "sha256": "b92ad68b3455da3311dec2be2cafa73e28b98b1c49d216ea0c5842aa62e16f4f"
+    },
+    {
+      "path": "assets/today-type-20261027.css",
+      "sha256": "745a28377d9db4b65b0c678fa7cb9d5e603c5e5e7d01741ba9f6991a7df76a7f"
+    },
+    {
+      "path": "assets/mobile-width-test-20261027.css",
+      "sha256": "f23f5346472c2b9d290955a27ecb30be917b981704c735df9d7acbc6aed37161"
+    },
+    {
+      "path": "assets/today-mobile-order-20261027.css",
+      "sha256": "dacca273f2f0cb87b41394caa32adffce036e33a0429a0bf4be0b93e0ae4279a"
+    },
+    {
+      "path": "assets/today-mobile-density-20261028.css",
+      "sha256": "6bb06fd8cd75437051ea91026f83deb34e39ec8a689bf3eaa373f30545df85c7"
+    },
+    {
+      "path": "assets/today-mobile-disclosure-20261027.css",
+      "sha256": "0770c4a5fad419941f934148060a4eccaeb0433c171b551149b3ff2772affc17"
+    },
+    {
+      "path": "assets/core-routines-compact-20261028.css",
+      "sha256": "e2f1ff31340ef706cd3d2bc3af7f354cd9266cc9de05a617d149e1edf61fef0a"
+    },
+    {
+      "path": "assets/social-capsules-20261029.css",
+      "sha256": "056bf2a49cc9fe2b347afd7e2d7e782c181f37c5c957bda5eb82e24746d2523d"
+    },
+    {
+      "path": "assets/pro-mode.css",
+      "sha256": "73bd98bbd73d700829971e36957100c4ce614aba3b22954b2c29de665126fa59"
+    },
+    {
+      "path": "assets/display-adaptation.css",
+      "sha256": "5b579190b447ed2f06ec32cc4c20868b4f17f1aa86d981ece9558967a1b60375"
+    },
+    {
+      "path": "assets/display-adaptation.js",
+      "sha256": "2df7737ebff32b41876af286e51c1f815c4628903f03e1fb7a7505746a7016fa"
+    },
+    {
+      "path": "assets/supabase-2.118.0.js",
+      "sha256": "ee3be8de192b97cb1d73d1e95d6b82bb1f6b658c0f97c4ef757fc331996ed3d3"
+    },
+    {
+      "path": "assets/app.0899c5a98a201f84.js",
+      "sha256": "0899c5a98a201f8470774a2a16902806f632cd354cc4ec51593b7f71dc699bfc"
+    },
+    {
+      "path": "assets/history-back-first-click-20261026.js",
+      "sha256": "51376aafaddc17ddb9ed165c70cc928d32397a2780e3a863f41d66fa23cb0731"
+    },
+    {
+      "path": "assets/aurora-skin.js",
+      "sha256": "85b841c8e7ba2ff9d19fa5f38ca0b5947c15a85ad57e5fda57d945bf2994a495"
+    },
+    {
+      "path": "assets/today-mobile-disclosure-20261027.js",
+      "sha256": "335c6b373a683c90e9ec9d7b0830ea2d9096355fe3b191116f1f2f9c4f320175"
+    }
+  ],
+  "source_matches_js": true,
+  "source_matches_css": true
+}

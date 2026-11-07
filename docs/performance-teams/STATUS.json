@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-07",
+  "status": "verified-for-publication",
+  "base_commit": "2407128b11f4073715046c1ce0cdc9ed2a513f7d",
+  "unit_passed": 360,
+  "browser_final_passed": 28,
+  "mobile_metrics_repeat_passed": 6,
+  "real_user_data_written": false,
+  "external_telemetry": false,
+  "diagnostics_default": "off",
+  "physical_phone_verified": false,
+  "report": "docs/performance-teams/INPUT-OUTPUT.md"
+}

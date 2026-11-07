@@ -1,0 +1,126 @@
+{
+  "app": "SHAAH",
+  "format": 1,
+  "scope": "this-device-only",
+  "enabled": true,
+  "maxSamplesPerMetric": 200,
+  "storageAvailable": true,
+  "reloadRecommended": false,
+  "support": {
+    "paint": true,
+    "lcp": true,
+    "event": true
+  },
+  "metrics": [
+    {
+      "key": "app_ready",
+      "unit": "ms",
+      "count": 1,
+      "last": 116.5,
+      "p50": 116.5,
+      "p95": 116.5,
+      "max": 116.5,
+      "failures": 0
+    },
+    {
+      "key": "data_load",
+      "unit": "ms",
+      "count": 1,
+      "last": 7,
+      "p50": 7,
+      "p95": 7,
+      "max": 7,
+      "failures": 0
+    },
+    {
+      "key": "tab_today",
+      "unit": "ms",
+      "count": 1,
+      "last": 29.5,
+      "p50": 29.5,
+      "p95": 29.5,
+      "max": 29.5,
+      "failures": 0
+    },
+    {
+      "key": "tab_log",
+      "unit": "ms",
+      "count": 1,
+      "last": 30.3,
+      "p50": 30.3,
+      "p95": 30.3,
+      "max": 30.3,
+      "failures": 0
+    },
+    {
+      "key": "tab_social",
+      "unit": "ms",
+      "count": 1,
+      "last": 29,
+      "p50": 29,
+      "p95": 29,
+      "max": 29,
+      "failures": 0
+    },
+    {
+      "key": "tab_stats",
+      "unit": "ms",
+      "count": 1,
+      "last": 29.6,
+      "p50": 29.6,
+      "p95": 29.6,
+      "max": 29.6,
+      "failures": 0
+    },
+    {
+      "key": "tab_history",
+      "unit": "ms",
+      "count": 1,
+      "last": 29.8,
+      "p50": 29.8,
+      "p95": 29.8,
+      "max": 29.8,
+      "failures": 0
+    },
+    {
+      "key": "habit_response",
+      "unit": "ms",
+      "count": 1,
+      "last": 30.3,
+      "p50": 30.3,
+      "p95": 30.3,
+      "max": 30.3,
+      "failures": 0
+    },
+    {
+      "key": "fcp",
+      "unit": "ms",
+      "count": 1,
+      "last": 64,
+      "p50": 64,
+      "p95": 64,
+      "max": 64,
+      "failures": 0
+    },
+    {
+      "key": "lcp",
+      "unit": "ms",
+      "count": 1,
+      "last": 128,
+      "p50": 128,
+      "p95": 128,
+      "max": 128,
+      "failures": 0
+    },
+    {
+      "key": "slow_event_max",
+      "unit": "ms",
+      "count": 2,
+      "last": 48,
+      "p50": 48,
+      "p95": 64,
+      "max": 64,
+      "failures": 0
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+✔ centered native runner, keyboard closure, timer choices, Resume and responsive skins (5694.820792ms)
+✔ paused persistence, concurrent sessions, automatic zero and routine-only completion (1254.556625ms)
+✔ mobile Today embeds the routine timer in LOG circle and preserves the activity shortcut (957.335375ms)
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (444.457458ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (601.04925ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (532.482667ms)
+✔ all skins and main screens remain usable under the strict style policy (1782.894917ms)
+✔ bulk completion and confirmed full reset persist at 390px (2542.365542ms)
+✔ bulk completion and confirmed full reset persist at 1440px (1701.628875ms)
+✔ mobile-4G: cold load, all tabs, slow saves, offline/reconnect and reload (13143.919ms)
+✖ small-mobile-constrained: cold load, all tabs, slow saves, offline/reconnect and reload (31651.354209ms)
+✔ cached mobile account exposes retry after a stalled load and late response cannot replace newer data (791.850084ms)
+✔ mobile shows an accessible loading placeholder during auth and data, then replaces it with the real account (1518.002667ms)
+✔ all WOFF2 faces load under CSP and retain the original font measurements (1009.146041ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (2107.795167ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (1417.506583ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (1957.530041ms)
+✔ refined sidebar, two-row single-open Social, note and confirmed Reset preserve state (3407.468917ms)
+✔ Pro sidebar shares today note across tabs, centers tabs and hides Work in Log (1409.586041ms)
+✔ optional local panel measures real browser actions, survives reload and exports only aggregate timings (2742.404166ms)
+✔ browser account changes isolate preferences and reports without adding diagnostic backend rows (508.862417ms)
+✔ measurement disabled/enabled has bounded cost under mobile CPU throttling (1112.685375ms)
+✔ classic: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (2085.490209ms)
+✔ matrix: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (2307.882542ms)
+✔ minimal: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (1364.084833ms)
+✔ a real remote change refreshes Today without restarting its entrance animation or sending writes (704.834417ms)
+✔ background visibility changes coalesce remote updates into one repaint on return (828.308ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (1627.933416ms)
+✔ returning to A through the auth callback restores only A routine and A screen preferences (630.11ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (594.306625ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (1068.91825ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (2851.730292ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (1868.618125ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (1158.493583ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (617.710875ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (975.687083ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (869.639916ms)
+✔ first session uses a real habit and real Day Log, survives refresh, no automatic tour (1831.617125ms)
+✔ skip stays neutral across refresh; custom name is escaped and editable (1057.278291ms)
+✔ responsive Starter is usable in six skins; full/simple switches keep all active habits (1535.246042ms)
+✔ optional generic routine opens the existing runner without duplicate points; tutorial stays a memory demo (1434.38475ms)
+✔ new browser for an existing account never starts the old automatic tutorial (677.300708ms)
+✔ classic/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (1936.503417ms)
+✔ classic/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (1200.679459ms)
+✔ matrix/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (871.301417ms)
+✔ matrix/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (851.243583ms)
+✔ minimal/DEFAULT_CFG: complete day stays opaque through refresh, taps and the first save echo (848.598583ms)
+✔ minimal/LEGACY_CFG: complete day stays opaque through refresh, taps and the first save echo (934.504542ms)
+✔ real remote day changes preserve the screen and update a clean note without sending writes (725.476792ms)
+✔ habit and score feedback is immediate and uses short motion without moving the whole page (604.908291ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (2601.909375ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (939.172875ms)
+ℹ tests 52
+ℹ suites 0
+ℹ pass 51
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 121452.413583
+
+✖ failing tests:
+
+test at tests/mobile-network-browser.test.cjs:22:3
+✖ small-mobile-constrained: cold load, all tabs, slow saves, offline/reconnect and reload (31651.354209ms)
+  page.reload: Timeout 10000ms exceeded.
+  Call log:
+  [2m  - waiting for navigation until "load"[22m
+  [2m    - navigated to "http://127.0.0.1:65440/mobile/"[22m
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/performance-teams-integration-20261102/tests/mobile-network-browser.test.cjs:69:13) {
+    name: 'TimeoutError',
+    log: [ '  - waiting for navigation until "load"', '    - navigated to "http://127.0.0.1:65440/mobile/"' ]
+  }

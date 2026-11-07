@@ -1,0 +1,48 @@
+✔ slow upsert cannot overtake a newer same-day upsert (350.072333ms)
+✔ slow DELETE cannot overtake a newer same-day upsert (12.262125ms)
+✔ offline replay and foreground save share ordering across A→B→A (14.273375ms)
+✔ different days remain independent while the same-day transport is slow (9.123833ms)
+✔ queued A DELETE is not sent or acknowledged after A→B changes its session (13.838709ms)
+✔ queued A DELETE is not sent or acknowledged after A→B→A changes its session (12.935083ms)
+✔ failed earlier write does not poison the latest same-day save (12.995583ms)
+✔ stalled load reaches a retryable error without initializing or clearing local data; late reply is ignored (32.176708ms)
+✔ read deadline aborts the pinned SDK transport without dropping cached data (85.208042ms)
+✔ legacy HTTP 500 / SQLSTATE 40001 retries the revision read and preserves both writers without upsert (353.107ms)
+✔ opaque DELETE reconciliation removes only absent own days and preserves pending/offline edits (10.836292ms)
+✔ opaque DELETE reconciliation cannot erase a row received after its SELECT began (6.250833ms)
+✔ opaque DELETE reconciliation ignores an account change while its SELECT is pending (10.288917ms)
+✔ opaque DELETE reconciliation preserves state if the RLS read fails (14.239791ms)
+✔ Realtime routes an id-only DELETE through the own-row check and ignores another explicit owner (9.66725ms)
+✔ offline A data never restores or replays under B and remains available for A (21.670459ms)
+✔ a delayed A write is not submitted as B after switching accounts (24.071625ms)
+✔ unowned legacy queue is preserved without restoring or submitting it (9.225708ms)
+✔ concurrent edits to different contacts preserve both settings changes (22.307833ms)
+✔ a true field conflict preserves server value and retains the local draft across reload (29.868208ms)
+✔ settings CAS retries when another writer changes the row after the read (24.611959ms)
+✔ merging memberships and different contact fields preserves historical configuration and points (25.891042ms)
+✔ a failed in-flight A request keeps its A payload after B signs in (9.162583ms)
+✔ an edit made during offline replay is not removed by the older acknowledgement (8.274292ms)
+✔ returning to A before its old acknowledgement cannot erase A newer persisted queue (11.222625ms)
+✔ late account A load cannot populate B state or enable B config writes (10.52225ms)
+✔ queued config writes stay with A across an account switch (19.540292ms)
+✔ Realtime rejects other-owner DELETE/UPDATE and callbacks from a prior account (8.306917ms)
+✔ signed-in live Work/Vacation preference is scoped to its account (8.137125ms)
+✔ network failures retain the config draft and retry succeeds without losing it (10.027958ms)
+✔ concurrent contact deletion and modification reports a conflict instead of guessing (17.126084ms)
+✔ settings edited before the first server read survive reconnect and merge safely (13.543917ms)
+✔ an account without a settings row can create its first configuration without upsert overwrites (7.371334ms)
+✔ legacy day-only accounts keep their day rows when the first settings row is created (22.540375ms)
+✔ an unavailable revision protocol keeps drafts and never falls back to a legacy settings write (7.20325ms)
+✔ a malformed server acknowledgement cannot discard a pending settings draft (10.919167ms)
+✔ revision CAS detects an intervening write even when data returns to its previous value (20.348208ms)
+✔ denied settings RPC preserves local edits without issuing direct fallback mutations (8.218042ms)
+✔ a token switch between read and RPC cannot submit an A settings draft as B (9.748209ms)
+✔ contact deletion survives revision save, stale device cache and orphan recovery (19.6225ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1018.518791

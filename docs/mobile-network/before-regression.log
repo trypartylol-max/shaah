@@ -1,0 +1,119 @@
+✖ slow upsert cannot overtake a newer same-day upsert (68.403458ms)
+✖ slow DELETE cannot overtake a newer same-day upsert (4.9155ms)
+✖ offline replay and foreground save share ordering across A→B→A (4.675125ms)
+✔ different days remain independent while the same-day transport is slow (3.181625ms)
+✖ queued A DELETE is not sent or acknowledged after A→B changes its session (4.438792ms)
+✖ queued A DELETE is not sent or acknowledged after A→B→A changes its session (3.435542ms)
+✔ failed earlier write does not poison the latest same-day save (4.095292ms)
+✖ stalled load reaches a retryable error without initializing or clearing local data; late reply is ignored (2.892583ms)
+✖ read deadline aborts the pinned SDK transport without dropping cached data (34.808917ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 2
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7241.9705
+
+✖ failing tests:
+
+test at tests/mobile-network-regression.test.cjs:14:41
+✖ slow upsert cannot overtake a newer same-day upsert (68.403458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'older request'
+  - 'latest edit'
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:25:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'older request',
+    expected: 'latest edit',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mobile-network-regression.test.cjs:14:41
+✖ slow DELETE cannot overtake a newer same-day upsert (4.9155ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'data')
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:25:67)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+
+test at tests/mobile-network-regression.test.cjs:30:1
+✖ offline replay and foreground save share ordering across A→B→A (4.675125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'older replay'
+  - 'latest A edit'
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:38:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'older replay',
+    expected: 'latest A edit',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mobile-network-regression.test.cjs:52:37
+✖ queued A DELETE is not sent or acknowledged after A→B changes its session (4.438792ms)
+  AssertionError [ERR_ASSERTION]: the queued DELETE never reaches the backend under the replacement session
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:61:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mobile-network-regression.test.cjs:52:37
+✖ queued A DELETE is not sent or acknowledged after A→B→A changes its session (3.435542ms)
+  AssertionError [ERR_ASSERTION]: the queued DELETE never reaches the backend under the replacement session
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:61:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mobile-network-regression.test.cjs:80:1
+✖ stalled load reaches a retryable error without initializing or clearing local data; late reply is ignored (2.892583ms)
+  AssertionError [ERR_ASSERTION]: account reads must have a finite deadline
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:85:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/mobile-network-regression.test.cjs:93:1
+✖ read deadline aborts the pinned SDK transport without dropping cached data (34.808917ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'aborted')
+      at TestContext.<anonymous> (/Users/ded1/.codex/.chatgpt-projects/g-p-6ab31c33fd3481919ebe388b8846bbba/deliverables/mobile-network-20261102/tests/mobile-network-regression.test.cjs:100:22)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)

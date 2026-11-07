@@ -1075,12 +1075,17 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;",
 // UI data is JSON, never JavaScript. Only these fixed, typed actions may run.
 const uiRule=(event,args,run,stop=false)=>Object.freeze({event,args:Object.freeze(args),run,stop});
 const UI_ACTIONS=Object.freeze({
+  performanceToggle:uiRule('click',[],()=>{const p=window.SHAAHPerformance;if(p)p.setEnabled(!p.snapshot().enabled);render();}),
+  performanceClear:uiRule('click',[],()=>{window.SHAAHPerformance?.clear();render();}),
+  performanceExport:uiRule('click',[],()=>performanceExport()),
+  performanceRefresh:uiRule('click',[],()=>render()),
   starterPick:uiRule('click',['string'],(n,e,id)=>starterPick(id)),
   starterDraft:uiRule('input',[],n=>starterDraft(n.value)),
   starterConfirm:uiRule('click',['boolean'],(n,e,skip)=>starterConfirm(skip)),
   starterOpen:uiRule('click',['string'],(n,e,id)=>starterOpen(id)),
   starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
   starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
+  retryAccountLoad:uiRule('click',[],()=>{loadAll();render();}),
   starterRoutinePreview:uiRule('click',['string'],(n,e,id)=>{_starterRoutineId=id||null;render();}),
   starterAddRoutine:uiRule('click',['string'],(n,e,id)=>starterAddRoutine(id)),
   historyBackupDownload:uiRule('click',[],()=>historyBackupDownload()),
@@ -1260,7 +1265,10 @@ function uiDispatch(event){
     // An old child handler stopped propagation before document listeners ran.
     // Stop later document listeners too, then stop walking the captured path.
     if(rule.stop)event.stopImmediatePropagation();
-    rule.run(node,event,...args);
+    const measurement=event.type==='click'&&['toggleHabit','setHabitState','toggleSub','togglePerson','quickComplete','workPhaseAdvance','workPhaseSet','toggleLevelAll'].includes(name)?window.SHAAHPerformance?.start('habit_response'):null;
+    let completed=false;
+    try{rule.run(node,event,...args);completed=true;}
+    finally{window.SHAAHPerformance?.finish(measurement,completed?'ok':'error',true);}
     if(rule.stop||event.cancelBubble)break;
   }
 }
@@ -2115,6 +2123,10 @@ const _pending={};
 const _offlineKey='shaah-offline-day-writes';
 let _offlineQueue={},_offlineOwner=null;
 const _offlineFlushing=new Set();
+// Direct saves and offline replay must share one transport order per account/day.
+// Keep flights across account changes: a returning account must still wait for
+// its earlier accepted request before submitting a newer snapshot of that day.
+const _dayWriteFlights=new Map();
 function readOfflineQueue(owner){
   try{const q=JSON.parse(localStorage.getItem(_offlineKey+':'+owner)||'{}');return q&&typeof q==='object'&&!Array.isArray(q)?q:{};}catch(e){return {};}
 }
@@ -2148,11 +2160,23 @@ function queueOfflineDay(key){
   const stored=readOfflineQueue(owner);stored[key]=item;saveOfflineQueue(owner,stored);
   return item;
 }
-async function sendDayItem(owner,key,item){
-  const r=item.delete
-    ?await sb.from('day_logs').delete().eq('user_id',owner).eq('date',key)
-    :await sb.from('day_logs').upsert({user_id:owner,date:key,data:item.data},{onConflict:'user_id,date'});
-  if(r&&r.error)throw r.error;
+function sendDayItem(owner,key,item){
+  const flightKey=JSON.stringify([owner,key]),previous=_dayWriteFlights.get(flightKey),epoch=_syncEpoch;
+  const current=()=>USER?.id===owner&&_syncEpoch===epoch;
+  const task=Promise.resolve(previous).catch(()=>{}).then(async()=>{
+    // The queued turn may begin after a sign-out, token/account change or a
+    // return to the same account. Never build a request with that newer session.
+    if(!current())throw Error('DAY_OWNER_CHANGED');
+    const r=item.delete
+      ?await sb.from('day_logs').delete().eq('user_id',owner).eq('date',key)
+      :await sb.from('day_logs').upsert({user_id:owner,date:key,data:item.data},{onConflict:'user_id,date'});
+    if(r&&r.error)throw r.error;
+    // A successful zero-row DELETE is not proof of A's write under B's session.
+    // Keep A's durable queue if identity changed while the request was in flight.
+    if(!current())throw Error('DAY_OWNER_CHANGED');
+  });
+  _dayWriteFlights.set(flightKey,task);
+  return task.finally(()=>{if(_dayWriteFlights.get(flightKey)===task)_dayWriteFlights.delete(flightKey);});
 }
 async function flushOfflineQueue(){
   const owner=selectOfflineOwner(),queue=_offlineQueue;
@@ -2422,7 +2446,7 @@ function setSocial(k,v){if(!_state[k])_state[k]={checks:{},social:blankSocial(),
 // ── Server load + realtime ─────────────────────────────────
 var _cfgReady=false;   // ¿ya leímos la config del servidor en esta sesión?
 var _syncEpoch=0,_cfgBase=null,_cfgDraft=null,_cfgDraftBase=null,_cfgConflict=false,_cfgSaveFailed=false,_cfgFlushPromise=null;
-var _realtimeChannel=null,_syncRenderQueued=false,_loadFlight=null;
+var _realtimeChannel=null,_syncRenderQueued=false,_loadFlight=null,_loadFailed=false;
 const cfgPendingKey=()=>`shaah_cfg_pending_${USER?USER.id:'anon'}`;
 const cfgCopy=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
 function cfgEqual(a,b){
@@ -2522,13 +2546,14 @@ function flushCfgSaves(){
 }
 function changeSyncUser(user){
   if(USER?.id===user?.id){USER=user;return;}
-  _syncEpoch++;_cfgReady=false;_cfgBase=null;_cfgDraft=null;_cfgDraftBase=null;_cfgConflict=false;_cfgSaveFailed=false;_cfgFlushPromise=null;_syncRenderQueued=false;
+  _syncEpoch++;_cfgReady=false;_cfgBase=null;_cfgDraft=null;_cfgDraftBase=null;_cfgConflict=false;_cfgSaveFailed=false;_cfgFlushPromise=null;_syncRenderQueued=false;_loadFailed=false;
   for(const [key,p] of Object.entries(_pending)){if(p.timer)clearTimeout(p.timer);delete _pending[key];}
   clearTimeout(_bakT);_bakT=null;_bak=[];
   if(_realtimeChannel){sb.removeChannel?.(_realtimeChannel);_realtimeChannel=null;}
   resetAccountView();
   _starterGate=user?'loading':'ready';_starterChoice=null;_starterText='';_starterBusy=false;_starterError='';_starterEditor=false;_starterEditId=null;_starterRoutineId=null;
   USER=user;_live=false;_state={};CFG=cfgCopy(DEFAULT_CFG);_dayCfgCache={};applyCfg();selectOfflineOwner();
+  window.SHAAHPerformance?.setOwner(USER?.id||null);
 }
 // A new identity must never inherit the previous account's live controls. Saved
 // drafts and routine copies stay under their original keys for later recovery.
@@ -2587,6 +2612,7 @@ function exportUnownedOffline(){
 function syncNoticeHTML(){
   const button=(text,action,...args)=>`<button ${ui('click',action,...args)} ${uiStyle(`background:none;border:1px solid #66552a;color:inherit;border-radius:7px;padding:7px;font:inherit;cursor:pointer`)}>${text}</button>`;
   let body='';
+  if(_loadFailed&&_starterGate==='ready')body+=`<div ${uiStyle(`padding:12px;border:1px solid #66552a;border-radius:10px;margin:10px 16px;color:#fbbf24;font-size:14px;line-height:1.5`)}>No pudimos actualizar tu cuenta. Tus datos y cambios locales siguen en este dispositivo. ${button('Reintentar carga','retryAccountLoad')}</div>`;
   if(_cfgConflict||_cfgSaveFailed)body+=`<div ${uiStyle(`padding:12px;border:1px solid #66552a;border-radius:10px;margin:10px 16px;color:#fbbf24;font-size:14px;line-height:1.5`)}>
     ${_cfgConflict?'Settings changed on another device. Your edits are kept on this device. Choose which version to use.':'Settings could not be saved. Your edits are kept on this device.'}
     <div ${uiStyle(`display:flex;flex-wrap:wrap;gap:8px;margin-top:8px`)}>${_cfgConflict?button('Use saved settings','resolveCfgConflict','server')+button('Keep this device’s settings','resolveCfgConflict','local'):button('Retry saving','flushCfgSaves')}${button('Export my changes','exportData')}</div></div>`;
@@ -2760,13 +2786,19 @@ function loadAll(){
   if(_loadFlight?.owner===owner&&_loadFlight.epoch===epoch)return _loadFlight.promise;
   const flight={owner,epoch,promise:null};
   _loadFlight=flight;
-  flight.promise=loadAccountRows(owner,epoch).finally(()=>{if(_loadFlight===flight)_loadFlight=null;});
+  const measurement=window.SHAAHPerformance?.start('data_load');
+  flight.promise=loadAccountRows(owner,epoch).finally(()=>{
+    const failed=typeof _loadFailed==='boolean'?_loadFailed:_syncText==='OFFLINE';
+    window.SHAAHPerformance?.finish(measurement,failed?'error':'ok');
+    if(_loadFlight===flight)_loadFlight=null;
+  });
   return flight.promise;
 }
 async function loadAccountRows(owner,epoch){
+  _loadFailed=false;
   setStatus('SYNC…','#f59e0b');
   try{
-    const{data,error,count}=await sb.from('day_logs').select('date,data',{count:'exact'}).eq('user_id',owner);
+    const{data,error,count}=await readAccountRows(owner);
     if(USER?.id!==owner||_syncEpoch!==epoch)return;
     if(error||!Array.isArray(data))throw error||Error('LOAD_INCOMPLETE');
     const rows=data;
@@ -2813,10 +2845,25 @@ async function loadAccountRows(owner,epoch){
     if(Object.keys(_offlineQueue).length)flushOfflineQueue();
   }catch(e){
     if(USER?.id!==owner||_syncEpoch!==epoch)return;
+    _loadFailed=true;
     if(_starterGate!=='ready')_starterGate='error';
     setStatus('OFFLINE','#ef4444');
   }
   render();
+}
+
+// Bound reads only. A timed-out mutation can still have reached the server, so
+// writes retain their existing confirmation/recovery contract and are serialized.
+async function readAccountRows(owner){
+  const controller=typeof AbortController==='function'?new AbortController():null;
+  let request=sb.from('day_logs').select('date,data',{count:'exact'}).eq('user_id',owner);
+  if(controller&&typeof request.abortSignal==='function')request=request.abortSignal(controller.signal);
+  let timer;
+  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{
+    reject(Error('LOAD_TIMEOUT'));controller?.abort();
+  },20000);});
+  try{return await Promise.race([request,deadline]);}
+  finally{clearTimeout(timer);}
 }
 
 async function reconcileDeletedDays(owner,epoch){
@@ -3069,7 +3116,8 @@ function settingsRowInfo(key){
     rout:{label:'Routines',icon:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6M19 5l1.5-1.5"/>'},
     ppl:{label:'Social Settings',icon:'<circle cx="9" cy="8" r="3"/><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-4-5.65"/>'},
     bak:{label:'Data & backup',icon:'<path d="M5 8H3v13h18V8h-2M12 3v12m-4-4 4 4 4-4M7 3h10"/>'},
-    appearance:{label:'Appearance',icon:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/>'}
+    appearance:{label:'Appearance',icon:'<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/>'},
+    performance:{label:'Velocidad de SHAAH',icon:'<path d="M4 17a9 9 0 1 1 16 0M12 13l5-5M4 17h16"/>'}
   };
   return rows[key];
 }
@@ -3084,6 +3132,25 @@ function stCard(key,title,col,body,extra){
     </button>
     <div id="settings-section-${esc(key)}" class="lvl-b${open?"":" cl"}" role="region" aria-labelledby="settings-toggle-${esc(key)}"${open?'':' inert'}><div class="st-body">${body}</div></div>
   </section>`;
+}
+function performanceSettingsHTML(){
+  const report=window.SHAAHPerformance?.snapshot();if(!report)return '';
+  const labels={app_ready:'Mostrar mi pantalla',data_load:'Cargar datos',tab_today:'Abrir Today',tab_log:'Abrir Log',tab_social:'Abrir Social',tab_stats:'Abrir Stats',tab_history:'Abrir History',habit_response:'Responder al marcar',fcp:'Primer contenido de la página',lcp:'Contenido principal de apertura',slow_event_max:'Interacción lenta observada'};
+  const display=value=>value===null?'—':value>=1000?(value/1000).toFixed(2)+' s':Math.round(value)+' ms';
+  const measured=report.metrics.filter(metric=>metric.count>0);
+  return `<div class="performance-local"><p>Medición opcional para esta cuenta en este dispositivo. No se envía a ningún servidor y no incluye hábitos, notas, contactos ni datos de tu cuenta.</p>
+    <p class="performance-state" role="status">${report.enabled?'Medición local activada.':'Medición local desactivada.'} ${!report.storageAvailable?'El navegador no permite guardar el informe; solo durará mientras esta página esté abierta.':''}</p>
+    <div class="performance-actions"><button type="button" class="sf-button" aria-pressed="${report.enabled}" ${ui('click','performanceToggle')}>${report.enabled?'Desactivar medición local':'Activar medición local'}</button><button type="button" class="sf-button" ${ui('click','performanceRefresh')}>Actualizar informe</button></div>
+    <p>Al desactivar se dejan de recoger tiempos. Borrar elimina solo estas mediciones, sin tocar tu historial.</p>
+    ${report.reloadRecommended?'<p>Las pestañas y acciones se miden desde ahora. Recarga SHAAH para medir la próxima apertura.</p>':''}
+    ${measured.length?`<div class="performance-table-wrap"><table class="performance-table"><caption>Tiempos observados en este dispositivo</caption><thead><tr><th scope="col">Acción</th><th scope="col">Muestras</th><th scope="col">Habitual</th><th scope="col">Más lento</th></tr></thead><tbody>${measured.map(metric=>`<tr><th scope="row">${labels[metric.key]}</th><td>${metric.count}</td><td>${display(metric.p50)}</td><td>${display(metric.max)}</td></tr>`).join('')}</tbody></table></div>`:'<p>No hay mediciones todavía. Actívalas y usa SHAAH con normalidad.</p>'}
+    <p class="performance-explanation">«Habitual» es la mediana de hasta 200 muestras recientes por acción. Los cambios de pestaña y el marcado estiman la respuesta hasta el siguiente dibujo de pantalla. Los tiempos de apertura son por página; algunos navegadores no ofrecen todos. «Interacción lenta observada» muestra el máximo detectado de eventos de 40 ms o más: no representa la velocidad de todos los usuarios. Varias pestañas pueden compartir el informe local; no es un contador exhaustivo.</p>
+    <div class="performance-actions"><button type="button" class="sf-button" ${measured.length?'':'disabled'} ${ui('click','performanceExport')}>Descargar informe de tiempos</button><button type="button" class="sf-button" ${ui('click','performanceClear')}>Borrar mediciones</button></div></div>`;
+}
+function performanceExport(){
+  const report=window.SHAAHPerformance?.snapshot();if(!report)return;
+  const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='shaah-velocidad-local.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function renderSettings(){
   travelEnsure();subsEnsure();
@@ -3198,6 +3265,7 @@ function renderSettings(){
           <button ${ui('click','bakRestore' ,b.i)} ${uiStyle(`flex-shrink:0;background:none;border:1px solid #222;color:#c0c0cd;font-family:inherit;font-size:13px;letter-spacing:.08em;padding:7px 12px;border-radius:8px;cursor:pointer`)}>RESTORE</button>
         </div>`).join(""):`<div ${uiStyle(`font-size:14px;color:#9a9ab2;padding:6px 0`)}>No versions saved yet — the first one appears after your next settings change.</div>`}`,"st-col-b")}
       ${stCard("appearance","APPEARANCE · SKINS","#9090aa",`${starterProfile()?`<div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterView','simple')}>Usar Today sencillo</button><button type="button" class="starter-secondary" ${ui('click','starterView','full')}>Usar vista completa</button></div>`:''}${skinPickerHTML()}`,"skin-settings")}
+      ${window.SHAAHPerformance?stCard('performance','Velocidad de SHAAH','#9090aa',performanceSettingsHTML(),'performance-settings'):''}
 </div></div>
   </div>`;
 }
@@ -4127,6 +4195,7 @@ function render(){
   renderTour();
   renderResume();
   initScrollHide();
+  window.SHAAHPerformance?.ready();
 }
 
 // Keep local day interactions in the existing screen. Only changed text,
@@ -4908,7 +4977,7 @@ function renderRoutine(){
     <section class="cr-sequence" aria-label="Session steps"><ol>${s.q.map((idx,i)=>`<li ${i===0?'aria-current="step"':''}><span>${esc(rt.steps[idx].icon)} ${esc(rt.steps[idx].label)}</span><span>${rt.steps[idx].dur}m</span></li>`).join('')}${Object.keys(s.done).map(idx=>`<li class="cr-step-done"><span>✓ ${esc(rt.steps[idx]?.label)}</span></li>`).join('')}</ol></section></div>`;
 }
 
-function setTab(t){resetDayRequest=null;currentTab=t;_lastY=0;tuckNav(false);render();}
+function setTab(t){const measurement=window.SHAAHPerformance?.start('tab_'+t);resetDayRequest=null;currentTab=t;_lastY=0;tuckNav(false);render();window.SHAAHPerformance?.finish(measurement,'ok',true);}
 function setHistTab(t){histTab=t;if(t==="month"&&!histMonth)histMonth=todayKey().slice(0,7);render();}
 function monthShift(ym,d){let[y,m]=ym.split('-').map(Number);m+=d;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return`${y}-${String(m).padStart(2,'0')}`;}
 function histMonthShift(d){

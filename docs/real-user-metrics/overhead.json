@@ -1,0 +1,64 @@
+{
+  "profile": "390x844,4x CPU;7 paired rounds;10000 timing start/finish calls per round",
+  "offMedianMs": 0.8999999761581421,
+  "onMedianMs": 33.599999994039536,
+  "additionalMsPerAction": 0.0032700000017881394,
+  "samples": [
+    {
+      "enabled": false,
+      "ms": 3.899999976158142
+    },
+    {
+      "enabled": true,
+      "ms": 59.69999998807907
+    },
+    {
+      "enabled": false,
+      "ms": 4.699999988079071
+    },
+    {
+      "enabled": true,
+      "ms": 42.400000005960464
+    },
+    {
+      "enabled": false,
+      "ms": 1.300000011920929
+    },
+    {
+      "enabled": true,
+      "ms": 34.599999994039536
+    },
+    {
+      "enabled": false,
+      "ms": 0.8999999761581421
+    },
+    {
+      "enabled": true,
+      "ms": 33.19999998807907
+    },
+    {
+      "enabled": false,
+      "ms": 0.699999988079071
+    },
+    {
+      "enabled": true,
+      "ms": 33.599999994039536
+    },
+    {
+      "enabled": false,
+      "ms": 0.7000000178813934
+    },
+    {
+      "enabled": true,
+      "ms": 28.69999998807907
+    },
+    {
+      "enabled": false,
+      "ms": 0.699999988079071
+    },
+    {
+      "enabled": true,
+      "ms": 28.099999994039536
+    }
+  ]
+}

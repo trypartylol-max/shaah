@@ -13,6 +13,13 @@ for ext in ['js','css']:
         return re.sub(r'integrity="[^"]*"',f'integrity="{sri}"',tag)
     html,count=re.subn(pattern,replace,html)
     assert count==1,(ext,count)
+# Optional local diagnostic module is versioned and integrity-checked independently.
+data=(r/'source/performance.js').read_bytes()
+name=f'performance.{hashlib.sha256(data).hexdigest()[:16]}.js'
+(r/'assets'/name).write_bytes(data)
+sri='sha384-'+base64.b64encode(hashlib.sha384(data).digest()).decode()
+html,count=re.subn(r'<script data-shaah-performance src="\./assets/performance\.[a-f0-9]{16}\.js"[^>]*></script>',f'<script data-shaah-performance src="./assets/{name}" integrity="{sri}" crossorigin="anonymous"></script>',html)
+assert count==1,('performance',count)
 # Version optional skin assets atomically with the entrypoint, under the same CSP.
 for name in ['aurora-skin.css','aurora-skin.js','work-skin-parity-20261027.css','ui-refinement-20261027.css','pro-mode.css','display-adaptation.css','display-adaptation.js']:
     data=(r/'assets'/name).read_bytes()

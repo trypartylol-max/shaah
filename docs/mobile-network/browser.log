@@ -1,0 +1,11 @@
+✔ mobile-4G: cold load, all tabs, slow saves, offline/reconnect and reload (12673.718583ms)
+✔ small-mobile-constrained: cold load, all tabs, slow saves, offline/reconnect and reload (31367.295292ms)
+✔ cached mobile account exposes retry after a stalled load and late response cannot replace newer data (780.01925ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45505.099083

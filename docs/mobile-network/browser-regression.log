@@ -1,0 +1,36 @@
+✔ classic/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (2680.4405ms)
+✔ classic/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1401.116708ms)
+✔ matrix/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1919.767917ms)
+✔ matrix/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1512.38025ms)
+✔ minimal/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1497.719875ms)
+✔ minimal/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (1278.553667ms)
+✔ aurora/desktop: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (849.05475ms)
+✔ aurora/mobile: checking updates immediately, preserves the page, keyboard focus and drafts during a delayed save (939.835666ms)
+✔ rapid three-state changes persist the final state without replacing Today or losing scroll (899.205958ms)
+✔ a failed save keeps the checked state and draft locally, then retries through the existing queue (1036.604042ms)
+✔ Social checkboxes and people update within the same screen and keep their score consistent (1323.889291ms)
+✔ editing a historical day and checking a level preserves that screen and other days (737.215542ms)
+✔ classic: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (2073.2635ms)
+✔ matrix: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (2489.914125ms)
+✔ minimal: desktop Today and its typing stay stable during duplicate notifications from an independent background mobile context (1939.939709ms)
+✔ a real remote change refreshes Today without restarting its entrance animation or sending writes (1375.364333ms)
+✔ background visibility changes coalesce remote updates into one repaint on return (614.845334ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (2058.202416ms)
+✔ returning to A through the auth callback restores only A routine and A screen preferences (969.3665ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (1279.67375ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (1358.760333ms)
+✔ first session uses a real habit and real Day Log, survives refresh, no automatic tour (2320.006791ms)
+✔ skip stays neutral across refresh; custom name is escaped and editable (799.7175ms)
+✔ responsive Starter is usable in six skins; full/simple switches keep all active habits (2267.444042ms)
+✔ optional generic routine opens the existing runner without duplicate points; tutorial stays a memory demo (1678.313625ms)
+✔ new browser for an existing account never starts the old automatic tutorial (936.072625ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (4284.76275ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (1459.114583ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46776.444917

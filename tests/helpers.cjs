@@ -61,7 +61,7 @@ function loadApp(data = fixture(), options = {}) {
   const effects = [];
   let timerId = 0;
   const context = vm.createContext({
-    console, URL, URLSearchParams, Intl, TextEncoder, crypto:require('node:crypto').webcrypto,
+    console, URL, URLSearchParams, Intl, TextEncoder, AbortController, crypto:require('node:crypto').webcrypto,
     Date: class extends Date {
       constructor(...args) { super(...(args.length ? args : [options.now || '2026-10-16T12:00:00Z'])); }
       static now() { return Date.parse(options.now || '2026-10-16T12:00:00Z'); }

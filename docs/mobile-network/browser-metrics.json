@@ -1,0 +1,336 @@
+[
+  {
+    "profile": {
+      "name": "mobile-4G",
+      "width": 390,
+      "height": 844,
+      "cpu": 4,
+      "latency": 150,
+      "bytesPerSecond": 200000,
+      "apiMs": 600
+    },
+    "initial": {
+      "fcpMs": 1148,
+      "readyMs": 3567.800000011921
+    },
+    "tabs": [
+      {
+        "tab": "social",
+        "paintMs": 103.80000001192093
+      },
+      {
+        "tab": "stats",
+        "paintMs": 55.80000001192093
+      },
+      {
+        "tab": "history",
+        "paintMs": 52.70000001788139
+      },
+      {
+        "tab": "log",
+        "paintMs": 64.19999998807907
+      },
+      {
+        "tab": "today",
+        "paintMs": 38.099999994039536
+      }
+    ],
+    "slowWriteFinal": "latest note preserved",
+    "offlineEdit": "persisted after reconnect and reload",
+    "historicalDaysPreserved": true,
+    "realPhone": false,
+    "localDiagnostics": {
+      "app": "SHAAH",
+      "format": 1,
+      "scope": "this-device-only",
+      "enabled": true,
+      "maxSamplesPerMetric": 200,
+      "storageAvailable": true,
+      "reloadRecommended": false,
+      "support": {
+        "paint": true,
+        "lcp": true,
+        "event": true
+      },
+      "metrics": [
+        {
+          "key": "app_ready",
+          "unit": "ms",
+          "count": 1,
+          "last": 2650.4,
+          "p50": 2650.4,
+          "p95": 2650.4,
+          "max": 2650.4,
+          "failures": 0
+        },
+        {
+          "key": "data_load",
+          "unit": "ms",
+          "count": 1,
+          "last": 633,
+          "p50": 633,
+          "p95": 633,
+          "max": 633,
+          "failures": 0
+        },
+        {
+          "key": "tab_today",
+          "unit": "ms",
+          "count": 1,
+          "last": 37.4,
+          "p50": 37.4,
+          "p95": 37.4,
+          "max": 37.4,
+          "failures": 0
+        },
+        {
+          "key": "tab_log",
+          "unit": "ms",
+          "count": 1,
+          "last": 63.5,
+          "p50": 63.5,
+          "p95": 63.5,
+          "max": 63.5,
+          "failures": 0
+        },
+        {
+          "key": "tab_social",
+          "unit": "ms",
+          "count": 1,
+          "last": 102.6,
+          "p50": 102.6,
+          "p95": 102.6,
+          "max": 102.6,
+          "failures": 0
+        },
+        {
+          "key": "tab_stats",
+          "unit": "ms",
+          "count": 1,
+          "last": 55.7,
+          "p50": 55.7,
+          "p95": 55.7,
+          "max": 55.7,
+          "failures": 0
+        },
+        {
+          "key": "tab_history",
+          "unit": "ms",
+          "count": 1,
+          "last": 52.6,
+          "p50": 52.6,
+          "p95": 52.6,
+          "max": 52.6,
+          "failures": 0
+        },
+        {
+          "key": "habit_response",
+          "unit": "ms",
+          "count": 1,
+          "last": 63.6,
+          "p50": 63.6,
+          "p95": 63.6,
+          "max": 63.6,
+          "failures": 0
+        },
+        {
+          "key": "fcp",
+          "unit": "ms",
+          "count": 1,
+          "last": 876,
+          "p50": 876,
+          "p95": 876,
+          "max": 876,
+          "failures": 0
+        },
+        {
+          "key": "lcp",
+          "unit": "ms",
+          "count": 1,
+          "last": 2676,
+          "p50": 2676,
+          "p95": 2676,
+          "max": 2676,
+          "failures": 0
+        },
+        {
+          "key": "slow_event_max",
+          "unit": "ms",
+          "count": 1,
+          "last": 120,
+          "p50": 120,
+          "p95": 120,
+          "max": 120,
+          "failures": 0
+        }
+      ]
+    }
+  },
+  {
+    "profile": {
+      "name": "small-mobile-constrained",
+      "width": 320,
+      "height": 667,
+      "cpu": 6,
+      "latency": 400,
+      "bytesPerSecond": 50000,
+      "apiMs": 1500
+    },
+    "initial": {
+      "fcpMs": 2572,
+      "readyMs": 10237.5
+    },
+    "tabs": [
+      {
+        "tab": "social",
+        "paintMs": 143.69999998807907
+      },
+      {
+        "tab": "stats",
+        "paintMs": 126.80000001192093
+      },
+      {
+        "tab": "history",
+        "paintMs": 70.19999998807907
+      },
+      {
+        "tab": "log",
+        "paintMs": 87.2999999821186
+      },
+      {
+        "tab": "today",
+        "paintMs": 57.70000001788139
+      }
+    ],
+    "slowWriteFinal": "latest note preserved",
+    "offlineEdit": "persisted after reconnect and reload",
+    "historicalDaysPreserved": true,
+    "realPhone": false,
+    "localDiagnostics": {
+      "app": "SHAAH",
+      "format": 1,
+      "scope": "this-device-only",
+      "enabled": true,
+      "maxSamplesPerMetric": 200,
+      "storageAvailable": true,
+      "reloadRecommended": false,
+      "support": {
+        "paint": true,
+        "lcp": true,
+        "event": true
+      },
+      "metrics": [
+        {
+          "key": "app_ready",
+          "unit": "ms",
+          "count": 1,
+          "last": 8835.5,
+          "p50": 8835.5,
+          "p95": 8835.5,
+          "max": 8835.5,
+          "failures": 0
+        },
+        {
+          "key": "data_load",
+          "unit": "ms",
+          "count": 1,
+          "last": 1632.7,
+          "p50": 1632.7,
+          "p95": 1632.7,
+          "max": 1632.7,
+          "failures": 0
+        },
+        {
+          "key": "tab_today",
+          "unit": "ms",
+          "count": 1,
+          "last": 57.9,
+          "p50": 57.9,
+          "p95": 57.9,
+          "max": 57.9,
+          "failures": 0
+        },
+        {
+          "key": "tab_log",
+          "unit": "ms",
+          "count": 1,
+          "last": 87.3,
+          "p50": 87.3,
+          "p95": 87.3,
+          "max": 87.3,
+          "failures": 0
+        },
+        {
+          "key": "tab_social",
+          "unit": "ms",
+          "count": 1,
+          "last": 142.6,
+          "p50": 142.6,
+          "p95": 142.6,
+          "max": 142.6,
+          "failures": 0
+        },
+        {
+          "key": "tab_stats",
+          "unit": "ms",
+          "count": 1,
+          "last": 126.3,
+          "p50": 126.3,
+          "p95": 126.3,
+          "max": 126.3,
+          "failures": 0
+        },
+        {
+          "key": "tab_history",
+          "unit": "ms",
+          "count": 1,
+          "last": 70.1,
+          "p50": 70.1,
+          "p95": 70.1,
+          "max": 70.1,
+          "failures": 0
+        },
+        {
+          "key": "habit_response",
+          "unit": "ms",
+          "count": 1,
+          "last": 115.4,
+          "p50": 115.4,
+          "p95": 115.4,
+          "max": 115.4,
+          "failures": 0
+        },
+        {
+          "key": "fcp",
+          "unit": "ms",
+          "count": 1,
+          "last": 2512,
+          "p50": 2512,
+          "p95": 2512,
+          "max": 2512,
+          "failures": 0
+        },
+        {
+          "key": "lcp",
+          "unit": "ms",
+          "count": 1,
+          "last": 8868,
+          "p50": 8868,
+          "p95": 8868,
+          "max": 8868,
+          "failures": 0
+        },
+        {
+          "key": "slow_event_max",
+          "unit": "ms",
+          "count": 1,
+          "last": 152,
+          "p50": 152,
+          "p95": 152,
+          "max": 152,
+          "failures": 0
+        }
+      ]
+    }
+  }
+]

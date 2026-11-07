@@ -1,0 +1,14 @@
+✔ mobile-4G: cold load, all tabs, slow saves, offline/reconnect and reload (13383.39825ms)
+✔ small-mobile-constrained: cold load, all tabs, slow saves, offline/reconnect and reload (32205.854125ms)
+✔ cached mobile account exposes retry after a stalled load and late response cannot replace newer data (591.28525ms)
+✔ optional local panel measures real browser actions, survives reload and exports only aggregate timings (2302.437666ms)
+✔ browser account changes isolate preferences and reports without adding diagnostic backend rows (517.720542ms)
+✔ measurement disabled/enabled has bounded cost under mobile CPU throttling (1130.52ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51000.229667

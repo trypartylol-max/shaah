@@ -3013,6 +3013,17 @@ html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){di
 .loading-skeleton{display:grid;gap:12px;width:min(100%,360px);margin:24px auto}
 .loading-skeleton i{display:block;height:48px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff0d}
 .loading-skeleton i:last-child{width:70%}
+.performance-local{font-size:14px;line-height:1.6;color:#c8c8d4}
+.performance-local p{margin:0 0 12px}
+.performance-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.performance-actions .sf-button{min-height:44px;white-space:normal;text-align:left}
+.performance-state{color:#d8d8e1}
+.performance-explanation{font-size:12px;color:#a4a4ba}
+.performance-table-wrap{max-width:100%;overflow-x:auto;margin:12px 0}
+.performance-table{width:100%;border-collapse:collapse;font-size:12px;text-align:left}
+.performance-table caption{text-align:left;font-size:13px;margin-bottom:8px}
+.performance-table th,.performance-table td{border-bottom:1px solid #ffffff12;padding:8px 5px;vertical-align:top}
+.performance-table tbody th{font-weight:400;min-width:95px}
 
 /* The navigation vocabulary is global; skins control color, not the icon shape. */
 .navigation-icon{display:block;width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}

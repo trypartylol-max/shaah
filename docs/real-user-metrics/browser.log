@@ -1,0 +1,11 @@
+✔ optional local panel measures real browser actions, survives reload and exports only aggregate timings (3436.628708ms)
+✔ browser account changes isolate preferences and reports without adding diagnostic backend rows (524.1365ms)
+✔ measurement disabled/enabled has bounded cost under mobile CPU throttling (1159.13075ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5619.478166

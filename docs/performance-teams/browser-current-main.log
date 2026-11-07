@@ -1,0 +1,36 @@
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (4495.419209ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (2672.438458ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (2944.876083ms)
+✔ all skins and main screens remain usable under the strict style policy (3545.171083ms)
+✔ mobile-4G: cold load, all tabs, slow saves, offline/reconnect and reload (15404.841708ms)
+✔ small-mobile-constrained: cold load, all tabs, slow saves, offline/reconnect and reload (32516.694542ms)
+✔ cached mobile account exposes retry after a stalled load and late response cannot replace newer data (1015.186333ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (2962.569125ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (2010.163667ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (4784.4165ms)
+✔ refined sidebar, two-row single-open Social, note and confirmed Reset preserve state (4072.1825ms)
+✔ Pro sidebar shares today note across tabs, aligns tabs and hides Work in Log (2120.560875ms)
+✔ navigation icons stay consistent across all skins on mobile and desktop (1598.891417ms)
+✔ optional local panel measures real browser actions, survives reload and exports only aggregate timings (3745.765833ms)
+✔ browser account changes isolate preferences and reports without adding diagnostic backend rows (801.345292ms)
+✔ measurement disabled/enabled has bounded cost under mobile CPU throttling (2059.438ms)
+✔ actual Original artifact removes A routine and editor when B signs in, preserving both scoped copies (3477.915417ms)
+✔ returning to A through the auth callback restores only A routine and A screen preferences (1424.474458ms)
+✔ same-owner refresh keeps the live runner and signed-out state shows no account activity (1669.3425ms)
+✔ B fictitious note stays separate from A after switching twice and reloading the browser (1528.309125ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (4726.643834ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (4894.863375ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (2525.069167ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (1231.855208ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (1183.739416ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (2349.065958ms)
+✔ browser: disjoint edits merge; a real conflict survives reload and resolves by user choice (4879.485791ms)
+✔ browser: legacy unowned queue is retained, explained and exportable without automatic upload (879.289208ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 124942.869166

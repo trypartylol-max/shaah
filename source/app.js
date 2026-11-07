@@ -1262,6 +1262,7 @@ const UI_ACTIONS=Object.freeze({
   togglePerson:uiRule('click',['string','string'],(n,e,id,key)=>togglePerson(id,key),true),
   toggleLevelAll:uiRule('click',['integer','string'],(n,e,level,key)=>toggleLevelAll(level,key),true),
   openDayLogStart:uiRule('click',[],()=>openDayLogStart()),
+  toggleTodaySections:uiRule('click',[],()=>toggleTodaySections()),
   toggleTodayRoutines:uiRule('click',[],n=>toggleTodayRoutines(n)),
   setHabitState:uiRule('click',['string','string','mark'],(n,e,id,key,value)=>setHabitState(id,key,value),true),
   productEndAsk:uiRule('click',['string'],(n,e,id)=>{productEndId=id;render();},true),
@@ -2642,7 +2643,7 @@ function resetAccountView(){
   tourDemo={};tourOwner=null;tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourFocusStep=null;tourScroll=0;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-  todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
+  todaySectionsSession=false;todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
   bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';_historySafety=historySafetyState();
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
   dayLogEditClose();_lastY=0;tuckNav(false);
@@ -3737,10 +3738,12 @@ function saveCfgPref(){
 // La config manda; localStorage es solo el eco local (y la migracion de quien ya
 // tenia niveles plegados antes de que esto viajara al servidor).
 function loadLvl(){
+  if(todaySectionsSession)return;
   const v=(CFG&&CFG.lvlOpen&&typeof CFG.lvlOpen==='object')?CFG.lvlOpen:get(lvlKey());
   if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
 }
 function toggleLvl(n){
+  if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];syncTodaySections();return;}
   lvlOpen[n]=!lvlOpen[n];haptic(9);
   set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
   CFG.lvlOpen={...lvlOpen};saveCfgPref();    // y alcanza al otro dispositivo
@@ -4363,25 +4366,60 @@ function legacyComboBlock(key,alwaysOpen){
 let todayRoutinesOpen=true;
 function todayRoutinesKey(){return `shaah_today_routines_${USER?USER.id:'anon'}`;}
 function loadTodayRoutines(){
+  if(todaySectionsSession)return;
   const v=get(todayRoutinesKey());
   if(v===true||v===false) todayRoutinesOpen=v;
 }
-function toggleTodayRoutines(el){
-  // ONLY mobile can collapse Today's Routines. Desktop is permanently open.
-  if(window.innerWidth >= 880){
-    const box=el?.closest('.t-rout');
+// Presentation only: no storage, config, completion, score or timer writes.
+let todaySectionsSession=false;
+function todaySectionsExpanded(){
+  return todayRoutinesOpen || [1,2,3].some(n=>lvlOpen[n]);
+}
+function todaySectionsButton(){
+  const open=todaySectionsExpanded(), label=open?'Collapse All':'Expand All';
+  return `<button type="button" class="today-sections-toggle" ${ui('click','toggleTodaySections')} aria-label="${label}" title="${label}" aria-expanded="${open}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="${open?'':'sections-expand'}"><path d="m6 12 6-6 6 6M6 18l6-6 6 6"/></svg><span>${label}</span></button>`;
+}
+function syncTodaySections(){
+  document.querySelectorAll('.today').forEach(root=>{
+    const box=root.querySelector('.t-rout');
     if(box){
-      box.classList.remove('collapsed');
+      box.classList.toggle('collapsed',!todayRoutinesOpen);
       const body=box.querySelector('.t-rout-body');
-      if(body)body.style.display='';
-      const toggle=box.querySelector('.t-rout-toggle');
-      if(toggle)toggle.setAttribute('aria-expanded','true');
+
+      const toggle=box.querySelector('.today-routines-label');
+      if(toggle)toggle.setAttribute('aria-expanded',String(todayRoutinesOpen));
+      const arrow=box.querySelector('.t-rout-arrow');
+      if(arrow)arrow.textContent=todayRoutinesOpen?'▾':'▸';
     }
-    return;
-  }
+    [1,2,3].forEach(n=>{
+      const level=root.querySelector('.t-lvl'+n);
+      if(!level)return;
+      level.querySelector('.lvl-b')?.classList.toggle('cl',!lvlOpen[n]);
+      level.querySelector('.lvl-ar')?.classList.toggle('cl',!lvlOpen[n]);
+      level.querySelector('.lvl-toggle')?.setAttribute('aria-expanded',String(lvlOpen[n]));
+    });
+    const control=root.querySelector('.today-sections-toggle');
+    if(control){
+      const open=todaySectionsExpanded(), label=open?'Collapse All':'Expand All';
+      control.setAttribute('aria-expanded',String(open));
+      control.setAttribute('aria-label',label);
+      control.title=label;
+      control.querySelector('span').textContent=label;
+      control.querySelector('svg').classList.toggle('sections-expand',!open);
+    }
+  });
+}
+function toggleTodaySections(){
+  const open=!todaySectionsExpanded();
+  todaySectionsSession=true;
+  todayRoutinesOpen=open;
+  [1,2,3].forEach(n=>{lvlOpen[n]=open;});
+  syncTodaySections();
+}
+function toggleTodayRoutines(el){
+  todaySectionsSession=true;
   todayRoutinesOpen=!todayRoutinesOpen;
-  set(todayRoutinesKey(),todayRoutinesOpen);
-  render();
+  syncTodaySections();
 }
 
 function earnedPointsForItem(item,state){
@@ -4463,8 +4501,8 @@ function renderToday(key,nested=false){
 
 
 ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec t-rout-toggle" role="button" tabindex="0" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')} ${ui('keydown','activate')} ${uiStyle(`display:flex;align-items:center;cursor:pointer;gap:7px`)}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${core?'▪ CORE ROUTINES':"TODAY'S ROUTINES"}${core?`<span class="sf-core-total">${l1}/${dM1}</span>`:''}</div>
-      <div class="t-rout-body" ${uiStyle(`${todayRoutinesOpen?"":"display:none;"}`)}>${L1vis.filter(i=>core||(i.routine&&ROUTINES[i.id])).map(item=>{
+      <div class="sec t-rout-toggle today-routines-heading"><button type="button" class="today-routines-label" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${core?'▪ CORE ROUTINES':"TODAY'S ROUTINES"}${core?`<span class="sf-core-total">${l1}/${dM1}</span>`:''}</button>${todaySectionsButton()}</div>
+      <div class="t-rout-body">${L1vis.filter(i=>core||(i.routine&&ROUTINES[i.id])).map(item=>{
         if(core&&item.id==='work')return workPhaseCard(key,item);
         if(core&&!item.routine)return coreHabitCard(key,item);
         const rt=ROUTINES[item.id],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=rt.steps.reduce((a,s)=>a+s.dur,0);

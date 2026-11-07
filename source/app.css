@@ -3038,3 +3038,13 @@ html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){di
 .arrival-welcome button{flex-shrink:0;align-self:flex-start;background:none;border:0;color:#bcb7c8;cursor:pointer;width:36px;min-height:36px;padding:6px;font:inherit;border-radius:9px}
 .arrival-welcome button:focus-visible{outline:2px solid #e9cc80;outline-offset:3px}
 .arrival-tour-ghost{animation:none;box-sizing:border-box;max-height:calc(100dvh - 32px);overflow:hidden}
+
+/* Global section disclosure: presentation only, inside the existing header. */
+#scroll .today .t-rout>.today-routines-heading{display:flex!important;align-items:center;justify-content:space-between;gap:8px;pointer-events:auto!important;position:relative;}
+.today .today-routines-label{display:flex;align-items:center;gap:7px;background:none;border:0;padding:0;color:inherit;font:inherit;letter-spacing:inherit;text-align:left;cursor:pointer;min-width:0;}
+.today .today-sections-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:6px;margin-left:auto;padding:0 4px;min-height:24px;flex-shrink:0;background:none;border:0;color:#9a9ab2;font:inherit;font-size:11px;cursor:pointer;}
+.today .today-sections-toggle svg{flex-shrink:0;}
+.today .today-sections-toggle .sections-expand{transform:rotate(180deg);}
+.today .today-sections-toggle:focus-visible,.today .today-routines-label:focus-visible{outline:2px solid #a78bfa;outline-offset:3px;}
+#scroll .today .t-rout.collapsed .t-rout-body{display:none!important;}
+@media(max-width:879px){.today .today-sections-toggle span{display:none;}.today .today-sections-toggle{min-width:28px;}}

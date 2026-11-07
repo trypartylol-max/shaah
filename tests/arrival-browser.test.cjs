@@ -46,7 +46,7 @@ test('reduced motion skips arrival, tutorial entry and exit animations',async t=
  await p.getByRole('button',{name:'Skip / close',exact:true}).click();assert.equal(await p.locator('.arrival-tour-ghost').count(),0);
 });
 test('sign-out and account switch remove the outgoing welcome and any exiting tour copy',async t=>{
- const p=await openApp(t,undefined,{width:390,height:844},{syntheticAccounts:{'other-user':fixture()}});
+ const p=await openApp(t,undefined,{width:390,height:844},{stayOnToday:true,syntheticAccounts:{'other-user':fixture()}});
  await p.locator('#arrival-welcome').waitFor();await p.evaluate(()=>{startTour();tourDone();localStorage.setItem('shaah_mock_rows:other-user','[]');__emitMockAuth('SIGNED_IN',{id:'other-user'})});
  await p.waitForFunction(()=>_starterGate==='choose');assert.equal(await p.locator('#arrival-welcome').count(),0);assert.equal(await p.locator('.arrival-tour-ghost').count(),0);
  assert.equal(await p.locator('#tour.on').count(),0);

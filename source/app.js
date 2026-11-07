@@ -841,7 +841,7 @@ function arrivalPlanExisting(){
 }
 function arrivalDismiss(){
   clearTimeout(_arrivalTimer);_arrivalTimer=null;_arrivalWelcome=false;
-  const node=document.getElementById('arrival-welcome');if(!node)return;
+  const node=document.getElementById('arrival-welcome');if(!node||node.inert)return;
   node.inert=true;node.setAttribute('aria-hidden','true');
   const a=arrivalAnimate(node,[{opacity:1,transform:'translateX(-50%) translateY(0)'},{opacity:0,transform:'translateX(-50%) translateY(-6px)'}],140);
   if(a)a.finished.catch(()=>{}).then(()=>node.remove());else node.remove();
@@ -870,11 +870,21 @@ function renderArrival(){
   const node=document.createElement('aside');node.id='arrival-welcome';node.className='arrival-welcome';node.setAttribute('aria-label','Welcome back');
   uiHTML(node,`<div role="status"><span class="arrival-kicker">TU SIGUIENTE HORA</span><h2>Welcome back${name?', '+esc(name):''}.</h2><p>Retoma a tu ritmo. Un pequeño paso cuenta.</p></div><button type="button" aria-label="Cerrar bienvenida" ${ui('click','arrivalDismiss')}>✕</button>`);
   document.getElementById('app').append(node);
-  arrivalAnimate(node,[{opacity:0,transform:'translateX(-50%) translateY(8px) scale(.985)'},{opacity:1,transform:'translateX(-50%) translateY(0) scale(1)'}],200);
-  // The app is already interactive. Auto-dismiss is cosmetic, never a gate.
+  const entrance=arrivalAnimate(node,[{opacity:0,transform:'translateX(-50%) translateY(8px) scale(.985)'},{opacity:1,transform:'translateX(-50%) translateY(0) scale(1)'}],200);
+  // Seven readable seconds after entry. Closing/switching during entry must
+  // not arm a stale timer after the welcome has already been dismissed.
   const owner=USER.id,epoch=_syncEpoch;
-  _arrivalTimer=setTimeout(()=>{if(USER?.id===owner&&_syncEpoch===epoch)arrivalDismiss();},2200);
+  const schedule=()=>{
+    if(USER?.id!==owner||_syncEpoch!==epoch||!_arrivalWelcome||!node.isConnected||node.inert)return;
+    _arrivalTimer=setTimeout(()=>{if(USER?.id===owner&&_syncEpoch===epoch)arrivalDismiss();},7000);
+  };
+  if(entrance)entrance.finished.catch(()=>{}).then(schedule);else schedule();
 }
+// Clicking either the greeting or the ready app dismisses it without consuming
+// the click: the user's selected control still performs its ordinary action.
+document.addEventListener('click',()=>{
+  if(_arrivalWelcome&&document.getElementById('arrival-welcome'))arrivalDismiss();
+},true);
 var _starterGate='ready',_starterChoice=null,_starterText='',_starterBusy=false,_starterError='',_starterEditor=false,_starterEditId=null,_starterRoutineId=null;
 const STARTER_TEMPLATES=[
   {id:'move',name:'Movimiento',label:'Moverme durante 5 minutos',icon:'↗'},

@@ -1,0 +1,26 @@
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (8866.760125ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (4625.222958ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (693.3955ms)
+✔ all skins and main screens remain usable under the strict style policy (2016.600208ms)
+✔ mobile demo preserves all visible metrics; other skins and desktop paint unchanged (8144.8935ms)
+✔ mobile picker preserves drafts, data and persistent selection (2239.898625ms)
+✔ Pro Mode picker persists and changes presentation without replacing drafts or writing data (2305.623583ms)
+✔ Pro Mode desktop geometry, equal typography, overflow and legacy skin restoration (1910.520334ms)
+✔ Pro Mode mobile retains original geometry; desktop controls and routine orb remain usable (3173.733542ms)
+✔ refined sidebar, two-row single-open Social, note and confirmed Reset preserve state (3710.407084ms)
+✔ Pro sidebar shares today note across tabs, aligns tabs and hides Work in Log (2788.45675ms)
+✔ navigation icons stay consistent across all skins on mobile and desktop (5341.582458ms)
+✔ desktop: skins change every tab without altering contacts, history, results or writes (2760.391416ms)
+✔ mobile: skins change every tab without altering contacts, history, results or writes (7300.61975ms)
+✔ skin choice persists after reload, ignores corrupt values and survives unavailable storage (1441.489375ms)
+✔ low stimulation disables glow and motion; Matrix respects system reduced motion (522.279959ms)
+✔ all result grades stay distinct, readable and numerically identical in each skin, including SVG (430.387458ms)
+✔ another tab follows a skin change without replacing its pending note or settings inputs (1096.305125ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63810.404125

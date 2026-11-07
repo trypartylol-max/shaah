@@ -248,3 +248,69 @@ html[data-skin="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.comb
  html[data-skin="pro"] #nav .nav-symbol{width:20px;height:20px}
  html[data-skin="pro"] #nav .nav-btn.active{padding-left:9px}
 }
+
+/* Mobile demo: paint only. Keep native metrics, flow, hit areas and score colors. */
+@media(max-width:879px){
+ html[data-skin='pro']{--pro-panel:#101321;--pro-edge:#35334e;--pro-copy:#eeeaf8;--pro-muted:#b9b4ce;--pro-accent:#b7a0ff}
+ html[data-skin='pro'] body{background:#090b14;color:var(--pro-copy)}
+ html[data-skin='pro'] #topbar{background:#0d101d;border-color:var(--pro-edge)}
+ html[data-skin='pro'] .tb-dt,html[data-skin='pro'] .tb-gr{color:var(--pro-muted)}
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27{--today-card-bg:var(--pro-panel);--today-card-border:var(--pro-edge);--today-title:var(--pro-copy);--today-copy:var(--pro-copy);--today-muted:var(--pro-muted);--today-accent:var(--pro-accent);--today-active:#b7a0ff18}
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-lvl,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-rout,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-note,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine{box-shadow:0 5px 16px #00000026,inset 0 1px 0 #ffffff06!important}
+ html[data-skin='pro'] .t-ring>svg{filter:drop-shadow(0 0 9px #b7a0ff24)}
+ html[data-skin='pro'] .t-ring>svg>circle:first-child{stroke:#292a43!important}
+ html[data-skin='pro'] .t-ring>div{font-variant-numeric:tabular-nums}
+ html[data-skin='pro'] .t-grade{background:#151529;border-color:#514669;box-shadow:inset 0 1px 0 #ffffff08}
+ html[data-skin='pro'] .ls-bar{background:#24243a;border-color:var(--pro-edge)}
+ html[data-skin='pro'] .ls-kicker,html[data-skin='pro'] .lvl-toggle,html[data-skin='pro'] .sf-combo-heading strong{color:var(--pro-copy)!important}
+ html[data-skin='pro'] .lvl-n,html[data-skin='pro'] .ls-footer,html[data-skin='pro'] .r-sub{color:var(--pro-muted)!important}
+ html[data-skin='pro'] .row.on{background:#b7a0ff14}
+ html[data-skin='pro'] .notecard{background:#0b0e19;border-color:var(--pro-edge)}
+ html[data-skin='pro'] textarea{color:var(--pro-copy)}
+ html[data-skin='pro'] #nav{background:#0e1120f5;border-color:var(--pro-edge);box-shadow:0 -5px 20px #00000030}
+ html[data-skin='pro'] #nav .nav-btn{color:var(--pro-muted)}
+ html[data-skin='pro'] #nav .nav-btn.active{color:#d5c7ff;border-color:var(--pro-accent);background:linear-gradient(180deg,#b7a0ff1c,transparent)}
+ html[data-skin='pro'] #nav .nav-btn:focus-visible,html[data-skin='pro'] .today button:focus-visible{outline:2px solid var(--pro-accent);outline-offset:-2px}
+}
+
+/* Pro mobile: a single surface scale across all tabs. Paint only. */
+@media(max-width:879px){
+ html[data-skin='pro']{--pro-canvas:#0c0e18;--pro-surface:#161927;--pro-inset:#10131f;--pro-edge:#35384d;--pro-copy:#f0edf8;--pro-muted:#b6b1c6;--pro-accent:#bca1f4;background:var(--pro-canvas)}
+ html[data-skin='pro'] body,html[data-skin='pro'] #app,html[data-skin='pro'] #scroll{background:var(--pro-canvas)!important;color:var(--pro-copy)}
+ html[data-skin='pro'] #topbar,html[data-skin='pro'] #tb-score,html[data-skin='pro'] #nav{background:var(--pro-canvas)!important;border-color:var(--pro-edge);box-shadow:none}
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27{--today-card-bg:var(--pro-surface);--today-card-border:var(--pro-edge);--today-title:var(--pro-copy);--today-copy:var(--pro-copy);--today-muted:var(--pro-muted);--today-accent:var(--pro-accent);--today-active:#bca1f41a;background:transparent!important}
+ /* Containers keep the canvas visible; only actual cards get a surface. */
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-rout,
+ html[data-skin='pro'] .t-score-hero,html[data-skin='pro'] .t-score-stack,
+ html[data-skin='pro'] .logdesk-shell{background:transparent!important;box-shadow:none!important}
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-lvl,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27>.t-note,
+ html[data-skin='pro'] #app #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine,
+ html[data-skin='pro'] #scroll .card,
+ html[data-skin='pro'] #scroll .logdesk-list-card,
+ html[data-skin='pro'] #scroll .logdesk-timeline-card,
+ html[data-skin='pro'] #scroll .t-daylog-card,
+ html[data-skin='pro'] #scroll .daylog-edit-card{background:var(--pro-surface)!important;border-color:var(--pro-edge)!important;box-shadow:none!important}
+ html[data-skin='pro'] .notecard,
+ html[data-skin='pro'] .notecard.filled,
+ html[data-skin='pro'] #scroll input:not([type='checkbox']):not([type='radio']),
+ html[data-skin='pro'] #scroll select,
+ html[data-skin='pro'] #scroll textarea{background:var(--pro-inset)!important;border-color:var(--pro-edge)!important;color:var(--pro-copy)}
+ html[data-skin='pro'] .t-grade{background:var(--pro-inset)!important;border-color:var(--pro-edge);box-shadow:none}
+ html[data-skin='pro'] .ls-bar{background:#262a3e;border-color:var(--pro-edge)}
+ html[data-skin='pro'] .t-ring>svg{filter:drop-shadow(0 0 6px #bca1f41c)}
+ html[data-skin='pro'] .t-ring>svg>circle:first-child{stroke:#303249!important}
+ html[data-skin='pro'] #app #scroll .today .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb){background:#29243d!important;border-color:#65537e!important;color:#eee5ff!important;box-shadow:inset 0 0 0 1px #65537e!important}
+ html[data-skin='pro'] .cr-routine-name,html[data-skin='pro'] .lvl-toggle,html[data-skin='pro'] .sf-combo-heading strong{color:var(--pro-copy)!important}
+ html[data-skin='pro'] .r-btn{border-color:#51475f!important;color:#d9c7ef!important;background:var(--pro-inset)!important}
+ html[data-skin='pro'] .r-btn.on,html[data-skin='pro'] .r-btn.sel,html[data-skin='pro'] .r-btn.active{background:#342b48!important;border-color:#bca1f4!important;color:#fff!important}
+ html[data-skin='pro'] .row.on{background:#bca1f41a}
+ html[data-skin='pro'] #nav .nav-btn{color:var(--pro-muted)}
+ html[data-skin='pro'] #nav .nav-btn.active{background:#bca1f41a;color:#e0caff;border-color:var(--pro-accent);box-shadow:none}
+ html[data-skin='pro'] .cr-session-menu-panel,
+ html[data-skin='pro'] .sf-group-dialog-card,
+ html[data-skin='pro'] .reset-day-warning{background:var(--pro-surface)!important;border-color:var(--pro-edge)!important}
+}

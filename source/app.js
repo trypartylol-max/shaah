@@ -2393,13 +2393,19 @@ function togglePerson(id,key){
   dayLogSyncChangedCompletions(key,before);
   persistDay(key); renderDayChange(key);
 }
+// Explicit zero/blank disables frequency. Missing legacy values retain their old default.
+function contactInterval(value){
+  if(value===0||(typeof value==='string'&&(value.trim()===''||Number(value)===0)))return 0;
+  const n=Number(value);
+  return Number.isFinite(n)&&n>0?Math.max(1,Math.min(3650,Math.trunc(n))):14;
+}
 function personAdd(sub,key){
   const name=(window.prompt("Who? (name)")||"").trim().slice(0,40);
   if(!name)return;
-  // Preguntar siempre la frecuencia, con 14 precargado como sugerencia editable.
-  const raw=window.prompt(`How often do you want to see ${name}?\nDays in between — 7 = weekly, 30 = monthly.`,"14");
+  // La frecuencia es opcional; vacío significa sin objetivo de frecuencia.
+  const raw=window.prompt(`How often do you want to see ${name}?\nDays in between — 7 = weekly, 30 = monthly. Leave blank for no frequency.`,"");
   if(raw===null)return;                                     // cancelar aborta el alta entera
-  const every=Math.max(1,Math.min(3650,parseInt(raw,10)||14));
+  const every=contactInterval(raw);
   let id; do{ id='p'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(personById(id));
   peopleList().push({id,name,sub,every,locations:selectedLocation()==='all'?[]:[selectedLocation()],inactive:false});
   saveCfg();
@@ -2413,14 +2419,15 @@ function orphanPeople(){
 }
 function personSet(id,k,v){
   const p=personById(id); if(!p)return;
-  p[k]= k==='every'?Math.max(1,Math.min(3650,parseInt(v)||14)):String(v==null?'':v).slice(0,k==='icon'?3:40);
+  p[k]= k==='every'?contactInterval(v):String(v==null?'':v).slice(0,k==='icon'?3:40);
   saveCfg(); render();
 }
 function personDel(id){
   const p=personById(id); if(!p)return;
-  if(!confirm(`Remove ${p.name}? Days you already logged keep their record.`))return;
+  if(!confirm(`¿Eliminar a ${p.name}? Sus encuentros registrados se conservan.`))return;
   CFG.people=peopleList().filter(x=>x.id!==id);
   CFG.deletedPeople={...(CFG.deletedPeople||{}),[id]:true};
+  if(socialDraft&&socialDraft.id===id){socialDraft=null;socialFormError='';}
   haptic(12); saveCfg(); render();
 }
 // Last time each person shows up in the log, and how overdue they are.
@@ -2432,11 +2439,11 @@ function peopleStatus(){
   }
   return visiblePeople().map(p=>{
     const last=seen[p.id]||null;
-    const every=Math.max(1,p.every||14);
+    const every=contactInterval(p.every);
     const days=last?Math.round((keyToDate(tk)-keyToDate(last))/86400000):null;
     return {...p,last,every,days,
-            ratio:days==null?Infinity:days/every,
-            overdue:days==null?Infinity:days-every};
+            ratio:every===0?-1:days==null?Infinity:days/every,
+            overdue:every===0?null:days==null?Infinity:days-every};
   }).sort((a,b)=>b.ratio-a.ratio);
 }
 function getNote(k){const n=_state[k]&&_state[k].note;return typeof n==='string'?n:'';}
@@ -3462,7 +3469,7 @@ function importApply(j){
       const id=q.id||('p'+Math.random().toString(36).slice(2,7).padEnd(5,'0'));
       if(CFG.people.some(x=>x.id===id||x.name===q.name))continue;
       const contact={id,name:String(q.name).slice(0,40),sub:q.sub||"friends",
-                     every:Math.max(1,Math.min(3650,parseInt(q.every,10)||14))};
+                     every:contactInterval(q.every)};
       if(Array.isArray(q.locations))contact.locations=[...new Set(q.locations.filter(x=>typeof x==='string'))];
       if(typeof q.inactive==='boolean')contact.inactive=q.inactive;
       CFG.people.push(contact);
@@ -4806,9 +4813,9 @@ function renderWhoToSee(){
   if(!st.length)return`<div>${locationSelector()}<div class="sec">WHO TO SEE</div><div class="card" ${uiStyle(`text-align:center;padding:22px 18px`)}>
     <div ${uiStyle(`font-size:15px;color:#adadbf;line-height:1.6;max-width:280px;margin:0 auto`)}>Tick a part of the Social Combo in <b ${uiStyle(`color:#d0d0da`)}>TODAY</b> and tap <b ${uiStyle(`color:#fbbf24`)}>+ who?</b> to start tracking who you spend time with.</div></div></div>`;
   const late=st.filter(p=>p.ratio>1).length;
-  const col=p=>p.ratio===Infinity?"#8888a4":p.ratio>1.5?"#ef4444":p.ratio>1?"#f59e0b":"#4ade80";
+  const col=p=>p.every===0||p.ratio===Infinity?"#8888a4":p.ratio>1.5?"#ef4444":p.ratio>1?"#f59e0b":"#4ade80";
   const when=p=>p.days==null?"never logged":p.days===0?"today":p.days===1?"yesterday":`${p.days} days ago`;
-  const due=p=>p.days==null?`every ${p.every}d`:p.overdue>0?`${p.overdue}d over`:p.overdue===0?"due today":`${-p.overdue}d left`;
+  const due=p=>p.every===0?"sin frecuencia":p.days==null?`every ${p.every}d`:p.overdue>0?`${p.overdue}d over`:p.overdue===0?"due today":`${-p.overdue}d left`;
   return`<div>${locationSelector()}<div class="sec" ${uiStyle(`display:flex;align-items:center;gap:8px`)}>WHO TO SEE
       <span ${uiStyle(`margin-left:auto;font-size:11px;color:${late?"#f59e0b":"#4ade80"}`)}>${late?`${late} OVERDUE`:"ALL CURRENT"}</span></div>
     <div class="card" ${uiStyle(`display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px 22px`)}>
@@ -4820,7 +4827,7 @@ function renderWhoToSee(){
           <div class="w-when" ${uiStyle(`font-size:13.5px;color:#8888a4;margin-top:2px`)}>${when(p)}</div>
         </div>
         <div ${uiStyle(`width:72px;flex-shrink:0`)}>
-          ${bar(p.ratio===Infinity?100:Math.min(p.ratio*100,100),c,c+"55",4)}
+          ${bar(p.ratio===Infinity?100:Math.max(0,Math.min(p.ratio*100,100)),c,c+"55",4)}
           <div class="w-due" ${uiStyle(`font-size:13px;color:${c};text-align:right;margin-top:4px`)}>${due(p)}</div>
         </div>
       </div>`;}).join("")}
@@ -5372,15 +5379,15 @@ function socialNew(key,sub){
   const categories=subsOn(subsList());
   socialDraft={id:null,key,name:'',every:'',relationship:'friends',sub:sub||categories.find(s=>s.id==='friends')?.id||categories[0]?.id||'',locations:selectedLocation()==='all'?[]:[selectedLocation()]};socialFormError='';renderDayChange(key);
 }
-function socialEdit(id){const p=personById(id);if(!p)return;socialDraft={...p,sub:socialCategory(p),locations:[...(p.locations||[])],key:socialKeyForView()};socialFormError='';render();}
+function socialEdit(id){const p=personById(id);if(!p)return;socialDraft={...p,every:contactInterval(p.every)===0?'':contactInterval(p.every),sub:socialCategory(p),locations:[...(p.locations||[])],key:socialKeyForView()};socialFormError='';render();}
 function socialDraftField(field,value){if(!socialDraft||!['name','every','sub','relationship'].includes(field))return;socialDraft[field]=value;}
 function socialDraftLocation(id,on){if(!socialDraft||!locationGroups().some(g=>g.id===id))return;socialDraft.locations=on?[...new Set([...socialDraft.locations,id])]:socialDraft.locations.filter(x=>x!==id);}
 function socialCancel(){socialDraft=null;socialFormError='';render();}
 function socialSave(){
   const d=socialDraft;if(!d)return;
   const name=String(d.name||'').trim().slice(0,40),every=Number(d.every);
-  if(!name||!Number.isInteger(every)||every<1||every>3650||(d.sub!=='family'&&!socialCategories().some(s=>s.id===d.sub)&&!(d.id&&socialCategory(personById(d.id)||{})===d.sub))){
-    socialFormError='Completa el nombre, la frecuencia (1–3650 días) y una categoría activa.';render();return;
+  if(!name||!Number.isInteger(every)||every<0||every>3650||(d.sub!=='family'&&!socialCategories().some(s=>s.id===d.sub)&&!(d.id&&socialCategory(personById(d.id)||{})===d.sub))){
+    socialFormError='Completa el nombre y una categoría activa. La frecuencia es opcional: déjala vacía o usa 0–3650 días.';render();return;
   }
   let p=d.id?personById(d.id):null;
   if(d.id&&!p){socialCancel();return;}
@@ -5398,11 +5405,12 @@ function socialEditor(){
   return `<section class="card sf-editor"><div class="sf-heading"><strong>${d.id?'Editar persona':'Alguien nuevo'}</strong>${socialButton('Cancelar','socialCancel')}</div>
     ${socialFormError?`<p role="alert">${esc(socialFormError)}</p>`:''}
     <label class="sf-field">Nombre<input id="sf-name" maxlength="40" value="${esc(d.name)}" ${ui('input','socialDraftName')}></label>
-    <label class="sf-field">Verlo cada cuántos días<input id="sf-every" type="number" min="1" max="3650" step="1" placeholder="7 = semanal · 30 = mensual" value="${esc(d.every)}" ${ui('input','socialDraftEvery')}></label>
+    <label class="sf-field">Frecuencia en días (opcional)<input id="sf-every" type="number" min="0" max="3650" step="1" placeholder="Sin frecuencia" value="${esc(d.every)}" ${ui('input','socialDraftEvery')}></label><p class="sf-muted">Vacío o 0 = sin frecuencia ni avisos de atraso. 7 = semanal · 30 = mensual.</p>
     <label class="sf-field">Categoría<select id="sf-sub" ${ui('change','socialDraftSub')}>${socialCategories().map(s=>`<option value="${esc(s.id)}" ${d.sub===s.id?'selected':''}>${esc(s.label)}</option>`).join('')}${!socialCategories().some(s=>s.id===d.sub)?`<option value="${esc(d.sub)}" selected>${d.sub==='family'?'Family':esc(d.sub)+' · categoría anterior'}</option>`:''}</select></label>
 
     <fieldset class="sf-locations"><legend>Lugares</legend>${locationGroups().map(g=>`<label><input type="checkbox" ${d.locations.includes(g.id)?'checked':''} ${ui('change','socialDraftLocation',g.id)}> ${esc(g.name)}</label>`).join('')||'<span class="sf-muted">Puedes crear lugares desde Social → Grupos.</span>'}<div class="sf-muted">Sin lugares asignados: aparece en todos.</div></fieldset>
     ${socialButton(d.id?'Guardar cambios':d.key?'Guardar y registrar encuentro':'Guardar persona','socialSave',[],true)}
+    ${d.id?`<button type="button" class="sf-button" ${ui('click','personDel',d.id)} ${uiStyle('color:#ef4444;border-color:#ef444455')}>Eliminar contacto</button><p class="sf-muted">Sus encuentros registrados se conservan.</p>`:''}
     ${d.id?`<h3>Encuentros registrados · ${history.length}</h3><div class="sf-muted">${history.map(esc).join(' · ')||'Sin encuentros todavía.'}</div>`:`<p class="sf-muted">Se registra el encuentro del ${esc(d.key)} en Today y Social.</p>`}
   </section>`;
 }
@@ -5435,7 +5443,7 @@ var socialFamilyIncluded=true;
 function socialPeople(){return `<section class="card sf-people-box" aria-label="People & Groups"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} People &amp; Groups <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading sf-directory-actions">${socialButton('+ Persona','socialNew',[''],true)}<button type="button" id="social-directory-toggle" class="sf-button" aria-controls="social-directory-results social-groups-view" aria-pressed="${socialDirectoryView==='groups'}" ${ui('click','socialDirectoryToggle')}>${socialDirectoryView==='groups'?'People':'Groups'}</button></div><div class="sf-directory-filters"><label class="sf-field">Buscar<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">Grupo<select ${ui('change','socialDirectoryGroup')}><option value="all">Todos</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">Categoría<select ${ui('change','socialDirectoryCategory')}><option value="all">Todas</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory" ${socialDirectoryView==='groups'?'hidden':''}>${socialDirectoryRows()}</div><div id="social-groups-view" ${socialDirectoryView==='groups'?'':'hidden'}>${socialGroups()}</div></div></div></section>`;}
 function socialGroups(){return `<section class="card sf-groups"><div class="sec">GRUPOS</div><p class="sf-muted">Una persona puede pertenecer a varios grupos.</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?'persona':'personas'}</span>${socialButton('Renombrar','locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>+ Añadir grupo</button></div><p class="sf-muted">El foco de grupo filtra sugerencias de Friends y Strangers; todos siguen disponibles para registrar encuentros.</p></section>`;}
 function socialSuggestions(){
-  const list=peopleStatus().filter(p=>p.days==null||p.overdue>=0);
+  const list=peopleStatus().filter(p=>p.every>0&&(p.days==null||p.overdue>=0));
   return `<div class="sec">A QUIÉN TE TOCA VER</div><div class="sf-grid">${list.map(p=>socialTile(p,socialKeyForView())).join('')||'<p class="sf-muted">Sin encuentros pendientes en este lugar.</p>'}</div>`;
 }
 function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="Who to See"><h2 class="sec">Who to See</h2>${socialDashboard(key)}</section><section aria-label="Social Combo"><h2 class="sec">Social Combo</h2>${socialComboPanel(key)}</section>${socialPeople()}`;}
@@ -5449,12 +5457,13 @@ function socialDashboard(key){
 function socialSuggestionList(){
  const tk=todayKey(),loc=selectedLocation();
  return peopleList().filter(p=>socialIsFamily(p)?socialFamilyIncluded:(!['friends','strangers'].includes(p.sub)||loc==='all'||personLocations(p).length===0||personLocations(p).includes(loc))).map(p=>{
-  const last=socialLast(p.id)||null,every=Math.max(1,Number(p.every)||14),days=last?Math.round((keyToDate(tk)-keyToDate(last))/86400000):null;
-  return {...p,last,every,days,ratio:days==null?Infinity:days/every,overdue:days==null?Infinity:days-every};
+  const last=socialLast(p.id)||null,every=contactInterval(p.every),days=last?Math.round((keyToDate(tk)-keyToDate(last))/86400000):null;
+  return {...p,last,every,days,ratio:every===0?-1:days==null?Infinity:days/every,overdue:every===0?null:days==null?Infinity:days-every};
  }).sort((a,b)=>b.ratio-a.ratio);
 }
 function socialTimePill(p){
- const every=Math.max(1,Number(p.every)||14);
+ const every=contactInterval(p.every);
+ if(every===0)return {fill:0,color:'#8888a4',label:'Libre',description:'Sin frecuencia'};
  if(p.days==null)return {fill:0,color:'#8888a4',label:'—',description:'Sin encuentros registrados'};
  const overdue=Math.max(0,Number(p.days)||0)-every,remaining=-overdue;
  // Remaining days drain to zero; overdue days refill until one full interval late.
@@ -5474,7 +5483,7 @@ function socialCategories(){return subsOn(subsList());}
 function socialIsFamily(p){return p.sub==='family'||p.sub==='__family_pending'||p.relationship==='family';}
 function socialCategory(p){return p.sub==='__family_pending'?'family':p.sub;}
 function socialCategoryName(p){const id=socialCategory(p);return socialCategories().find(s=>s.id===id)?.label||id||'Sin categoría';}
-function socialTile(p,key,manage=false){const on=getPeople(key).includes(p.id),last=socialLast(p.id);return `<article class="sf-tile${manage?' sf-managed':''}${on?' sf-seen':''}"><div class="sf-heading"><span class="sf-category">${esc(socialCategoryName(p))}</span>${socialButton('Editar','socialEdit',[p.id])}</div><strong class="sf-name">${esc(p.name)}</strong><div class="sf-muted">${last===todayKey()?'Visto hoy':last?'Último encuentro · '+esc(last):'Sin encuentros registrados'}<br>Cada ${p.every||14} días · ${socialPlaces(p)}</div>${manage?'':`<button class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}>${on?'✓ Registrado · quitar':'Lo vi hoy'}</button>`}</article>`;}
+function socialTile(p,key,manage=false){const on=getPeople(key).includes(p.id),last=socialLast(p.id);return `<article class="sf-tile${manage?' sf-managed':''}${on?' sf-seen':''}"><div class="sf-heading"><span class="sf-category">${esc(socialCategoryName(p))}</span>${socialButton('Editar','socialEdit',[p.id])}</div><strong class="sf-name">${esc(p.name)}</strong><div class="sf-muted">${last===todayKey()?'Visto hoy':last?'Último encuentro · '+esc(last):'Sin encuentros registrados'}<br>${contactInterval(p.every)===0?'Sin frecuencia':'Cada '+contactInterval(p.every)+' días'} · ${socialPlaces(p)}</div>${manage?'':`<button class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}>${on?'✓ Registrado · quitar':'Lo vi hoy'}</button>`}</article>`;}
 function socialRecord(id,key){
  const p=personById(id);if(!p)return;
  const before={...getChecked(key)};

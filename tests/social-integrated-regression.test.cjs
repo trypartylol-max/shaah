@@ -21,10 +21,9 @@ test('cancel and account changes discard drafts without changing saved contact m
  app.run("USER={id:'a'};socialEdit('pold01');changeSyncUser({id:'b'})");
  assert.equal(app.read('socialDraft'),null);
 });
-test('contact edit preserves history and requires frequency for a new contact',()=>{
+test('new contact can omit frequency and still record an encounter',()=>{
  const app=loadApp();app.run("socialNew(todayKey());socialDraftField('name','Synthetic new');socialSave()");
- assert.equal(app.read('CFG.people.length'),3);
- app.run("socialDraftField('every','14');socialSave()");
+ assert.equal(app.read('CFG.people.at(-1).every'),0);
  assert.equal(app.read('CFG.people.length'),4);
  assert.equal(app.read('getPeople(todayKey()).length'),1);
 });

@@ -16,7 +16,9 @@ single-file artifact or the previous onboarding-review candidate.
 
 Existing initialized accounts show a dismissible Welcome Back on successful
 account load, including in a browser without a local tutorial flag. It appears
-in 200 ms, exits in 140 ms, and dismisses automatically after 2.2 seconds. The
+in 200 ms, exits in 140 ms, and dismisses automatically after seven seconds measured from the end of entry.
+Clicking the welcome or anywhere in the ready app starts the same smooth exit
+without cancelling the clicked control. Closing during entry does not arm a stale timer. The
 application is interactive throughout; there is no greeting gate or fixed wait.
 The overlay survives ordinary render calls without restarting its animation.
 Its local greeting receipt includes account ID and the Auth sign-in timestamp,

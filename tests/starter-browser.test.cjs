@@ -1,11 +1,11 @@
 const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');
 const {openApp}=require('./browser-helpers.cjs');
-test('first session uses a real habit and real Day Log, survives refresh, no automatic tour',async t=>{
+test('first session uses a real habit and real Day Log, survives refresh, automatic tour only on first initialization',async t=>{
  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
  assert.equal(await p.locator('#tour.on').count(),0);assert.equal(await p.evaluate(()=>__mockWrites.length),0);
  assert.equal(await p.locator('#starter-confirm').isDisabled(),true);
  fs.mkdirSync('test-results',{recursive:true});await p.screenshot({path:'test-results/starter-choose-mobile.png'});
- await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();
+ await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  await p.getByRole('heading',{name:'Tu día, a tu ritmo.'}).waitFor();assert.equal(await p.locator('[data-starter-habit]').count(),1);
  await p.getByRole('button',{name:'Marcar como hecho',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
  assert.equal(await p.locator('#tb-score').innerText(),'1 de 1 de tu plan');
@@ -23,7 +23,7 @@ test('first session uses a real habit and real Day Log, survives refresh, no aut
 });
 test('skip stays neutral across refresh; custom name is escaped and editable',async t=>{
  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
- await p.getByRole('button',{name:'Entrar sin elegir'}).click();await p.getByRole('heading',{name:'Tu día empieza aquí.'}).waitFor();
+ await p.getByRole('button',{name:'Entrar sin elegir'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();await p.getByRole('heading',{name:'Tu día empieza aquí.'}).waitFor();
  assert.equal(await p.locator('#tb-score').innerText(),'Sin plan de hábitos');await p.reload();await p.getByRole('heading',{name:'Tu día empieza aquí.'}).waitFor();
  await p.getByRole('button',{name:'Elegir mi primer hábito'}).click();await p.getByRole('button',{name:'Escribir el mío'}).click();
  await p.getByLabel('Mi compromiso',{exact:true}).fill('<img src=x onerror=alert(1)> Leer');await p.getByRole('button',{name:'Añadir a mi plan'}).click();
@@ -38,7 +38,7 @@ test('responsive Starter is usable in six skins; full/simple switches keep all a
   await p.evaluate(s=>setSkin(s),skin);
   for(const width of [320,390,879,880,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,skin+' '+width);}
  }
- await p.evaluate(()=>setSkin('classic'));await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();
+ await p.evaluate(()=>setSkin('classic'));await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  for(const skin of ['classic','aurora','glow','matrix','minimal','pro']){await p.evaluate(s=>setSkin(s),skin);for(const width of [320,390,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,skin+' Today '+width);assert.equal(await p.getByRole('button',{name:'Marcar como hecho'}).isVisible(),true);assert.ok(await p.locator('[data-starter-habit]').evaluate(e=>e.getBoundingClientRect().width)>Math.min(240,width-40),skin+' readable card '+width);}}
  await p.screenshot({path:'test-results/starter-today-desktop.png'});await p.getByRole('button',{name:'Ver vista completa'}).click();
  assert.equal(await p.evaluate(()=>CFG.starter.view),'full');await p.evaluate(()=>starterView('simple'));assert.equal(await p.locator('[data-starter-habit]').count(),1);
@@ -46,7 +46,7 @@ test('responsive Starter is usable in six skins; full/simple switches keep all a
 });
 test('optional generic routine opens the existing runner without duplicate points; tutorial stays a memory demo',async t=>{
  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
- await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();
+ await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  await p.getByRole('button',{name:'Dividir en pasos · opcional'}).click();await p.getByRole('button',{name:'Añadir esta rutina'}).click();
  await p.getByRole('button',{name:'Empezar rutina',exact:true}).click();await p.locator('#cr-dialog').waitFor();
  assert.equal(await p.evaluate(()=>ROUTINES[CFG.order[0]].steps.length),3);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),0);

@@ -820,6 +820,61 @@ const del=k=>{try{localStorage.removeItem(k);}catch(e){}};
 // ═══ CONFIG (editable in Settings, synced via Supabase) ═══
 // Starter is a separate, versioned profile. DEFAULT_CFG remains the legacy
 // fallback; reducing it would silently change accounts and imported backups.
+// Arrival UI is transient. Only the existing exclusive settings initializer
+// decides first use; no timestamp heuristic or new database row is introduced.
+var _arrivalResolved=false,_arrivalWelcome=false,_arrivalTutorial=false,_arrivalTimer=null,_arrivalAuthRevision=0,_arrivalActivation=null;
+function arrivalSeenKey(){return `shaah_arrival_${USER?.id||'anon'}_${USER?.last_sign_in_at||'session'}`;}
+function arrivalMotion(){return _skin!=='minimal'&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;}
+function arrivalAnimate(node,frames,duration){
+  if(!node||!arrivalMotion()||typeof node.animate!=='function')return null;
+  return node.animate(frames,{duration,easing:'cubic-bezier(.2,.8,.2,1)'});
+}
+function arrivalReset(){
+  clearTimeout(_arrivalTimer);_arrivalTimer=null;_arrivalResolved=false;_arrivalWelcome=false;_arrivalTutorial=false;_arrivalActivation=null;
+  document.getElementById('arrival-welcome')?.remove();
+  document.querySelectorAll?.('.arrival-tour-ghost').forEach(n=>n.remove());
+}
+function arrivalPlanExisting(){
+  if(_arrivalResolved)return;
+  _arrivalResolved=true;
+  _arrivalWelcome=!get(arrivalSeenKey());
+}
+function arrivalDismiss(){
+  clearTimeout(_arrivalTimer);_arrivalTimer=null;_arrivalWelcome=false;
+  const node=document.getElementById('arrival-welcome');if(!node)return;
+  node.inert=true;node.setAttribute('aria-hidden','true');
+  const a=arrivalAnimate(node,[{opacity:1,transform:'translateX(-50%) translateY(0)'},{opacity:0,transform:'translateX(-50%) translateY(-6px)'}],140);
+  if(a)a.finished.catch(()=>{}).then(()=>node.remove());else node.remove();
+}
+function arrivalTourExit(){
+  const card=document.querySelector?.('#tour .tour-card');
+  if(!card||!arrivalMotion())return;
+  const rect=card.getBoundingClientRect(),ghost=card.cloneNode(true);
+  ghost.classList.add('arrival-tour-ghost');ghost.removeAttribute('id');
+  ghost.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+  ghost.inert=true;ghost.setAttribute('aria-hidden','true');ghost.removeAttribute('role');
+  Object.assign(ghost.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',margin:'0',zIndex:'2001',pointerEvents:'none'});
+  document.body.append(ghost);
+  const a=arrivalAnimate(ghost,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(8px)'}],140);
+  if(a)a.finished.catch(()=>{}).then(()=>ghost.remove());else ghost.remove();
+  arrivalAnimate(document.getElementById('scroll'),[{opacity:.7},{opacity:1}],160);
+}
+function renderArrival(){
+  if(!USER||_starterGate!=='ready'||settingsOpen||editDayKey||_starterEditor)return;
+  if(_arrivalTutorial){
+    _arrivalTutorial=false;startTour();return;
+  }
+  if(!_arrivalWelcome||tourStep!==null||document.getElementById('arrival-welcome'))return;
+  set(arrivalSeenKey(),1);
+  const name=String(USER.user_metadata?.given_name||USER.user_metadata?.full_name||'').trim().split(/\s+/)[0].slice(0,40);
+  const node=document.createElement('aside');node.id='arrival-welcome';node.className='arrival-welcome';node.setAttribute('aria-label','Welcome back');
+  uiHTML(node,`<div role="status"><span class="arrival-kicker">TU SIGUIENTE HORA</span><h2>Welcome back${name?', '+esc(name):''}.</h2><p>Retoma a tu ritmo. Un pequeño paso cuenta.</p></div><button type="button" aria-label="Cerrar bienvenida" ${ui('click','arrivalDismiss')}>✕</button>`);
+  document.getElementById('app').append(node);
+  arrivalAnimate(node,[{opacity:0,transform:'translateX(-50%) translateY(8px) scale(.985)'},{opacity:1,transform:'translateX(-50%) translateY(0) scale(1)'}],200);
+  // The app is already interactive. Auto-dismiss is cosmetic, never a gate.
+  const owner=USER.id,epoch=_syncEpoch;
+  _arrivalTimer=setTimeout(()=>{if(USER?.id===owner&&_syncEpoch===epoch)arrivalDismiss();},2200);
+}
 var _starterGate='ready',_starterChoice=null,_starterText='',_starterBusy=false,_starterError='',_starterEditor=false,_starterEditId=null,_starterRoutineId=null;
 const STARTER_TEMPLATES=[
   {id:'move',name:'Movimiento',label:'Moverme durante 5 minutos',icon:'↗'},
@@ -849,7 +904,7 @@ function starterBuild(choice,text,token){
   if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
   return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines:{},people:[],subs:[],locationGroups:[],
     travel:{mode:'work',auto:false,resumeOn:''},v:4,
-    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple'},
+    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple',tutorial:{version:1,state:'presented'}},
     log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
       {from:day,h:cfgCopy(h),order:[...order],subs:[],mode:'work'}]};
 }
@@ -865,6 +920,15 @@ function starterDraft(value){
 }
 function starterAdopt(row){
   if(!row?.data?._cfg||typeof row.data._cfg!=='object'||Array.isArray(row.data._cfg)||!row.data._cfg.h||!Array.isArray(row.data._cfg.order))throw Error('No pudimos verificar la configuración guardada. Reintenta la carga.');
+  const pending=get(starterPendingKey()),starter=row.data._cfg.starter;
+  // Only the initializer with the winning persisted token can auto-present.
+  // Existing devices/legacy profiles never gain a tutorial during ordinary load.
+  const automatic=starter?.tutorial?.version===1&&starter.tutorial.state==='presented'
+    &&pending?.owner===USER?.id&&pending.token===starter.token&&!get(`shaah_auto_tour_${USER.id}_${starter.token}`);
+  if(automatic){
+    set(`shaah_auto_tour_${USER.id}_${starter.token}`,1);set(arrivalSeenKey(),1);
+    _arrivalResolved=true;_arrivalWelcome=false;_arrivalTutorial=true;
+  }
   // Initialization never participates in the ordinary three-way settings merge.
   _cfgDraft=null;_cfgDraftBase=null;del(cfgPendingKey());
   CFG=Object.assign(cfgCopy(DEFAULT_CFG),cfgCopy(row.data._cfg));_cfgBase=cfgCopy(row.data);
@@ -1084,6 +1148,7 @@ const UI_ACTIONS=Object.freeze({
   starterConfirm:uiRule('click',['boolean'],(n,e,skip)=>starterConfirm(skip)),
   starterOpen:uiRule('click',['string'],(n,e,id)=>starterOpen(id)),
   starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
+  arrivalDismiss:uiRule('click',[],()=>arrivalDismiss()),
   starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
   retryAccountLoad:uiRule('click',[],()=>{loadAll();render();}),
   starterRoutinePreview:uiRule('click',['string'],(n,e,id)=>{_starterRoutineId=id||null;render();}),
@@ -2556,8 +2621,9 @@ function changeSyncUser(user){
   _syncEpoch++;_cfgReady=false;_cfgBase=null;_cfgDraft=null;_cfgDraftBase=null;_cfgConflict=false;_cfgSaveFailed=false;_cfgFlushPromise=null;_syncRenderQueued=false;_loadFailed=false;
   for(const [key,p] of Object.entries(_pending)){if(p.timer)clearTimeout(p.timer);delete _pending[key];}
   clearTimeout(_bakT);_bakT=null;_bak=[];
-  if(_realtimeChannel){sb.removeChannel?.(_realtimeChannel);_realtimeChannel=null;}
+  if(_realtimeChannel){const channel=_realtimeChannel;_realtimeChannel=null;setTimeout(()=>{Promise.resolve(sb.removeChannel?.(channel)).catch(()=>{});},0);}
   resetAccountView();
+  arrivalReset();
   _starterGate=user?'loading':'ready';_starterChoice=null;_starterText='';_starterBusy=false;_starterError='';_starterEditor=false;_starterEditId=null;_starterRoutineId=null;
   USER=user;_live=false;_state={};CFG=cfgCopy(DEFAULT_CFG);_dayCfgCache={};applyCfg();selectOfflineOwner();
   window.SHAAHPerformance?.setOwner(USER?.id||null);
@@ -2848,6 +2914,7 @@ async function loadAccountRows(owner,epoch){
     }else{applyCfg();hydrateRoutineRows(rows);}
     saveCache();
     cfgSyncStatus();
+    arrivalPlanExisting();
     if(_cfgDraft&&!_cfgConflict){_cfgDraft=cfgCopy(CFG);keepCfgDraft();flushCfgSaves();}
     if(Object.keys(_offlineQueue).length)flushOfflineQueue();
   }catch(e){
@@ -3555,6 +3622,7 @@ window.addEventListener('error',e=>{
 });
 
 async function boot(){
+  const authRevision=_arrivalAuthRevision;
   initSkin();
   try{_signOutNotice=signOutNoticeFor(sessionStorage.getItem(SIGNOUT_NOTICE_KEY));sessionStorage.removeItem(SIGNOUT_NOTICE_KEY);}catch(e){}
   applyCfg();   // primera sentencia ejecutable del programa: aquí ya está todo declarado
@@ -3574,37 +3642,26 @@ async function boot(){
     }
   }catch(e){AUTH_ERR=e.message;}
 
-  changeSyncUser(session?session.user:null);
-
-  // Clean auth params out of the URL once handled
-  if(USER&&(location.search||location.hash)){
-    history.replaceState({},'',location.pathname);
-  }
-
-  if(USER){
-    restoreAccountLocal();
-    // The nine-step tutorial is voluntary, opened from Today or Settings.
-    render();
-    const owner=USER.id,epoch=_syncEpoch;
-    await loadAll();
-    if(USER?.id===owner&&_syncEpoch===epoch)subscribeRealtime();
-  }else{
-    render();
-  }
+  if(authRevision===_arrivalAuthRevision)activateAccountSession(session);
+  if(USER&&(location.search||location.hash))history.replaceState({},'',location.pathname);
 }
-
+function activateAccountSession(session){
+  const previous=USER?.id||null,next=session?.user||null;
+  changeSyncUser(next);
+  if(!USER){render();return;}
+  if(previous===USER.id&&(_loadFlight||_cfgReady||_arrivalActivation?.owner===USER.id))return;
+  const owner=USER.id,epoch=_syncEpoch;
+  _arrivalActivation={owner,epoch};
+  // Callback stays synchronous; all auth-dependent requests run after it returns.
+  setTimeout(()=>{
+    if(USER?.id!==owner||_syncEpoch!==epoch)return;
+    _arrivalActivation=null;restoreAccountLocal();render();
+    loadAll().then(()=>{if(USER?.id===owner&&_syncEpoch===epoch&&!_loadFailed)subscribeRealtime();});
+  },0);
+}
 sb.auth.onAuthStateChange((event,session)=>{
-  const wasUser=USER?USER.id:null;
-  changeSyncUser(session?session.user:null);
-  if(USER&&USER.id!==wasUser){
-    // loadCfgLocal() PRIMERO: sin esto se pintaba un frame con la config genérica
-    // (p.ej. "No Junk Food") antes de que llegara la del usuario ("No Smoking").
-    restoreAccountLocal();render();
-    const owner=USER.id,epoch=_syncEpoch;
-    loadAll().then(()=>{if(USER?.id===owner&&_syncEpoch===epoch)subscribeRealtime();});
-  }else if(!USER){
-    _state={};render();
-  }
+  ++_arrivalAuthRevision;
+  activateAccountSession(session);
 });
 
 function getStreak(){
@@ -4000,6 +4057,7 @@ const TOUR=[
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
 function startTour(){
  if(!USER||tourStep!==null)return;
+ arrivalDismiss();
  tourOwner=USER.id;tourReturnSettings=settingsOpen;tourReturnTab=currentTab;tourReturnFocus=document.activeElement;tourScroll=document.getElementById('scroll').scrollTop;
  tourDemo={};tourStep=0;settingsOpen=false;currentTab=TOUR[0].tab;haptic(10);render();
 }
@@ -4011,6 +4069,7 @@ function tourGo(i){
 }
 function tourDone(){
  if(tourStep===null)return;
+ arrivalTourExit();
  const sameOwner=USER&&(!tourOwner||USER.id===tourOwner),returnSettings=tourReturnSettings;
  tourStep=null;tourDemo={};tourFocusStep=null;
  if(sameOwner){set(tourKey(),1);if(tourReturnTab)currentTab=tourReturnTab;settingsOpen=returnSettings;}
@@ -4120,6 +4179,7 @@ function renderTour(){
  <div class="tour-row"><button id="tour-close" class="tour-skip" ${ui('click','tourDone')}>Skip / close</button><button id="tour-back" class="tour-skip" ${tourStep===0?'disabled':''} ${ui('click','tourGo',tourStep-1)}>Back</button><button id="tour-next" class="tour-next" ${ui('click','tourGo',tourStep+1)}>${last?'Finish':'Next'}</button></div></section>`);
  const changed=tourFocusStep!==tourStep;tourFocusStep=tourStep;
  if(changed){
+  arrivalAnimate(t.querySelector('.tour-card'),[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],180);
   document.getElementById('tour-title').focus({preventScroll:true});
   const target=document.querySelector(s.target||'#missing-tour-target'),scroll=document.getElementById('scroll');
   if(target)scroll.scrollTop+=target.getBoundingClientRect().top-20;
@@ -4202,6 +4262,7 @@ function render(){
   renderTour();
   renderResume();
   initScrollHide();
+  renderArrival();
   window.SHAAHPerformance?.ready();
 }
 

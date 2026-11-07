@@ -38,7 +38,7 @@ test('repeat subscriptions reuse one channel; account switch creates a new owned
   server.client.channel=name=>{owners.push(name);return {on(){return this;},subscribe(){return this;}};};
   server.client.removeChannel=()=>removed++;
   app.run('subscribeRealtime();subscribeRealtime();');assert.deepEqual(owners,['shaah-synthetic-A']);
-  app.run("changeSyncUser({id:'synthetic-B'});subscribeRealtime();");assert.deepEqual(owners,['shaah-synthetic-A','shaah-synthetic-B']);assert.equal(removed,1);
+  app.run("changeSyncUser({id:'synthetic-B'});subscribeRealtime();");assert.deepEqual(owners,['shaah-synthetic-A','shaah-synthetic-B']);for(const timer of [...app.timers.values()])if(timer.ms===0)timer.fn();assert.equal(removed,1);
 });
 test('formatter reuse preserves midnight, explicit timezone changes, DST and invalid-zone fallback',()=>{
   const {app}=device();

@@ -3029,3 +3029,12 @@ html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){di
 .navigation-icon{display:block;width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
 #nav .nav-symbol{display:grid;place-items:center;flex:none;line-height:1}
 .reset-day-trigger>.navigation-icon{width:18px;height:18px}
+
+/* Brief, nonblocking account arrival. Never hide or delay the ready app. */
+.arrival-welcome{position:fixed;z-index:1900;top:calc(env(safe-area-inset-top) + 68px);left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 32px));box-sizing:border-box;display:flex;justify-content:space-between;gap:16px;padding:20px 22px;border:1px solid #d9bb6755;border-radius:18px;background:#15131bf5;color:#f3f0eb;box-shadow:0 14px 44px #0005;pointer-events:auto}
+.arrival-welcome h2{font-size:23px;font-weight:600;letter-spacing:-.035em;line-height:1.2;margin:7px 0}
+.arrival-welcome p{font-size:14px;line-height:1.5;color:#bcb7c8;margin:0}
+.arrival-kicker{font-size:10px;letter-spacing:.18em;color:#d9bb67;font-weight:600}
+.arrival-welcome button{flex-shrink:0;align-self:flex-start;background:none;border:0;color:#bcb7c8;cursor:pointer;width:36px;min-height:36px;padding:6px;font:inherit;border-radius:9px}
+.arrival-welcome button:focus-visible{outline:2px solid #e9cc80;outline-offset:3px}
+.arrival-tour-ghost{animation:none;box-sizing:border-box;max-height:calc(100dvh - 32px);overflow:hidden}

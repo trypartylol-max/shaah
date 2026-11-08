@@ -1,0 +1,22 @@
+✔ existing account arrival is smooth, nonblocking and once per sign-in at 390px (1900.945458ms)
+✔ existing account arrival is smooth, nonblocking and once per sign-in at 1440px (1152.512334ms)
+✔ new account gets one automatic tour from exclusive initialization; refresh/new browser never replays it (1166.152792ms)
+✔ reduced motion skips arrival, tutorial entry and exit animations (651.926542ms)
+✔ sign-out and account switch remove the outgoing welcome and any exiting tour copy (479.177166ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 320px (3354.1605ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 390px (3042.166625ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 1440px (2932.758834ms)
+✔ installed shell cold-opens offline at a subpath, queues changes, reconnects and respects signout (2366.322125ms)
+✔ real pinned SDK with an expired saved session can cold-open offline without authenticating another account (1797.773708ms)
+✔ welcome stays readable for seven seconds after entrance; rerender does not restart it (8338.635917ms)
+✔ click greeting or app dismisses smoothly without stealing the action at 390px (1158.113125ms)
+✔ click greeting or app dismisses smoothly without stealing the action at 1440px (1166.726459ms)
+✔ click during entrance cannot schedule another dismissal or affect a later account (765.851167ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31821.145291

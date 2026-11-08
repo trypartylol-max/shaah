@@ -1,0 +1,34 @@
+✔ existing account arrival is smooth, nonblocking and once per sign-in at 390px (2406.951833ms)
+✔ existing account arrival is smooth, nonblocking and once per sign-in at 1440px (1209.036708ms)
+✔ new account gets one automatic tour from exclusive initialization; refresh/new browser never replays it (1127.043708ms)
+✔ reduced motion skips arrival, tutorial entry and exit animations (789.695916ms)
+✔ sign-out and account switch remove the outgoing welcome and any exiting tour copy (871.71775ms)
+✔ published artifact blocks inline style blocks and attributes while loading its exact local stylesheet (363.580375ms)
+✔ opaque style keys do not interpret CSS attribute text, and trusted styles survive cloning and replacement (649.768541ms)
+✔ registry pruning preserves styles already visible and does not grow for disconnected screens (541.967083ms)
+✔ all skins and main screens remain usable under the strict style policy (1770.707291ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 320px (3545.95975ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 390px (3052.534958ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 1440px (3187.46075ms)
+✔ mobile-4G: cold load, all tabs, slow saves, offline/reconnect and reload (14345.13875ms)
+✔ small-mobile-constrained: cold load, all tabs, slow saves, offline/reconnect and reload (32939.416917ms)
+✔ cached mobile account exposes retry after a stalled load and late response cannot replace newer data (608.925458ms)
+✔ installed shell cold-opens offline at a subpath, queues changes, reconnects and respects signout (2659.0475ms)
+✔ real pinned SDK with an expired saved session can cold-open offline without authenticating another account (1817.8255ms)
+✔ login handles query text as readable text and still boots (987.214ms)
+✔ login handles hash text as readable text and still boots (617.916125ms)
+✔ login handles incomplete percent as readable text and still boots (444.590583ms)
+✔ login handles encoded percent as readable text and still boots (526.343958ms)
+✔ stored contact IDs with punctuation still support edits, bulk groups, tagging and reload (1521.817625ms)
+✔ people import displays ordinary markup as text and keeps the imported identifier editable (1135.122292ms)
+✔ stored routine colors, Next text and Day Log IDs stay data while controls remain usable (2498.028875ms)
+✔ malformed stored routine definitions do not break startup or rewrite metadata (675.10425ms)
+✔ adopting valid settings without a currently open routine keeps the app usable and its saved session (609.0045ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83514.380625

@@ -19,7 +19,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
   const pageHtml=options.htmlFile?fs.readFileSync(options.htmlFile,'utf8'):html;
   const appOrigin=new URL(options.url||'http://shaah.test/').origin;
   const pageRoot=options.assetsRoot||path.dirname(options.htmlFile||htmlPath);
-  const context = await browser.newContext({ viewport, timezoneId: 'UTC', serviceWorkers: 'block' });
+  const context = await browser.newContext({ viewport, timezoneId: 'UTC', serviceWorkers: options.serviceWorkers || 'block' });
   t.after(() => context.close());
   const unexpectedRequests = [];
   const errors = [];
@@ -27,6 +27,7 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     const url = route.request().url();
     const parsed = new URL(url);
     if(options.realAssets&&parsed.origin===appOrigin&&route.request().method()==='GET')return route.continue();
+    if(options.httpServer && parsed.origin===appOrigin)return route.continue();
     if (options.worker && parsed.origin === appOrigin) {
       if (route.request().method() !== 'GET') { unexpectedRequests.push('Unmocked method: ' + route.request().method()); return route.abort(); }
       if (parsed.pathname === '/sdk.js') return route.fulfill({ contentType: 'application/javascript', body: '/* local SDK test double already installed */' });

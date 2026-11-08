@@ -1,0 +1,21 @@
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 320px (3730.511ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 390px (2912.622208ms)
+✔ day summary counts concurrent/open activity and refreshes without losing typed input at 1440px (2849.698ms)
+✔ installed shell cold-opens offline at a subpath, queues changes, reconnects and respects signout (3126.001125ms)
+✔ real pinned SDK with an expired saved session can cold-open offline without authenticating another account (1853.9795ms)
+✔ global disclosure 390px preserves data and individual control (3881.554916ms)
+✔ global disclosure 879px preserves data and individual control (3188.860625ms)
+✔ global disclosure 880px preserves data and individual control (3211.597333ms)
+✔ global disclosure 1440px preserves data and individual control (3250.76675ms)
+✔ welcome stays readable for seven seconds after entrance; rerender does not restart it (8209.313375ms)
+✔ click greeting or app dismisses smoothly without stealing the action at 390px (1202.229167ms)
+✔ click greeting or app dismisses smoothly without stealing the action at 1440px (1199.372292ms)
+✔ click during entrance cannot schedule another dismissal or affect a later account (739.223083ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40906.712041

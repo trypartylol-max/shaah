@@ -2,7 +2,9 @@
 
 Base: bc65b15bab94d7a5bc420d4c1025549fc51008ff. Integrated main
 ee20f10046e77115f58f60fe8847aa6e3d199261 before release, preserving the
-seven-second welcome/click dismissal and control-tower icons.
+seven-second welcome/click dismissal and control-tower icons. Subsequently
+integrated main 3987f6794331e46eb0eefc73d7c5e817bdc886a8, preserving
+the all-card Collapse All / individual disclosure changes.
 Owner requested both remaining features; owner confirms the desktop redesign is
 already complete. This delivery preserves that design and Collapse All.
 
@@ -60,7 +62,8 @@ Worker tests cover per-file integrity, atomic failed installation, private/API
 request exclusion, auth-query handling and isolation from other application scopes.
 The final browser report is kept with this delivery. After integrating the
 new main, all 299 regressions and 14 affected browser checks passed, including
-the new welcome-duration suite. Physical iPhone/Safari and
+the new welcome-duration suite. After the all-card disclosure integration,
+all 299 regressions and 13 relevant browser checks passed again. Physical iPhone/Safari and
 two live production devices are not certified by these synthetic tests.
 
 Prepared for review; no merge or deployment is claimed by this document.

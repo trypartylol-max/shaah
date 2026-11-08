@@ -66,6 +66,7 @@ function uiApplyStyles(root){
 }
 function uiFragment(markup){
   const template=document.createElement('template');template.innerHTML=markup;
+  prepareTodayBoxes(template.content);
   return uiApplyStyles(template.content);
 }
 function uiHTML(node,markup){
@@ -1293,6 +1294,7 @@ const UI_ACTIONS=Object.freeze({
   togglePerson:uiRule('click',['string','string'],(n,e,id,key)=>togglePerson(id,key),true),
   toggleLevelAll:uiRule('click',['integer','string'],(n,e,level,key)=>toggleLevelAll(level,key),true),
   openDayLogStart:uiRule('click',[],()=>openDayLogStart()),
+  toggleTodayBox:uiRule('click',['string'],(n,e,id)=>toggleTodayBox(id)),
   toggleTodaySections:uiRule('click',[],()=>toggleTodaySections()),
   toggleTodayRoutines:uiRule('click',[],n=>toggleTodayRoutines(n)),
   setHabitState:uiRule('click',['string','string','mark'],(n,e,id,key,value)=>setHabitState(id,key,value),true),
@@ -2675,7 +2677,7 @@ function resetAccountView(){
   tourDemo={};tourOwner=null;tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourFocusStep=null;tourScroll=0;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-  todaySectionsSession=false;todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
+  todaySectionsSession=false;todayBoxesOpen={score:true,social:true,daylog:true,note:true};todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
   bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';_historySafety=historySafetyState();
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
   dayLogEditClose();_lastY=0;tuckNav(false);
@@ -4447,15 +4449,54 @@ function loadTodayRoutines(){
 }
 // Presentation only: no storage, config, completion, score or timer writes.
 let todaySectionsSession=false;
+let todayBoxesOpen={score:true,social:true,daylog:true,note:true};
+function todayBoxDefinitions(){
+  return [['score','.t-score-hero','DAY SCORE'],['social','.t-social-independent','SOCIAL COMBO'],['daylog','.t-daylog','DAY LOG'],['note','.t-note','DAY NOTE']];
+}
+function prepareTodayBoxes(fragment){
+  fragment.querySelectorAll('.today:not(.history-day-editor)').forEach(root=>{
+    if(!root.querySelector('.today-sections-toggle'))return;
+    todayBoxDefinitions().forEach(([id,selector,label])=>{
+      const box=root.querySelector(selector);
+      if(!box)return;
+      box.classList.add('today-disclosure-box');
+      box.dataset.todayBox=id;
+      // Use the same typed action descriptor as every other application control.
+      const template=document.createElement('template');
+      template.innerHTML=`<button type="button" class="today-box-disclosure" ${ui('click','toggleTodayBox',id)}><span>${label}</span><b aria-hidden="true">▾</b></button>`;
+      box.prepend(template.content.firstElementChild);
+    });
+    applyTodayBoxState(root);
+  });
+}
+function applyTodayBoxState(root){
+  root.querySelectorAll('[data-today-box]').forEach(box=>{
+    const id=box.dataset.todayBox,open=todayBoxesOpen[id]!==false;
+    box.classList.toggle('today-box-collapsed',!open);
+    const button=box.querySelector('.today-box-disclosure');
+    button.setAttribute('aria-expanded',String(open));
+    const label=button.querySelector('span').textContent;
+    button.setAttribute('aria-label',`${open?'Collapse':'Expand'} ${label}`);
+    button.title=`${open?'Collapse':'Expand'} ${label}`;
+    button.querySelector('b').textContent=open?'▾':'▸';
+    [...box.children].filter(child=>child!==button).forEach(child=>{child.inert=!open;});
+  });
+}
+function toggleTodayBox(id){
+  if(!Object.hasOwn(todayBoxesOpen,id))return;
+  todaySectionsSession=true;
+  todayBoxesOpen[id]=!todayBoxesOpen[id];
+  syncTodaySections();
+}
 function todaySectionsExpanded(){
-  return todayRoutinesOpen || [1,2,3].some(n=>lvlOpen[n]);
+  return todayRoutinesOpen || [1,2,3].some(n=>lvlOpen[n]) || Object.values(todayBoxesOpen).some(Boolean);
 }
 function todaySectionsButton(){
   const open=todaySectionsExpanded(), label=open?'Collapse All':'Expand All';
   return `<button type="button" class="today-sections-toggle" ${ui('click','toggleTodaySections')} aria-label="${label}" title="${label}" aria-expanded="${open}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="${open?'':'sections-expand'}"><path d="m6 12 6-6 6 6M6 18l6-6 6 6"/></svg><span>${label}</span></button>`;
 }
 function syncTodaySections(){
-  document.querySelectorAll('.today').forEach(root=>{
+  document.querySelectorAll('.today:not(.history-day-editor)').forEach(root=>{
     const box=root.querySelector('.t-rout');
     if(box){
       box.classList.toggle('collapsed',!todayRoutinesOpen);
@@ -4473,6 +4514,7 @@ function syncTodaySections(){
       level.querySelector('.lvl-ar')?.classList.toggle('cl',!lvlOpen[n]);
       level.querySelector('.lvl-toggle')?.setAttribute('aria-expanded',String(lvlOpen[n]));
     });
+    applyTodayBoxState(root);
     const control=root.querySelector('.today-sections-toggle');
     if(control){
       const open=todaySectionsExpanded(), label=open?'Collapse All':'Expand All';
@@ -4488,6 +4530,7 @@ function toggleTodaySections(){
   const open=!todaySectionsExpanded();
   todaySectionsSession=true;
   todayRoutinesOpen=open;
+  Object.keys(todayBoxesOpen).forEach(id=>{todayBoxesOpen[id]=open;});
   [1,2,3].forEach(n=>{lvlOpen[n]=open;});
   syncTodaySections();
 }

@@ -1,0 +1,25 @@
+/* Approved mobile portrait dock adjustment. Existing buttons and view layouts are preserved. */
+@media (max-width:879px) and (orientation:portrait) {
+  :root {
+    --dock-bottom-compact:max(calc(env(safe-area-inset-bottom) - 36px),0px);
+    --dock-reclaim-compact:clamp(4px,calc(env(safe-area-inset-bottom) - 24px),12px);
+  }
+  #nav { padding-bottom:var(--dock-bottom-compact); }
+  #resume { bottom:calc(58px + var(--dock-bottom-compact)); }
+  #resume.cr-mini-sessions {
+    bottom:calc(64px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact));
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) {
+    padding-bottom:calc(88px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact))!important;
+  }
+  #scroll .today:not(.history-day-editor)>.t-reset {
+    scroll-margin-bottom:calc(88px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact));
+  }
+  .logdesk-shell {
+    padding-bottom:calc(88px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact));
+  }
+  .soc {
+    padding-bottom:calc(96px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact))!important;
+  }
+}
+/* Other views keep their existing, more generous reserves. */

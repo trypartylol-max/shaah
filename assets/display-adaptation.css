@@ -4,11 +4,11 @@ html[data-wide-display]{zoom:var(--app-display-scale)}
 html[data-wide-display] #app #scroll .today.sf-today-v27:not(.history-day-editor){max-width:1320px!important;margin-left:auto!important;margin-right:auto!important}
 /* Work status lives outside the centered Today grid; track its right edge. */
 @media(min-width:1180px){
- html[data-wide-display][data-skin="pro"] #app:has(.today.sf-today-v27) #scroll #mode-status{
+ html[data-wide-display][data-layout="pro"] #app:has(.today.sf-today-v27) #scroll #mode-status{
   right:calc(20px + max(0px, (100 * var(--app-vw) - var(--pro-sidebar) - 1320px) / 2));
   width:max(120px,calc((min(1320px,100 * var(--app-vw) - var(--pro-sidebar)) - 72px)*.14));
  }
- html[data-wide-display][data-skin="pro"] #app:has(.today.sf-today-v27) #scroll #sync-status{
+ html[data-wide-display][data-layout="pro"] #app:has(.today.sf-today-v27) #scroll #sync-status{
   right:calc(24px + max(0px, (100 * var(--app-vw) - var(--pro-sidebar) - 1320px) / 2));
  }
  /* Approved Next Level refinement applies to wide displays, preserving laptop. */

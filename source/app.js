@@ -77,6 +77,8 @@ function uiReplaceHTML(node,markup){node.replaceWith(uiFragment(markup));}
 
 const SKIN_KEY='shaah:skin:v1';
 const SKIN_MIGRATION_KEY='shaah:skin:migration:v1';
+const LAYOUT_KEY='shaah:layout:v1';
+const PRO_MIGRATION_KEY='shaah:appearance:legacy-pro:v1';
 // Four product skins. Legacy IDs remain valid until the explicit preference
 // migration/layout phases; loading this release must not rewrite storage.
 const SKINS=[
@@ -90,8 +92,9 @@ const LEGACY_SKINS=[
   {id:'pro',label:'Pro Mode',detail:'Vista existente, conservada hasta separar el layout.'}
 ];
 const SUPPORTED_SKINS=[...SKINS,...LEGACY_SKINS];
-let _skin='classic',_skinObserver=null,_skinPreview=null,_skinSaveFailed=false;
+let _skin='classic',_skinObserver=null,_skinPreview=null,_skinSaveFailed=false,_layout='standard',_layoutSaved=true;
 const _skinColors=new Set(["000000","04040a","07070f","073b34","080810","0a0a13","0a0a14","0b0b14","0b0b15","0b0b16","0b0c16","0b3a32","0c0c16","0c0c18","0d0d18","0d0d19","0d0d1a","0d1b31","0e1020","0f0f1c","0f0f1d","10101c","10101d","10101e","111120","111124","11172b","12121f","12cfa8","141424","141426","14142a","151524","151525","15152a","151a2b","15315a","15d6ad","160d13","161626","16162a","16a98a","17172a","17172b","178ee8","18182b","1a1a2c","1b2238","1c1c30","1c1d32","1d1d33","1d2a22","1e1e2e","1e1e33","1f9c7f","202033","202036","202039","20203a","222239","22223a","23233a","24243a","24253b","25253a","26263c","26324a","27283d","29200f","2a2a3a","2a2a40","2c2615","2e2e4a","303046","303047","342263","36a5ff","38d6ad","3a3a55","3a3a5a","3b36ff","45455b","4a4a7a","4ade80","4b25f5","4b5a86","4d2bff","4f4f66","4f8dff","5268ff","556cff","57576e","5d5d75","5f5f77","60a5fa","62627a","65657d","65708d","66667d","66667e","68687e","68687f","6e5a29","6f6f87","70708a","73738c","77758e","77778f","79aaff","7aa2ff","7e7e97","8278b4","8888a4","8a8a9a","8a8aa0","8b63ff","8c8ca3","8f8da6","9090aa","9a9ab0","9a9ab2","9a9ab4","9b45e9","9d2d45","9fa9bc","a0a0b6","a4a4b7","a4a4ba","a9a1c8","aaa6c4","aaaabd","aaaabe","adadbf","b0b0bf","b0b0c0","b497ff","b58d31","b8b8c7","c0c0cd","c4c4d2","c7c7d2","c8c8d4","d0d0da","d0d0db","d5d5df","d69e2e","d8d8e1","d9d7e3","d9d9e2","dedee6","e0e0e8","e1e1e8","e2e2e2","e2e2ea","e4e4eb","e8e8ee","e8e8f0","ececf2","f2f2f2","f4b62b","f59e0b","f87171","fbbf24","ffb400","ffffff"]);
+for(const hex of ["080912", "090b16", "0b0e1a", "0d0f1b", "0e101e", "19192d", "202339", "28283f", "35304c", "45405d", "62577f", "9568ed", "a78bfa", "b3aec9", "bba5fa", "eeeaf8", "f87171", "ffffff"])_skinColors.add(hex);
 const SKIN_COLOR_RE=/#[\da-f]{8}\b|#[\da-f]{6}\b|#[\da-f]{4}\b|#[\da-f]{3}\b|rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+(?:\s*,\s*[\d.]+)?\s*\)/gi;
 function skinColorParts(value){
   if(value[0]==='#'){
@@ -272,6 +275,7 @@ function skinPaintTree(root,includeText=true){
 function applySkin(){
   const root=document.documentElement;if(!root)return;
   root.dataset.skin=_skin;
+  applyLayout();
   root.classList.toggle('shaah-aurora',_skin==='aurora');
   for(const hex of _skinColors){
     const key='--skin-rgb-'+hex;
@@ -287,11 +291,47 @@ function applySkin(){
 
 }
 function canonicalSkin(id){
-  return id==='glow'?'aurora':SUPPORTED_SKINS.some(s=>s.id===id)?id:'classic';
+  return id==='glow'?'aurora':id==='pro'?'classic':SKINS.some(s=>s.id===id)?id:'classic';
+}
+function loadLayoutPreference(){
+  try{const id=localStorage.getItem(LAYOUT_KEY);if(['standard','pro'].includes(id))return id;return localStorage.getItem(SKIN_KEY)==='pro'?'pro':'standard';}catch(e){return 'standard';}
+}
+function applyLayout(){
+  const root=document.documentElement;if(!root)return;
+  root.dataset.layout=_layout==='pro'&&window.innerWidth>=880?'pro':'standard';
+  document.querySelectorAll('[data-layout-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.layoutChoice===_layout)));
+  const quick=document.getElementById('layout-quick-toggle');
+  if(quick){quick.setAttribute('aria-pressed',String(_layout==='pro'));quick.title=_layoutSaved?'Cambiar distribución de escritorio':'Aplicado solo durante esta sesión';}
+  const status=document.getElementById('layout-status');
+  if(status)status.textContent=_layoutSaved?'Se guarda en este navegador. En móvil se mantiene la vista estándar.':'Aplicado durante esta sesión; el navegador no permite guardarlo.';
+}
+function setLayout(id){
+  if(!['standard','pro'].includes(id))return false;
+  _layout=id;_layoutSaved=true;
+  try{localStorage.setItem(LAYOUT_KEY,id);}catch(e){_layoutSaved=false;}
+  applyLayout();positionCompactSessions();return true;
+}
+window.addEventListener('resize',()=>applyLayout());
+function layoutPickerHTML(){
+  return `<section class="layout-settings" aria-label="Distribución de escritorio"><h3>Distribución en escritorio</h3><p class="sf-muted">Elige cómo organizar tu espacio. Puedes usar cualquier tema.</p><div class="layout-options" role="group" aria-label="Layout de escritorio">${[['standard','Estándar','La distribución habitual.'],['pro','Pro Mode','Tarjetas amplias y navegación lateral en pantallas grandes.']].map(([id,label,detail])=>`<button type="button" class="layout-option" data-layout-choice="${id}" aria-pressed="${_layout===id}" ${ui('click','setLayout',id)}><strong>${label}</strong><span>${detail}</span></button>`).join('')}</div><p id="layout-status" class="sf-muted" role="status">${_layoutSaved?'Se guarda en este navegador. En móvil se mantiene la vista estándar.':'Aplicado durante esta sesión; el navegador no permite guardarlo.'}</p></section><p class="layout-mobile-note sf-muted">Pro Mode está disponible en escritorio. En móvil conservas tu tema y la distribución habitual.</p>`;
 }
 function loadSkinPreference(){
   try{
     const raw=localStorage.getItem(SKIN_KEY);
+    if(raw==='pro'){
+      try{
+        const old=localStorage.getItem(PRO_MIGRATION_KEY);
+        if(old===null)localStorage.setItem(PRO_MIGRATION_KEY,JSON.stringify({version:1,previousSkin:'pro',previousLayout:localStorage.getItem(LAYOUT_KEY)}));
+        else {const backup=JSON.parse(old);if(backup?.version!==1||backup.previousSkin!=='pro')return 'classic';}
+        const latest=localStorage.getItem(SKIN_KEY);
+        if(latest!=='pro')return canonicalSkin(latest);
+        const layout=localStorage.getItem(LAYOUT_KEY);
+        if(!['standard','pro'].includes(layout))localStorage.setItem(LAYOUT_KEY,'pro');
+        _layout=loadLayoutPreference();
+        localStorage.setItem(SKIN_KEY,'classic');
+      }catch(e){/* Preserve legacy storage; desktop Pro still works this session. */}
+      return 'classic';
+    }
     if(raw==='glow'){
       // Save the original value before migrating; a blocked/unknown backup
       // means read-only compatibility, never an unprotected preference write.
@@ -332,6 +372,7 @@ function applySkinPreview(){
   else if(preview.trigger?.isConnected)preview.trigger.focus();
 }
 function setSkin(id){
+  if(id==='pro')return setLayout('pro');
   if(id==='glow')id='aurora';
   if(!SUPPORTED_SKINS.some(s=>s.id===id))return false;
   _skinPreview=null;_skin=id;let saved=true;
@@ -344,7 +385,7 @@ function setSkin(id){
 function initSkin(){
   ["1c1d28", "252535", "29293c"].forEach(hex=>_skinColors.add(hex));
   _skinColors.add('171725');_skinColors.add('34344a');_skinColors.add('a78bfa');
-  _skin=loadSkinPreference();
+  _layout=loadLayoutPreference();_skin=loadSkinPreference();
   applySkin();
   if(typeof MutationObserver==='undefined'||!document.body)return;
   skinPaintTree(document.body);
@@ -357,8 +398,10 @@ function initSkin(){
   _skinObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['style','fill','stroke']});
 }
 window.addEventListener('storage',event=>{
+  if(event.key===LAYOUT_KEY){_layout=event.newValue==='pro'?'pro':'standard';_layoutSaved=true;applyLayout();positionCompactSessions();return;}
   if(event.key!==SKIN_KEY&&event.key!==null)return;
-  const id=event.newValue;_skinPreview=null;_skin=canonicalSkin(id);applySkin();
+  if(event.key===null)_layout=loadLayoutPreference();
+  const id=event.newValue;if(id==='pro')_layout=loadLayoutPreference();_skinPreview=null;_skin=canonicalSkin(id);applySkin();
 });
 function skinPickerHTML(){
   return `<div class="skin-options" role="group" aria-label="Skin de la aplicación">${SKINS.map(s=>`
@@ -372,11 +415,7 @@ function skinPickerHTML(){
     </button>
     <button type="button" class="skin-try" aria-label="Vista previa de ${s.label}" ${ui('click','previewSkin',s.id)}>Vista previa <span aria-hidden="true">↗</span></button>
     </div>`).join('')}</div>
-    <div class="skin-legacy" role="group" aria-label="Opciones anteriores">
-      <p class="sf-muted">Opciones anteriores</p>
-      <div class="skin-legacy-actions">${LEGACY_SKINS.filter(s=>s.id!=='glow').map(s=>`<button type="button" class="sf-button skin-legacy-option" data-skin-choice="${s.id}" aria-pressed="${_skin===s.id}" ${ui('click','setSkin',s.id)}>${s.label}</button>`).join('')}</div>
-      <p class="sf-muted">Tus preferencias actuales se conservan.</p>
-    </div>
+    ${layoutPickerHTML()}
     <p class="skin-status" id="skin-status" role="status" aria-live="polite">Se guarda en este navegador. Tus puntos y tu historial se mantienen.</p>`;
 }
 
@@ -1288,6 +1327,8 @@ const UI_ACTIONS=Object.freeze({
 
   setTab:uiRule('click',['tab'],(n,e,id)=>setTab(id)),
   setSkin:uiRule('click',['skin'],(n,e,id)=>setSkin(id)),
+  setLayout:uiRule('click',['layout'],(n,e,id)=>setLayout(id)),
+  toggleLayout:uiRule('click',[],()=>setLayout(_layout==='pro'?'standard':'pro')),
   previewSkin:uiRule('click',['skin'],(n,e,id)=>previewSkin(id,n)),
   cancelSkinPreview:uiRule('click',[],()=>cancelSkinPreview()),
   applySkinPreview:uiRule('click',[],()=>applySkinPreview()),
@@ -1400,7 +1441,7 @@ const UI_ACTIONS=Object.freeze({
   routineSendToEnd:uiRule('click',[],()=>routineSendToEnd())
 });
 const UI_ENUMS=Object.freeze(Object.fromEntries(Object.entries({
-  tab:['today','log','social','stats','history'],skin:SUPPORTED_SKINS.map(s=>s.id),
+  layout:['standard','pro'],tab:['today','log','social','stats','history'],skin:SUPPORTED_SKINS.map(s=>s.id),
   scope:['all','unassigned'],membership:['add','remove'],resolution:['server','local'],
   mode:['work','vacation'],habitField:['i','l','p','pWork'],socialField:['icon','label','pWork','pVacation'],
   stepField:['label','dur'],personField:['name','sub','every']
@@ -4241,7 +4282,7 @@ function positionCompactSessions(){
   if(!el?.classList.contains('cr-mini-sessions')||!nav)return;
   const inset=parseFloat(getComputedStyle(nav).bottom)||0;
   const gap=window.innerWidth<=879?6:14;
-  el.style.bottom=(_skin==='pro'&&window.innerWidth>=1180)?'16px':(nav.offsetHeight+Math.max(0,inset)+gap)+'px';
+  el.style.bottom=(_layout==='pro'&&window.innerWidth>=1180)?'16px':(nav.offsetHeight+Math.max(0,inset)+gap)+'px';
   if(!routineDockObserver&&typeof ResizeObserver!=='undefined'){
     routineDockObserver=new ResizeObserver(()=>positionCompactSessions());routineDockObserver.observe(nav);
   }
@@ -4369,8 +4410,13 @@ function topbarHTML(){
       <span class="tb-dt">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}</span>
       <span class="tb-gr">${greet}</span>
     </div>
+    <div id="desktop-status-controls">
+    <div id="desktop-work-status">
     <div id="mode-status" title="${starterProfile()?'Tu plan de hábitos':'Current mode'}">${starterProfile()?'MI PLAN':travelMode()==='vacation'?'VACATION':'WORK'}</div>
     <div id="sync-status" title="${esc(_syncText)}" aria-label="${esc(_syncText)}"><span ${uiStyle(`background:${dot}`)}></span></div>
+    </div>
+    <button type="button" id="layout-quick-toggle" aria-label="Pro Mode" aria-pressed="${_layout==='pro'}" ${ui('click','toggleLayout')}>Pro</button>
+    </div>
   </div>
   ${syncNoticeHTML()}
   ${currentTab==="today"?scoreStripHTML(todayKey()):""}`;

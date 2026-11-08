@@ -1,6 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const fs=require('node:fs');
 const {openApp}=require('./browser-helpers.cjs');
 const skins=['classic','aurora','matrix','minimal'];
 const account=p=>p.evaluate(()=>JSON.stringify({config:CFG,days:_state,scores:Object.keys(_state).filter(k=>/^\d{4}-/.test(k)).map(k=>[k,calcScore(k)]),writes:__mockWrites.filter(r=>r.date!=='cfgbak')}));
@@ -8,7 +9,7 @@ const root=path.resolve(__dirname,'..');
 
 for(const width of [320,390,879,880,1440])test(`Four identities preserve mobile structure and account state at ${width}px`,async t=>{
   const p=await openApp(t,undefined,{width,height:1000});
-  const old=await openApp(t,undefined,{width,height:1000},{htmlFile:path.join(root,'docs/phase2/baseline.html'),assetsRoot:root});
+  const old=await openApp(t,undefined,{width,height:1000},{htmlFile:path.join(root,'docs/phase2/baseline.html'),assetsRoot:root,beforePage:async context=>{for(const name of ['pro-mode.css','display-adaptation.css','appearance-settings.css'])await context.route('**/assets/'+name+'*',route=>route.fulfill({contentType:'text/css',body:fs.readFileSync(path.join(root,'docs/phase4/baseline-'+name))}));}});
   // Warm the normal render-time normalization and configuration upgrade before
   // measuring skin changes; otherwise first opening Today changes the fixture.
   for(const page of [p,old]){
@@ -35,7 +36,7 @@ for(const width of [320,390,879,880,1440])test(`Four identities preserve mobile 
     }
     await p.getByRole('button',{name:'Settings',exact:true}).click();
     assert.deepEqual(await p.locator('.skin-options [data-skin-choice]').evaluateAll(es=>es.map(e=>e.dataset.skinChoice)),skins);
-    assert.equal(await p.locator('.skin-legacy [data-skin-choice]').count(),1);
+    assert.equal(await p.locator('[data-skin-choice="pro"]').count(),0);
     if(width===390)await p.locator('.skin-settings').screenshot({path:`docs/phase2/${skin}-settings-${width}.png`});
     await p.evaluate(()=>closeSettings());
     assert.equal(await account(p),state,'Switching identity preserves account, history, scores and writes');
@@ -75,12 +76,13 @@ test('Glow migrates with its original preference backed up; Pro stays accessible
   for(const id of ['glow','pro']){
     await p.evaluate(id=>localStorage.setItem(SKIN_KEY,id),id);
     await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);
-    assert.equal(await p.locator('html').getAttribute('data-skin'),id==='glow'?'aurora':id);
-    assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),id==='glow'?'aurora':id);
+    assert.equal(await p.locator('html').getAttribute('data-skin'),id==='glow'?'aurora':'classic');
+    assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),id==='glow'?'aurora':'classic');
     if(id==='glow')assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem(SKIN_MIGRATION_KEY)).previous),'glow');
     await p.getByRole('button',{name:'Settings',exact:true}).click();
     assert.equal(await p.locator('[data-skin-choice="glow"]').count(),0);
-    assert.equal(await p.locator(`[data-skin-choice="${id==='glow'?'aurora':id}"]`).getAttribute('aria-pressed'),'true');
+    if(id==='pro')assert.equal(await p.evaluate(()=>localStorage.getItem(LAYOUT_KEY)),'pro');
+    else assert.equal(await p.locator('[data-skin-choice="aurora"]').getAttribute('aria-pressed'),'true');
     await p.evaluate(()=>closeSettings());
   }
 });

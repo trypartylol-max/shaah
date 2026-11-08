@@ -2677,7 +2677,7 @@ function resetAccountView(){
   tourDemo={};tourOwner=null;tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourFocusStep=null;tourScroll=0;
   lvlOpen={1:true,2:true,3:true};
   secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-  todaySectionsSession=false;todayBoxesOpen={score:true,social:true,daylog:true,note:true};todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
+  todaySectionsSession=false;todayBoxesOpen={social:true,daylog:true,note:true};todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
   bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';_historySafety=historySafetyState();
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
   dayLogEditClose();_lastY=0;tuckNav(false);
@@ -4449,9 +4449,9 @@ function loadTodayRoutines(){
 }
 // Presentation only: no storage, config, completion, score or timer writes.
 let todaySectionsSession=false;
-let todayBoxesOpen={score:true,social:true,daylog:true,note:true};
+let todayBoxesOpen={social:true,daylog:true,note:true};
 function todayBoxDefinitions(){
-  return [['score','.t-score-hero','DAY SCORE'],['social','.t-social-independent','SOCIAL COMBO'],['daylog','.t-daylog','DAY LOG'],['note','.t-note','DAY NOTE']];
+  return [['social','.t-social-independent','SOCIAL COMBO'],['daylog','.t-daylog','DAY LOG'],['note','.t-note','DAY NOTE']];
 }
 function prepareTodayBoxes(fragment){
   fragment.querySelectorAll('.today:not(.history-day-editor)').forEach(root=>{

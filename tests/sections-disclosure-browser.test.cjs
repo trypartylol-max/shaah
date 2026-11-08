@@ -3,7 +3,7 @@ function fixture(){const a=loadApp();a.run(`for(const id of ['production','wod']
 for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserves data and individual control`,async t=>{
  const page=await openApp(t,fixture(),{width,height:1000});await page.evaluate(()=>setTab('today'));
  for(const skin of ['classic','glow','aurora','pro']){
- await page.evaluate(s=>{document.documentElement.dataset.skin=s;document.documentElement.classList.toggle('shaah-aurora',s==='aurora');todaySectionsSession=true;todayBoxesOpen={score:true,social:true,daylog:true,note:true};todayRoutinesOpen=true;lvlOpen={1:true,2:true,3:true};render();},skin);
+ await page.evaluate(s=>{document.documentElement.dataset.skin=s;document.documentElement.classList.toggle('shaah-aurora',s==='aurora');todaySectionsSession=true;todayBoxesOpen={social:true,daylog:true,note:true};todayRoutinesOpen=true;lvlOpen={1:true,2:true,3:true};render();},skin);
  const snapshot=()=>page.evaluate(()=>JSON.stringify({CFG,state:_state,storage:{...localStorage},sessions,writes:window.__mockWrites,score:calcScore(todayKey())}));
  const before=await snapshot();
  const geometry=()=>page.locator('.today').evaluate(root=>[...root.children].map(e=>({cls:e.className,x:e.getBoundingClientRect().x,w:e.getBoundingClientRect().width,y:e.getBoundingClientRect().y,h:e.getBoundingClientRect().height})));
@@ -12,9 +12,12 @@ for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserv
  const label=await page.locator('.today-routines-label').boundingBox(),b=await button.boundingBox();assert.ok(b.x>=label.x+label.width-1);assert.ok(Math.abs((label.y+label.height/2)-(b.y+b.height/2))<2);
  await button.focus();await page.keyboard.press('Enter');assert.equal(await button.getAttribute('aria-label'),'Expand All');assert.equal(await button.evaluate(e=>e===document.activeElement),true);
  await page.waitForFunction(()=>[...document.querySelectorAll('.lvl-b')].every(e=>e.getBoundingClientRect().height===0));
+ assert.equal(await page.locator('.t-score-hero .t-ring').isVisible(),true);
+ assert.equal(await page.locator('.t-score-hero .today-box-disclosure').count(),0);
+ assert.equal(await page.locator('.t-score-hero').getAttribute('data-today-box'),null);
  assert.equal(await page.locator('.t-rout-body').isVisible(),false);assert.equal(await page.locator('.lvl-b').evaluateAll(es=>es.every(e=>e.getBoundingClientRect().height===0)),true);
- assert.equal(await page.locator('[data-today-box]').count(),4);
- for(const id of ['score','social','daylog','note']){
+ assert.equal(await page.locator('[data-today-box]').count(),3);
+ for(const id of ['social','daylog','note']){
   const box=page.locator(`[data-today-box="${id}"]`);
   assert.equal(await box.evaluate(e=>e.classList.contains('today-box-collapsed')),true);
   assert.equal(await box.evaluate(e=>[...e.children].filter(c=>!c.classList.contains('today-box-disclosure')).every(c=>getComputedStyle(c).display==='none')),true);
@@ -25,7 +28,7 @@ for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserv
   assert.equal(await box.evaluate(e=>e.classList.contains('today-box-collapsed')),true);
  }
  await page.evaluate(()=>render());
- assert.equal(await page.locator('.today-box-collapsed').count(),4);
+ assert.equal(await page.locator('.today-box-collapsed').count(),3);
  await page.locator('.t-lvl2 .lvl-toggle').click();assert.equal(await page.locator('.t-lvl2 .lvl-toggle').getAttribute('aria-expanded'),'true');
  await button.click();await button.click();assert.equal(await button.getAttribute('aria-label'),'Collapse All');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
  await page.locator('.today-routines-label').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);await page.locator('.today-routines-label').click();

@@ -18,9 +18,8 @@ for(const width of [880,1024,1180,1440])test(`Four skins combine with Pro withou
     const box=await p.evaluate(()=>['.t-ring','.t-grade','.today-log-start'].map(s=>{const r=document.querySelector(s).getBoundingClientRect();return {width:r.width,height:r.height}}));
     assert.ok(box[1].width>box[0].width*1.3,skin+' wide next level');
     if(width>=1180)assert.ok(await p.locator('#nav').evaluate(e=>e.getBoundingClientRect().width<200));
-    colors.push(await p.locator('.wg-card').evaluate(e=>getComputedStyle(e).backgroundColor));
+    colors.push(await p.locator('.t-rout .wg-card').evaluate(e=>getComputedStyle(e).backgroundColor));
    }
-   if(width===1440&&['today','stats','log','social'].includes(tab))await p.screenshot({path:`docs/phase4/${skin}-pro-${tab}.png`});
   }
   assert.equal(await snapshot(p),before,'Presentation leaves account data and history unchanged');
  }
@@ -28,7 +27,6 @@ for(const width of [880,1024,1180,1440])test(`Four skins combine with Pro withou
  await p.getByRole('button',{name:'Settings',exact:true}).click();
  assert.equal(await p.locator('[data-skin-choice="pro"]').count(),0);
  assert.equal(await p.locator('[data-layout-choice="pro"]').getAttribute('aria-pressed'),'true');
- if(width===1440)await p.locator('.skin-settings').screenshot({path:'docs/phase4/settings-desktop.png'});
 });
 
 for(const width of [320,390,879])test(`Pro preference has no mobile layout or palette effect at ${width}`,async t=>{
@@ -43,15 +41,14 @@ for(const width of [320,390,879])test(`Pro preference has no mobile layout or pa
    assert.deepEqual(await appearance(),before,skin+' '+tab+' mobile unchanged');
    await p.evaluate(()=>setLayout('standard'));
   }
-  if(width===390){await p.evaluate(()=>setTab('today'));await p.screenshot({path:`docs/phase4/${skin}-mobile.png`});}
  }
 });
 
 test('Layout persists independently of skin and preview, and follows viewport without saving again',async t=>{
  const p=await openApp(t,undefined,{width:1440,height:1000});
  await p.evaluate(()=>{setSkin('aurora');setLayout('pro');setTab('today')});
- const note=p.locator('.t-note textarea');await note.fill('Keep layout draft');
- await p.evaluate(()=>{window.__layoutNote=document.querySelector('.t-note textarea');setLayout('standard');setLayout('pro');previewSkin('matrix');cancelSkinPreview()});
+ const note=p.locator('.pro-today-grid textarea');await note.fill('Keep layout draft');
+ await p.evaluate(()=>{window.__layoutNote=document.querySelector('.pro-today-grid textarea');setLayout('standard');setLayout('pro');previewSkin('matrix');cancelSkinPreview()});
  assert.equal(await note.inputValue(),'Keep layout draft');assert.equal(await note.evaluate(e=>e===window.__layoutNote),true);
  assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),'aurora');assert.equal(await p.evaluate(()=>localStorage.getItem(LAYOUT_KEY)),'pro');
  await p.setViewportSize({width:390,height:1000});await p.waitForFunction(()=>document.documentElement.dataset.layout==='standard');
@@ -86,7 +83,7 @@ test('Layout storage failures and remote changes preserve skin and unsaved input
  assert.equal(await p.evaluate(()=>localStorage.getItem(LAYOUT_KEY)),'standard');
  assert.equal(await p.locator('html').getAttribute('data-skin'),'matrix');
  await p.evaluate(()=>{Storage.prototype.setItem=window.__layoutSet;closeSettings();setTab('today')});
- const note=p.locator('.t-note textarea');await note.fill('Remote layout draft');
+ const note=p.locator('.pro-today-grid textarea');await note.fill('Remote layout draft');
  const other=await p.context().newPage();await other.goto('http://shaah.test/');await other.waitForFunction(()=>_cfgReady&&_live);await other.evaluate(()=>{setLayout('pro');setLayout('standard')});
  await p.waitForFunction(()=>document.documentElement.dataset.layout==='standard');
  assert.equal(await note.inputValue(),'Remote layout draft');assert.equal(await p.locator('html').getAttribute('data-skin'),'matrix');

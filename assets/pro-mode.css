@@ -269,3 +269,16 @@ html[data-layout="pro"] #app #scroll .today>.pro-today-widgets{display:block;gri
 .pro-today-widgets button[aria-pressed="true"]{text-decoration:underline}
 html[data-layout="pro"] #app #scroll .today>.pro-today-widgets.has-note~.t-note{display:none!important}
 .pro-today-grid textarea{box-sizing:border-box;width:100%;min-height:84px;resize:vertical;padding:8px;border:1px solid var(--skin-edge);border-radius:8px;background:var(--skin-panel);color:var(--skin-copy);font:inherit}
+
+.pro-week-comparison{display:none}
+html[data-layout="pro"] .pro-week-comparison{display:block;color:var(--skin-copy);background:var(--skin-panel);border:1px solid var(--skin-edge);border-radius:12px;padding:14px}
+.pro-week-comparison h2{margin:0 0 10px;font-size:18px}
+.pro-week-comparison table{width:100%;border-collapse:collapse}
+.pro-week-comparison th,.pro-week-comparison td{text-align:start;padding:7px;border-bottom:1px solid var(--skin-edge)}
+.habit-award-ring{position:absolute;inset:10%;z-index:2;display:grid;place-items:center;text-align:center;border:3px solid #e8c480;border-radius:50%;background:var(--skin-panel,#161c35);color:var(--skin-copy,#fff);font-weight:700}
+.habit-award-dialog{max-width:min(380px,calc(100% - 32px));text-align:center;border:1px solid #e8c480;border-radius:14px;padding:22px;background:var(--skin-panel,#161c35);color:var(--skin-copy,#fff)}
+.habit-award-dialog::backdrop{background:#090d20bb}
+@media(prefers-reduced-motion:no-preference){
+  .habit-award-ring,.habit-award-dialog[open]{animation:habit-award-pulse .55s ease-out}
+  @keyframes habit-award-pulse{0%{transform:scale(.94)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
+}

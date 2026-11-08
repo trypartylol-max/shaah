@@ -2345,11 +2345,71 @@ function selectOfflineOwner(){
 function saveOfflineQueue(owner=_offlineOwner,queue=_offlineQueue){
   if(owner)try{localStorage.setItem(_offlineKey+':'+owner,JSON.stringify(queue));}catch(e){}
 }
+const pendingHabitAwards=new Map();
+function previousHabitRuns(id,key){
+  const dates=Object.keys(_state).filter(day=>DATE_RE.test(day)&&day<key).sort();
+  let previous=null,run=0,best=0;
+  for(const day of dates){
+    run=getChecked(day)[id]===true?(previous===keyMinus(day,1)?run+1:1):0;
+    best=Math.max(best,run);
+    previous=day;
+  }
+  return {best,current:previous===keyMinus(key,1)?run+1:1};
+}
+function prepareHabitAward(id,key,before,after){
+  if(!USER||key!==todayKey())return;
+  const token=JSON.stringify([USER.id,_syncEpoch,key,id]);
+  if(after!==true){pendingHabitAwards.delete(token);return;}
+  if(before===true)return;
+  const {best,current}=previousHabitRuns(id,key);
+  const record=best>=5&&current>best;
+  if(!record&&current!==5)return;
+  const cfg=cfgForDate(key);
+  const habit=[...cfg.L1,...cfg.L2,...cfg.L3].find(item=>item.id===id);
+  if(habit&&!habit.combo&&id!=='work')pendingHabitAwards.set(token,{id,key,best,current,record,label:habit.label});
+}
+function confirmHabitAwards(owner,key,item){
+  if(USER?.id!==owner||key!==todayKey())return;
+  const prefix=JSON.stringify([owner,_syncEpoch,key]).slice(0,-1)+',';
+  let selected;
+  for(const [token,award] of pendingHabitAwards){
+    if(!token.startsWith(prefix)||item.data?._checks?.[award.id]!==true||getChecked(key)[award.id]!==true)continue;
+    pendingHabitAwards.delete(token);
+    const seen='shaah:award:'+JSON.stringify([owner,key,award.id]);
+    if(get(seen))continue;
+    set(seen,true);
+    if(!selected||award.record)selected=award;
+  }
+  if(selected&&currentTab==='today'&&!settingsOpen&&!editDayKey)showHabitAward(selected);
+}
+function showHabitAward({record,label,current,best}){
+  const ring=document.querySelector('.today:not(.history-day-editor) .t-ring');
+  if(!record&&ring){
+    const badge=document.createElement('span');
+    badge.className='habit-award-ring';
+    badge.setAttribute('role','status');
+    badge.textContent='✦ '+current+' días seguidos';
+    ring.querySelector('.habit-award-ring')?.remove();
+    ring.append(badge);
+    setTimeout(()=>badge.remove(),2200);
+    return;
+  }
+  if(!record||document.querySelector('.habit-award-dialog'))return;
+  const dialog=document.createElement('dialog');
+  dialog.className='habit-award-dialog';
+  dialog.setAttribute('aria-label','Nuevo récord personal');
+  uiHTML(dialog,`<strong>✦ Nuevo récord personal</strong><p>${esc(label)} · ${current} días seguidos</p><p>Marca anterior: ${best} días</p><form method="dialog"><button>Volver a Today</button></form>`);
+  dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+  document.body.append(dialog);
+  dialog.showModal();
+}
 function acknowledgeOfflineDay(owner,key,item,queue){
-  if(queue[key]===item)delete queue[key];
+  const latest=queue[key]===item;
+  if(latest)delete queue[key];
   const stored=readOfflineQueue(owner);
   if(stored[key]?._id===item._id){delete stored[key];saveOfflineQueue(owner,stored);}
   if(_offlineOwner===owner&&_offlineQueue[key]?._id===item._id)delete _offlineQueue[key];
+  if(latest)confirmHabitAwards(owner,key,item);
 }
 function queueOfflineDay(key){
   const owner=selectOfflineOwner();
@@ -5159,6 +5219,20 @@ function renderWeekday(){
   </div></div>`;
 }
 
+function proWeekComparison(){
+  const today=todayKey();
+  const weeks=[0,7].map(offset=>Array.from({length:7},(_,i)=>keyMinus(today,offset+i)));
+  const habits=new Map();
+  for(const day of weeks.flat()){
+    const config=cfgForDate(day);
+    for(const item of [...config.L1,...config.L2,...config.L3]){
+      if(!item.combo&&item.id!=='work'&&!habits.has(item.id))habits.set(item.id,item.label);
+    }
+  }
+  return `<section class="pro-week-comparison"><h2>Constancia semanal</h2>
+    <table><thead><tr><th scope="col">Hábito</th><th scope="col">Últimos 7 días</th><th scope="col">7 días anteriores</th></tr></thead>
+    <tbody>${Array.from(habits,([id,label])=>`<tr><th scope="row">${esc(label)}</th>${weeks.map(days=>`<td>${days.filter(day=>getChecked(day)[id]===true).length} / 7</td>`).join('')}</tr>`).join('')}</tbody></table></section>`;
+}
 function renderStats(){
   const tk=todayKey(),{score}=calcScore(tk),h=getStatsHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
@@ -5190,6 +5264,7 @@ function renderStats(){
         <div class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</div>
       </div>`).join("")}
     </div>
+    ${proWeekComparison()}
     <section class="stats-consistency" aria-label="Consistency by weekday">${renderWeekday()}</section>
     <details class="stats-details"><summary>Explore details <span>Habits, grades &amp; trends</span></summary>
     <div class="stats-detail-content">
@@ -5421,13 +5496,14 @@ function toggleHabit(id,key){
   }
   if(isRoutineItem(id,key)){const v=ch[id];ch[id]=!v?0.5:(v===0.5?true:false);}
   else ch[id]=!ch[id];
+  prepareHabitAward(id,key,getChecked(key)[id],ch[id]);
   setChecked(key,ch);persistDay(key);
   dayLogSyncCompletion(id,key,ch[id]);
   renderDayChange(key);
 }
 // Explicit set (used by the LIGHT/FULL/CLEAR buttons on routine cards).
 function setHabitState(id,key,v){
-  haptic(10);const ch={...getChecked(key)};ch[id]=v;setChecked(key,ch);persistDay(key);
+  haptic(10);const ch={...getChecked(key)};prepareHabitAward(id,key,ch[id],v);ch[id]=v;setChecked(key,ch);persistDay(key);
   dayLogSyncCompletion(id,key,v);
   if(key===todayKey()){
     // Completing Today also ends its timer; historical edits never touch live sessions.

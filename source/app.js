@@ -76,6 +76,7 @@ function uiHTML(node,markup){
 function uiReplaceHTML(node,markup){node.replaceWith(uiFragment(markup));}
 
 const SKIN_KEY='shaah:skin:v1';
+const SKIN_MIGRATION_KEY='shaah:skin:migration:v1';
 // Four product skins. Legacy IDs remain valid until the explicit preference
 // migration/layout phases; loading this release must not rewrite storage.
 const SKINS=[
@@ -89,7 +90,7 @@ const LEGACY_SKINS=[
   {id:'pro',label:'Pro Mode',detail:'Vista existente, conservada hasta separar el layout.'}
 ];
 const SUPPORTED_SKINS=[...SKINS,...LEGACY_SKINS];
-let _skin='classic',_skinObserver=null;
+let _skin='classic',_skinObserver=null,_skinPreview=null,_skinSaveFailed=false;
 const _skinColors=new Set(["000000","04040a","07070f","073b34","080810","0a0a13","0a0a14","0b0b14","0b0b15","0b0b16","0b0c16","0b3a32","0c0c16","0c0c18","0d0d18","0d0d19","0d0d1a","0d1b31","0e1020","0f0f1c","0f0f1d","10101c","10101d","10101e","111120","111124","11172b","12121f","12cfa8","141424","141426","14142a","151524","151525","15152a","151a2b","15315a","15d6ad","160d13","161626","16162a","16a98a","17172a","17172b","178ee8","18182b","1a1a2c","1b2238","1c1c30","1c1d32","1d1d33","1d2a22","1e1e2e","1e1e33","1f9c7f","202033","202036","202039","20203a","222239","22223a","23233a","24243a","24253b","25253a","26263c","26324a","27283d","29200f","2a2a3a","2a2a40","2c2615","2e2e4a","303046","303047","342263","36a5ff","38d6ad","3a3a55","3a3a5a","3b36ff","45455b","4a4a7a","4ade80","4b25f5","4b5a86","4d2bff","4f4f66","4f8dff","5268ff","556cff","57576e","5d5d75","5f5f77","60a5fa","62627a","65657d","65708d","66667d","66667e","68687e","68687f","6e5a29","6f6f87","70708a","73738c","77758e","77778f","79aaff","7aa2ff","7e7e97","8278b4","8888a4","8a8a9a","8a8aa0","8b63ff","8c8ca3","8f8da6","9090aa","9a9ab0","9a9ab2","9a9ab4","9b45e9","9d2d45","9fa9bc","a0a0b6","a4a4b7","a4a4ba","a9a1c8","aaa6c4","aaaabd","aaaabe","adadbf","b0b0bf","b0b0c0","b497ff","b58d31","b8b8c7","c0c0cd","c4c4d2","c7c7d2","c8c8d4","d0d0da","d0d0db","d5d5df","d69e2e","d8d8e1","d9d7e3","d9d9e2","dedee6","e0e0e8","e1e1e8","e2e2e2","e2e2ea","e4e4eb","e8e8ee","e8e8f0","ececf2","f2f2f2","f4b62b","f59e0b","f87171","fbbf24","ffb400","ffffff"]);
 const SKIN_COLOR_RE=/#[\da-f]{8}\b|#[\da-f]{6}\b|#[\da-f]{4}\b|#[\da-f]{3}\b|rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+(?:\s*,\s*[\d.]+)?\s*\)/gi;
 function skinColorParts(value){
@@ -281,15 +282,61 @@ function applySkin(){
   if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
   syncComboDisclosureDOM();
+  syncSkinPreviewDOM();
   // Skin selection changes presentation only; preserve interactive DOM and state.
 
+}
+function canonicalSkin(id){
+  return id==='glow'?'aurora':SUPPORTED_SKINS.some(s=>s.id===id)?id:'classic';
+}
+function loadSkinPreference(){
+  try{
+    const raw=localStorage.getItem(SKIN_KEY);
+    if(raw==='glow'){
+      // Save the original value before migrating; a blocked/unknown backup
+      // means read-only compatibility, never an unprotected preference write.
+      try{
+        const backup=localStorage.getItem(SKIN_MIGRATION_KEY);
+        if(backup===null)localStorage.setItem(SKIN_MIGRATION_KEY,JSON.stringify({version:1,previous:'glow',replacement:'aurora'}));
+        else {const saved=JSON.parse(backup);if(saved?.version!==1||saved.previous!=='glow'||saved.replacement!=='aurora')return 'aurora';}
+        const latest=localStorage.getItem(SKIN_KEY);
+        if(latest!=='glow')return canonicalSkin(latest);
+        localStorage.setItem(SKIN_KEY,'aurora');
+      }catch(e){/* Display Aurora for this session; retry safely next load. */}
+    }
+    return canonicalSkin(raw);
+  }catch(e){return 'classic';}
+}
+function syncSkinPreviewDOM(){
+  let panel=document.getElementById('appearance-preview');
+  if(!_skinPreview){panel?.remove();document.documentElement.removeAttribute('data-appearance-preview');return;}
+  if(!panel){panel=document.createElement('aside');panel.id='appearance-preview';panel.setAttribute('aria-label','Vista previa del aspecto');document.getElementById('app')?.append(panel);}
+  document.documentElement.setAttribute('data-appearance-preview','');
+  const label=SUPPORTED_SKINS.find(s=>s.id===_skin)?.label||'Original';
+  uiHTML(panel,`<div class="appearance-preview-copy"><strong role="status">Vista previa · ${esc(label)}</strong><span ${_skinSaveFailed?'role="alert"':''}>${_skinSaveFailed?'No se pudo guardar. Puedes reintentar o cancelar.':'Aún no está guardado.'}</span></div><div class="appearance-preview-actions"><button type="button" class="sf-button sf-primary" ${ui('click','applySkinPreview')}>Aplicar</button><button type="button" class="sf-button" ${ui('click','cancelSkinPreview')}>Cancelar</button></div>`);
+}
+function previewSkin(id,trigger){
+  if(!SKINS.some(s=>s.id===id))return false;
+  _skinSaveFailed=false;_skinPreview={previous:_skinPreview?.previous??_skin,trigger:_skinPreview?.trigger??trigger};
+  _skin=id;applySkin();return true;
+}
+function cancelSkinPreview(){
+  if(!_skinPreview)return;
+  const {previous,trigger}=_skinPreview;_skinPreview=null;_skinSaveFailed=false;_skin=previous;applySkin();
+  if(trigger?.isConnected)trigger.focus();
+}
+function applySkinPreview(){
+  if(!_skinPreview)return;
+  const preview=_skinPreview;setSkin(_skin);
+  if(_skinSaveFailed){_skinPreview=preview;syncSkinPreviewDOM();document.querySelector('#appearance-preview button')?.focus();}
+  else if(preview.trigger?.isConnected)preview.trigger.focus();
 }
 function setSkin(id){
   if(id==='glow')id='aurora';
   if(!SUPPORTED_SKINS.some(s=>s.id===id))return false;
-  _skin=id;let saved=true;
+  _skinPreview=null;_skin=id;let saved=true;
   try{localStorage.setItem(SKIN_KEY,id);}catch(e){saved=false;}
-  applySkin();
+  _skinSaveFailed=!saved;applySkin();
   const status=document.getElementById('skin-status');
   if(status)status.textContent=SUPPORTED_SKINS.find(s=>s.id===id).label+' aplicado. '+(saved?'Guardado en este navegador.':'Se mantiene durante esta sesión; el navegador no permite guardarlo.');
   return true;
@@ -297,7 +344,7 @@ function setSkin(id){
 function initSkin(){
   ["1c1d28", "252535", "29293c"].forEach(hex=>_skinColors.add(hex));
   _skinColors.add('171725');_skinColors.add('34344a');_skinColors.add('a78bfa');
-  try{const id=localStorage.getItem(SKIN_KEY);_skin=id==='glow'?'aurora':SUPPORTED_SKINS.some(s=>s.id===id)?id:'classic';}catch(e){_skin='classic';}
+  _skin=loadSkinPreference();
   applySkin();
   if(typeof MutationObserver==='undefined'||!document.body)return;
   skinPaintTree(document.body);
@@ -311,17 +358,20 @@ function initSkin(){
 }
 window.addEventListener('storage',event=>{
   if(event.key!==SKIN_KEY&&event.key!==null)return;
-  const id=event.newValue;_skin=id==='glow'?'aurora':SUPPORTED_SKINS.some(s=>s.id===id)?id:'classic';applySkin();
+  const id=event.newValue;_skinPreview=null;_skin=canonicalSkin(id);applySkin();
 });
 function skinPickerHTML(){
   return `<div class="skin-options" role="group" aria-label="Skin de la aplicación">${SKINS.map(s=>`
+    <div class="skin-choice-card">
     <button type="button" class="skin-option" data-skin-choice="${s.id}" aria-pressed="${_skin===s.id}" ${ui('click','setSkin' ,s.id)}>
       <span class="skin-preview skin-preview-${s.id}" data-skin-preview aria-hidden="true">
         <span class="skin-preview-ring">68</span><span class="skin-preview-lines"><i></i><i></i><i></i></span>
       </span>
       <span class="skin-option-title">${s.label}<span class="skin-check" aria-hidden="true">✓</span></span>
       <span class="skin-option-detail">${s.detail}</span>
-    </button>`).join('')}</div>
+    </button>
+    <button type="button" class="skin-try" aria-label="Vista previa de ${s.label}" ${ui('click','previewSkin',s.id)}>Vista previa <span aria-hidden="true">↗</span></button>
+    </div>`).join('')}</div>
     <div class="skin-legacy" role="group" aria-label="Opciones anteriores">
       <p class="sf-muted">Opciones anteriores</p>
       <div class="skin-legacy-actions">${LEGACY_SKINS.filter(s=>s.id!=='glow').map(s=>`<button type="button" class="sf-button skin-legacy-option" data-skin-choice="${s.id}" aria-pressed="${_skin===s.id}" ${ui('click','setSkin',s.id)}>${s.label}</button>`).join('')}</div>
@@ -1238,6 +1288,9 @@ const UI_ACTIONS=Object.freeze({
 
   setTab:uiRule('click',['tab'],(n,e,id)=>setTab(id)),
   setSkin:uiRule('click',['skin'],(n,e,id)=>setSkin(id)),
+  previewSkin:uiRule('click',['skin'],(n,e,id)=>previewSkin(id,n)),
+  cancelSkinPreview:uiRule('click',[],()=>cancelSkinPreview()),
+  applySkinPreview:uiRule('click',[],()=>applySkinPreview()),
   activate:uiRule('keydown',[],(n,e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();n.click();}}),
   stop:uiRule('click',[],()=>{},true),
   exportUnownedDayLogs:uiRule('click',[],()=>exportUnownedDayLogs()),

@@ -70,13 +70,14 @@ test('WORK identity reaches amounts, geometry and focus; quiet mode and reduced 
   assert.match(identities[3].font,/DM Sans/);
 });
 
-test('Glow resolves to Aurora without rewriting stored preference; Pro stays accessible',async t=>{
+test('Glow migrates with its original preference backed up; Pro stays accessible',async t=>{
   const p=await openApp(t);
   for(const id of ['glow','pro']){
     await p.evaluate(id=>localStorage.setItem(SKIN_KEY,id),id);
     await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);
     assert.equal(await p.locator('html').getAttribute('data-skin'),id==='glow'?'aurora':id);
-    assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),id);
+    assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),id==='glow'?'aurora':id);
+    if(id==='glow')assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem(SKIN_MIGRATION_KEY)).previous),'glow');
     await p.getByRole('button',{name:'Settings',exact:true}).click();
     assert.equal(await p.locator('[data-skin-choice="glow"]').count(),0);
     assert.equal(await p.locator(`[data-skin-choice="${id==='glow'?'aurora':id}"]`).getAttribute('aria-pressed'),'true');

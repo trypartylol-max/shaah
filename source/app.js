@@ -5074,16 +5074,21 @@ function renderStats(){
     {icon:"📅",label:"DAYS LOGGED",val:total,col:"#60a5fa",sub:"total"}
   ];
   return`<div class="fade-up stats-page" ${uiStyle(`padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
-    ${renderWeekday()}
-    <div class="stats-six-grid">
-      ${metrics.map(m=>`<div class="card stats-metric-card" ${uiStyle(`border:1px solid ${m.col}20;background:${m.col}08`)}>
+    <div class="stats-heading"><h1>STATS</h1><span>Your progress, at a glance</span></div>
+    <div class="stats-four-grid">
+      ${[metrics[0],metrics[4],metrics[3],metrics[5]].map(m=>`<div class="card stats-metric-card" ${uiStyle(`border:1px solid ${m.col}20;background:${m.col}08`)}>
         <div class="stats-metric-icon">${esc(m.icon)}</div>
         <div class="stats-metric-main"><div class="stats-metric-value" ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</div><div class="stats-metric-label">${esc(m.label)}</div></div>
         <div class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</div>
       </div>`).join("")}
     </div>
+    <section class="stats-consistency" aria-label="Consistency by weekday">${renderWeekday()}</section>
+    <details class="stats-details"><summary>Explore details <span>Habits, grades &amp; trends</span></summary>
+    <div class="stats-detail-content">
+    <div class="stats-detail-habits">${metrics.slice(1,3).map(m=>`<div class="card"><div class="sec">${esc(m.label)}</div><strong>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div>`).join("")}</div>
     ${total>0?`<div><div class="sec">GRADE DISTRIBUTION</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
     ${total>=2?`<div><div class="sec">TREND — 4 WEEKS</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>W${4-wi}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
+    </div></details>
     ${socialOwnTab()?"":renderWhoToSee()}
   </div>`;
 }

@@ -1,0 +1,1804 @@
+TAP version 13
+# Subtest: exclusive starter claim records one account tutorial; only winning device queues presentation
+ok 1 - exclusive starter claim records one account tutorial; only winning device queues presentation
+  ---
+  duration_ms: 30.285875
+  type: 'test'
+  ...
+# Subtest: existing account arrival is transient and never edits settings or historical fixtures
+ok 2 - existing account arrival is transient and never edits settings or historical fixtures
+  ---
+  duration_ms: 5.619625
+  type: 'test'
+  ...
+# Subtest: late boot snapshot cannot resurrect a signed-out account or overwrite a newer identity
+ok 3 - late boot snapshot cannot resurrect a signed-out account or overwrite a newer identity
+  ---
+  duration_ms: 4.04475
+  type: 'test'
+  ...
+# Subtest: duplicate auth events schedule one account activation and switching clears pending arrival
+ok 4 - duplicate auth events schedule one account activation and switching clears pending arrival
+  ---
+  duration_ms: 1.829875
+  type: 'test'
+  ...
+# Subtest: blank and zero frequency save as zero; scheduled contacts can opt out and opt back in
+ok 5 - blank and zero frequency save as zero; scheduled contacts can opt out and opt back in
+  ---
+  duration_ms: 23.717709
+  type: 'test'
+  ...
+# Subtest: invalid frequency never mutates contact or history
+ok 6 - invalid frequency never mutates contact or history
+  ---
+  duration_ms: 5.720375
+  type: 'test'
+  ...
+# Subtest: unscheduled contacts stay available with neutral pill and no overdue ranking
+ok 7 - unscheduled contacts stay available with neutral pill and no overdue ranking
+  ---
+  duration_ms: 2.710959
+  type: 'test'
+  ...
+# Subtest: legacy missing frequency retains default while explicit zero survives people import and cache reload
+ok 8 - legacy missing frequency retains default while explicit zero survives people import and cache reload
+  ---
+  duration_ms: 2.841625
+  type: 'test'
+  ...
+# Subtest: cancelled deletion keeps edit draft; confirmed deletion closes it and preserves encounters
+ok 9 - cancelled deletion keeps edit draft; confirmed deletion closes it and preserves encounters
+  ---
+  duration_ms: 1.597167
+  type: 'test'
+  ...
+# Subtest: deleted contact stays deleted through history recovery and stale cache rescue
+ok 10 - deleted contact stays deleted through history recovery and stale cache rescue
+  ---
+  duration_ms: 23.190084
+  type: 'test'
+  ...
+# Subtest: deletion markers survive cache reload but do not suppress unrelated recovery
+ok 11 - deletion markers survive cache reload but do not suppress unrelated recovery
+  ---
+  duration_ms: 1.974209
+  type: 'test'
+  ...
+# Subtest: deletion marker import validates values and explicit people import restores a contact
+ok 12 - deletion marker import validates values and explicit people import restores a contact
+  ---
+  duration_ms: 3.79375
+  type: 'test'
+  ...
+# Subtest: stats include recorded zero days and exclude empty and future days without changing score history
+ok 13 - stats include recorded zero days and exclude empty and future days without changing score history
+  ---
+  duration_ms: 2.35825
+  type: 'test'
+  ...
+# Subtest: zero-only statistics render data and zero-average trends remain meaningful
+ok 14 - zero-only statistics render data and zero-average trends remain meaningful
+  ---
+  duration_ms: 3.63175
+  type: 'test'
+  ...
+# Subtest: setHabitState: a repaint cannot turn the same click into a parent Clear action
+ok 15 - setHabitState: a repaint cannot turn the same click into a parent Clear action
+  ---
+  duration_ms: 22.089958
+  type: 'test'
+  ...
+# Subtest: startRoutine: a repaint cannot turn the same click into a parent Clear action
+ok 16 - startRoutine: a repaint cannot turn the same click into a parent Clear action
+  ---
+  duration_ms: 2.358125
+  type: 'test'
+  ...
+# Subtest: Next starts the next individual timer, stale actions cannot consume another step
+ok 17 - Next starts the next individual timer, stale actions cannot consume another step
+  ---
+  duration_ms: 22.106
+  type: 'test'
+  ...
+# Subtest: closing keeps the session running; explicit Pause, Resume and Reset preserve credit
+ok 18 - closing keeps the session running; explicit Pause, Resume and Reset preserve credit
+  ---
+  duration_ms: 2.419459
+  type: 'test'
+  ...
+# Subtest: automatic advancement stays stopped; finalization preserves baseline data with normalized completion flags
+ok 19 - automatic advancement stays stopped; finalization preserves baseline data with normalized completion flags
+  ---
+  duration_ms: 5.633666
+  type: 'test'
+  ...
+# Subtest: scores, grades, rachas and dated history remain equivalent for edge checks
+ok 20 - scores, grades, rachas and dated history remain equivalent for edge checks
+  ---
+  duration_ms: 4.747333
+  type: 'test'
+  ...
+# Subtest: unmodified scoring, history, config and Day Log functions retain their baseline
+ok 21 - unmodified scoring, history, config and Day Log functions retain their baseline
+  ---
+  duration_ms: 2.08325
+  type: 'test'
+  ...
+# Subtest: application templates contain no event attributes or text-to-code evaluator
+ok 22 - application templates contain no event attributes or text-to-code evaluator
+  ---
+  duration_ms: 0.792584
+  type: 'test'
+  ...
+# Subtest: registered actions require matching event types, exact arity and typed allowed values
+ok 23 - registered actions require matching event types, exact arity and typed allowed values
+  ---
+  duration_ms: 21.738458
+  type: 'test'
+  ...
+# Subtest: inherited and unregistered names cannot become UI actions
+ok 24 - inherited and unregistered names cannot become UI actions
+  ---
+  duration_ms: 3.160666
+  type: 'test'
+  ...
+# Subtest: disabled and inert controls do not invoke actions
+ok 25 - disabled and inert controls do not invoke actions
+  ---
+  duration_ms: 2.064083
+  type: 'test'
+  ...
+# Subtest: a child action that stopped propagation does not also activate its parent
+ok 26 - a child action that stopped propagation does not also activate its parent
+  ---
+  duration_ms: 1.819083
+  type: 'test'
+  ...
+# Subtest: form actions preserve input values, Unicode IDs and checked-state types
+ok 27 - form actions preserve input values, Unicode IDs and checked-state types
+  ---
+  duration_ms: 1.446625
+  type: 'test'
+  ...
+# Subtest: field selectors and score-state values cannot widen beyond their registered choices
+ok 28 - field selectors and score-state values cannot widen beyond their registered choices
+  ---
+  duration_ms: 1.679333
+  type: 'test'
+  ...
+# Subtest: style descriptors accept only registered presentation properties and freeze declarations
+ok 29 - style descriptors accept only registered presentation properties and freeze declarations
+  ---
+  duration_ms: 23.2785
+  type: 'test'
+  ...
+# Subtest: style registration returns only opaque keys and reuses identical declarations
+ok 30 - style registration returns only opaque keys and reuses identical declarations
+  ---
+  duration_ms: 2.464708
+  type: 'test'
+  ...
+# Subtest: rendered application templates carry style registry keys instead of CSS attributes
+ok 31 - rendered application templates carry style registry keys instead of CSS attributes
+  ---
+  duration_ms: 11.403667
+  type: 'test'
+  ...
+# Subtest: empty Today includes midnight to now, old day all day, future no elapsed time; no records are created
+ok 32 - empty Today includes midnight to now, old day all day, future no elapsed time; no records are created
+  ---
+  duration_ms: 22.707208
+  type: 'test'
+  ...
+# Subtest: overlaps stay additive but untracked uses their union including first/last gaps
+ok 33 - overlaps stay additive but untracked uses their union including first/last gaps
+  ---
+  duration_ms: 3.012458
+  type: 'test'
+  ...
+# Subtest: ongoing events cover until now; future times, points and missing historical ends cannot invent coverage
+ok 34 - ongoing events cover until now; future times, points and missing historical ends cannot invent coverage
+  ---
+  duration_ms: 2.438917
+  type: 'test'
+  ...
+# Subtest: closed intervals are clipped at midnight and now, and computing never writes data
+ok 35 - closed intervals are clipped at midnight and now, and computing never writes data
+  ---
+  duration_ms: 1.795959
+  type: 'test'
+  ...
+# Subtest: DST days measure actual elapsed hours in the configured timezone
+ok 36 - DST days measure actual elapsed hours in the configured timezone
+  ---
+  duration_ms: 2.079041
+  type: 'test'
+  ...
+# Subtest: a closed overnight activity stored on its starting day also covers the following day
+ok 37 - a closed overnight activity stored on its starting day also covers the following day
+  ---
+  duration_ms: 1.853875
+  type: 'test'
+  ...
+# Subtest: duration uses elapsed timestamps across midnight and timezone offsets
+ok 38 - duration uses elapsed timestamps across midnight and timezone offsets
+  ---
+  duration_ms: 21.3515
+  type: 'test'
+  ...
+# Subtest: open Today activity counts until now without inventing an end in stored data
+ok 39 - open Today activity counts until now without inventing an end in stored data
+  ---
+  duration_ms: 2.313458
+  type: 'test'
+  ...
+# Subtest: old missing ends, future starts and invalid/reversed ranges have unknown duration
+ok 40 - old missing ends, future starts and invalid/reversed ranges have unknown duration
+  ---
+  duration_ms: 1.432666
+  type: 'test'
+  ...
+# Subtest: activity totals preserve concurrent activities while Wake/Sleep stay point events
+ok 41 - activity totals preserve concurrent activities while Wake/Sleep stay point events
+  ---
+  duration_ms: 2.693542
+  type: 'test'
+  ...
+# Subtest: a running activity covers its simultaneous call without creating a false internal gap
+ok 42 - a running activity covers its simultaneous call without creating a false internal gap
+  ---
+  duration_ms: 2.405458
+  type: 'test'
+  ...
+# Subtest: reading a summary for a missing day never creates a day record
+ok 43 - reading a summary for a missing day never creates a day record
+  ---
+  duration_ms: 2.092583
+  type: 'test'
+  ...
+# Subtest: live refresh never updates the previous account panel during an account transition
+ok 44 - live refresh never updates the previous account panel during an account transition
+  ---
+  duration_ms: 1.897917
+  type: 'test'
+  ...
+# Subtest: level completion and clearing reconcile links without touching manual events
+ok 45 - level completion and clearing reconcile links without touching manual events
+  ---
+  duration_ms: 23.768458
+  type: 'test'
+  ...
+# Subtest: reset deletes every day field, including manual and ended-early records
+ok 46 - reset deletes every day field, including manual and ended-early records
+  ---
+  duration_ms: 2.449834
+  type: 'test'
+  ...
+# Subtest: fractional milestones retain one event, preserve its times and update completion metadata
+ok 47 - fractional milestones retain one event, preserve its times and update completion metadata
+  ---
+  duration_ms: 2.231875
+  type: 'test'
+  ...
+# Subtest: historical completion never creates events with invented times or changes Today
+ok 48 - historical completion never creates events with invented times or changes Today
+  ---
+  duration_ms: 1.5035
+  type: 'test'
+  ...
+# Subtest: historical linked events preserve times while completion changes and manual records survive clearing
+ok 49 - historical linked events preserve times while completion changes and manual records survive clearing
+  ---
+  duration_ms: 1.985083
+  type: 'test'
+  ...
+# Subtest: Social creates one Combo event; further encounters do not duplicate it or change its time
+ok 50 - Social creates one Combo event; further encounters do not duplicate it or change its time
+  ---
+  duration_ms: 2.520833
+  type: 'test'
+  ...
+# Subtest: legacy Social controls and historical Social use the same timestamp policy
+ok 51 - legacy Social controls and historical Social use the same timestamp policy
+  ---
+  duration_ms: 2.171375
+  type: 'test'
+  ...
+# Subtest: deleting a linked event keeps earned credit and does not recreate the event on render
+ok 52 - deleting a linked event keeps earned credit and does not recreate the event on render
+  ---
+  duration_ms: 5.105333
+  type: 'test'
+  ...
+# Subtest: bulk Sleep completion does not invent Wake/Sleep timestamps
+ok 53 - bulk Sleep completion does not invent Wake/Sleep timestamps
+  ---
+  duration_ms: 3.029583
+  type: 'test'
+  ...
+# Subtest: moving from laptop to monitor and back restores the original display without stored preferences
+ok 54 - moving from laptop to monitor and back restores the original display without stored preferences
+  ---
+  duration_ms: 1.056459
+  type: 'test'
+  ...
+# Subtest: short ultrawides and mobile do not enlarge; very large monitors have a bounded scale
+ok 55 - short ultrawides and mobile do not enlarge; very large monitors have a bounded scale
+  ---
+  duration_ms: 1.322458
+  type: 'test'
+  ...
+# Subtest: rapid resize events use the final dimensions and schedule one presentation update
+ok 56 - rapid resize events use the final dimensions and schedule one presentation update
+  ---
+  duration_ms: 0.855416
+  type: 'test'
+  ...
+# Subtest: level change preserves identity, all day records, past and future eras
+ok 57 - level change preserves identity, all day records, past and future eras
+  ---
+  duration_ms: 23.639125
+  type: 'test'
+  ...
+# Subtest: loading, conflict and ambiguous timelines reject edits without mutation
+ok 58 - loading, conflict and ambiguous timelines reject edits without mutation
+  ---
+  duration_ms: 4.4825
+  type: 'test'
+  ...
+# Subtest: weekly rates use dated eligibility, fractional completion and normalized scores
+ok 59 - weekly rates use dated eligibility, fractional completion and normalized scores
+  ---
+  duration_ms: 1.585791
+  type: 'test'
+  ...
+# Subtest: unsorted future era is retained; failed edit rolls back; invalid calendar date rejects
+ok 60 - unsorted future era is retained; failed edit rolls back; invalid calendar date rejects
+  ---
+  duration_ms: 2.112625
+  type: 'test'
+  ...
+# Subtest: weekly review handles dated pause/add/reweight, zero max and mode changes without mutating history
+ok 61 - weekly review handles dated pause/add/reweight, zero max and mode changes without mutating history
+  ---
+  duration_ms: 4.23925
+  type: 'test'
+  ...
+# Subtest: blocked config edit never queues a settings write and preserves account-owned drafts
+ok 62 - blocked config edit never queues a settings write and preserves account-owned drafts
+  ---
+  duration_ms: 1.492709
+  type: 'test'
+  ...
+# Subtest: backup is read-only, checks the downloaded file, previews and round-trips the repair
+ok 63 - backup is read-only, checks the downloaded file, previews and round-trips the repair
+  ---
+  duration_ms: 40.801875
+  type: 'test'
+  ...
+# Subtest: altered, foreign and unprepared backup files cannot enable application
+ok 64 - altered, foreign and unprepared backup files cannot enable application
+  ---
+  duration_ms: 6.125542
+  type: 'test'
+  ...
+# Subtest: local edits and remote revisions invalidate the reviewed snapshot
+ok 65 - local edits and remote revisions invalidate the reviewed snapshot
+  ---
+  duration_ms: 14.425917
+  type: 'test'
+  ...
+# Subtest: recovery preserves unrelated new settings and new day records but refuses conflicting period edits
+ok 66 - recovery preserves unrelated new settings and new day records but refuses conflicting period edits
+  ---
+  duration_ms: 27.442833
+  type: 'test'
+  ...
+# Subtest: recovery keeps equivalent inserted boundaries and restores their previous scoring
+ok 67 - recovery keeps equivalent inserted boundaries and restores their previous scoring
+  ---
+  duration_ms: 4.432875
+  type: 'test'
+  ...
+# Subtest: missing revision/count protocol, unsynced data and changing reads fail closed
+ok 68 - missing revision/count protocol, unsynced data and changing reads fail closed
+  ---
+  duration_ms: 6.157333
+  type: 'test'
+  ...
+# Subtest: rejected or unconfirmed RPCs never claim success; late local edits are preserved
+ok 69 - rejected or unconfirmed RPCs never claim success; late local edits are preserved
+  ---
+  duration_ms: 34.904042
+  type: 'test'
+  ...
+# Subtest: a delayed read from another account cannot download or apply the former owner data
+ok 70 - a delayed read from another account cannot download or apply the former owner data
+  ---
+  duration_ms: 1.777375
+  type: 'test'
+  ...
+# Subtest: pagination exports beyond the server page limit and validates the total count
+ok 71 - pagination exports beyond the server page limit and validates the total count
+  ---
+  duration_ms: 75.239125
+  type: 'test'
+  ...
+# Subtest: digest has a known interoperable value and dangerous JSON keys are rejected
+ok 72 - digest has a known interoperable value and dangerous JSON keys are rejected
+  ---
+  duration_ms: 2.775084
+  type: 'test'
+  ...
+# Subtest: a lost acknowledgement after a committed repair can be recovered after refresh
+ok 73 - a lost acknowledgement after a committed repair can be recovered after refresh
+  ---
+  duration_ms: 12.724166
+  type: 'test'
+  ...
+# Subtest: a missing total count cannot silently truncate a backup
+ok 74 - a missing total count cannot silently truncate a backup
+  ---
+  duration_ms: 2.334042
+  type: 'test'
+  ...
+# Subtest: repair proposes only dated boundaries and never mutates live state, storage or day rows
+ok 75 - repair proposes only dated boundaries and never mutates live state, storage or day rows
+  ---
+  duration_ms: 22.447166
+  type: 'test'
+  ...
+# Subtest: proposal seals missing vacation/return boundaries with independent copies
+ok 76 - proposal seals missing vacation/return boundaries with independent copies
+  ---
+  duration_ms: 2.462917
+  type: 'test'
+  ...
+# Subtest: no proposal for unrelated or incomplete identity null
+ok 77 - no proposal for unrelated or incomplete identity null
+  ---
+  duration_ms: 1.293917
+  type: 'test'
+  ...
+# Subtest: no proposal for unrelated or incomplete identity {"id":"other","email":"other@example.invalid"}
+ok 78 - no proposal for unrelated or incomplete identity {"id":"other","email":"other@example.invalid"}
+  ---
+  duration_ms: 1.234792
+  type: 'test'
+  ...
+# Subtest: no proposal for unrelated or incomplete identity {"id":"owner"}
+ok 79 - no proposal for unrelated or incomplete identity {"id":"owner"}
+  ---
+  duration_ms: 1.541417
+  type: 'test'
+  ...
+# Subtest: no proposal for unrelated or incomplete identity {"id":"owner","email":"trypartylol@gmail.com.evil"}
+ok 80 - no proposal for unrelated or incomplete identity {"id":"owner","email":"trypartylol@gmail.com.evil"}
+  ---
+  duration_ms: 1.134417
+  type: 'test'
+  ...
+# Subtest: no proposal for unrelated or incomplete identity {"email":"trypartylol@gmail.com"}
+ok 81 - no proposal for unrelated or incomplete identity {"email":"trypartylol@gmail.com"}
+  ---
+  duration_ms: 1.232125
+  type: 'test'
+  ...
+# Subtest: account casing is normalized; pre-return and completed versions have no proposal
+ok 82 - account casing is normalized; pre-return and completed versions have no proposal
+  ---
+  duration_ms: 4.811042
+  type: 'test'
+  ...
+# Subtest: uncertain timelines are rejected instead of inventing an earlier baseline
+ok 83 - uncertain timelines are rejected instead of inventing an earlier baseline
+  ---
+  duration_ms: 2.165667
+  type: 'test'
+  ...
+# Subtest: Settings disable/re-enable does not create completions
+ok 84 - Settings disable/re-enable does not create completions
+  ---
+  duration_ms: 2.606917
+  type: 'test'
+  ...
+# Subtest: decoded HTTP 409 / PT409 rereads the revision and preserves independent edits and historical points
+ok 85 - decoded HTTP 409 / PT409 rereads the revision and preserves independent edits and historical points
+  ---
+  duration_ms: 33.88125
+  type: 'test'
+  ...
+# Subtest: persistent HTTP 409 stops after four attempts and the saved draft can recover after reload
+ok 86 - persistent HTTP 409 stops after four attempts and the saved draft can recover after reload
+  ---
+  duration_ms: 7.460167
+  type: 'test'
+  ...
+# Subtest: HTTP 409 followed by a same-field conflict retains both versions for explicit resolution
+ok 87 - HTTP 409 followed by a same-field conflict retains both versions for explicit resolution
+  ---
+  duration_ms: 2.914209
+  type: 'test'
+  ...
+# Subtest: an unrelated HTTP 500 does not enter the conflict retry loop or fall back to direct writes
+ok 88 - an unrelated HTTP 500 does not enter the conflict retry loop or fall back to direct writes
+  ---
+  duration_ms: 2.569959
+  type: 'test'
+  ...
+# Subtest: legacy contacts without location/status fields are active and visible in every location
+ok 89 - legacy contacts without location/status fields are active and visible in every location
+  ---
+  duration_ms: 21.874917
+  type: 'test'
+  ...
+# Subtest: WHO TO SEE filters active contacts by location, retaining unassigned contacts
+ok 90 - WHO TO SEE filters active contacts by location, retaining unassigned contacts
+  ---
+  duration_ms: 2.005459
+  type: 'test'
+  ...
+# Subtest: individual location toggles preserve all other memberships and reject unknown groups
+ok 91 - individual location toggles preserve all other memberships and reject unknown groups
+  ---
+  duration_ms: 1.565958
+  type: 'test'
+  ...
+# Subtest: bulk add is additive, deduplicates memberships and clears its selection
+ok 92 - bulk add is additive, deduplicates memberships and clears its selection
+  ---
+  duration_ms: 1.534416
+  type: 'test'
+  ...
+# Subtest: bulk remove removes only the requested membership from selected contacts
+ok 93 - bulk remove removes only the requested membership from selected contacts
+  ---
+  duration_ms: 1.30875
+  type: 'test'
+  ...
+# Subtest: bulk apply rejects unknown locations/actions and rechecks current filter eligibility
+ok 94 - bulk apply rejects unknown locations/actions and rechecks current filter eligibility
+  ---
+  duration_ms: 1.759042
+  type: 'test'
+  ...
+# Subtest: direct management keeps every contact available; bulk Unassigned remains independent
+ok 95 - direct management keeps every contact available; bulk Unassigned remains independent
+  ---
+  duration_ms: 1.473708
+  type: 'test'
+  ...
+# Subtest: changing settings status, scope or search clears bulk selection
+ok 96 - changing settings status, scope or search clears bulk selection
+  ---
+  duration_ms: 1.33025
+  type: 'test'
+  ...
+# Subtest: bulk search is case-insensitive and selects only matching contacts
+ok 97 - bulk search is case-insensitive and selects only matching contacts
+  ---
+  duration_ms: 1.7555
+  type: 'test'
+  ...
+# Subtest: inactive contacts stay excluded in every location and can be reactivated
+ok 98 - inactive contacts stay excluded in every location and can be reactivated
+  ---
+  duration_ms: 2.419583
+  type: 'test'
+  ...
+# Subtest: switching location, memberships and inactive flags preserves all dated records and scores
+ok 99 - switching location, memberships and inactive flags preserves all dated records and scores
+  ---
+  duration_ms: 2.542708
+  type: 'test'
+  ...
+# Subtest: explicitly recording an inactive/away contact still earns work Social points
+ok 100 - explicitly recording an inactive/away contact still earns work Social points
+  ---
+  duration_ms: 2.195208
+  type: 'test'
+  ...
+# Subtest: explicitly recording an inactive/away contact still earns vacation Social points
+ok 101 - explicitly recording an inactive/away contact still earns vacation Social points
+  ---
+  duration_ms: 2.220208
+  type: 'test'
+  ...
+# Subtest: Social auto-tagging ignores inactive/away suggestions, but deselecting a part clears all its tags
+ok 102 - Social auto-tagging ignores inactive/away suggestions, but deselecting a part clears all its tags
+  ---
+  duration_ms: 1.620042
+  type: 'test'
+  ...
+# Subtest: an empty recommendation list still renders a usable location selector
+ok 103 - an empty recommendation list still renders a usable location selector
+  ---
+  duration_ms: 1.884416
+  type: 'test'
+  ...
+# Subtest: settings cache and server-row loading retain location groups, memberships and inactive status
+ok 104 - settings cache and server-row loading retain location groups, memberships and inactive status
+  ---
+  duration_ms: 2.217834
+  type: 'test'
+  ...
+# Subtest: a deleted/invalid persisted selected group falls back to All without rewriting contacts
+ok 105 - a deleted/invalid persisted selected group falls back to All without rewriting contacts
+  ---
+  duration_ms: 1.266375
+  type: 'test'
+  ...
+# Subtest: dangling location IDs behave as Unassigned without deleting the stored IDs
+ok 106 - dangling location IDs behave as Unassigned without deleting the stored IDs
+  ---
+  duration_ms: 1.257084
+  type: 'test'
+  ...
+# Subtest: people-only import keeps location/status metadata and does not overwrite existing contacts/history
+ok 107 - people-only import keeps location/status metadata and does not overwrite existing contacts/history
+  ---
+  duration_ms: 2.064416
+  type: 'test'
+  ...
+# Subtest: slow upsert cannot overtake a newer same-day upsert
+ok 108 - slow upsert cannot overtake a newer same-day upsert
+  ---
+  duration_ms: 23.957125
+  type: 'test'
+  ...
+# Subtest: slow DELETE cannot overtake a newer same-day upsert
+ok 109 - slow DELETE cannot overtake a newer same-day upsert
+  ---
+  duration_ms: 2.104666
+  type: 'test'
+  ...
+# Subtest: offline replay and foreground save share ordering across A→B→A
+ok 110 - offline replay and foreground save share ordering across A→B→A
+  ---
+  duration_ms: 2.804417
+  type: 'test'
+  ...
+# Subtest: different days remain independent while the same-day transport is slow
+ok 111 - different days remain independent while the same-day transport is slow
+  ---
+  duration_ms: 1.778459
+  type: 'test'
+  ...
+# Subtest: queued A DELETE is not sent or acknowledged after A→B changes its session
+ok 112 - queued A DELETE is not sent or acknowledged after A→B changes its session
+  ---
+  duration_ms: 2.637791
+  type: 'test'
+  ...
+# Subtest: queued A DELETE is not sent or acknowledged after A→B→A changes its session
+ok 113 - queued A DELETE is not sent or acknowledged after A→B→A changes its session
+  ---
+  duration_ms: 2.437042
+  type: 'test'
+  ...
+# Subtest: failed earlier write does not poison the latest same-day save
+ok 114 - failed earlier write does not poison the latest same-day save
+  ---
+  duration_ms: 2.337291
+  type: 'test'
+  ...
+# Subtest: stalled load reaches a retryable error without initializing or clearing local data; late reply is ignored
+ok 115 - stalled load reaches a retryable error without initializing or clearing local data; late reply is ignored
+  ---
+  duration_ms: 3.6885
+  type: 'test'
+  ...
+# Subtest: read deadline aborts the pinned SDK transport without dropping cached data
+ok 116 - read deadline aborts the pinned SDK transport without dropping cached data
+  ---
+  duration_ms: 13.4585
+  type: 'test'
+  ...
+# Subtest: offline startup uses only the saved session owner and its configuration and days
+ok 117 - offline startup uses only the saved session owner and its configuration and days
+  ---
+  duration_ms: 21.998292
+  type: 'test'
+  ...
+# Subtest: logged-out, missing-cache and malformed-session startup does not adopt other saved accounts
+ok 118 - logged-out, missing-cache and malformed-session startup does not adopt other saved accounts
+  ---
+  duration_ms: 5.073917
+  type: 'test'
+  ...
+# Subtest: offline startup restores pending edits and keeps writes local until session verification
+ok 119 - offline startup restores pending edits and keeps writes local until session verification
+  ---
+  duration_ms: 2.115334
+  type: 'test'
+  ...
+# Subtest: reconnecting as B never uploads A local work or installs it into B
+ok 120 - reconnecting as B never uploads A local work or installs it into B
+  ---
+  duration_ms: 3.376375
+  type: 'test'
+  ...
+# Subtest: reconnection failure preserves the local owner, data and durable queue
+ok 121 - reconnection failure preserves the local owner, data and durable queue
+  ---
+  duration_ms: 1.95575
+  type: 'test'
+  ...
+# Subtest: a misleading online indicator and failed account read still restore only the saved owner
+ok 122 - a misleading online indicator and failed account read still restore only the saved owner
+  ---
+  duration_ms: 2.395458
+  type: 'test'
+  ...
+# Subtest: stalled auth read has a finite deadline and leaves cached account data intact
+ok 123 - stalled auth read has a finite deadline and leaves cached account data intact
+  ---
+  duration_ms: 2.122084
+  type: 'test'
+  ...
+# Subtest: offline release installation checks integrity for every file and removes partial cache on failure
+ok 124 - offline release installation checks integrity for every file and removes partial cache on failure
+  ---
+  duration_ms: 12.990833
+  type: 'test'
+  ...
+# Subtest: worker never intercepts auth/API traffic, mutations, control pages or unrelated URLs
+ok 125 - worker never intercepts auth/API traffic, mutations, control pages or unrelated URLs
+  ---
+  duration_ms: 0.482375
+  type: 'test'
+  ...
+# Subtest: auth query parameters are never cache keys and cache cleanup respects other scopes
+ok 126 - auth query parameters are never cache keys and cache cleanup respects other scopes
+  ---
+  duration_ms: 0.449792
+  type: 'test'
+  ...
+# Subtest: concurrent boot/reconnect loads share one read and preserve dated scores
+ok 127 - concurrent boot/reconnect loads share one read and preserve dated scores
+  ---
+  duration_ms: 24.381542
+  type: 'test'
+  ...
+# Subtest: failed shared load can retry without clearing local history
+ok 128 - failed shared load can retry without clearing local history
+  ---
+  duration_ms: 2.216125
+  type: 'test'
+  ...
+# Subtest: an old account load cannot block or clear the new account flight
+ok 129 - an old account load cannot block or clear the new account flight
+  ---
+  duration_ms: 2.068584
+  type: 'test'
+  ...
+# Subtest: repeat subscriptions reuse one channel; account switch creates a new owned channel
+ok 130 - repeat subscriptions reuse one channel; account switch creates a new owned channel
+  ---
+  duration_ms: 1.662208
+  type: 'test'
+  ...
+# Subtest: formatter reuse preserves midnight, explicit timezone changes, DST and invalid-zone fallback
+ok 131 - formatter reuse preserves midnight, explicit timezone changes, DST and invalid-zone fallback
+  ---
+  duration_ms: 1.986291
+  type: 'test'
+  ...
+# Subtest: Social last encounter excludes future days and responds immediately to edits
+ok 132 - Social last encounter excludes future days and responds immediately to edits
+  ---
+  duration_ms: 1.436708
+  type: 'test'
+  ...
+# Subtest: explicit removal clears only the signed-out account copies, preserving other accounts, recovery and skin
+ok 133 - explicit removal clears only the signed-out account copies, preserving other accounts, recovery and skin
+  ---
+  duration_ms: 21.886583
+  type: 'test'
+  ...
+# Subtest: ordinary sign out keeps recovery copies and uses only the current session scope
+ok 134 - ordinary sign out keeps recovery copies and uses only the current session scope
+  ---
+  duration_ms: 1.858334
+  type: 'test'
+  ...
+# Subtest: logout notices accept only their explicit fixed message codes
+ok 135 - logout notices accept only their explicit fixed message codes
+  ---
+  duration_ms: 1.330875
+  type: 'test'
+  ...
+# Subtest: removal is blocked before Auth for offline day writes
+ok 136 - removal is blocked before Auth for offline day writes
+  ---
+  duration_ms: 1.3925
+  type: 'test'
+  ...
+# Subtest: removal is blocked before Auth for settings draft
+ok 137 - removal is blocked before Auth for settings draft
+  ---
+  duration_ms: 1.244625
+  type: 'test'
+  ...
+# Subtest: removal is blocked before Auth for active routine
+ok 138 - removal is blocked before Auth for active routine
+  ---
+  duration_ms: 1.224541
+  type: 'test'
+  ...
+# Subtest: removal is blocked before Auth for malformed recovery record
+ok 139 - removal is blocked before Auth for malformed recovery record
+  ---
+  duration_ms: 1.706959
+  type: 'test'
+  ...
+# Subtest: an in-memory pending edit blocks removal even before it reaches storage
+ok 140 - an in-memory pending edit blocks removal even before it reaches storage
+  ---
+  duration_ms: 1.315833
+  type: 'test'
+  ...
+# Subtest: a live routine blocks removal even when browser storage could not retain its copy
+ok 141 - a live routine blocks removal even when browser storage could not retain its copy
+  ---
+  duration_ms: 1.662917
+  type: 'test'
+  ...
+# Subtest: cancelling removal leaves the session and all saved copies intact
+ok 142 - cancelling removal leaves the session and all saved copies intact
+  ---
+  duration_ms: 1.550959
+  type: 'test'
+  ...
+# Subtest: a failed sign-out does not erase local copies or falsely report success
+ok 143 - a failed sign-out does not erase local copies or falsely report success
+  ---
+  duration_ms: 1.740542
+  type: 'test'
+  ...
+# Subtest: a late A sign-out acknowledgement cannot clear or reload the newer B session
+ok 144 - a late A sign-out acknowledgement cannot clear or reload the newer B session
+  ---
+  duration_ms: 1.416834
+  type: 'test'
+  ...
+# Subtest: edits arriving while sign-out waits are retained instead of being cleared
+ok 145 - edits arriving while sign-out waits are retained instead of being cleared
+  ---
+  duration_ms: 1.393125
+  type: 'test'
+  ...
+# Subtest: storage removal failure is surfaced without claiming that account copies were cleared
+ok 146 - storage removal failure is surfaced without claiming that account copies were cleared
+  ---
+  duration_ms: 1.416916
+  type: 'test'
+  ...
+# Subtest: new Day Log copies are isolated by account and anonymous writes create no shared copy
+ok 147 - new Day Log copies are isolated by account and anonymous writes create no shared copy
+  ---
+  duration_ms: 1.387541
+  type: 'test'
+  ...
+# Subtest: unowned legacy Day Log data stays available for recovery without being assigned to A or B
+ok 148 - unowned legacy Day Log data stays available for recovery without being assigned to A or B
+  ---
+  duration_ms: 1.876042
+  type: 'test'
+  ...
+# Subtest: a scoped Day Log cache cannot resurrect an explicitly empty saved activity list
+ok 149 - a scoped Day Log cache cannot resurrect an explicitly empty saved activity list
+  ---
+  duration_ms: 1.317375
+  type: 'test'
+  ...
+# Subtest: diagnostic is off by default and anonymous contexts never start collection or network
+ok 150 - diagnostic is off by default and anonymous contexts never start collection or network
+  ---
+  duration_ms: 2.242709
+  type: 'test'
+  ...
+# Subtest: only numeric measurements with fixed metric names enter sanitized snapshots
+ok 151 - only numeric measurements with fixed metric names enter sanitized snapshots
+  ---
+  duration_ms: 1.07475
+  type: 'test'
+  ...
+# Subtest: one timing token is consumed once and invalid/backwards durations never enter reports
+ok 152 - one timing token is consumed once and invalid/backwards durations never enter reports
+  ---
+  duration_ms: 0.557292
+  type: 'test'
+  ...
+# Subtest: 200-sample rolling bound and quantiles remain meaningful after extended use
+ok 153 - 200-sample rolling bound and quantiles remain meaningful after extended use
+  ---
+  duration_ms: 0.894292
+  type: 'test'
+  ...
+# Subtest: clearing cancels pending timers, observers and delayed paint records without reviving deleted measurements
+ok 154 - clearing cancels pending timers, observers and delayed paint records without reviving deleted measurements
+  ---
+  duration_ms: 1.052875
+  type: 'test'
+  ...
+# Subtest: switching accounts and logging out invalidates outstanding work and restores only each owner’s measurements
+ok 155 - switching accounts and logging out invalidates outstanding work and restores only each owner’s measurements
+  ---
+  duration_ms: 0.861625
+  type: 'test'
+  ...
+# Subtest: disabling collection retains existing diagnostics and stops all pending or observer measurements
+ok 156 - disabling collection retains existing diagnostics and stops all pending or observer measurements
+  ---
+  duration_ms: 0.5785
+  type: 'test'
+  ...
+# Subtest: storage entries are allowlisted, bounded and numeric before entering a report
+ok 157 - storage entries are allowlisted, bounded and numeric before entering a report
+  ---
+  duration_ms: 0.632667
+  type: 'test'
+  ...
+# Subtest: malformed, oversized and unsupported storage formats never enable collection
+ok 158 - malformed, oversized and unsupported storage formats never enable collection
+  ---
+  duration_ms: 2.042625
+  type: 'test'
+  ...
+# Subtest: denied storage remains usable in memory and never changes app storage or network
+ok 159 - denied storage remains usable in memory and never changes app storage or network
+  ---
+  duration_ms: 0.744417
+  type: 'test'
+  ...
+# Subtest: missing observers, unsupported entries and observe errors preserve custom measurements
+ok 160 - missing observers, unsupported entries and observe errors preserve custom measurements
+  ---
+  duration_ms: 1.327416
+  type: 'test'
+  ...
+# Subtest: FCP and LCP retain one sample per page while Event Timing is a maximum observed duration, not INP
+ok 161 - FCP and LCP retain one sample per page while Event Timing is a maximum observed duration, not INP
+  ---
+  duration_ms: 0.548417
+  type: 'test'
+  ...
+# Subtest: enabling mid-page and changing accounts reject old buffered entries and recommend a new load
+ok 162 - enabling mid-page and changing accounts reject old buffered entries and recommend a new load
+  ---
+  duration_ms: 0.434
+  type: 'test'
+  ...
+# Subtest: observer processing never reads DOM targets, elements, attribution or resource URLs
+ok 163 - observer processing never reads DOM targets, elements, attribution or resource URLs
+  ---
+  duration_ms: 0.489667
+  type: 'test'
+  ...
+# Subtest: long-lived sessions still measure event duration after ten minutes of page uptime
+ok 164 - long-lived sessions still measure event duration after ten minutes of page uptime
+  ---
+  duration_ms: 0.349208
+  type: 'test'
+  ...
+# Subtest: hidden tabs do not collect timings and pending saves flush on hide
+ok 165 - hidden tabs do not collect timings and pending saves flush on hide
+  ---
+  duration_ms: 0.37725
+  type: 'test'
+  ...
+# Subtest: a deletion or opt-out in another tab cancels local work and cannot resurrect cleared measurements
+ok 166 - a deletion or opt-out in another tab cancels local work and cannot resurrect cleared measurements
+  ---
+  duration_ms: 1.061083
+  type: 'test'
+  ...
+# Subtest: another account’s storage event cannot clear this account or expose its diagnostic data
+ok 167 - another account’s storage event cannot clear this account or expose its diagnostic data
+  ---
+  duration_ms: 0.41375
+  type: 'test'
+  ...
+# Subtest: unavailable high-resolution clock prevents measurement without disturbing collection controls
+ok 168 - unavailable high-resolution clock prevents measurement without disturbing collection controls
+  ---
+  duration_ms: 0.401667
+  type: 'test'
+  ...
+# Subtest: a background interval is excluded from unfinished action timings
+ok 169 - a background interval is excluded from unfinished action timings
+  ---
+  duration_ms: 0.353375
+  type: 'test'
+  ...
+# Subtest: a background interval is excluded from scheduled paint timings
+ok 170 - a background interval is excluded from scheduled paint timings
+  ---
+  duration_ms: 0.345459
+  type: 'test'
+  ...
+# Subtest: Realtime backup events do not repaint the active page or change daily history
+ok 171 - Realtime backup events do not repaint the active page or change daily history
+  ---
+  duration_ms: 22.461584
+  type: 'test'
+  ...
+# Subtest: Repeated identical day and settings echoes do not repaint Today
+ok 172 - Repeated identical day and settings echoes do not repaint Today
+  ---
+  duration_ms: 9.074583
+  type: 'test'
+  ...
+# Subtest: A real remote day change repaints once and duplicate deliveries preserve the same state
+ok 173 - A real remote day change repaints once and duplicate deliveries preserve the same state
+  ---
+  duration_ms: 2.064666
+  type: 'test'
+  ...
+# Subtest: A real remote settings change repaints once and preserves scoring history
+ok 174 - A real remote settings change repaints once and preserves scoring history
+  ---
+  duration_ms: 2.479
+  type: 'test'
+  ...
+# Subtest: Remote deletion repaints only when it removes a visible own day
+ok 175 - Remote deletion repaints only when it removes a visible own day
+  ---
+  duration_ms: 2.002458
+  type: 'test'
+  ...
+# Subtest: Opaque deletes that remove no own day do not repaint
+ok 176 - Opaque deletes that remove no own day do not repaint
+  ---
+  duration_ms: 2.038542
+  type: 'test'
+  ...
+# Subtest: An identical row received during a stale DELETE read remains protected without repainting
+ok 177 - An identical row received during a stale DELETE read remains protected without repainting
+  ---
+  duration_ms: 1.793417
+  type: 'test'
+  ...
+# Subtest: A pending local day edit is preserved without a repaint from its remote echo
+ok 178 - A pending local day edit is preserved without a repaint from its remote echo
+  ---
+  duration_ms: 1.62775
+  type: 'test'
+  ...
+# Subtest: A queued offline day edit is preserved when another device deletes the server row
+ok 179 - A queued offline day edit is preserved when another device deletes the server row
+  ---
+  duration_ms: 2.420333
+  type: 'test'
+  ...
+# Subtest: A hidden page receives the latest data and defers repainting until it is visible
+ok 180 - A hidden page receives the latest data and defers repainting until it is visible
+  ---
+  duration_ms: 1.977792
+  type: 'test'
+  ...
+# Subtest: full reset clears day data and owned cache, queues deletion and preserves other days/config
+ok 181 - full reset clears day data and owned cache, queues deletion and preserves other days/config
+  ---
+  duration_ms: 21.356209
+  type: 'test'
+  ...
+# Subtest: opening confirmation does not delete; stale or foreign confirmations cannot reset a day
+ok 182 - opening confirmation does not delete; stale or foreign confirmations cannot reset a day
+  ---
+  duration_ms: 4.918875
+  type: 'test'
+  ...
+# Subtest: confirmation is one-use and stops running/paused sessions without producing a final event
+ok 183 - confirmation is one-use and stops running/paused sessions without producing a final event
+  ---
+  duration_ms: 2.177167
+  type: 'test'
+  ...
+# Subtest: the pinned SDK has matching SRI, anonymous CORS and an explicit static version URL
+ok 184 - the pinned SDK has matching SRI, anonymous CORS and an explicit static version URL
+  ---
+  duration_ms: 3.469916
+  type: 'test'
+  ...
+# Subtest: import rejects null habit map before backups, confirmation, state changes or queued writes
+ok 185 - import rejects null habit map before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 20.007
+  type: 'test'
+  ...
+# Subtest: import rejects wrong contact type before backups, confirmation, state changes or queued writes
+ok 186 - import rejects wrong contact type before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 1.585583
+  type: 'test'
+  ...
+# Subtest: import rejects wrong membership type before backups, confirmation, state changes or queued writes
+ok 187 - import rejects wrong membership type before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 1.604083
+  type: 'test'
+  ...
+# Subtest: import rejects wrong status type before backups, confirmation, state changes or queued writes
+ok 188 - import rejects wrong status type before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 1.839125
+  type: 'test'
+  ...
+# Subtest: import rejects invalid day after valid contacts before backups, confirmation, state changes or queued writes
+ok 189 - import rejects invalid day after valid contacts before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 1.557166
+  type: 'test'
+  ...
+# Subtest: import rejects reserved object keys before backups, confirmation, state changes or queued writes
+ok 190 - import rejects reserved object keys before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 1.905292
+  type: 'test'
+  ...
+# Subtest: import rejects empty root before backups, confirmation, state changes or queued writes
+ok 191 - import rejects empty root before backups, confirmation, state changes or queued writes
+  ---
+  duration_ms: 1.439125
+  type: 'test'
+  ...
+# Subtest: invalid routine styles reject the entire settings import without changing valid data
+ok 192 - invalid routine styles reject the entire settings import without changing valid data
+  ---
+  duration_ms: 2.952667
+  type: 'test'
+  ...
+# Subtest: a missing routine definition is rejected before adopting settings or new days
+ok 193 - a missing routine definition is rejected before adopting settings or new days
+  ---
+  duration_ms: 2.600333
+  type: 'test'
+  ...
+# Subtest: valid full export imports keep historical scores, original IDs and new Day Log records
+ok 194 - valid full export imports keep historical scores, original IDs and new Day Log records
+  ---
+  duration_ms: 3.077083
+  type: 'test'
+  ...
+# Subtest: legacy people imports preserve punctuation and Unicode IDs without renaming historical references
+ok 195 - legacy people imports preserve punctuation and Unicode IDs without renaming historical references
+  ---
+  duration_ms: 1.531042
+  type: 'test'
+  ...
+# Subtest: older settings without timelines or per-mode prices remain importable
+ok 196 - older settings without timelines or per-mode prices remain importable
+  ---
+  duration_ms: 1.479625
+  type: 'test'
+  ...
+# Subtest: a delayed step callback leaves a removed routine session recoverable without recording completion
+ok 197 - a delayed step callback leaves a removed routine session recoverable without recording completion
+  ---
+  duration_ms: 1.927666
+  type: 'test'
+  ...
+# Subtest: switching accounts clears routine controls without copying A activity into B storage
+ok 198 - switching accounts clears routine controls without copying A activity into B storage
+  ---
+  duration_ms: 21.975375
+  type: 'test'
+  ...
+# Subtest: forced sign-out stops routine timers and never creates or adopts anonymous routines
+ok 199 - forced sign-out stops routine timers and never creates or adopts anonymous routines
+  ---
+  duration_ms: 1.810292
+  type: 'test'
+  ...
+# Subtest: account changes reset derived configuration, dates, selections and editors before loading B
+ok 200 - account changes reset derived configuration, dates, selections and editors before loading B
+  ---
+  duration_ms: 1.701667
+  type: 'test'
+  ...
+# Subtest: returning to A restores its own saved routine while B restores only its own preferences
+ok 201 - returning to A restores its own saved routine while B restores only its own preferences
+  ---
+  duration_ms: 2.738125
+  type: 'test'
+  ...
+# Subtest: same-account token refresh preserves the routine, pending changes and current screen
+ok 202 - same-account token refresh preserves the routine, pending changes and current screen
+  ---
+  duration_ms: 1.432208
+  type: 'test'
+  ...
+# Subtest: an already queued A timer cannot advance B, save B data, or cancel B newer timer
+ok 203 - an already queued A timer cannot advance B, save B data, or cancel B newer timer
+  ---
+  duration_ms: 1.710084
+  type: 'test'
+  ...
+# Subtest: account switch preserves offline drafts, local recovery and other account copies byte for byte
+ok 204 - account switch preserves offline drafts, local recovery and other account copies byte for byte
+  ---
+  duration_ms: 1.711167
+  type: 'test'
+  ...
+# Subtest: identical routine IDs in two accounts still restore the correct account progress
+ok 205 - identical routine IDs in two accounts still restore the correct account progress
+  ---
+  duration_ms: 1.788
+  type: 'test'
+  ...
+# Subtest: a queued callback from an earlier A session remains invalid after returning from B to A
+ok 206 - a queued callback from an earlier A session remains invalid after returning from B to A
+  ---
+  duration_ms: 2.092292
+  type: 'test'
+  ...
+# Subtest: Wake half, complementary Sleep full, then clear: one shared score and two point events
+ok 207 - Wake half, complementary Sleep full, then clear: one shared score and two point events
+  ---
+  duration_ms: 23.585375
+  type: 'test'
+  ...
+# Subtest: legacy root roles retain their meaning even when chronological order is opposite
+ok 208 - legacy root roles retain their meaning even when chronological order is opposite
+  ---
+  duration_ms: 1.536834
+  type: 'test'
+  ...
+# Subtest: legacy range uses its recorded endpoints, preserves original range and scoring, and normalizes once
+ok 209 - legacy range uses its recorded endpoints, preserves original range and scoring, and normalizes once
+  ---
+  duration_ms: 1.660334
+  type: 'test'
+  ...
+# Subtest: a single untagged zero-duration completion does not invent a second action or its meaning
+ok 210 - a single untagged zero-duration completion does not invent a second action or its meaning
+  ---
+  duration_ms: 1.584541
+  type: 'test'
+  ...
+# Subtest: additional legacy records are never silently removed and malformed ranges are untouched
+ok 211 - additional legacy records are never silently removed and malformed ranges are untouched
+  ---
+  duration_ms: 4.848708
+  type: 'test'
+  ...
+# Subtest: returning to half removes only Sleep, retaining the actual Wake timestamp
+ok 212 - returning to half removes only Sleep, retaining the actual Wake timestamp
+  ---
+  duration_ms: 1.95875
+  type: 'test'
+  ...
+# Subtest: full credit without recorded Wake cannot reconstruct two events at the current time
+ok 213 - full credit without recorded Wake cannot reconstruct two events at the current time
+  ---
+  duration_ms: 1.709167
+  type: 'test'
+  ...
+# Subtest: unclassified extra legacy point is displayed and edited without inventing a Wake/Sleep role
+ok 214 - unclassified extra legacy point is displayed and edited without inventing a Wake/Sleep role
+  ---
+  duration_ms: 3.70525
+  type: 'test'
+  ...
+# Subtest: historical half-credit recognizes legacy root Sleep roles without changing recorded Wake time or Today
+ok 215 - historical half-credit recognizes legacy root Sleep roles without changing recorded Wake time or Today
+  ---
+  duration_ms: 1.701291
+  type: 'test'
+  ...
+# Subtest: single-category editor preserves configured Family points and contact identity
+ok 216 - single-category editor preserves configured Family points and contact identity
+  ---
+  duration_ms: 22.077417
+  type: 'test'
+  ...
+# Subtest: cancel and account changes discard drafts without changing saved contact metadata
+ok 217 - cancel and account changes discard drafts without changing saved contact metadata
+  ---
+  duration_ms: 2.378375
+  type: 'test'
+  ...
+# Subtest: new contact can omit frequency and still record an encounter
+ok 218 - new contact can omit frequency and still record an encounter
+  ---
+  duration_ms: 1.518792
+  type: 'test'
+  ...
+# Subtest: editing legacy membership preserves unknown category, relationship, metadata and historical scoring
+ok 219 - editing legacy membership preserves unknown category, relationship, metadata and historical scoring
+  ---
+  duration_ms: 21.059
+  type: 'test'
+  ...
+# Subtest: legacy exception never permits assigning a new invalid category to existing or new contacts
+ok 220 - legacy exception never permits assigning a new invalid category to existing or new contacts
+  ---
+  duration_ms: 3.018292
+  type: 'test'
+  ...
+# Subtest: application JavaScript compiles
+ok 221 - application JavaScript compiles
+  ---
+  duration_ms: 4.66775
+  type: 'test'
+  ...
+# Subtest: legacy contacts load from cache without IDs, names, category or frequency changes
+ok 222 - legacy contacts load from cache without IDs, names, category or frequency changes
+  ---
+  duration_ms: 20.01925
+  type: 'test'
+  ...
+# Subtest: a settings row preserves existing contacts and its historical timeline
+ok 223 - a settings row preserves existing contacts and its historical timeline
+  ---
+  duration_ms: 2.090917
+  type: 'test'
+  ...
+# Subtest: server day rows preserve people, fractional checks, Social, note and Day Log
+ok 224 - server day rows preserve people, fractional checks, Social, note and Day Log
+  ---
+  duration_ms: 1.340417
+  type: 'test'
+  ...
+# Subtest: tagging an existing contact checks its Social part and scores it only once
+ok 225 - tagging an existing contact checks its Social part and scores it only once
+  ---
+  duration_ms: 2.173083
+  type: 'test'
+  ...
+# Subtest: untagging a person preserves the selected Social activity and the rest of the day
+ok 226 - untagging a person preserves the selected Social activity and the rest of the day
+  ---
+  duration_ms: 1.525542
+  type: 'test'
+  ...
+# Subtest: a sole contact is auto-tagged for its Social part; multiple contacts require a choice
+ok 227 - a sole contact is auto-tagged for its Social part; multiple contacts require a choice
+  ---
+  duration_ms: 1.958166
+  type: 'test'
+  ...
+# Subtest: editing contact metadata does not rewrite historical days, config eras or scores
+ok 228 - editing contact metadata does not rewrite historical days, config eras or scores
+  ---
+  duration_ms: 1.805917
+  type: 'test'
+  ...
+# Subtest: deleting a contact keeps previously logged IDs, Social flags and points
+ok 229 - deleting a contact keeps previously logged IDs, Social flags and points
+  ---
+  duration_ms: 1.853666
+  type: 'test'
+  ...
+# Subtest: orphan recovery preserves the original ID and every historical row
+ok 230 - orphan recovery preserves the original ID and every historical row
+  ---
+  duration_ms: 2.997167
+  type: 'test'
+  ...
+# Subtest: WHO TO SEE orders never-seen contacts first and uses the latest visit
+ok 231 - WHO TO SEE orders never-seen contacts first and uses the latest visit
+  ---
+  duration_ms: 2.938125
+  type: 'test'
+  ...
+# Subtest: 2026-09-07: dated work points, maximum, percentage and grade
+ok 232 - 2026-09-07: dated work points, maximum, percentage and grade
+  ---
+  duration_ms: 1.971458
+  type: 'test'
+  ...
+# Subtest: 2026-09-08: dated vacation points, maximum, percentage and grade
+ok 233 - 2026-09-08: dated vacation points, maximum, percentage and grade
+  ---
+  duration_ms: 1.383542
+  type: 'test'
+  ...
+# Subtest: 2026-09-15: dated vacation points, maximum, percentage and grade
+ok 234 - 2026-09-15: dated vacation points, maximum, percentage and grade
+  ---
+  duration_ms: 1.270167
+  type: 'test'
+  ...
+# Subtest: 2026-09-16: dated vacation points, maximum, percentage and grade
+ok 235 - 2026-09-16: dated vacation points, maximum, percentage and grade
+  ---
+  duration_ms: 1.701917
+  type: 'test'
+  ...
+# Subtest: 2026-09-17: dated vacation points, maximum, percentage and grade
+ok 236 - 2026-09-17: dated vacation points, maximum, percentage and grade
+  ---
+  duration_ms: 1.191
+  type: 'test'
+  ...
+# Subtest: 2026-09-18: dated vacation points, maximum, percentage and grade
+ok 237 - 2026-09-18: dated vacation points, maximum, percentage and grade
+  ---
+  duration_ms: 1.295583
+  type: 'test'
+  ...
+# Subtest: 2026-10-08: dated work points, maximum, percentage and grade
+ok 238 - 2026-10-08: dated work points, maximum, percentage and grade
+  ---
+  duration_ms: 1.177792
+  type: 'test'
+  ...
+# Subtest: Work → Vacation → Work changes today without changing historical Social scores
+ok 239 - Work → Vacation → Work changes today without changing historical Social scores
+  ---
+  duration_ms: 2.396
+  type: 'test'
+  ...
+# Subtest: editing Vacation points while live mode is Work preserves Work points and old days
+ok 240 - editing Vacation points while live mode is Work preserves Work points and old days
+  ---
+  duration_ms: 2.150375
+  type: 'test'
+  ...
+# Subtest: editing Work points while live mode is Vacation preserves Vacation points and old days
+ok 241 - editing Work points while live mode is Vacation preserves Vacation points and old days
+  ---
+  duration_ms: 1.593083
+  type: 'test'
+  ...
+# Subtest: legacy parts with no price inherit the work combo split, without mutation
+ok 242 - legacy parts with no price inherit the work combo split, without mutation
+  ---
+  duration_ms: 1.289042
+  type: 'test'
+  ...
+# Subtest: legacy parts with no price inherit the vacation combo split, without mutation
+ok 243 - legacy parts with no price inherit the vacation combo split, without mutation
+  ---
+  duration_ms: 1.224125
+  type: 'test'
+  ...
+# Subtest: explicit legacy zero and mode-specific values are preserved by fallback
+ok 244 - explicit legacy zero and mode-specific values are preserved by fallback
+  ---
+  duration_ms: 1.149208
+  type: 'test'
+  ...
+# Subtest: a historical zero-point work activity retains zero without changing its saved row
+ok 245 - a historical zero-point work activity retains zero without changing its saved row
+  ---
+  duration_ms: 1.902583
+  type: 'test'
+  ...
+# Subtest: selecting a zero-point part earns zero, rather than the whole work combo
+ok 246 - selecting a zero-point part earns zero, rather than the whole work combo
+  ---
+  duration_ms: 3.253459
+  type: 'test'
+  ...
+# Subtest: a historical zero-point vacation activity retains zero without changing its saved row
+ok 247 - a historical zero-point vacation activity retains zero without changing its saved row
+  ---
+  duration_ms: 1.340958
+  type: 'test'
+  ...
+# Subtest: selecting a zero-point part earns zero, rather than the whole vacation combo
+ok 248 - selecting a zero-point part earns zero, rather than the whole vacation combo
+  ---
+  duration_ms: 2.145958
+  type: 'test'
+  ...
+# Subtest: a legacy combo check with no selected active part still grants the whole combo
+ok 249 - a legacy combo check with no selected active part still grants the whole combo
+  ---
+  duration_ms: 1.292625
+  type: 'test'
+  ...
+# Subtest: pausing a Social part changes today, preserving historical points and contact IDs
+ok 250 - pausing a Social part changes today, preserving historical points and contact IDs
+  ---
+  duration_ms: 1.534041
+  type: 'test'
+  ...
+# Subtest: a zero Social maximum produces zero points and a finite normalized percentage
+ok 251 - a zero Social maximum produces zero points and a finite normalized percentage
+  ---
+  duration_ms: 1.952916
+  type: 'test'
+  ...
+# Subtest: persistDay serializes synthetic contact and Social changes through a fake server only
+ok 252 - persistDay serializes synthetic contact and Social changes through a fake server only
+  ---
+  duration_ms: 1.968375
+  type: 'test'
+  ...
+# Subtest: verified empty account offers a choice without migrations, settings or activity writes
+ok 253 - verified empty account offers a choice without migrations, settings or activity writes
+  ---
+  duration_ms: 21.40125
+  type: 'test'
+  ...
+# Subtest: one chosen generic habit persists, survives loadAll and never grows Work or junk-food
+ok 254 - one chosen generic habit persists, survives loadAll and never grows Work or junk-food
+  ---
+  duration_ms: 5.210917
+  type: 'test'
+  ...
+# Subtest: skip is a persisted zero-plan profile, not an F grade or fake tutorial completion
+ok 255 - skip is a persisted zero-plan profile, not an F grade or fake tutorial completion
+  ---
+  duration_ms: 1.807375
+  type: 'test'
+  ...
+# Subtest: two simultaneous initializers adopt one CAS winner without merging obligations
+ok 256 - two simultaneous initializers adopt one CAS winner without merging obligations
+  ---
+  duration_ms: 3.879541
+  type: 'test'
+  ...
+# Subtest: lost acknowledgement is recovered by rereading; failed write stays retryable without activity
+ok 257 - lost acknowledgement is recovered by rereading; failed write stays retryable without activity
+  ---
+  duration_ms: 3.759625
+  type: 'test'
+  ...
+# Subtest: failed/incomplete reads never classify or initialize; local copies veto empty remote
+ok 258 - failed/incomplete reads never classify or initialize; local copies veto empty remote
+  ---
+  duration_ms: 7.561458
+  type: 'test'
+  ...
+# Subtest: a cached existing account stays usable offline without entering Starter or replacing its plan
+ok 259 - a cached existing account stays usable offline without entering Starter or replacing its plan
+  ---
+  duration_ms: 2.013125
+  type: 'test'
+  ...
+# Subtest: malformed settings fail closed; valid existing account never sees Starter
+ok 260 - malformed settings fail closed; valid existing account never sees Starter
+  ---
+  duration_ms: 5.043292
+  type: 'test'
+  ...
+# Subtest: account switching ignores delayed initializer acknowledgement
+ok 261 - account switching ignores delayed initializer acknowledgement
+  ---
+  duration_ms: 5.253667
+  type: 'test'
+  ...
+# Subtest: expansion, routine and deletion use dated custom IDs and preserve previous day score
+ok 262 - expansion, routine and deletion use dated custom IDs and preserve previous day score
+  ---
+  duration_ms: 3.962208
+  type: 'test'
+  ...
+# Subtest: Starter export/import accepts both its empty baseline and a skipped zero-habit plan
+ok 263 - Starter export/import accepts both its empty baseline and a skipped zero-habit plan
+  ---
+  duration_ms: 4.8125
+  type: 'test'
+  ...
+# Subtest: nonempty grades retain their established thresholds and zero plan is the only added grade
+ok 264 - nonempty grades retain their established thresholds and zero plan is the only added grade
+  ---
+  duration_ms: 1.313875
+  type: 'test'
+  ...
+# Subtest: an acknowledgement filling absent people defaults is not a visible day change
+ok 265 - an acknowledgement filling absent people defaults is not a visible day change
+  ---
+  duration_ms: 20.302792
+  type: 'test'
+  ...
+# Subtest: an acknowledgement filling absent _daylog defaults is not a visible day change
+ok 266 - an acknowledgement filling absent _daylog defaults is not a visible day change
+  ---
+  duration_ms: 1.913208
+  type: 'test'
+  ...
+# Subtest: an acknowledgement filling absent both defaults is not a visible day change
+ok 267 - an acknowledgement filling absent both defaults is not a visible day change
+  ---
+  duration_ms: 1.384
+  type: 'test'
+  ...
+# Subtest: a genuinely new empty day remains a real change
+ok 268 - a genuinely new empty day remains a real change
+  ---
+  duration_ms: 1.22525
+  type: 'test'
+  ...
+# Subtest: legacy HTTP 500 / SQLSTATE 40001 retries the revision read and preserves both writers without upsert
+ok 269 - legacy HTTP 500 / SQLSTATE 40001 retries the revision read and preserves both writers without upsert
+  ---
+  duration_ms: 23.174041
+  type: 'test'
+  ...
+# Subtest: opaque DELETE reconciliation removes only absent own days and preserves pending/offline edits
+ok 270 - opaque DELETE reconciliation removes only absent own days and preserves pending/offline edits
+  ---
+  duration_ms: 2.021375
+  type: 'test'
+  ...
+# Subtest: opaque DELETE reconciliation cannot erase a row received after its SELECT began
+ok 271 - opaque DELETE reconciliation cannot erase a row received after its SELECT began
+  ---
+  duration_ms: 1.779708
+  type: 'test'
+  ...
+# Subtest: opaque DELETE reconciliation ignores an account change while its SELECT is pending
+ok 272 - opaque DELETE reconciliation ignores an account change while its SELECT is pending
+  ---
+  duration_ms: 2.294
+  type: 'test'
+  ...
+# Subtest: opaque DELETE reconciliation preserves state if the RLS read fails
+ok 273 - opaque DELETE reconciliation preserves state if the RLS read fails
+  ---
+  duration_ms: 1.972875
+  type: 'test'
+  ...
+# Subtest: Realtime routes an id-only DELETE through the own-row check and ignores another explicit owner
+ok 274 - Realtime routes an id-only DELETE through the own-row check and ignores another explicit owner
+  ---
+  duration_ms: 1.813042
+  type: 'test'
+  ...
+# Subtest: offline A data never restores or replays under B and remains available for A
+ok 275 - offline A data never restores or replays under B and remains available for A
+  ---
+  duration_ms: 3.491167
+  type: 'test'
+  ...
+# Subtest: a delayed A write is not submitted as B after switching accounts
+ok 276 - a delayed A write is not submitted as B after switching accounts
+  ---
+  duration_ms: 1.867458
+  type: 'test'
+  ...
+# Subtest: unowned legacy queue is preserved without restoring or submitting it
+ok 277 - unowned legacy queue is preserved without restoring or submitting it
+  ---
+  duration_ms: 1.993
+  type: 'test'
+  ...
+# Subtest: concurrent edits to different contacts preserve both settings changes
+ok 278 - concurrent edits to different contacts preserve both settings changes
+  ---
+  duration_ms: 5.213875
+  type: 'test'
+  ...
+# Subtest: a true field conflict preserves server value and retains the local draft across reload
+ok 279 - a true field conflict preserves server value and retains the local draft across reload
+  ---
+  duration_ms: 5.772083
+  type: 'test'
+  ...
+# Subtest: settings CAS retries when another writer changes the row after the read
+ok 280 - settings CAS retries when another writer changes the row after the read
+  ---
+  duration_ms: 5.211917
+  type: 'test'
+  ...
+# Subtest: merging memberships and different contact fields preserves historical configuration and points
+ok 281 - merging memberships and different contact fields preserves historical configuration and points
+  ---
+  duration_ms: 4.962167
+  type: 'test'
+  ...
+# Subtest: a failed in-flight A request keeps its A payload after B signs in
+ok 282 - a failed in-flight A request keeps its A payload after B signs in
+  ---
+  duration_ms: 1.977791
+  type: 'test'
+  ...
+# Subtest: an edit made during offline replay is not removed by the older acknowledgement
+ok 283 - an edit made during offline replay is not removed by the older acknowledgement
+  ---
+  duration_ms: 1.810125
+  type: 'test'
+  ...
+# Subtest: returning to A before its old acknowledgement cannot erase A newer persisted queue
+ok 284 - returning to A before its old acknowledgement cannot erase A newer persisted queue
+  ---
+  duration_ms: 2.138583
+  type: 'test'
+  ...
+# Subtest: late account A load cannot populate B state or enable B config writes
+ok 285 - late account A load cannot populate B state or enable B config writes
+  ---
+  duration_ms: 2.658666
+  type: 'test'
+  ...
+# Subtest: queued config writes stay with A across an account switch
+ok 286 - queued config writes stay with A across an account switch
+  ---
+  duration_ms: 3.111875
+  type: 'test'
+  ...
+# Subtest: Realtime rejects other-owner DELETE/UPDATE and callbacks from a prior account
+ok 287 - Realtime rejects other-owner DELETE/UPDATE and callbacks from a prior account
+  ---
+  duration_ms: 1.981959
+  type: 'test'
+  ...
+# Subtest: signed-in live Work/Vacation preference is scoped to its account
+ok 288 - signed-in live Work/Vacation preference is scoped to its account
+  ---
+  duration_ms: 1.94725
+  type: 'test'
+  ...
+# Subtest: network failures retain the config draft and retry succeeds without losing it
+ok 289 - network failures retain the config draft and retry succeeds without losing it
+  ---
+  duration_ms: 2.304333
+  type: 'test'
+  ...
+# Subtest: concurrent contact deletion and modification reports a conflict instead of guessing
+ok 290 - concurrent contact deletion and modification reports a conflict instead of guessing
+  ---
+  duration_ms: 4.741167
+  type: 'test'
+  ...
+# Subtest: settings edited before the first server read survive reconnect and merge safely
+ok 291 - settings edited before the first server read survive reconnect and merge safely
+  ---
+  duration_ms: 3.0405
+  type: 'test'
+  ...
+# Subtest: an account without a settings row can create its first configuration without upsert overwrites
+ok 292 - an account without a settings row can create its first configuration without upsert overwrites
+  ---
+  duration_ms: 1.720667
+  type: 'test'
+  ...
+# Subtest: legacy day-only accounts keep their day rows when the first settings row is created
+ok 293 - legacy day-only accounts keep their day rows when the first settings row is created
+  ---
+  duration_ms: 6.176875
+  type: 'test'
+  ...
+# Subtest: an unavailable revision protocol keeps drafts and never falls back to a legacy settings write
+ok 294 - an unavailable revision protocol keeps drafts and never falls back to a legacy settings write
+  ---
+  duration_ms: 2.221083
+  type: 'test'
+  ...
+# Subtest: a malformed server acknowledgement cannot discard a pending settings draft
+ok 295 - a malformed server acknowledgement cannot discard a pending settings draft
+  ---
+  duration_ms: 2.0205
+  type: 'test'
+  ...
+# Subtest: revision CAS detects an intervening write even when data returns to its previous value
+ok 296 - revision CAS detects an intervening write even when data returns to its previous value
+  ---
+  duration_ms: 5.4295
+  type: 'test'
+  ...
+# Subtest: denied settings RPC preserves local edits without issuing direct fallback mutations
+ok 297 - denied settings RPC preserves local edits without issuing direct fallback mutations
+  ---
+  duration_ms: 2.728917
+  type: 'test'
+  ...
+# Subtest: a token switch between read and RPC cannot submit an A settings draft as B
+ok 298 - a token switch between read and RPC cannot submit an A settings draft as B
+  ---
+  duration_ms: 2.49725
+  type: 'test'
+  ...
+# Subtest: contact deletion survives revision save, stale device cache and orphan recovery
+ok 299 - contact deletion survives revision save, stale device cache and orphan recovery
+  ---
+  duration_ms: 4.752583
+  type: 'test'
+  ...
+1..299
+# tests 299
+# suites 0
+# pass 299
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2788.942166

@@ -10,9 +10,10 @@ for (const width of [320,390,879,880,1440]) test(`Aurora V2 ${width}: navigation
  const before=await snapshot(page),writes=await page.evaluate(()=>__mockWrites.filter(row=>row.date!=='cfgbak').length);
  const original=await page.locator('body').evaluate(el=>getComputedStyle(el).backgroundImage);
  await page.evaluate(()=>setSkin('aurora'));
- assert.equal(await page.locator('#nav button').count(),5);
+ assert.equal(await page.locator('#nav .nav-btn[data-tab]').count(),5);
+ assert.equal(await page.locator('#nav .pro-nav-settings').isVisible(),false,'Existing Pro-only Settings control stays hidden outside Pro');
  assert.equal(await page.locator('.aurora-nav,#aurora-work,#aurora-more,#aurora-more-trigger').count(),0);
- assert.deepEqual(await page.locator('#nav .nav-btn').evaluateAll(nodes=>nodes.map(n=>n.dataset.tab)),['today','log','social','stats','history']);
+ assert.deepEqual(await page.locator('#nav .nav-btn[data-tab]').evaluateAll(nodes=>nodes.map(n=>n.dataset.tab)),['today','log','social','stats','history']);
  for(const tab of ['log','social','stats','history','today']){
    await page.locator(`.nav-btn[data-tab="${tab}"]`).click();
    assert.equal(await page.locator(`.nav-btn[data-tab="${tab}"]`).getAttribute('aria-current'),'page');
@@ -46,7 +47,8 @@ test('Aurora: cross-tab skin restore preserves native navigation and mobile nigh
  const other=await page.context().newPage();await other.goto('http://shaah.test/');await other.waitForFunction(()=>_cfgReady&&_live);
  await other.evaluate(()=>setSkin('classic'));
  await page.waitForFunction(()=>document.documentElement.dataset.skin==='classic');
- assert.equal(await page.locator('#nav .nav-btn').count(),5);
+ assert.equal(await page.locator('#nav .nav-btn[data-tab]').count(),5);
+ assert.equal(await page.locator('#nav .pro-nav-settings').isVisible(),false,'Existing Pro-only Settings control stays hidden outside Pro');
  assert.equal(await page.locator('.aurora-nav,#aurora-work,#aurora-more').count(),0);
 });
 

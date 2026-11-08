@@ -1,0 +1,113 @@
+/* Phase 2. Identity tokens and presentation only; retain shared geometry,
+   native controls, semantic result colors and all legacy preference IDs. */
+html[data-skin="classic"] {
+  --identity-font:'DM Sans',system-ui,sans-serif;
+  --identity-accent:#c4b5fd;--identity-ink:#07070f;
+  --identity-input:#0c0c18;
+}
+html[data-skin="aurora"] {
+  --identity-font:'DM Sans',system-ui,sans-serif;
+  --identity-accent:#67dfff;--identity-ink:#050b1b;
+  --identity-input:#091226;
+}
+html[data-skin="matrix"] {
+  --identity-font:'DM Mono',ui-monospace,monospace;
+  --identity-accent:#00ff41;--identity-ink:#020705;
+  --identity-input:#041109;
+}
+html[data-skin="minimal"] {
+  --identity-font:'DM Sans',system-ui,sans-serif;
+  --identity-accent:#cdd2d8;--identity-ink:#15171a;
+  --identity-input:#15171a;
+}
+
+/* The same four choices on every device, with legacy preferences separate. */
+.skin-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+.skin-legacy{margin-top:18px;padding-top:14px;border-top:1px solid var(--skin-edge)}
+.skin-legacy-actions{display:flex;gap:8px;flex-wrap:wrap}
+.skin-legacy-option[aria-pressed="true"]{border-color:var(--skin-selected);color:var(--skin-selected);background:var(--skin-active-bg)}
+@media(max-width:600px){.skin-options{grid-template-columns:1fr}}
+
+/* Include new shared components which previously kept hard-coded violet. */
+html:is([data-skin="matrix"],[data-skin="minimal"]) .today.sf-today-v27 {
+  --today-card-bg:var(--skin-panel);--today-card-border:var(--skin-edge);
+  --today-title:var(--skin-muted);--today-copy:var(--skin-copy);
+  --today-muted:var(--skin-muted);--today-accent:var(--identity-accent);
+  --today-active:var(--skin-active-bg);
+}
+html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra,.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor,.cr-modal,.cr-bottom-dock,.cr-session-menu-panel) {
+  background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy);
+}
+html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-muted,.sf-field,.sf-scoring summary,.sd-help,.sf-work-info .r-sub,.sf-work-points,.sf-work-targets) {color:var(--skin-muted)}
+html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-button,.sd-location-toggle,.cr-session-menu>summary,.cr-session-menu-panel button) {
+  color:var(--skin-copy);background:var(--skin-panel);border-color:var(--skin-edge);
+}
+html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-primary,.sf-routine-primary,.sf-work-register,.sf-work-next,.logdesk-new,.logdesk-save) {
+  background:var(--identity-accent)!important;border-color:var(--identity-accent)!important;color:var(--identity-ink)!important;
+}
+html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-selected,.htab.active,.logdesk-row.selected,.skin-option[aria-pressed="true"]) {
+  background:var(--skin-active-bg);border-color:var(--identity-accent);color:var(--identity-accent);
+}
+html:is([data-skin="matrix"],[data-skin="minimal"]) #app #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb) {
+  background:var(--skin-panel)!important;border-color:var(--identity-accent)!important;color:var(--identity-accent)!important;box-shadow:none!important;
+}
+html:is([data-skin="matrix"],[data-skin="minimal"]) #app #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span {color:var(--identity-accent)!important}
+html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) :is(.sf-field input,.sf-field select,.logdesk-input,.logdesk-sort) {
+  background:var(--identity-input);color:var(--skin-copy);border-color:var(--skin-edge);
+}
+
+/* WORK has a single interactive DOM and dated calculation in every skin.
+   Carry identity through its title, amounts, surface, geometry and focus. */
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) #scroll .today.sf-today-v27 .wg-card {
+  font-family:var(--identity-font);color:var(--skin-copy);
+  background:var(--skin-panel);border-color:var(--skin-edge);
+}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) .wg-card .wg-head>span:first-child {color:var(--identity-accent)}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) .wg-card :is(.wg-daily,.wg-weekly) strong {
+  color:var(--skin-copy);font-variant-numeric:tabular-nums;
+}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) .wg-card:focus-visible {outline-color:var(--identity-accent)}
+html[data-skin="classic"] .wg-figure{--work-geom:#c4b5fd;--work-geom-dim:#363047}
+html[data-skin="aurora"] .wg-card{box-shadow:inset 0 1px 0 #67dfff18,0 0 18px #758dff0a}
+html[data-skin="matrix"] .wg-card{box-shadow:inset 2px 0 0 #00ff4138}
+
+/* Quiet typography without condensed display numbers or decorative effects. */
+html[data-skin="minimal"] .stats-metric-value {font-family:var(--identity-font);font-variant-numeric:tabular-nums;font-weight:500}
+html[data-skin="minimal"] .wg-figure.complete,
+html[data-skin="minimal"] .wg-figure.complete * {filter:none!important;animation:none!important}
+html[data-skin="minimal"] .wg-figure.complete .wg-interior{fill-opacity:.2}
+
+/* No new celebration logic. Motion is strictly optional in every identity. */
+@media(prefers-reduced-motion:reduce){
+  html[data-skin] .wg-figure,html[data-skin] .wg-figure * {filter:none!important;animation:none!important}
+}
+@media(forced-colors:active){
+  html[data-skin] .wg-card{border-color:CanvasText!important;box-shadow:none!important}
+  html[data-skin] .wg-segment{stroke:GrayText!important}
+  html[data-skin] .wg-segment.lit{stroke:Highlight!important;filter:none!important}
+}
+
+/* Owner feedback: Aurora's sticky mobile score strip should sit within its
+   luminous canvas, with a clearly visible unfilled track. Geometry unchanged. */
+@media(max-width:879px){
+  html[data-skin="aurora"] #tb-score{
+    background:transparent;
+    border-bottom-color:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+  html[data-skin="aurora"] #tb-score .ts-bar{background:rgba(255,255,255,.22)}
+  html[data-skin="aurora"] #tb-score .ts-bar>i{background:#fff!important;box-shadow:none!important}
+  html[data-skin="aurora"] #tb-score .ts-p{color:#fff}
+  html[data-skin="aurora"] #tb-score .ts-nx{color:#e9edf8!important}
+  html[data-skin="aurora"] .t-levelstatus .ls-bar{
+    background:#293a61!important;border-color:#53658d!important;
+  }
+}
+
+/* Preview refinement: stronger score-strip typography, unchanged geometry. */
+@media(max-width:879px){
+  html[data-skin="aurora"] #tb-score .ts-l{font-weight:700}
+  html[data-skin="aurora"] #tb-score .ts-p,
+  html[data-skin="aurora"] #tb-score .ts-nx{font-weight:700}
+}

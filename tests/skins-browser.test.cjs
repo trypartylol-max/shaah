@@ -15,7 +15,7 @@ for (const [device, viewport] of [['desktop', { width: 1440, height: 1000 }], ['
     const before = await snapshot(page);
     const writes = await page.evaluate(() => window.__mockWrites.filter(row=>row.date!=='cfgbak').length);
     const backgrounds = [];
-    for (const id of ['matrix', 'minimal', 'glow', 'classic']) {
+    for (const id of ['matrix', 'minimal', 'aurora', 'classic']) {
       await choose(page, id).click();
       assert.equal(await choose(page, id).getAttribute('aria-pressed'), 'true');
       assert.equal(await choose(page, id).evaluate(el => el === document.activeElement), true);
@@ -29,7 +29,7 @@ for (const [device, viewport] of [['desktop', { width: 1440, height: 1000 }], ['
       }
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
     }
-    assert.equal(new Set(backgrounds).size, 3, 'Three different actual palettes');
+    assert.equal(new Set(backgrounds).size, 4, 'Four different actual palettes');
     assert.equal(await snapshot(page), before, 'Appearance does not edit account data or score history');
     assert.equal(await page.evaluate(() => window.__mockWrites.filter(row=>row.date!=='cfgbak').length), writes, 'No server write for skin changes');
   });

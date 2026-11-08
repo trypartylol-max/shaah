@@ -1328,6 +1328,8 @@ const UI_ACTIONS=Object.freeze({
   setTab:uiRule('click',['tab'],(n,e,id)=>setTab(id)),
   setSkin:uiRule('click',['skin'],(n,e,id)=>setSkin(id)),
   setLayout:uiRule('click',['layout'],(n,e,id)=>setLayout(id)),
+  editProToday:uiRule('click',[],()=>toggleProTodayEditor()),
+  changeProToday:uiRule('click',['string','string'],(button,event,widget,action)=>changeProToday(widget,action)),
   toggleLayout:uiRule('click',[],()=>setLayout(_layout==='pro'?'standard':'pro')),
   previewSkin:uiRule('click',['skin'],(n,e,id)=>previewSkin(id,n)),
   cancelSkinPreview:uiRule('click',[],()=>cancelSkinPreview()),
@@ -1413,7 +1415,7 @@ const UI_ACTIONS=Object.freeze({
   dayLogEnter:uiRule('keydown',[],(n,e)=>{if(e.key==='Enter')dayLogToggle();}),
   dayLogToggle:uiRule('click',[],()=>dayLogToggle()),
   noteGrow:uiRule('input',[],n=>noteGrow(n)),
-  setNote:uiRule('change',['string'],(n,e,key)=>setNote(key,n.value)),
+  setNote:uiRule('change',['string'],(n,e,key)=>{setNote(key,n.value);if(currentTab==='today'&&key===todayKey())renderDayChange(key,true);}),
   resetDay:uiRule('click',['string'],(n,e,key)=>requestResetDay(key),true),
   resetDayCancel:uiRule('click',[],()=>{resetDayRequest=null;render();},true),
   resetDayConfirm:uiRule('click',['string'],(n,e,key)=>confirmResetDay(key),true),
@@ -4659,6 +4661,65 @@ function pointsLabel(item,state){
   return `${earnedPointsForItem(item,state)} / ${safePts(item.pts)}`;
 }
 
+const PRO_TODAY_WIDGETS=['habits','session','work','note'];
+let proTodayEditing=false;
+function proTodayWidgets(){
+  const key='shaah:pro-today:v2:'+USER.id;
+  let saved=CFG.proTodayOrder;
+  try{
+    if(!Array.isArray(saved)){
+      saved=JSON.parse(localStorage.getItem(key));
+      if(saved===null){
+        const previous=JSON.parse(localStorage.getItem('shaah:pro-today:v1:'+USER.id));
+        if(Array.isArray(previous))saved=[...previous,'work','note'];
+      }
+    }
+  }catch(_){}
+  const order=Array.isArray(saved)?[...new Set(saved.filter(id=>PRO_TODAY_WIDGETS.includes(id)))]:[...PRO_TODAY_WIDGETS];
+  return order;
+}
+function toggleProTodayEditor(){
+  if(!USER||currentTab!=='today'||document.documentElement.dataset.layout!=='pro')return;
+  proTodayEditing=!proTodayEditing;
+  renderDayChange(todayKey());
+  document.querySelector('.pro-today-edit')?.focus();
+}
+function changeProToday(widget,action){
+  if(!proTodayEditing||!USER||currentTab!=='today'||document.documentElement.dataset.layout!=='pro')return;
+  const order=proTodayWidgets();
+  const index=order.indexOf(widget);
+  if(action==='reset')order.splice(0,order.length,...PRO_TODAY_WIDGETS);
+  else if(!PRO_TODAY_WIDGETS.includes(widget))return;
+  else if(action==='hide'&&index>=0)order.splice(index,1);
+  else if(action==='show'&&index<0)order.push(widget);
+  else if(action==='up'&&index>0)order.splice(index-1,2,widget,order[index-1]);
+  else if(action==='down'&&index>=0&&index<order.length-1)order.splice(index,2,order[index+1],widget);
+  else return;
+  CFG.proTodayOrder=order;
+  saveCfgPref();
+  renderDayChange(todayKey());
+  document.querySelector('.pro-today-edit')?.focus();
+}
+function proTodayHTML(key,config){
+  const order=proTodayWidgets();
+  const labels={habits:'Hábitos',session:'Sesión',work:'Work',note:'Day Note'};
+  const control=(id,action,label)=>`<button type="button" ${ui('click','changeProToday',id,action)}>${label}</button>`;
+  const habits=config.L2.filter(item=>!item.routine);
+  const checked=getChecked(key);
+  const active=dayLogActiveId();
+  const work=config.inVacation?null:config.L1.find(item=>item.id==='work');
+  const content={
+    work:work?workPhaseCard(key,work):'Work no está disponible para hoy.',
+    note:`<textarea aria-label="Day Note" placeholder="¿Cómo fue tu día?" ${ui('change','setNote',key)}>${esc(getNote(key))}</textarea>`,
+    habits:habits.length?habits.map(item=>`<button type="button" aria-pressed="${!!checked[item.id]}" ${ui('click','toggleHabit',item.id,key)}>${checked[item.id]?'✓ ':''}${esc(item.label)}</button>`).join(''):'Sin hábitos de nivel 2',
+    session:`<button type="button" ${ui('click','openDayLogStart')}>${active?'Ver sesión en curso':'Preparar sesión'}</button>`
+  };
+  return `<section class="pro-today-widgets${order.includes('note')?' has-note':''}" aria-label="Accesos rápidos de Pro">
+    <button type="button" class="pro-today-edit" aria-expanded="${proTodayEditing}" ${ui('click','editProToday')}>${proTodayEditing?'Listo':'Personalizar'}</button>
+    ${proTodayEditing?control('','reset','Restaurar orden')+PRO_TODAY_WIDGETS.filter(id=>!order.includes(id)).map(id=>control(id,'show','Mostrar '+labels[id])).join(''):''}
+    <div class="pro-today-grid">${order.map((id,index)=>`<section><h3>${labels[id]}</h3>${content[id]}${proTodayEditing?`<div>${index>0?control(id,'up','Subir '+labels[id]):''}${index<order.length-1?control(id,'down','Bajar '+labels[id]):''}${control(id,'hide','Ocultar '+labels[id])}</div>`:''}</section>`).join('')}</div>
+  </section>`;
+}
 function renderToday(key,nested=false){
   if(!nested&&key===todayKey()&&(starterSimple()||calcScore(key).max===0))return renderStarterToday(key);
   const _hr=new Date().getHours();
@@ -4812,6 +4873,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         <div class="t-daylog-meta">${dayLogActiveId()?"LOGGING NOW":"Track an activity"} · ${dayLogFmt(dayLogSummary(key).tracked)} tracked</div>
       </div>
     </div>`:""}
+    ${isToday&&!nested&&USER?proTodayHTML(key,C):''}
     ${dayNoteHTML(key)}
     ${isToday?resetDayControl(key):""}
   </div>`;

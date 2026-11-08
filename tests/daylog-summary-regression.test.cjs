@@ -17,7 +17,7 @@ test('activity totals preserve concurrent activities while Wake/Sleep stay point
 });
 test('a running activity covers its simultaneous call without creating a false internal gap',()=>{
  const a=loadApp();a.run("_state[todayKey()]={checks:{},social:blankSocial(),people:[],note:'',_daylog:[{id:'work',type:'manual',start:'2026-10-16T10:00:00Z',end:null},{id:'call',type:'manual',start:'2026-10-16T10:30:00Z',end:'2026-10-16T11:00:00Z'}]}");
- assert.equal(a.run('dayLogSummary(todayKey()).tracked'),150);assert.deepEqual(a.read('dayLogGapEvents(todayKey())'),[]);
+ assert.equal(a.run('dayLogSummary(todayKey()).tracked'),150);assert.deepEqual(a.read('dayLogGapEvents(todayKey()).map(g=>g.duration)'),[600]);
 });
 test('reading a summary for a missing day never creates a day record',()=>{
  const a=loadApp();const before=a.read('_state');assert.equal(a.run("dayLogSummary('2025-01-01').events"),0);assert.deepEqual(a.read('_state'),before);

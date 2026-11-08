@@ -5,9 +5,12 @@
 // ═══════════════════════════════════════════════════════════
 const SUPABASE_URL="https://llpyxktcfubhmthqujpa.supabase.co";
 const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscHl4a3RjZnViaG10aHF1anBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTQyMzEsImV4cCI6MjA5NTM5MDIzMX0.4dutcaJzjhuR9IQRlpBetGgLalaSZCiEDdl3oSI_f2A";
+const AUTH_STORAGE_KEY='sb-'+new URL(SUPABASE_URL).hostname.split('.')[0]+'-auth-token';
+let _offlineBoot=false;
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth:{
     persistSession:true,
+    storageKey:AUTH_STORAGE_KEY,
     autoRefreshToken:true,
     detectSessionInUrl:true,
     flowType:'pkce',
@@ -713,21 +716,37 @@ function dayLogEditSave(id,key){
   Object.assign(ev,{title:title||ev.title,start,end});
   dayLogPersist(key);dayLogEditClose();render();
 }
-function dayLogGapEvents(key){
-  const evs=dayLogSort(_state[key]?._daylog||[]).filter(e=>!dayLogIsSleepWake(e));let prev=null,gaps=[];
-  for(const e of evs){
-    const duration=dayLogDuration(e),start=Date.parse(e.start);
-    if(duration==null||!Number.isFinite(start))continue;
-    const end=start+duration*60000;
-    if(prev!=null&&start>prev)gaps.push({start:dayLogMinutes(new Date(prev).toISOString()),end:dayLogMinutes(e.start),duration:(start-prev)/60000});
-    prev=Math.max(prev??start,end);
+// Wall-clock coverage is separate from additive activity duration. Never mutate
+// day records while measuring, and never infer sleep from Wake/Sleep point events.
+function dayLogCoverage(key,now=Date.now()){
+  const date=new Date(key+'T12:00:00Z');
+  if(!DATE_RE.test(key)||!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==key)return {covered:0,gap:0,elapsed:0,gaps:[]};
+  const start=dayLogDateTime(key,0).getTime();
+  const next=new Date(key+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+  const midnight=dayLogDateTime(next.toISOString().slice(0,10),0).getTime();
+  const end=Math.max(start,Math.min(now,midnight));
+  const intervals=[];
+  for(const e of Object.entries(_state).filter(([day])=>DATE_RE.test(day)).flatMap(([,day])=>Array.isArray(day?._daylog)?day._daylog:[])){
+    const duration=dayLogDuration(e,now),a=Date.parse(e?.start);
+    if(duration==null||!Number.isFinite(a))continue;
+    const from=Math.max(start,a),to=Math.min(end,a+duration*60000);
+    if(to>from)intervals.push([from,to]);
   }
-  return gaps;
+  intervals.sort((a,b)=>a[0]-b[0]);
+  let cursor=start,covered=0;const gaps=[];
+  const gap=(a,b)=>gaps.push({start:dayLogMinutes(new Date(a).toISOString()),end:b===midnight?1440:dayLogMinutes(new Date(b).toISOString()),duration:(b-a)/60000});
+  for(const [a,b] of intervals){
+    if(a>cursor)gap(cursor,a);
+    if(b>cursor){covered+=b-Math.max(cursor,a);cursor=b;}
+  }
+  if(cursor<end)gap(cursor,end);
+  return {covered:covered/60000,gap:(end-start-covered)/60000,elapsed:(end-start)/60000,gaps};
 }
+function dayLogGapEvents(key){return dayLogCoverage(key).gaps;}
 function dayLogSummary(key){
-  const evs=dayLogSort(_state[key]?._daylog||[]),gaps=dayLogGapEvents(key);
+  const evs=dayLogSort(_state[key]?._daylog||[]),coverage=dayLogCoverage(key),gaps=coverage.gaps;
   const tracked=evs.reduce((n,e)=>n+(dayLogDuration(e)||0),0);
-  return {tracked,gap:gaps.reduce((n,g)=>n+g.duration,0),events:evs.length,gaps};
+  return {tracked,...coverage,events:evs.length,gaps};
 }
 function dayLogRender(key=todayKey()){
   const box=document.querySelector('#dayLogList'),summary=document.querySelector('#dayLogSummary'),status=document.querySelector('#dayLogStatus');
@@ -771,6 +790,8 @@ function dayLogRecapHTML(key=todayKey()){
       <div><b>${s.events}</b><span>EVENTS</span></div>
       <div><b data-summary-ongoing>${ongoing}</b><span>ONGOING</span></div>
     </div>
+    <div class="dl-recap-row" title="Elapsed time without a recorded activity; overlaps counted once. Wake/Sleep marks do not record a sleep interval."><span>UNTRACKED TIME</span><b data-summary-untracked>${dayLogFmt(s.gap)}</b></div>
+    <p class="daylog-summary-note">Midnight → ${key===todayKey()?'now':'end of day'} · overlaps counted once.</p>
     <div class="dl-recap-row"><span>MANUAL</span><b>${dayLogFmt(by.manual)}</b></div>
     <div class="dl-recap-row"><span>HABITS</span><b>${dayLogFmt(by.habit)}</b></div>
     <div class="dl-recap-row"><span>ROUTINES</span><b>${dayLogFmt(by.routine)}</b></div>
@@ -1160,7 +1181,7 @@ const UI_ACTIONS=Object.freeze({
   starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
   arrivalDismiss:uiRule('click',[],()=>arrivalDismiss()),
   starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
-  retryAccountLoad:uiRule('click',[],()=>{loadAll();render();}),
+  retryAccountLoad:uiRule('click',[],()=>{if(_offlineBoot)reconnectOfflineAccount();else loadAll();render();}),
   starterRoutinePreview:uiRule('click',['string'],(n,e,id)=>{_starterRoutineId=id||null;render();}),
   starterAddRoutine:uiRule('click',['string'],(n,e,id)=>starterAddRoutine(id)),
   historyBackupDownload:uiRule('click',[],()=>historyBackupDownload()),
@@ -2243,6 +2264,7 @@ function sendDayItem(owner,key,item){
     // The queued turn may begin after a sign-out, token/account change or a
     // return to the same account. Never build a request with that newer session.
     if(!current())throw Error('DAY_OWNER_CHANGED');
+    if(_offlineBoot)throw Error('OFFLINE_LOCAL_ONLY');
     const r=item.delete
       ?await sb.from('day_logs').delete().eq('user_id',owner).eq('date',key)
       :await sb.from('day_logs').upsert({user_id:owner,date:key,data:item.data},{onConflict:'user_id,date'});
@@ -2256,7 +2278,7 @@ function sendDayItem(owner,key,item){
 }
 async function flushOfflineQueue(){
   const owner=selectOfflineOwner(),queue=_offlineQueue;
-  if(!owner||!navigator.onLine||_offlineFlushing.has(owner))return;
+  if(!owner||_offlineBoot||!navigator.onLine||_offlineFlushing.has(owner))return;
   _offlineFlushing.add(owner);
   try{for(const [key,item] of Object.entries(queue)){
     if(USER?.id!==owner||_offlineQueue!==queue)break;
@@ -2286,7 +2308,7 @@ function restoreOfflineQueue(){
     _state[key]={checks:d._checks||{},social:d._social||blankSocial(),note:d._note||'',people:Array.isArray(d._people)?d._people:[],_daylog:Array.isArray(d._daylog)?d._daylog:[]};
   }
 }
-window.addEventListener('online',()=>{setStatus('SYNC…','#f59e0b');flushOfflineQueue();if(_cfgReady)flushCfgSaves();else if(USER)loadAll();render();});
+window.addEventListener('online',()=>{if(_offlineBoot){reconnectOfflineAccount();return;}setStatus('SYNC…','#f59e0b');flushOfflineQueue();if(_cfgReady)flushCfgSaves();else if(USER)loadAll();render();});
 function persistDay(key){
   if(!DATE_RE.test(key))return;
   saveCache();
@@ -2580,7 +2602,7 @@ function cfgSyncStatus(){
 }
 function flushCfgSaves(){
   if(_cfgFlushPromise)return _cfgFlushPromise;
-  if(!USER||!_cfgReady||!_cfgDraft)return Promise.resolve();
+  if(!USER||!_cfgReady||!_cfgDraft||_offlineBoot)return Promise.resolve();
   const owner=USER.id,epoch=_syncEpoch;
   const current=()=>USER?.id===owner&&_syncEpoch===epoch;
   const task=(async()=>{
@@ -2696,6 +2718,7 @@ function exportUnownedOffline(){
 function syncNoticeHTML(){
   const button=(text,action,...args)=>`<button ${ui('click',action,...args)} ${uiStyle(`background:none;border:1px solid #66552a;color:inherit;border-radius:7px;padding:7px;font:inherit;cursor:pointer`)}>${text}</button>`;
   let body='';
+  if(_offlineBoot)body+=`<div class="offline-local-notice" role="status">Offline · using this account’s saved copy. Changes stay on this device until your session reconnects. ${button('Reconnect','retryAccountLoad')}</div>`;
   if(_loadFailed&&_starterGate==='ready')body+=`<div ${uiStyle(`padding:12px;border:1px solid #66552a;border-radius:10px;margin:10px 16px;color:#fbbf24;font-size:14px;line-height:1.5`)}>No pudimos actualizar tu cuenta. Tus datos y cambios locales siguen en este dispositivo. ${button('Reintentar carga','retryAccountLoad')}</div>`;
   if(_cfgConflict||_cfgSaveFailed)body+=`<div ${uiStyle(`padding:12px;border:1px solid #66552a;border-radius:10px;margin:10px 16px;color:#fbbf24;font-size:14px;line-height:1.5`)}>
     ${_cfgConflict?'Settings changed on another device. Your edits are kept on this device. Choose which version to use.':'Settings could not be saved. Your edits are kept on this device.'}
@@ -2743,7 +2766,7 @@ function bakBefore(prev){
   if(!bakPush(prev))return;
   clearTimeout(_bakT);
   const owner=USER&&USER.id,epoch=_syncEpoch;
-  _bakT=setTimeout(()=>{ try{ if(owner&&USER?.id===owner&&_syncEpoch===epoch)Promise.resolve(sb.from('day_logs').upsert({user_id:owner,date:'cfgbak',data:{_bak}},{onConflict:'user_id,date'})).catch(()=>{}); }catch(e){} },2000);
+  _bakT=setTimeout(()=>{ try{ if(owner&&!_offlineBoot&&navigator.onLine&&USER?.id===owner&&_syncEpoch===epoch)Promise.resolve(sb.from('day_logs').upsert({user_id:owner,date:'cfgbak',data:{_bak}},{onConflict:'user_id,date'})).catch(()=>{}); }catch(e){} },2000);
 }
 function bakSnapshot(){ bakBefore(CFG); }
 function bakList(){
@@ -2872,7 +2895,7 @@ function loadAll(){
   _loadFlight=flight;
   const measurement=window.SHAAHPerformance?.start('data_load');
   flight.promise=loadAccountRows(owner,epoch).finally(()=>{
-    const failed=typeof _loadFailed==='boolean'?_loadFailed:_syncText==='OFFLINE';
+    const failed=_offlineBoot||(typeof _loadFailed==='boolean'?_loadFailed:_syncText==='OFFLINE');
     window.SHAAHPerformance?.finish(measurement,failed?'error':'ok');
     if(_loadFlight===flight)_loadFlight=null;
   });
@@ -2930,6 +2953,7 @@ async function loadAccountRows(owner,epoch){
     if(Object.keys(_offlineQueue).length)flushOfflineQueue();
   }catch(e){
     if(USER?.id!==owner||_syncEpoch!==epoch)return;
+    if(openOfflineAccount())return;
     _loadFailed=true;
     if(_starterGate!=='ready')_starterGate='error';
     setStatus('OFFLINE','#ef4444');
@@ -3082,7 +3106,7 @@ async function signOut(forget=false){
     if(USER&&USER.id!==owner){_signOutStatus='';return true;}
     let notice='kept';
     if(forget)notice=accountCopyStatus(owner).blocked?'pending':removeAccountCopies(owner)?'cleared':'failed';
-    changeSyncUser(null);
+    _offlineBoot=false;changeSyncUser(null);
     try{sessionStorage.setItem(SIGNOUT_NOTICE_KEY,notice);}catch(e){if(notice==='pending'||notice==='failed')alert(SIGNOUT_NOTICES[notice]);}
     location.reload();return true;
   }catch(e){signOutStatus('Could not sign out. Your saved copies were kept. Please try again.');return false;}
@@ -3632,6 +3656,40 @@ window.addEventListener('error',e=>{
   }
 });
 
+function openOfflineAccount(){
+  const stored=get(AUTH_STORAGE_KEY),user=stored?.user;
+  if(!user?.id||typeof user.id!=='string'||!stored.access_token||!stored.refresh_token)return false;
+  const cfg=get('shaah_cfg_'+user.id),days=get('shaah_cache_'+user.id);
+  if(!cfg?.h||typeof cfg.h!=='object'||Array.isArray(cfg.h)||!Array.isArray(cfg.order)||!days||typeof days!=='object'||Array.isArray(days))return false;
+  changeSyncUser(user);_offlineBoot=true;
+  restoreAccountLocal();restoreOfflineQueue();
+  _cfgReady=true;_starterGate='ready';_loadFailed=false;
+  setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');render();return true;
+}
+async function localSessionWithDeadline(){
+  let timer;
+  try{return await Promise.race([sb.auth.getSession(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('AUTH_TIMEOUT')),8000);})]);}
+  finally{clearTimeout(timer);}
+}
+let _offlineReconnect=null;
+function reconnectOfflineAccount(){
+  if(!_offlineBoot||!navigator.onLine)return Promise.resolve();
+  if(_offlineReconnect)return _offlineReconnect;
+  const owner=USER?.id,epoch=_syncEpoch;
+  _offlineReconnect=(async()=>{
+    try{
+      const result=await localSessionWithDeadline();
+      if(USER?.id!==owner||_syncEpoch!==epoch)return;
+      if(result.error)throw result.error;
+      const session=result.data?.session;
+      _offlineBoot=false;
+      if(session?.user?.id!==owner){activateAccountSession(session);return;}
+      USER=session.user;await loadAll();
+      if(USER?.id===owner&&_syncEpoch===epoch&&!_loadFailed&&!_offlineBoot)subscribeRealtime();
+    }catch(e){if(USER?.id===owner&&_syncEpoch===epoch){setStatus('OFFLINE — SAVED LOCALLY','#f59e0b');render();}}
+  })().finally(()=>{_offlineReconnect=null;});
+  return _offlineReconnect;
+}
 async function boot(){
   const authRevision=_arrivalAuthRevision;
   initSkin();
@@ -3642,16 +3700,20 @@ async function boot(){
   const err=q.get('error_description')||hp.get('error_description')||q.get('error')||hp.get('error');
   if(err)AUTH_ERR=err.slice(0,2000); // URLSearchParams already decoded it once.
 
+  if(!navigator.onLine&&!q.get('code')&&!err&&openOfflineAccount())return;
   let session=null;
   try{
-    const r=await sb.auth.getSession();
+    const r=await localSessionWithDeadline();
     session=r.data.session;
     // PKCE: if a ?code= is present but no session yet, exchange it explicitly
     if(!session&&q.get('code')){
       const ex=await sb.auth.exchangeCodeForSession(window.location.href);
       if(ex.error)AUTH_ERR=ex.error.message; else session=ex.data.session;
     }
-  }catch(e){AUTH_ERR=e.message;}
+  }catch(e){
+    if(authRevision===_arrivalAuthRevision&&!q.get('code')&&!err&&openOfflineAccount())return;
+    AUTH_ERR=e.message;
+  }
 
   if(authRevision===_arrivalAuthRevision)activateAccountSession(session);
   if(USER&&(location.search||location.hash))history.replaceState({},'',location.pathname);
@@ -3667,11 +3729,13 @@ function activateAccountSession(session){
   setTimeout(()=>{
     if(USER?.id!==owner||_syncEpoch!==epoch)return;
     _arrivalActivation=null;restoreAccountLocal();render();
-    loadAll().then(()=>{if(USER?.id===owner&&_syncEpoch===epoch&&!_loadFailed)subscribeRealtime();});
+    loadAll().then(()=>{if(USER?.id===owner&&_syncEpoch===epoch&&!_loadFailed&&!_offlineBoot)subscribeRealtime();});
   },0);
 }
 sb.auth.onAuthStateChange((event,session)=>{
   ++_arrivalAuthRevision;
+  if(_offlineBoot&&event!=='SIGNED_OUT')return;
+  _offlineBoot=false;
   activateAccountSession(session);
 });
 
@@ -3944,7 +4008,7 @@ async function writeRoutineRecord(id,base,next,owner){
   return Array.isArray(result.data)&&result.data.length===1;
 }
 function flushRoutineCloud(){
-  if(!USER||!navigator.onLine)return Promise.resolve();
+  if(!USER||_offlineBoot||!navigator.onLine)return Promise.resolve();
   const owner=USER.id,epoch=_syncEpoch,day=todayKey();
   const flights=_routineFlights,pending=_routinePending;
   for(const id of Object.keys(pending)){
@@ -3975,7 +4039,7 @@ function flushRoutineCloud(){
   return Promise.all(Object.values(flights));
 }
 function refreshRoutineCloud(){
-  if(!USER||!navigator.onLine)return Promise.resolve();
+  if(!USER||_offlineBoot||!navigator.onLine)return Promise.resolve();
   if(_routineRead)return _routineRead;
   const owner=USER.id,epoch=_syncEpoch,day=todayKey();
   const task=(async()=>{
@@ -4010,6 +4074,7 @@ async function advanceSharedRoutine(id,runNext=false){
     if(_routinePending[id]){delete claims[id];await flushRoutineCloud();return;}
     const base=_routineBase[id];
     if(!base||sessions[id]!==original||base.session?.q[0]!==original.q[0]||!cfgEqual(base.session,routineSnapshot(original)))return;
+    if(_offlineBoot)return;
     const next=routineSnapshot(original),index=next.q.shift();next.done[index]=true;
     next.secs=next.q.length?ROUTINES[id].steps[next.q[0]].dur*60:0;
     next.running=!!runNext&&next.q.length>0;next.paused=false;next.endAt=next.running?Date.now()+next.secs*1000:null;

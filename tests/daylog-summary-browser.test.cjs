@@ -11,12 +11,14 @@ for(const width of [320,390,1440])test(`day summary counts concurrent/open activ
  const summary=p.getByRole('region',{name:'Day summary'});
  assert.equal(await summary.locator('[data-summary-time]').textContent(),'2h 30m');
  assert.equal(await summary.locator('[data-summary-ongoing]').textContent(),'1');
+ assert.equal(await summary.locator('[data-summary-untracked]').textContent(),'10h');
  assert.equal(await p.locator('[data-daylog-duration="open"]').textContent(),'30m');
  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  const state=await p.evaluate(()=>JSON.stringify(_state));const writes=await p.evaluate(()=>__mockWrites.length);
  await p.locator('#logPanelName').fill('Unsaved draft — preserve');
  await p.clock.setFixedTime(new Date('2026-10-16T12:30:00Z'));await p.clock.runFor(30001);
  assert.equal(await summary.locator('[data-summary-time]').textContent(),'3h');
+ assert.equal(await summary.locator('[data-summary-untracked]').textContent(),'10h');
  assert.equal(await p.locator('[data-daylog-duration="open"]').textContent(),'1h');
  assert.equal(await p.locator('#logPanelName').inputValue(),'Unsaved draft — preserve');
  assert.equal(await p.evaluate(()=>JSON.stringify(_state)),state);

@@ -3048,3 +3048,8 @@ html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){di
 .today .today-sections-toggle:focus-visible,.today .today-routines-label:focus-visible{outline:2px solid #a78bfa;outline-offset:3px;}
 #scroll .today .t-rout.collapsed .t-rout-body{display:none!important;}
 @media(max-width:879px){.today .today-sections-toggle span{display:none;}.today .today-sections-toggle{min-width:28px;}}
+
+.offline-local-notice{padding:12px;margin:10px 16px;border:1px solid #66552a;border-radius:10px;color:#fbbf24;font-size:14px;line-height:1.5}
+
+/* Summary height must not push editor actions behind the floating routine. */
+@media(min-width:880px){.logdesk-editor{align-self:start;min-height:0}}

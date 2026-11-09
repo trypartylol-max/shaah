@@ -11,7 +11,7 @@ test('approved Work amounts fit desktop/mobile and retain milestone persistence'
  const old=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey()))));
  for(const width of [320,390,600,879,880,1024,1440,1920]){
   await page.setViewportSize({width,height:1000});
-  const g=await page.locator('.wg-card').evaluate(card=>{
+  const g=await page.locator('.wg-card:visible').evaluate(card=>{
    const el=s=>card.querySelector(s),r=s=>el(s).getBoundingClientRect().toJSON();
    return {card:card.getBoundingClientRect().toJSON(),daily:r('.wg-daily'),weekly:r('.wg-weekly'),geometry:r('.wg-figure'),tag:card.tagName,overflow:document.documentElement.scrollWidth>innerWidth,innerOverflow:card.scrollWidth>card.clientWidth+1,dailySize:parseFloat(getComputedStyle(el('.wg-daily>strong')).fontSize),weeklySize:parseFloat(getComputedStyle(el('.wg-weekly>strong')).fontSize)};
   });
@@ -22,15 +22,15 @@ test('approved Work amounts fit desktop/mobile and retain milestone persistence'
  }
  await page.setViewportSize({width:390,height:844});
  for(const [cash,score] of [[400,10],[650,20],[800,25],[0,0]]){
-  await page.locator('.wg-card').click();
-  assert.equal(await page.locator('.wg-daily>strong').innerText(),'₪'+cash);
+  await page.locator('.wg-card:visible').click();
+  assert.equal(await page.locator('.wg-daily>strong:visible').innerText(),'₪'+cash);
   assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),score);
  }
- await page.locator('.wg-card').click();
+ await page.locator('.wg-card:visible').click();
  await page.reload();await page.locator('.nav-btn[data-tab="today"]').click();
- assert.equal(await page.locator('.wg-daily>strong').innerText(),'₪400');
+ assert.equal(await page.locator('.wg-daily>strong:visible').innerText(),'₪400');
  assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),old);
- await page.locator('.wg-card').screenshot({path:'test-results/work-essential-mobile.png'});
+ await page.locator('.wg-card:visible').screenshot({path:'test-results/work-essential-mobile.png'});
  await page.setViewportSize({width:1440,height:1000});
- await page.locator('.wg-card').screenshot({path:'test-results/work-essential-desktop.png'});
+ await page.locator('.wg-card:visible').screenshot({path:'test-results/work-essential-desktop.png'});
 });

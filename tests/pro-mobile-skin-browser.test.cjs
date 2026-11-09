@@ -20,12 +20,12 @@ test('A saved desktop Pro layout never changes mobile geometry or skin paint',as
 });
 test('Desktop layout preference preserves mobile drafts, actions and persisted skin',async t=>{
  const p=await openApp(t,undefined,{width:375,height:900});await p.evaluate(()=>{setSkin('aurora');setTab('today')});
- const note=p.locator('textarea').first();await note.fill('Mobile draft');
+ const note=p.locator('textarea:visible').first();await note.fill('Mobile draft');
  const before=await p.evaluate(()=>JSON.stringify({CFG,_state,writes:__mockWrites}));
- await p.evaluate(()=>{window.__note=document.querySelector('textarea');setLayout('pro');setLayout('standard');setLayout('pro')});
+ await p.evaluate(()=>{window.__note=document.querySelector('.t-note textarea');setLayout('pro');setLayout('standard');setLayout('pro')});
  assert.equal(await note.inputValue(),'Mobile draft');assert.equal(await note.evaluate(e=>e===window.__note),true);
  assert.equal(await p.evaluate(()=>JSON.stringify({CFG,_state,writes:__mockWrites})),before);
- await p.locator('.wg-card').click();assert.ok(await p.evaluate(()=>getChecked(todayKey()).work)>0);
+ await p.locator('.wg-card:visible').click();assert.ok(await p.evaluate(()=>getChecked(todayKey()).work)>0);
  await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);
  assert.equal(await p.locator('html').getAttribute('data-skin'),'aurora');assert.equal(await p.locator('html').getAttribute('data-layout'),'standard');
  assert.equal(await p.evaluate(()=>localStorage.getItem(LAYOUT_KEY)),'pro');

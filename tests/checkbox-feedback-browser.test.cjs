@@ -26,7 +26,7 @@ for(const skin of ['classic','matrix','minimal','aurora'])for(const [device,view
     window.__beforeHistory=JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([key])=>key!==todayKey())));
     window.__held=[];const send=sendDayItem;
     sendDayItem=(...args)=>new Promise((resolve,reject)=>__held.push(()=>send(...args).then(resolve,reject)));
-    document.querySelector('textarea').value='Synthetic note draft';
+    document.querySelector('.t-note textarea').value='Synthetic note draft';
     document.querySelector('#dayLogInput').value='Synthetic activity draft';
   });
   const row=page.locator('.t-lvl2 .row').filter({hasText:'Meditate'});
@@ -36,7 +36,7 @@ for(const skin of ['classic','matrix','minimal','aurora'])for(const [device,view
   assert.equal(await page.evaluate(()=>__todayNode===document.querySelector('.today')),true);
   assert.equal(await page.evaluate(()=>__ring===document.querySelector('.t-ring svg')),true);
   assert.equal(await row.evaluate(node=>node===document.activeElement),true);
-  assert.equal(await page.locator('textarea').inputValue(),'Synthetic note draft');
+  assert.equal(await page.locator('textarea:visible').inputValue(),'Synthetic note draft');
   assert.equal(await page.locator('#dayLogInput').inputValue(),'Synthetic activity draft');
   assert.equal(await page.locator('.today').evaluate(node=>getComputedStyle(node).animationName),'none');
   assert.equal(await page.locator('#tb-score .ts-p').textContent(),await page.evaluate(()=>calcScore(todayKey()).score+'%'));

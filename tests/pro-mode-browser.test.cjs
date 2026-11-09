@@ -60,7 +60,7 @@ test('Pro Mode mobile retains original geometry; desktop controls and routine or
  await p.setViewportSize({width:1440,height:1000});
  await p.evaluate(()=>{todayRoutinesOpen=true;lvlOpen[2]=true;render()});
  const before=await p.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey()))));
- const work=p.locator('.wg-card');await work.click();assert.ok(await p.evaluate(()=>getChecked(todayKey()).work)>0);
+ const work=p.locator('.t-rout .wg-card');await work.click();assert.ok(await p.evaluate(()=>getChecked(todayKey()).work)>0);
  const prod=p.locator('[data-routine-card="production"]');await prod.getByRole('button',{name:'LIGHT',exact:true}).click();assert.equal(await p.evaluate(()=>getChecked(todayKey()).production),.5);
  await prod.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await p.evaluate(()=>getChecked(todayKey()).production),true);
  await prod.getByRole('button',{name:'PLAY',exact:true}).click();await p.getByRole('button',{name:'Close routine',exact:true}).click();
@@ -93,24 +93,24 @@ test('refined sidebar, two-row single-open Social, note and confirmed Reset pres
  const person=cat('family').getByRole('button',{name:'Person 10',exact:true});await person.click();assert.equal(await person.getAttribute('aria-pressed'),'true');assert.equal(await person.innerText(),'Person 10');
  const selected=await p.evaluate(()=>JSON.stringify(getPeople(todayKey())));
  await cat('friends').locator('.sf-category-toggle').click();assert.equal(await p.evaluate(()=>JSON.stringify(getPeople(todayKey()))),selected);
- const note=p.locator('textarea');await note.fill('Sidebar note persists');await note.blur();
+ const note=p.locator('.pro-today-grid textarea');await note.fill('Sidebar note persists');await note.blur();
  assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
- const geometry=await p.evaluate(()=>{const r=s=>{const a=document.querySelector(s).getBoundingClientRect();return {x:a.x,y:a.y,b:a.bottom,w:a.width,h:a.height}};return {note:r('.t-note'),status:r('#desktop-status-controls'),settings:r('.pro-nav-settings'),reset:r('.t-reset'),date:r('#tb-date'),lower:r('.t-lvl2')}});
- assert.ok(geometry.note.x<176&&geometry.note.b<=geometry.settings.y);assert.ok(geometry.settings.b<=geometry.reset.y);assert.ok(geometry.status.x>1100&&geometry.status.y===20,JSON.stringify(geometry));
+ const geometry=await p.evaluate(()=>{const r=s=>{const a=document.querySelector(s).getBoundingClientRect();return {x:a.x,y:a.y,b:a.bottom,w:a.width,h:a.height}};return {note:r('.pro-today-grid textarea'),status:r('#desktop-status-controls'),settings:r('.pro-nav-settings'),reset:r('.t-reset'),date:r('#tb-date'),lower:r('.t-lvl2')}});
+ assert.ok(geometry.note.x>geometry.settings.x&&geometry.note.h>0);assert.ok(geometry.settings.b<=geometry.reset.y);
  assert.ok(geometry.date.x<176);assert.ok(geometry.lower.b<850,JSON.stringify(geometry));
  const cards=await p.locator('.t-lvl2,.t-lvl3,.t-social-independent').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {y:r.y,w:r.width,h:r.height}}));
  assert.equal(cards.length,3);assert.ok(cards.every(c=>Math.abs(c.y-cards[0].y)<1&&Math.abs(c.w-cards[0].w)<1));assert.ok(cards[0].h>cards[1].h+50,JSON.stringify(cards));
  await p.waitForTimeout(350);const social=p.locator('.t-social-independent');const expandedHeight=(await social.boundingBox()).height;
  await cat('friends').locator('.sf-category-toggle').click();await p.waitForTimeout(350);assert.ok((await social.boundingBox()).height<expandedHeight-30);
  const habits=p.locator('.t-lvl2');const habitsHeight=(await habits.boundingBox()).height;await habits.locator('.lvl-toggle').click();await p.waitForTimeout(350);assert.ok((await habits.boundingBox()).height<habitsHeight-100);await habits.locator('.lvl-toggle').click();
- await p.getByRole('button',{name:'Reset day',exact:true}).click();await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
- for(const size of [{width:1180,height:900},{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);const align=await p.evaluate(()=>{const mode=document.querySelector('#desktop-status-controls').getBoundingClientRect(),log=document.querySelector('.today-log-start').getBoundingClientRect();const zoom=parseFloat(getComputedStyle(document.documentElement).zoom)||1;return {x:Math.abs(mode.right-(innerWidth-20*zoom)),right:Math.abs(mode.top-20*zoom),gap:log.y-mode.bottom}});assert.ok(align.x<1&&align.right<1&&align.gap>=7,JSON.stringify({size,align}));assert.ok(await p.evaluate(()=>document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().bottom<=document.querySelector('.t-note').getBoundingClientRect().top));}
+ await p.getByRole('button',{name:'Reset day',exact:true}).click();await p.getByRole('button',{name:'Cancel deletion',exact:true}).click();assert.equal(await p.evaluate(()=>getNote(todayKey())),'Sidebar note persists');
+ for(const size of [{width:1180,height:900},{width:1280,height:720},{width:1920,height:1080}]){await p.setViewportSize(size);await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);assert.ok(await p.evaluate(()=>document.querySelector('.nav-btn[data-tab="history"]').getBoundingClientRect().right<=document.querySelector('.pro-today-grid textarea').getBoundingClientRect().left));}
 });
 
 test('Pro sidebar shares today note across tabs, aligns tabs and keeps fixed desktop controls in every tab',async t=>{
  const p=await openApp(t,proFixture(),{width:1440,height:900});
  await p.evaluate(()=>{setLayout('pro');setTab('today')});
- const note=()=>p.locator('textarea[id^="note-"]:visible');
+ const note=()=>p.locator('.pro-today-grid textarea:visible, .pro-sidebar-note textarea:visible');
  await note().fill('One daily note across tabs');await note().blur();
  for(const tab of ['today','log','social','stats','history']){
   await p.locator(`.nav-btn[data-tab="${tab}"]`).click();
@@ -118,8 +118,8 @@ test('Pro sidebar shares today note across tabs, aligns tabs and keeps fixed des
   const box=await p.locator('.pro-nav-settings').boundingBox();assert.equal(Math.round(box.y+box.height),tab==='today'?824:884,tab);
   assert.equal(await p.locator('#mode-status').isVisible(),true);
   assert.equal(await p.locator('#sync-status').isVisible(),true);
-  {const status=await p.locator('#desktop-status-controls').boundingBox();assert.equal(status.y,20);assert.ok(status.x>1100);}
-  assert.ok(await note().evaluate(e=>e.getBoundingClientRect().bottom<=document.querySelector('.pro-nav-settings').getBoundingClientRect().top));
+  if(tab!=='today'){const status=await p.locator('#desktop-status-controls').boundingBox();assert.equal(status.y,20);assert.ok(status.x>1100);}
+  if(tab!=='today')assert.ok(await note().evaluate(e=>e.getBoundingClientRect().bottom<=document.querySelector('.pro-nav-settings').getBoundingClientRect().top));
   assert.ok(await p.locator('#nav .nav-btn').evaluateAll(es=>es.every(e=>getComputedStyle(e).justifyContent==='flex-start')));
   assert.equal(await p.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);
  }

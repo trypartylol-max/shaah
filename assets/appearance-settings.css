@@ -35,6 +35,14 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout] #layout-quick-toggle[aria-pressed="true"]{text-decoration:underline;text-underline-offset:4px}
 }
 @media(min-width:1180px){
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-top:72px!important}
+  html[data-layout="pro"] #app:has(#scroll>.today.sf-today-v27:not(.history-day-editor))>#scroll{position:relative}
+  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-top:8px!important}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
+    position:absolute;top:14px;right:26px;width:calc(max(120px,(100% - 72px)*.14) - 12px);
+    justify-content:center;border:0;border-bottom:1px solid var(--skin-edge);border-radius:0;background:transparent
+  }
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{padding-inline:4px}
   html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:100%!important;min-height:216px!important;align-self:stretch!important}
+  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{padding-top:54px!important}
+  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{padding-top:54px!important}
 }

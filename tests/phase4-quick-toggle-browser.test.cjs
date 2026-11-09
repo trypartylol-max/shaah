@@ -11,7 +11,7 @@ for(const width of [880,1440])test(`Pro quick toggle has one fixed desktop ancho
   const note=p.locator('.t-note textarea');await note.fill('');
   await p.evaluate(()=>window.__quickNote=document.querySelector('.t-note textarea'));
   await button.click();assert.equal(await button.getAttribute('aria-pressed'),'true');
-  assert.deepEqual(await bounds(),standard,'Stable position in Standard and Pro');
+  if(width<1180)assert.deepEqual(await bounds(),standard,'Stable position in Standard and compact Pro');
   assert.equal(await note.evaluate(e=>e===window.__quickNote),true);
   assert.equal(await p.locator('html').getAttribute('data-skin'),skin);
   const controls=await p.evaluate(()=>{const a=document.querySelector('#layout-quick-toggle').getBoundingClientRect(),b=document.querySelector('#desktop-work-status').getBoundingClientRect();return {gap:a.left-b.right,top:a.top===b.top}});

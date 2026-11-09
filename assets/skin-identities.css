@@ -111,3 +111,9 @@ html[data-skin="minimal"] .wg-figure.complete .wg-interior{fill-opacity:.2}
   html[data-skin="aurora"] #tb-score .ts-p,
   html[data-skin="aurora"] #tb-score .ts-nx{font-weight:700}
 }
+
+html[data-skin="matrix"] .today :is(.today-sections-toggle,.today-box-disclosure,.reset-day-trigger) {color:var(--skin-muted);border-color:var(--skin-edge)}
+
+html[data-skin="matrix"] .sd-time-pill {background-color:var(--skin-panel)}
+html[data-skin="matrix"] .stats-page :is(.stats-heading span,.stats-details summary span) {color:var(--skin-muted)}
+html[data-skin="matrix"] :is(.performance-local,.performance-local .performance-state,.performance-local .performance-explanation) {color:var(--skin-copy)}

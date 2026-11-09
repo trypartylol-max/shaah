@@ -13,9 +13,9 @@ for(const [device,viewport] of [['desktop',{width:1440,height:1000}],['mobile',{
  assert.deepEqual(await page.evaluate(()=>personById('pold01').locations),['pa']);
  assert.deepEqual(await page.evaluate(()=>bulkPeopleSelection),[]);
  await edit(page,'pold01');await control(page,'change','socialDraftLocation',['il'],'input').check();
- await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+ await page.getByRole('button',{name:'Save changes',exact:true}).click();
  await edit(page,'pold02');await control(page,'change','socialDraftLocation',['il'],'input').uncheck();
- await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+ await page.getByRole('button',{name:'Save changes',exact:true}).click();
  await bulk(page);await box(page,'pold01').check();await bulk(page);await page.getByRole('button',{name:'− Panamá',exact:true}).click();
  await page.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);
  await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
@@ -65,13 +65,13 @@ test('an empty discovery view retains a selector while unfiltered categories rem
 });
 test('group create/rename and new contact metadata survive reload',async t=>{
  const page=await openApp(t,locationFixture()),before=await history(page);await groups(page);
- await page.getByRole('button',{name:'+ Añadir grupo',exact:true}).click();
- await page.locator('dialog[open] input').fill('Madrid');await page.getByRole('button',{name:'Guardar grupo',exact:true}).click();
+ await page.getByRole('button',{name:'+ Add group',exact:true}).click();
+ await page.locator('dialog[open] input').fill('Madrid');await page.getByRole('button',{name:'Save group',exact:true}).click();
  const id=await page.evaluate(()=>locationGroups().find(g=>g.name==='Madrid').id);
- await control(page,'click','locationRename',[id],'button').click();await page.locator('dialog[open] input').fill('España');await page.getByRole('button',{name:'Guardar grupo',exact:true}).click();
+ await control(page,'click','locationRename',[id],'button').click();await page.locator('dialog[open] input').fill('España');await page.getByRole('button',{name:'Save group',exact:true}).click();
  await page.getByLabel('Current social location').selectOption(id);
- await page.getByRole('button',{name:'+ Persona',exact:true}).first().click();
- await page.locator('#sf-name').fill('New Synthetic Person');await page.locator('#sf-every').fill('21');await page.getByRole('button',{name:'Guardar persona',exact:true}).click();
+ await page.getByRole('button',{name:'+ Person',exact:true}).first().click();
+ await page.locator('#sf-name').fill('New Synthetic Person');await page.locator('#sf-every').fill('21');await page.getByRole('button',{name:'Save person',exact:true}).click();
  const person=await page.evaluate(()=>peopleList().find(p=>p.name==='New Synthetic Person'));
  assert.deepEqual(person.locations,[id]);assert.equal(person.every,21);
  await page.waitForFunction(()=>!_cfgDraft&&!_cfgFlushPromise);await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
@@ -87,6 +87,6 @@ test('stale group references remain stored but accessible as unassigned after st
 test('orphan categories can edit membership while preserving category and recorded encounters',async t=>{
  const d=locationFixture();Object.assign(d.config.people.find(p=>p.id==='porphan'),{relationship:'legacy-relation',locations:['il','retired'],customMetadata:'retain'});d.days['2026-09-16'].people.push('porphan');const page=await openApp(t,d,{width:390,height:844}),before=await history(page);
  await edit(page,'porphan');assert.equal(await page.locator('#sf-sub').inputValue(),'archived');
- await control(page,'change','socialDraftLocation',['pa'],'input').check();await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+ await control(page,'change','socialDraftLocation',['pa'],'input').check();await page.getByRole('button',{name:'Save changes',exact:true}).click();
  assert.deepEqual(await page.evaluate(()=>personById('porphan').locations),['il','retired','pa']);assert.equal(await page.evaluate(()=>personById('porphan').sub),'archived');assert.equal(await page.evaluate(()=>personById('porphan').relationship),'legacy-relation');assert.equal(await page.evaluate(()=>personById('porphan').customMetadata),'retain');assert.equal(await history(page),before);
 });

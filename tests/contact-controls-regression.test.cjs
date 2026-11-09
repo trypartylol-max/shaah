@@ -29,10 +29,10 @@ test('unscheduled contacts stay available with neutral pill and no overdue ranki
  for(const list of [statuses,suggestions])for(const p of list.filter(p=>p.every===0)){
   assert.equal(p.ratio,-1);assert.equal(p.overdue,null);
   const pill=a.run(`socialTimePill(${JSON.stringify(p)})`);
-  assert.equal(pill.label,'Libre');assert.equal(pill.fill,0);assert.equal(pill.description,'Sin frecuencia');
+  assert.equal(pill.label,'Free');assert.equal(pill.fill,0);assert.equal(pill.description,'No frequency');
  }
  assert.equal(suggestions[0].id,'pold02');assert.equal(suggestions.length,3);
- assert.ok(a.run('socialTile(personById("pold01"),todayKey(),true)').includes('Sin frecuencia'));
+ assert.ok(a.run('socialTile(personById("pold01"),todayKey(),true)').includes('No frequency'));
  a.run('socialRecord("pold01",todayKey())');
  assert.ok(a.read('getPeople(todayKey())').includes('pold01'));
 });

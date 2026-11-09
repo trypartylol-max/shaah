@@ -59,7 +59,7 @@ test('changing a contact category and name in Social keeps its historical ID and
   const page = await openApp(t);
   const before = await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') }));
   await edit(page,'pold03');await page.locator('#sf-name').fill('Alex Renamed');
-  await page.locator('#sf-sub').selectOption('friends');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  await page.locator('#sf-sub').selectOption('friends');await page.getByRole('button',{name:'Save changes',exact:true}).click();
   assert.equal(await page.evaluate(() => JSON.stringify({ days: _state, log: CFG.log, score: calcScore('2026-09-16') })), before);
   assert.equal(await page.evaluate(() => personById('pold03').name), 'Alex Renamed');
 });

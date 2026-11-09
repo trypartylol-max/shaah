@@ -33,7 +33,7 @@ test('stored contact IDs with punctuation still support edits, bulk groups, tagg
   await page.getByRole('button',{name:'+ Local & nearby',exact:true}).click();
   assert.deepEqual(await page.evaluate(id=>personById(id).locations,id),[data.config.locationGroups[0].id]);
   await edit(page,id);assert.equal(await page.locator('#sf-name').inputValue(),'<b>Ana & Bo</b>');
-  await page.locator('#sf-name').fill('Ana renamed');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  await page.locator('#sf-name').fill('Ana renamed');await page.getByRole('button',{name:'Save changes',exact:true}).click();
   assert.equal(await page.evaluate(id=>personById(id).name,id),'Ana renamed');
   await category(page,'friends');await combo(page).getByRole('button',{name:'Ana renamed',exact:true}).click();
   assert.deepEqual(await page.evaluate(()=>getPeople(todayKey())),[id]);
@@ -55,7 +55,7 @@ test('people import displays ordinary markup as text and keeps the imported iden
   assert.equal(dialogs.length, 2);
   assert.equal(await page.locator('#scroll em').count(), 0);
   await edit(page,id);assert.equal(await page.locator('#sf-name').inputValue(),'<em>Imported & new</em>');
-  await page.locator('#sf-name').fill('Imported renamed');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+  await page.locator('#sf-name').fill('Imported renamed');await page.getByRole('button',{name:'Save changes',exact:true}).click();
   assert.equal(await page.evaluate(id => personById(id).name, id), 'Imported renamed');
 });
 

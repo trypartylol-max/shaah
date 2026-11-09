@@ -1,7 +1,8 @@
 const control=(page,event,action,args=[],tag='*')=>page.locator(`${tag}[data-ui-${event}="${action}"][data-ui-${event}-args=${JSON.stringify(JSON.stringify(args))}]`);
 async function social(page){
  if(await page.locator('#settings-toggle-ppl').count())await page.getByRole('button',{name:'Back',exact:true}).click();
- await page.locator('.nav-btn[data-tab="social"]').click();
+ const nav=page.locator('.nav-btn[data-tab="social"]');
+ if(await nav.getAttribute('aria-current')!=='page')await nav.click();
 }
 async function bulk(page){
  if(!await page.locator('#settings-toggle-ppl').count())await page.getByRole('button',{name:'Settings',exact:true}).click();

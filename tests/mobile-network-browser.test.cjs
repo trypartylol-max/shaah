@@ -54,7 +54,7 @@ for(const profile of [
   assert.equal(await page.locator('#scroll').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,tab+' has no horizontal overflow');
  }
  await page.evaluate(()=>{window.__holdSlowWrite=true;window.__beforeWriteCount=__mockWrites.length;});
- const note=page.locator('textarea').first();await note.fill('SYNTHETIC held first note');await note.press('Tab');
+ const note=page.locator('textarea:visible').first();await note.fill('SYNTHETIC held first note');await note.press('Tab');
  await page.waitForFunction(()=>window.__slowWriteEntered);
  await note.fill('SYNTHETIC latest note');await note.press('Tab');await page.waitForTimeout(profile.apiMs+350);
  assert.equal(await note.inputValue(),'SYNTHETIC latest note');
@@ -91,7 +91,7 @@ test('cached mobile account exposes retry after a stalled load and late response
  await page.waitForFunction(()=>_loadFailed&&!_loadFlight);
  assert.equal(await page.locator('.today').isVisible(),true);
  await page.evaluate(()=>__restoreFrom());
- await page.getByRole('button',{name:'Reintentar carga',exact:true}).click();
+ await page.getByRole('button',{name:'Retry loading',exact:true}).click();
  await page.waitForFunction(()=>!_loadFailed&&!_loadFlight);
  await page.evaluate(()=>{_state[todayKey()]={note:'SYNTHETIC newer after retry'};__releaseLateSelect();});
  await page.waitForTimeout(30);

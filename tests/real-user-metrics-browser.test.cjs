@@ -11,7 +11,7 @@ async function settings(page){await page.getByRole('button',{name:'Settings',exa
 test('optional local panel measures real browser actions, survives reload and exports only aggregate timings',async t=>{
   const page=await openApp(t,undefined,{width:390,height:844},{nativePerformance:true,stayOnToday:true});
   assert.equal(await page.evaluate(()=>SHAAHPerformance.snapshot().enabled),false);
-  await settings(page);await page.getByRole('button',{name:'Activar medición local',exact:true}).click();
+  await settings(page);await page.getByRole('button',{name:'Enable local measurement',exact:true}).click();
   assert.equal(await page.evaluate(()=>SHAAHPerformance.snapshot().enabled),true);
   await page.locator('.settings-back').click();
   await control(page,'click','toggleHabit',['meditation','2026-10-16']).click();await nextPaint(page);
@@ -22,16 +22,16 @@ test('optional local panel measures real browser actions, survives reload and ex
   await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);await nextPaint(page);
   report=await page.evaluate(()=>SHAAHPerformance.snapshot());
   assert.ok(report.metrics.find(m=>m.key==='app_ready').count>0);assert.ok(report.metrics.find(m=>m.key==='data_load').count>0);
-  await settings(page);await page.getByRole('button',{name:'Actualizar informe',exact:true}).click();
-  const download=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar informe de tiempos',exact:true}).click();
+  await settings(page);await page.getByRole('button',{name:'Refresh report',exact:true}).click();
+  const download=page.waitForEvent('download');await page.getByRole('button',{name:'Download timing report',exact:true}).click();
   const file=await (await download).path(),exported=JSON.parse(fs.readFileSync(file,'utf8'));
   assert.equal(exported.scope,'this-device-only');assert.doesNotMatch(JSON.stringify(exported),/regression-user|example|Synthetic|meditation|pold|https?:|_checks|_note|user_id/);
   fs.writeFileSync(path.join(reportRoot,'sample-report.json'),JSON.stringify(exported,null,2));
   await page.locator('#settings-toggle-performance').evaluate(node=>{node.scrollIntoView({block:'start'});document.getElementById('scroll').scrollTop-=80;});
   await page.screenshot({path:path.join(reportRoot,'panel-mobile.png')});
   const days=await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')));
-  await page.getByRole('button',{name:'Desactivar medición local',exact:true}).click();
-  await page.getByRole('button',{name:'Borrar mediciones',exact:true}).click();
+  await page.getByRole('button',{name:'Disable local measurement',exact:true}).click();
+  await page.getByRole('button',{name:'Clear measurements',exact:true}).click();
   assert.ok((await page.evaluate(()=>SHAAHPerformance.snapshot())).metrics.every(m=>m.count===0));
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows'))),days);
 });

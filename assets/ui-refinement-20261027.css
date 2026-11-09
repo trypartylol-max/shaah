@@ -93,7 +93,7 @@
   #scroll .today.sf-today-v27 .t-rout-body>.wg-card {position:relative;min-height:134px!important;align-self:stretch!important}
   #scroll .today.sf-today-v27 .wg-card .wg-daily {grid-column:1}
   #scroll .today.sf-today-v27 .wg-card .wg-weekly {grid-column:3}
-  #scroll .today.sf-today-v27 .wg-card .wg-figure {position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+  #scroll .today.sf-today-v27 .t-rout-body>.wg-card .wg-figure {position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
 }
 @media (min-width:880px) and (max-width:1199px) {
   #scroll .today.sf-today-v27 .wg-card .wg-daily>strong {font-size:24px}

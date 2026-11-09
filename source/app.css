@@ -3078,3 +3078,19 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
 @media(max-width:879px){.stats-four-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats-heading{align-items:flex-start;flex-direction:column;gap:4px}.stats-page .stats-four-grid .stats-metric-card{min-height:168px!important;padding:14px!important}.stats-details summary span{display:block;margin:6px 0 0}.stats-detail-habits{grid-template-columns:1fr}}
 .stats-page{justify-content:flex-start!important;gap:16px!important;height:auto!important;min-height:0!important;max-width:1120px;margin:0 auto;width:100%;box-sizing:border-box}
 .stats-page>*{flex:0 0 auto!important}
+
+.interface-language {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: #d0d0da;
+}
+.interface-language select {
+  color: inherit;
+  background: #111120;
+  border: 1px solid #34344a;
+  border-radius: 0.6rem;
+  font: inherit;
+  padding: 0.5rem;
+}

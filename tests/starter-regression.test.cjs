@@ -46,7 +46,7 @@ test('lost acknowledgement is recovered by rereading; failed write stays retryab
  // A separate empty backend ensures failure does not adopt the first backend.
  const f=syncBackend(),normal=f.clientFor;f.clientFor=id=>Object.assign(Object.create(normal(id)),{rpc:async()=>({error:{code:'NETWORK'}})});
  const b=device(f);await b.run('loadAll()');b.run('_starterChoice="rest"');await b.run('starterConfirm()');
- assert.equal(b.read('_starterGate'),'choose');assert.match(b.read('_starterError'),/Reintentar/);assert.equal(f.writes.length,0);
+ assert.equal(b.read('_starterGate'),'choose');assert.match(b.read('_starterError'),/Retry/);assert.equal(f.writes.length,0);
 });
 test('failed/incomplete reads never classify or initialize; local copies veto empty remote',async()=>{
  const s=syncBackend();s.beforeSelect=()=>{throw Error('OFFLINE')};const a=device(s);await a.run('loadAll()');

@@ -34,12 +34,12 @@ test('A new personal record uses the card and respects reduced motion',async t=>
     for(let n=1;n<=5;n++)setChecked(keyMinus(today,n),{[id]:true});
     toggleHabit(id,today);
   });
-  const card=p.getByRole('dialog',{name:'Nuevo récord personal'});
+  const card=p.getByRole('dialog',{name:'Personal best'});
   await card.waitFor();
-  assert.match(await card.textContent(),/6 días seguidos/);
+  assert.match(await card.textContent(),/6 consecutive days/);
   assert.equal(await card.evaluate(el=>getComputedStyle(el).animationName),'none');
   assert.equal(await p.locator('.habit-award-ring').count(),0);
-  await card.getByRole('button',{name:'Volver a Today'}).click();
+  await card.getByRole('button',{name:'Back to Today'}).click();
   await p.evaluate(()=>{setLayout('pro');setTab('stats');});
   const table=p.locator('.pro-week-comparison table');
   assert.equal(await table.isVisible(),true);

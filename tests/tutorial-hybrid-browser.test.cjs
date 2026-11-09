@@ -15,7 +15,7 @@ for(const width of [320,390,879,880,1440])test(`hybrid tutorial: nine safe steps
   await page.evaluate(id=>setSkin(id),skin);
   for(let step=0;step<9;step++){
    assert.equal(await page.evaluate(()=>tourStep),step);
-   const box=await page.locator('.tour-card').boundingBox();
+   const box=await page.getByRole('dialog').boundingBox();
    assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=845,`${skin}/${step}: card fits ${JSON.stringify(box)}`);
    assert.equal(await page.locator('#scroll').evaluate(el=>el.inert),true);
    if(step===1)assert.equal(await page.locator('#tour-hole').isVisible(),true);
@@ -68,7 +68,7 @@ for(const width of [390,1440])test(`tutorial visual preview and short viewport a
  await page.screenshot({path:`docs/tutorial-work-${width}.png`});
  await page.setViewportSize({width,height:400});
  await page.evaluate(()=>tourGo(6));
- const card=await page.locator('.tour-card').boundingBox();
+ const card=await page.getByRole('dialog').boundingBox();
  assert.ok(card.y>=0&&card.y+card.height<=401);
  await page.locator('#tour-activity').fill('Reading');
  await page.locator('#tour-practice').click();

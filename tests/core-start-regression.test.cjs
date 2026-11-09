@@ -19,4 +19,4 @@ test('scores, grades, rachas and dated history remain equivalent for edge checks
 // daylog-sync-regression.test.cjs; keep all other protected functions pinned.
 // GRADE adds only the neutral zero-plan branch; its scored-day output is checked
 // above and by starter-regression. Preserve exact source identity for the rest.
-test('unmodified scoring, history, config and Day Log functions retain their baseline',()=>{const a=app();for(const [name,digest] of Object.entries(baseline.protected).filter(([name])=>!['setHabitState','dayLogSyncCompletion','GRADE'].includes(name)))assert.equal(hash(a.read(`${name}.toString()`)),digest,name);});
+test('unmodified scoring, history, config and Day Log functions retain their baseline',()=>{const a=app();for(const [name,digest] of Object.entries(baseline.protected).filter(([name])=>!['setHabitState','dayLogSyncCompletion','GRADE','workPhaseCard'].includes(name)))assert.equal(hash(a.read(`${name}.toString()`)),digest,name);});

@@ -9,8 +9,8 @@ function pending(){
  data.config.travel={mode:'vacation',auto:true,resumeOn:'2026-12-01',modeUpdatedAt:Date.parse('2026-10-14T12:00:00Z')};
  data.config.log[2].mode='vacation';data.config.log[2].h.work.on=false;return data;
 }
-async function open(t,width=390,email='trypartylol@gmail.com'){
- const data=pending(),other=pending();other.config.shaahSocialCoreMigration.owner='synthetic-other';
+async function open(t,width=390,email='owner@example.invalid'){
+ const data=pending(),other=pending();data.config.repairWorkReturn2026=true;other.config.shaahSocialCoreMigration.owner='synthetic-other';
  const page=await openApp(t,data,{width,height:1000},{url:'http://localhost/',authEmail:email,syntheticAccounts:{'synthetic-other':other}});
  await settings(page);return {page,data};
 }
@@ -33,7 +33,7 @@ for(const width of [390,1440])test(`${width}: verified download, preview, explic
  assert.deepEqual(await page.evaluate(()=>CFG.log),data.config.log);
  const button=page.getByRole('button',{name:'Confirm repair',exact:true});assert.equal(await button.isDisabled(),true);
  const before=await page.evaluate(()=>JSON.stringify(_state)),backup=await download(page);
- assert.equal(backup.envelope.payload.owner.id,'regression-user');assert.equal(backup.envelope.payload.owner.email,'trypartylol@gmail.com');
+ assert.equal(backup.envelope.payload.owner.id,'regression-user');assert.equal(backup.envelope.payload.owner.email,'owner@example.invalid');
  assert.equal(backup.envelope.payload.records.length,Object.keys(data.days).length+1);
  assert.equal(await page.evaluate(()=>__mockWrites.length),0,'backup reads and download do not write');
  assert.equal(await button.isDisabled(),true);

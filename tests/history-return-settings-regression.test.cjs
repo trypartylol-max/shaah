@@ -2,8 +2,8 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {loadApp,fixture,clone}=require('./helpers.cjs');
 const source=fs.readFileSync(path.join(__dirname,'../source/app.js'),'utf8');
-function migration({later='2026-11-01',version=9,now,user={id:'synthetic-owner',email:'trypartylol@gmail.com'}}={}){
- const data=fixture();data.config.travelV=version;
+function migration({later='2026-11-01',version=9,now,user={id:'synthetic-owner'},flag=true}={}){
+ const data=fixture();data.config.travelV=version;if(flag!==null)data.config.repairWorkReturn2026=flag;
  data.config.travel={mode:'vacation',auto:true,resumeOn:'2026-12-01',modeUpdatedAt:0};data.config.h.work.on=false;
  data.config.log.push({...clone(data.config.log[1]),from:later});data.config.log[2].mode='vacation';data.config.log[2].h.work.on=false;
  const app=loadApp(data,{source,now});app.run(`USER=${JSON.stringify(user)}`);return app;
@@ -22,11 +22,12 @@ test('proposal seals missing vacation/return boundaries with independent copies'
  a.run('var proposed=ensureWorkReturn2026();proposed.after.log[2].h.meditation.l="Changed"');
  assert.notEqual(a.run('proposed.after.log[1].h.meditation.l'),'Changed');assert.notEqual(a.run('CFG.log[0].h.meditation.l'),'Changed');
 });
-for(const user of [null,{id:'other',email:'other@example.invalid'},{id:'owner'},{id:'owner',email:'trypartylol@gmail.com.evil'},{email:'trypartylol@gmail.com'}])test('no proposal for unrelated or incomplete identity '+JSON.stringify(user),()=>{
- const a=migration({user});assert.equal(a.run('ensureWorkReturn2026()'),null);
+for(const [name,options] of [['no signed-in user',{user:null}],['flag absent',{flag:null}],['flag false',{flag:false}],['flag as text',{flag:'true'}],['flag as number',{flag:1}]])test('no proposal when the repair is not enabled in the account configuration: '+name,()=>{
+ const a=migration(options);assert.equal(a.run('ensureWorkReturn2026()'),null);
 });
-test('account casing is normalized; pre-return and completed versions have no proposal',()=>{
- assert.ok(migration({user:{id:'owner',email:'  TryPartyLol@Gmail.Com  '}}).read('ensureWorkReturn2026()'));
+test('an email address never enables the repair; enabled, pre-return and completed versions behave',()=>{
+ assert.equal(migration({flag:null,user:{id:'owner',email:'someone@example.invalid'}}).run('ensureWorkReturn2026()'),null);
+ assert.ok(migration({user:{id:'owner'}}).read('ensureWorkReturn2026()'));
  for(const options of [{version:10},{now:'2026-10-07T12:00:00Z'}])assert.equal(migration(options).run('ensureWorkReturn2026()'),null);
 });
 test('uncertain timelines are rejected instead of inventing an earlier baseline',()=>{

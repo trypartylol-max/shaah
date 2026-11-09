@@ -28,21 +28,21 @@ function pendingData(){
  data.config.travel={mode:'vacation',auto:true,resumeOn:'2026-12-01',modeUpdatedAt:0};
  data.config.log[2].mode='vacation';data.config.log[2].h.work.on=false;return data;
 }
-for(const email of ['trypartylol@gmail.com','other@example.invalid'])test('loading '+email+' cannot apply the dated repair automatically',async t=>{
- const data=pendingData(),page=await openApp(t,data,undefined,{authEmail:email});
+for(const enabled of [true,false])test('loading an account with the repair '+(enabled?'enabled':'disabled')+' cannot apply the dated repair automatically',async t=>{
+ const data=pendingData();if(enabled)data.config.repairWorkReturn2026=true;const page=await openApp(t,data,undefined,{authEmail:'owner@example.invalid'});
  for(let i=0;i<2;i++){
   assert.equal(await page.evaluate(()=>CFG.travelV),9);
   assert.deepEqual(await page.evaluate(()=>CFG.log),data.config.log);
   assert.equal(await page.evaluate(()=>travelMode()),'vacation');
   assert.equal(await page.evaluate(()=>CFG.travel.auto),true);assert.equal(await page.evaluate(()=>CFG.travel.resumeOn),'2026-12-01');
   const before=await page.evaluate(()=>JSON.stringify({config:CFG,days:_state}));
-  const eligible=await page.evaluate(()=>!!ensureWorkReturn2026());assert.equal(eligible,email==='trypartylol@gmail.com');
+  const eligible=await page.evaluate(()=>!!ensureWorkReturn2026());assert.equal(eligible,enabled);
   assert.equal(await page.evaluate(()=>JSON.stringify({config:CFG,days:_state})),before);
   await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
  }
 });
 test('an explicit offline mode remains independent of the paused historical repair',async t=>{
- const data=pendingData(),page=await openApp(t,data,undefined,{authEmail:'trypartylol@gmail.com'});
+ const data=pendingData();data.config.repairWorkReturn2026=true;const page=await openApp(t,data,undefined,{authEmail:'owner@example.invalid'});
  await page.evaluate(()=>localStorage.setItem('travelMode:regression-user',JSON.stringify({mode:'work',updatedAt:Date.parse('2026-10-15T12:00:00Z')})));
  await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);
  assert.equal(await page.evaluate(()=>travelMode()),'work');assert.equal(await page.evaluate(()=>CFG.travelV),9);assert.deepEqual(await page.evaluate(()=>CFG.log),data.config.log);

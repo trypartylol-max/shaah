@@ -8,18 +8,18 @@ test('milestone editor adds/removes all rows, retains draft inputs, validates, p
  await page.evaluate(()=>{settingsOpen=true;secOpen.rout=true;render();});
  const card=page.locator('.sf-work-settings');
  await card.locator('[data-work-amount]').first().fill('450');
- await card.getByRole('button',{name:'+ Agregar milestone',exact:true}).click();
+ await card.getByRole('button',{name:'+ Add milestone',exact:true}).click();
  assert.equal(await card.locator('.sf-work-settings-row').count(),4);
  assert.equal(await card.locator('[data-work-amount]').first().inputValue(),'450');
  assert.equal(await page.locator('.sf-work-settings').count(),1);
  await card.locator('[data-work-points]').first().fill('11');
  assert.ok((await card.locator('#work-settings-max').innerText()).includes('31'));
  await card.locator('[data-work-amount]').nth(1).fill('1');
- await card.getByRole('button',{name:'Guardar milestones',exact:true}).click();
- assert.ok((await card.locator('[role="alert"]').innerText()).includes('crecientes'));
+ await card.getByRole('button',{name:'Save milestones',exact:true}).click();
+ assert.ok((await card.locator('[role="alert"]').innerText()).includes('increasing'));
  for(let n=4;n>0;n--){await card.getByRole('button',{name:'Eliminar milestone 1',exact:true}).click();assert.equal(await card.locator('.sf-work-settings-row').count(),n-1);}
  assert.ok((await card.locator('.sec').innerText()).toLowerCase().includes('0 milestones'),await card.locator('.sec').innerText());
- await card.getByRole('button',{name:'Guardar milestones',exact:true}).click();
+ await card.getByRole('button',{name:'Save milestones',exact:true}).click();
  assert.equal(await page.evaluate(()=>workMilestoneRules(keyMinus(todayKey(),-1)).length),0);
  assert.deepEqual(await page.evaluate(()=>({days:JSON.stringify(_state),score:JSON.stringify(calcScore(todayKey())),log:JSON.stringify(CFG.log)})),before);
  await page.waitForTimeout(600);await page.reload();

@@ -52,13 +52,13 @@ for(const width of [320,390,1440])test(`Preview, cancel and apply preserve accou
   await p.evaluate(()=>{setSkin('classic');setTab('today')});
   await p.getByRole('button',{name:'Settings',exact:true}).click();await p.evaluate(()=>flushCfgSaves());
   const before=await state(p);
-  const choice=p.getByRole('button',{name:'Vista previa de Aurora',exact:true});
+  const choice=p.getByRole('button',{name:'Preview Aurora',exact:true});
   await choice.click();
   assert.equal(await p.locator('html').getAttribute('data-skin'),'aurora');
   assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),'classic');
   assert.equal(await p.locator('#appearance-preview').isVisible(),true);
   if(width!==320){await p.locator('.skin-settings').screenshot({path:`docs/phase3/settings-${width}.png`});await p.screenshot({path:`docs/phase3/preview-${width}.png`});}
-  await p.locator('#appearance-preview').getByRole('button',{name:'Cancelar',exact:true}).click();
+  await p.locator('#appearance-preview').getByRole('button',{name:'Cancel',exact:true}).click();
   assert.equal(await p.locator('html').getAttribute('data-skin'),'classic');
   assert.equal(await choice.evaluate(e=>e===document.activeElement),true);
   assert.equal(await p.locator('#appearance-preview').count(),0);
@@ -75,7 +75,7 @@ for(const width of [320,390,1440])test(`Preview, cancel and apply preserve accou
   await note.fill('');
   assert.equal(await state(p),before);
   await p.evaluate(()=>previewSkin('aurora'));
-  await p.locator('#appearance-preview').getByRole('button',{name:'Aplicar',exact:true}).click();
+  await p.locator('#appearance-preview').getByRole('button',{name:'Apply',exact:true}).click();
   assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),'aurora');
   assert.equal(await p.locator('#appearance-preview').count(),0);
   assert.equal(await state(p),before);
@@ -98,13 +98,13 @@ test('A blocked Apply keeps the preview recoverable and supports retry or cancel
     window.__normalAppearanceSet=Storage.prototype.setItem;
     Storage.prototype.setItem=function(key,value){if(key===SKIN_KEY)throw new DOMException('blocked','QuotaExceededError');return window.__normalAppearanceSet.call(this,key,value)};
   });
-  await p.locator('#appearance-preview').getByRole('button',{name:'Aplicar',exact:true}).click();
-  assert.match(await p.locator('#appearance-preview [role="alert"]').innerText(),/No se pudo guardar/);
+  await p.locator('#appearance-preview').getByRole('button',{name:'Apply',exact:true}).click();
+  assert.match(await p.locator('#appearance-preview [role="alert"]').innerText(),/Couldn.t save/);
   assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),'classic');
-  await p.locator('#appearance-preview').getByRole('button',{name:'Cancelar',exact:true}).click();
+  await p.locator('#appearance-preview').getByRole('button',{name:'Cancel',exact:true}).click();
   assert.equal(await p.locator('html').getAttribute('data-skin'),'classic');
   await p.evaluate(()=>{previewSkin('aurora');Storage.prototype.setItem=window.__normalAppearanceSet});
-  await p.locator('#appearance-preview').getByRole('button',{name:'Aplicar',exact:true}).click();
+  await p.locator('#appearance-preview').getByRole('button',{name:'Apply',exact:true}).click();
   assert.equal(await p.evaluate(()=>localStorage.getItem(SKIN_KEY)),'aurora');
   assert.equal(await p.locator('#appearance-preview').count(),0);
 });

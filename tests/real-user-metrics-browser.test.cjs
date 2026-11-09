@@ -14,7 +14,7 @@ test('optional local panel measures real browser actions, survives reload and ex
   await settings(page);await page.getByRole('button',{name:'Enable local measurement',exact:true}).click();
   assert.equal(await page.evaluate(()=>SHAAHPerformance.snapshot().enabled),true);
   await page.locator('.settings-back').click();
-  await control(page,'click','toggleHabit',['meditation','2026-10-16']).click();await nextPaint(page);
+  await control(page,'click','toggleHabit',['meditation','2026-10-16']).filter({visible:true}).click();await nextPaint(page);
   for(const tab of ['social','stats','history','log','today']){await page.locator('.nav-btn[data-tab="'+tab+'"]').click();await nextPaint(page);}
   let report=await page.evaluate(()=>SHAAHPerformance.snapshot());
   assert.ok(report.metrics.find(m=>m.key==='habit_response').count>0);

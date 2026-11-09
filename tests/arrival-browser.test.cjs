@@ -13,7 +13,7 @@ for(const width of [390,1440])test(`existing account arrival is smooth, nonblock
  assert.equal(await p.locator('#arrival-welcome').getAttribute('data-identity'),'same');
  assert.equal(await p.evaluate(()=>JSON.stringify({cfg:CFG,state:_state})),before);
  fs.mkdirSync('test-results',{recursive:true});await p.waitForTimeout(220);await p.screenshot({path:`test-results/welcome-${width}.png`});
- await p.getByRole('button',{name:'Cerrar bienvenida'}).click();
+ await p.getByRole('button',{name:'Dismiss welcome'}).click();
  assert.equal(await p.locator('#arrival-welcome').getAttribute('aria-hidden'),'true');
  await p.locator('#arrival-welcome').waitFor({state:'detached'});
  await p.evaluate(()=>render());assert.equal(await p.locator('#arrival-welcome').count(),0);
@@ -23,7 +23,7 @@ for(const width of [390,1440])test(`existing account arrival is smooth, nonblock
 test('new account gets one automatic tour from exclusive initialization; refresh/new browser never replays it',async t=>{
  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
  assert.equal(await p.locator('#arrival-welcome').count(),0);assert.equal(await p.locator('#tour.on').count(),0);
- await p.getByRole('button',{name:/Enfoque/}).click();await p.getByRole('button',{name:'Empezar con esto'}).click();
+ await p.getByRole('button',{name:/Focus/}).click();await p.getByRole('button',{name:'Start with this'}).click();
  await p.locator('#tour.on').waitFor();
  assert.equal(await p.evaluate(()=>CFG.starter.tutorial.state),'presented');
  fs.mkdirSync('test-results',{recursive:true});await p.waitForTimeout(200);await p.screenshot({path:'test-results/first-tutorial-mobile.png'});
@@ -41,7 +41,7 @@ test('reduced motion skips arrival, tutorial entry and exit animations',async t=
  const p=await openApp(t);await p.emulateMedia({reducedMotion:'reduce'});
  await p.evaluate(()=>{arrivalDismiss();arrivalReset();del(arrivalSeenKey());arrivalPlanExisting();render()});
  assert.equal(await p.locator('#arrival-welcome').evaluate(n=>n.getAnimations().length),0);
- await p.getByRole('button',{name:'Cerrar bienvenida'}).click();assert.equal(await p.locator('#arrival-welcome').count(),0);
+ await p.getByRole('button',{name:'Dismiss welcome'}).click();assert.equal(await p.locator('#arrival-welcome').count(),0);
  await p.evaluate(()=>startTour());assert.equal(await p.locator('#tour .tour-card').evaluate(n=>n.getAnimations().length),0);
  await p.getByRole('button',{name:'Skip / close',exact:true}).click();assert.equal(await p.locator('.arrival-tour-ghost').count(),0);
 });

@@ -20,7 +20,7 @@ for(const width of [390,1440])test(`bulk completion and confirmed full reset per
   await page.evaluate(()=>setTab('today'));
   await page.evaluate(()=>{const scroll=document.getElementById('scroll');scroll.scrollTop=scroll.scrollHeight});
   await page.getByRole('button',{name:'Reset day',exact:true}).click();
-  await page.getByRole('button',{name:'Borrar todos los datos de hoy',exact:true}).click();
+  await page.getByRole('button',{name:'Clear all data for today',exact:true}).click();
   assert.deepEqual(await page.evaluate(()=>dayLogEvents(todayKey())),[]);
   await page.waitForFunction(()=>!JSON.parse(localStorage.getItem('shaah_mock_rows')).some(r=>r.date===todayKey()));
   await page.reload();await page.waitForFunction(()=>_cfgReady&&_live);

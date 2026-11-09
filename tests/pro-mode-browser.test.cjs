@@ -21,7 +21,7 @@ test('Pro Mode picker persists and changes presentation without replacing drafts
  await p.evaluate(()=>{closeSettings();setTab('today')});
  const note=p.locator('textarea:visible').first();await note.fill('Keep my unsaved draft');
  const before=await state(p),writes=await p.evaluate(()=>__mockWrites.length);
- await p.evaluate(()=>{window.__proNote=[...document.querySelectorAll('.t-note textarea')].find(n=>n.getClientRects().length);setLayout('standard');setLayout('pro')});
+ await p.evaluate(()=>{window.__proNote=document.activeElement;setLayout('standard');setLayout('pro')});
  assert.equal(await note.inputValue(),'Keep my unsaved draft');
  assert.equal(await note.evaluate(e=>e===window.__proNote&&e===document.activeElement),true);
  assert.equal(await state(p),before);assert.equal(await p.evaluate(()=>__mockWrites.length),writes);

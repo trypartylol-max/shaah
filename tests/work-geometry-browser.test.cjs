@@ -11,22 +11,22 @@ test('WORK geometry, exact activation, dated points, persistence and skins',asyn
   assert.equal(await page.locator('.wg-card:visible .wg-segment').count(),n);
   if(!n){assert.equal(await page.locator('.wg-card:visible').isDisabled(),true);continue;}
   for(let i=1;i<=n;i++){
-   await page.locator(i%2?'.wg-head:visible':'.wg-figure:visible').click();assert.equal(await page.locator('.wg-segment.lit:visible').count(),i);
+   await page.locator(i%2?'.wg-head:visible':'.wg-figure:visible').click();assert.equal(await page.locator('.wg-card:visible .wg-segment.lit').count(),i);
    assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),Array.from({length:i},(_,j)=>5+j).reduce((a,b)=>a+b,0));
   }
   assert.equal(await page.locator('.wg-figure.complete:visible').count(),1);
-  await page.locator('.wg-card:visible').press('Enter');assert.equal(await page.locator('.wg-segment.lit:visible').count(),0);assert.equal(await page.evaluate(()=>getChecked(todayKey()).work),false);
+  await page.locator('.wg-card:visible').press('Enter');assert.equal(await page.locator('.wg-card:visible .wg-segment.lit').count(),0);assert.equal(await page.evaluate(()=>getChecked(todayKey()).work),false);
  }
- await page.locator('.wg-card:visible').press('Space');assert.equal(await page.locator('.wg-segment.lit:visible').count(),1);
+ await page.locator('.wg-card:visible').press('Space');assert.equal(await page.locator('.wg-card:visible .wg-segment.lit').count(),1);
  await page.reload();await page.locator('.nav-btn[data-tab="today"]').click();assert.ok(await page.evaluate(()=>doneFrac(getChecked(todayKey()).work)>0));
  const workNode=await page.locator('.wg-card:visible').elementHandle();
  for(const skin of ['glow','aurora','matrix','minimal']){await page.evaluate(s=>setSkin(s),skin);assert.equal(await page.locator('.wg-card:visible').count(),1);assert.equal(await workNode.evaluate(n=>n===document.querySelector('.wg-card')),true,'skin change preserves interactive node');}
  await page.evaluate(()=>setSkin('classic'));assert.deepEqual(await page.locator('.sf-core-routine:not(.sf-work)').evaluateAll(es=>es.map(e=>e.outerHTML)),others);
- await page.evaluate(()=>{setHabitState('work',todayKey(),false);workPhaseAdvance(todayKey());});await page.emulateMedia({reducedMotion:'reduce'});assert.equal(await page.locator('.wg-segment.latest').evaluate(e=>getComputedStyle(e).animationName),'none');
+ await page.evaluate(()=>{setHabitState('work',todayKey(),false);workPhaseAdvance(todayKey());});await page.emulateMedia({reducedMotion:'reduce'});assert.equal(await page.locator('.wg-card:visible .wg-segment.latest').evaluate(e=>getComputedStyle(e).animationName),'none');
  await page.setViewportSize({width:390,height:844});
- const before=await page.locator('.wg-segment.lit:visible').count(),box=await page.locator('.wg-figure:visible').boundingBox(),cdp=await page.context().newCDPSession(page);
+ const before=await page.locator('.wg-card:visible .wg-segment.lit').count(),box=await page.locator('.wg-figure:visible').boundingBox(),cdp=await page.context().newCDPSession(page);
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+24,y:box.y+24}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
- assert.equal(await page.locator('.wg-segment.lit:visible').count(),before+1);await cdp.detach();
+ assert.equal(await page.locator('.wg-card:visible .wg-segment.lit').count(),before+1);await cdp.detach();
  assert.equal(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(_state).filter(([k])=>k!==todayKey())))),history);
  await page.locator('.wg-card:visible').screenshot({path:root+'/test-results/work-geometry-mobile.png'});
  await page.setViewportSize({width:1440,height:1000});await page.locator('.wg-card:visible').screenshot({path:root+'/test-results/work-geometry-desktop.png'});

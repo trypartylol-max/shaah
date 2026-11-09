@@ -10,10 +10,10 @@ for(const width of [390,1440])test(`animated X confirmation cancels safely and d
  assert.equal(await p.locator('#reset-day-cancel').evaluate(el=>document.activeElement===el),true);
  await p.locator('.reset-day-confirm').evaluate(el=>Promise.all(el.getAnimations().map(a=>a.finished.catch(()=>{}))));
  await p.screenshot({path:`test-results/reset-confirm-${width}.png`});
- await p.getByRole('button',{name:'Cancelar borrado',exact:true}).click();
+ await p.getByRole('button',{name:'Cancel deletion',exact:true}).click();
  assert.equal(await p.evaluate(()=>JSON.stringify(_state)),await p.evaluate(()=>window.resetBefore));
  await trigger.click();await p.keyboard.press('Escape');assert.equal(await p.locator('.reset-day-confirm').count(),0);
- await trigger.click();await p.getByRole('button',{name:'Borrar todos los datos de hoy',exact:true}).click();
+ await trigger.click();await p.getByRole('button',{name:'Clear all data for today',exact:true}).click();
  assert.equal(await p.evaluate(()=>hasDayData(todayKey())),false);
  assert.equal(await p.evaluate(()=>JSON.stringify(CFG)),await p.evaluate(()=>window.configBefore));
  await p.waitForFunction(()=>!JSON.parse(localStorage.getItem('shaah_mock_rows')).some(r=>r.date===todayKey()));

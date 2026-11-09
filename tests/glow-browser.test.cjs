@@ -36,8 +36,8 @@ for(const width of [320,390,600,879,880,1440])test(`Glow ${width}: native layout
  assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),0);
  if([390,1440].includes(width)){
   await page.locator('.wg-card:visible').click();
-  assert.equal(await page.locator('.wg-segment.lit:visible').count(),1);
-  assert.equal(await page.locator('.wg-segment.lit:visible').first().evaluate(el=>getComputedStyle(el).stroke),'rgb(75, 215, 255)');
+  assert.equal(await page.locator('.wg-card:visible .wg-segment.lit').count(),1);
+  assert.equal(await page.locator('.wg-card:visible .wg-segment.lit').first().evaluate(el=>getComputedStyle(el).stroke),'rgb(75, 215, 255)');
   fs.mkdirSync('test-results/glow',{recursive:true});
   await page.screenshot({path:`test-results/glow/today-${width}.png`,animations:'disabled'});
   await page.getByRole('button',{name:'Settings',exact:true}).click();

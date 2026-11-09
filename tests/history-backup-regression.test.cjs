@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path');
 const {loadApp,fixture,serverRows,clone}=require('./helpers.cjs');
 const source=fs.readFileSync(path.join(__dirname,'../source/app.js'),'utf8');
 function harness(){
- const data=fixture();data.config.travelV=9;data.config.log[2].mode='vacation';data.config.log[2].h.work.on=false;
+ const data=fixture();data.config.repairWorkReturn2026=true;data.config.travelV=9;data.config.log[2].mode='vacation';data.config.log[2].h.work.on=false;
  const rows=serverRows(data).map(r=>({...r,user_id:'owner',settings_revision:0}));let writes=[],readHook=null,rpcHook=null;
  const client={auth:{onAuthStateChange(){}},from(){let owner,range=[0,499];const q={select(){return q;},eq(k,v){if(k==='user_id')owner=v;return q;},order(){return q;},range(a,b){range=[a,b];return q;},async then(resolve,reject){try{if(readHook)await readHook();const all=rows.filter(r=>r.user_id===owner).sort((a,b)=>a.date.localeCompare(b.date));return resolve({data:clone(all.slice(range[0],range[1]+1)),count:all.length,error:null});}catch(e){return reject(e);}}};return q;},async rpc(name,args){
   if(rpcHook)return rpcHook(name,args);
@@ -11,7 +11,7 @@ function harness(){
   if(row.settings_revision!==args.p_expected_revision)return {data:null,error:{code:'PT409'}};
   row.data=clone(args.p_data.data);row.settings_revision++;writes.push(clone(args));return {data:{data:clone(row.data),settings_revision:row.settings_revision},error:null};
  }};
- const a=loadApp(data,{source,client});a.run("USER={id:'owner',email:'trypartylol@gmail.com'};_cfgReady=true;_live=true;_cfgBase={_cfg:fixtureData.config};historyDownload=envelope=>{globalThis.downloaded=envelope;}");
+ const a=loadApp(data,{source,client});a.run("USER={id:'owner'};_cfgReady=true;_live=true;_cfgBase={_cfg:fixtureData.config};historyDownload=envelope=>{globalThis.downloaded=envelope;}");
  return {a,rows,writes,client,readHook:fn=>readHook=fn,rpcHook:fn=>rpcHook=fn};
 }
 const file=body=>({size:Buffer.byteLength(body),text:async()=>body});

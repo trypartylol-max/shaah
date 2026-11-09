@@ -1571,7 +1571,7 @@ function cfgBaseline(){
 // edit, or the first edit would seal whatever (possibly already-wrong) state it finds.
 // Adds "Family" to the Social Combo once, as its own era from today, so every
 // earlier day keeps the 3-way split it was actually scored with.
-const FAMILY_FROM="2026-09-09";   // David pidió Family desde el miércoles, no desde el día del update
+const FAMILY_FROM="2026-09-09";   // Family se pidió desde el miércoles, no desde el día del update
 // Garantiza que una parte del combo exista en todas las épocas desde `from` en adelante,
 // partiendo la época vigente en esa fecha si hace falta. No reordena ni reescribe el resto
 // de la config de ninguna época: solo añade la parte.
@@ -1670,7 +1670,7 @@ function addFamilyOnce(){
   return true;
 }
 // ── Travel mode: Vacation ⇄ Work ────────────────────────────
-// David sale de Israel y vuelve; "Work" no tiene sentido puntuar igual en
+// El usuario sale de casa y vuelve; "Work" no tiene sentido puntuar igual en
 // ambos casos. Esto es solo el INTERRUPTOR + el calendario — todavía no
 // decide cómo repartir el 118% en cada modo (eso se habla aparte). Por ahora
 // cambiar de modo únicamente enciende/apaga "work" desde hoy; el resto de
@@ -1749,7 +1749,9 @@ function setTravelResume(v){
 // nada mientras el modo ya sea "work" ni si `auto` está apagado.
 function checkTravelAuto(){ /* Automatic mode changes disabled: only explicit user actions switch modes. */ }
 // The dated repair is a read-only proposal. Applying it is a separate, gated action.
-function historyRepairAccount(){return !!USER?.id&&typeof USER.email==='string'&&USER.email.trim().toLowerCase()==='trypartylol@gmail.com';}
+// Reparación puntual del historial: solo se ofrece si la propia configuración de la cuenta la habilita
+// (CFG.repairWorkReturn2026 === true). Nada de identidades personales en el código público.
+function historyRepairAccount(){return !!USER?.id&&CFG?.repairWorkReturn2026===true;}
 function ensureWorkReturn2026(config=CFG,days=_state,day=todayKey()){
   const START='2026-09-08',RETURN='2026-10-08';
   if(!historyRepairAccount()||day<RETURN||Number(config.travelV)>=10)return null;
@@ -1967,74 +1969,7 @@ function historySafetyHTML(){
   return `<section data-history-safety ${uiStyle('margin-bottom:18px;padding:12px;border:1px solid var(--skin-edge);border-radius:10px;min-width:0')}><h3>${interfaceCopy("Full backup")}</h3><p class="sf-muted">${interfaceCopy("Download your saved data, check the file and keep it somewhere private.")}</p>${button(historyInterfaceText("Descargar respaldo"),'historyBackupDownload',s.busy)}${s.verified?`<p class="sf-muted">${historyInterfaceText("Archivo verificado:")} ${esc(s.verifiedName)}</p>`:''}${b?`<label class="sf-field">${s.verified?historyInterfaceText("Elegir otro archivo (opcional)"):historyInterfaceText("Verificar archivo descargado")}<input type="file" accept="application/json,.json" ${s.busy?'disabled':''} ${ui('change','historyBackupVerifyFile')}></label>`:''}<p role="status" aria-live="polite">${esc(historyInterfaceText(s.status))}</p>${eligible?`<h3>${interfaceCopy("Review September and October 2026 history")}</h3><p class="sf-muted">${Number(CFG.travelV)>=10?historyInterfaceText("Esta revisión ya figura como completada. Puedes revisar su recuperación."):historyInterfaceText("La reparación está pausada. Solo se aplicará después de verificar un respaldo y confirmar los cambios.")}</p>${s.verified&&b?.plan?historyPreviewHTML(b.plan):''}${button(historyInterfaceText("Confirmar reparación"),'historyRepairApply',s.busy||!s.verified||!b?.plan||!fresh)}<h3>${interfaceCopy("Restore this repair")}</h3><p class="sf-muted">${interfaceCopy("Select the earlier backup to preview recovery. Records added afterward will be preserved.")}</p>${s.restore?`<p class="sf-muted">${historyInterfaceText("Respaldo comprobado:")} ${esc(s.restore.fileName)}</p>`:''}<label class="sf-field">${s.restore?historyInterfaceText("Elegir otro respaldo anterior (opcional)"):historyInterfaceText("Respaldo anterior")}<input type="file" accept="application/json,.json" ${s.busy?'disabled':''} ${ui('change','historyRestoreFile')}></label>${s.restore?historyPreviewHTML(s.restore.plan)+button(historyInterfaceText("Confirmar recuperación"),'historyRepairRestore',s.busy):''}`:''}</section>`;
 }
 
-// One-time repair: Vacation Mode officially starts on 2026-09-08.
-// Historical scores must use the mode that was active on that date, even if the
-// current config was already marked as v2 before the dated vacation era existed.
-function setVacationStartOnce(){
-  // Canonical historical rule: Vacation Mode began on 2026-09-08.
-  // This migration is intentionally idempotent. It repairs the dated timeline
-  // itself, rather than relying on the current live switch or a localStorage flag.
-  const START="2026-09-08";
-  const lg=cfgLog();
-  if(!lg.length)return false;
-  let changed=false;
 
-  let i=-1;
-  for(let k=0;k<lg.length;k++){
-    if(String(lg[k].from||'')<=START)i=k; else break;
-  }
-  if(i<0)i=0;
-
-  if(String(lg[i].from||'')<START){
-    const e=lg[i];
-    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:(e.order||[]).slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
-    i++; changed=true;
-  }
-
-  const yesterday=keyMinus(todayKey(),1);
-  for(let k=i;k<lg.length;k++){
-    const e=lg[k], from=String(e.from||'');
-    if(from<START)continue;
-    if(from>yesterday)break;
-    if(e.mode!=='vacation'){e.mode='vacation';changed=true;}
-    if(e.h&&e.h.work&&e.h.work.on!==false){e.h.work.on=false;changed=true;}
-  }
-  if(CFG.travelV!==9){CFG.travelV=9;changed=true;}
-  if(changed)_dayCfgCache={};
-  return changed;
-}
-
-// Hard repair for the known 2026-09-08 vacation boundary. Unlike the old
-// versioned migration, this also repairs installations that already recorded a
-// previous migration version but still had Work eras stamped into Sep 8 onward.
-// The repair is limited to completed dates; TODAY remains controlled by the
-// explicit live Vacation/Work switch.
-function repairHistoricalVacationTimeline(){
-  const START="2026-09-08", yesterday=keyMinus(todayKey(),1), lg=cfgLog();
-  if(!lg.length)return false;
-  let changed=false;
-  let i=-1;
-  for(let k=0;k<lg.length;k++){
-    if(String(lg[k].from||'')<=START)i=k; else break;
-  }
-  if(i<0)i=0;
-  if(String(lg[i].from||'')<START){
-    const e=lg[i];
-    lg.splice(i+1,0,{from:START,h:JSON.parse(JSON.stringify(e.h)),order:(e.order||[]).slice(),
-      subs:JSON.parse(JSON.stringify(Array.isArray(e.subs)?e.subs:[])),mode:'vacation'});
-    i++; changed=true;
-  }
-  for(let k=i;k<lg.length;k++){
-    const e=lg[k], from=String(e.from||'');
-    if(from<START)continue;
-    if(from>yesterday)break;
-    if(e.mode!=='vacation'){e.mode='vacation';changed=true;}
-    if(e.h&&e.h.work&&e.h.work.on!==false){e.h.work.on=false;changed=true;}
-  }
-  if(changed)_dayCfgCache={};
-  return changed;
-}
 // Los días guardan a quién viste por id. Si la lista de personas se pierde pero los
 // días siguen ahí, esos ids quedan huérfanos y su historial deja de contar. Esto los
 // reconstruye como marcadores renombrables, en vez de dejar el pasado colgando.

@@ -5314,7 +5314,7 @@ function render(){
   if(currentTab==="social")uiHTML(el,bar+renderSocial());
   else if(currentTab==="today")uiHTML(el,bar+renderToday(todayKey()));
   else if(currentTab==="log")uiHTML(el,bar+renderDayLogTab());
-  else if(currentTab==="stats")uiHTML(el,bar+renderStats());
+  else if(currentTab==="stats")renderStatsUpdate(el,bar);
   else if(currentTab==="history")uiHTML(el,bar+renderHistory());
   if(currentTab!=="today"){const note=document.createElement("div");uiHTML(note,dayNoteHTML(todayKey(),true));el.append(note.firstElementChild);}
   syncComboDisclosureDOM();
@@ -6027,7 +6027,7 @@ function renderWeekday(){
       ${w.map(x=>{const g=x.n?GRADE(x.avg,100):null, h=x.n?Math.max(7,Math.round(x.avg/100*82)):3;
       return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;min-width:0`)}>
         <span ${uiStyle(`font-size:13px;color:${x.n?g.c:"#2a2a40"}`)}>${x.n?x.avg+"%":"—"}</span>
-        <div ${uiStyle(`width:100%;height:${h}px;border-radius:5px;background:${x.n?g.c:"#14142a"};opacity:${x.n?.9:1}`)}></div>
+        <div data-stats-bar="weekday-${x.dia}" data-stats-value="${h}" ${uiStyle(`width:100%;height:${h}px;border-radius:5px;background:${x.n?g.c:"#14142a"};opacity:${x.n?.9:1}`)}></div>
         <span ${uiStyle(`font-size:12.5px;color:#8888a4;letter-spacing:.08em`)}>${N[x.dia]}</span>
       </div>`;}).join("")}
     </div>
@@ -6051,6 +6051,26 @@ function proWeekComparison(){
 }
 function gradeInterfaceName(grade) {
   return interfaceCopy(grade.n==='SIN PLAN'?'No plan':grade.n);
+}
+function renderStatsUpdate(container,bar){
+  const details=container.querySelector('.stats-details');
+  const animate=document.documentElement.dataset.skin!=='minimal'&&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bars=new Map();
+  if(animate)for(const node of container.querySelectorAll('[data-stats-bar]')){
+    const axis=node.dataset.statsBar.startsWith('grade-')?'width':'height';
+    if(node.getClientRects().length)bars.set(node.dataset.statsBar,{axis,size:getComputedStyle(node)[axis],target:node.dataset.statsValue});
+  }
+  uiHTML(container,bar+renderStats());
+  const nextDetails=container.querySelector('.stats-details');
+  if(details?.open&&nextDetails)nextDetails.open=true;
+  for(const node of container.querySelectorAll('[data-stats-bar]')){
+    const previous=bars.get(node.dataset.statsBar);
+    if(!previous||previous.target===node.dataset.statsValue)continue;
+    if(!node.getClientRects().length)continue;
+    node.animate([{[previous.axis]:previous.size},{[previous.axis]:getComputedStyle(node)[previous.axis]}],
+      {duration:180,easing:'ease-out'});
+  }
 }
 function renderStats(){
   const tk=todayKey(),{score}=calcScore(tk),h=getStatsHistory();
@@ -6088,8 +6108,8 @@ function renderStats(){
     <details class="stats-details"><summary>${interfaceText('statsDetails')} <span>${interfaceText('habitsGradesTrends')}</span></summary>
     <div class="stats-detail-content">
     <div class="stats-detail-habits">${metrics.slice(1,3).map(m=>`<div class="card"><div class="sec">${esc(m.label)}</div><strong>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div>`).join("")}</div>
-    ${total>0?`<div><div class="sec">${interfaceText('gradeDistribution')}</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
-    ${total>=2?`<div><div class="sec">${interfaceText('fourWeekTrend')}</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
+    ${total>0?`<div><div class="sec">${interfaceText('gradeDistribution')}</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div data-stats-bar="grade-${l}" data-stats-value="${pct}" ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
+    ${total>=2?`<div><div class="sec">${interfaceText('fourWeekTrend')}</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div data-stats-bar="week-${wi}" data-stats-value="${bh}" ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
     </div></details>
     ${socialOwnTab()?"":renderWhoToSee()}
   </div>`;

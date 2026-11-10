@@ -3067,10 +3067,25 @@ async function loadAccountRows(owner,epoch){
 
 // Bound reads only. A timed-out mutation can still have reached the server, so
 // writes retain their existing confirmation/recovery contract and are serialized.
+const ACCOUNT_PAGE_SIZE=500;
+// PostgREST caps one response (1000 rows by default), so read in stable pages.
+async function readAllDayLogs(owner,columns,signal){
+  const rows=[];let count=null;
+  for(let from=0;;from+=ACCOUNT_PAGE_SIZE){
+    let request=sb.from('day_logs').select(columns,{count:'exact'}).eq('user_id',owner).order('date',{ascending:true}).range(from,from+ACCOUNT_PAGE_SIZE-1);
+    if(signal&&typeof request.abortSignal==='function')request=request.abortSignal(signal);
+    const page=await request;
+    if(page.error||!Array.isArray(page.data))return page;
+    rows.push(...page.data);
+    if(count===null&&Number.isSafeInteger(page.count))count=page.count;
+    if(page.data.length<ACCOUNT_PAGE_SIZE)break;
+  }
+  return {data:rows,error:null,count};
+}
+
 async function readAccountRows(owner){
   const controller=typeof AbortController==='function'?new AbortController():null;
-  let request=sb.from('day_logs').select('date,data',{count:'exact'}).eq('user_id',owner);
-  if(controller&&typeof request.abortSignal==='function')request=request.abortSignal(controller.signal);
+  const request=readAllDayLogs(owner,'date,data',controller?.signal);
   let timer;
   const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{
     reject(Error('LOAD_TIMEOUT'));controller?.abort();
@@ -3084,7 +3099,7 @@ async function reconcileDeletedDays(owner,epoch){
   // Re-read this account through RLS; an unscoped event never supplies an owner.
   const before={..._state};
   try{
-    const {data,error}=await sb.from('day_logs').select('date').eq('user_id',owner);
+    const {data,error}=await readAllDayLogs(owner,'date');
     if(USER?.id!==owner||_syncEpoch!==epoch||error||!Array.isArray(data))return;
     const present=new Set(data.map(row=>row.date));
     let changed=false;

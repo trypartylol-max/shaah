@@ -358,3 +358,19 @@ test('contact deletion survives revision save, stale device cache and orphan rec
   assert.equal(settings(s).people.some(p=>p.id==='pold03'),false);
   assert.equal(settings(s).deletedPeople.pold03,true);
 });
+
+test('account load reads every row in pages, so accounts above the PostgREST 1000-row cap still load',async()=>{
+  const s=server();
+  const start=Date.UTC(2020,0,1);
+  for(let i=0;i<1300;i++){
+    const date=new Date(start+i*86400000).toISOString().slice(0,10);
+    s.rows.push({user_id:owner,date,data:{score:10,grade:'F',l1:0,l2:0,l3:0,done:1,max:100,pct:10,_checks:{}}});
+  }
+  let selects=0;s.beforeSelect=()=>{selects++;};
+  const app=appFor(s);
+  await app.run('loadAll()');
+  assert.ok(selects>=3,'rows are fetched in several pages');
+  const days=app.read("Object.keys(_state).filter(k=>/^\\d{4}-\\d{2}-\\d{2}$/.test(k)).length");
+  assert.ok(days>=1300,'all days present after load: '+days);
+  assert.equal(app.read('_loadFailed'),false);
+});

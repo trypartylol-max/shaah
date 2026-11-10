@@ -2481,20 +2481,8 @@ function visiblePeople(){return peopleList().filter(personVisible);}
 // Settings filter only; never changes activity scoring or historical logs.
 var peopleSettingsFilter='active';
 function setPeopleSettingsFilter(v){if(!['active','inactive','all'].includes(v))return;peopleSettingsFilter=v;bulkPeopleSelection=[];render();}
-function settingsPeople(){return peopleList().filter(p=>peopleSettingsFilter==='all'||(peopleSettingsFilter==='inactive'?p.inactive===true:p.inactive!==true));}
 function settingsOrphanPeople(){const ids=new Set(settingsPeople().map(p=>p.id));return orphanPeople().filter(p=>ids.has(p.id));}
 function locationSelect(id){if(id!=='all'&&!locationGroups().some(g=>g.id===id))return;CFG.selectedLocation=id;saveCfg();render();}
-function locationAdd(){
-  const name=(window.prompt(interfaceCopy('Location group name (e.g. Israel)'))||'').trim().slice(0,40);
-  if(!name)return;
-  const id='loc'+Math.random().toString(36).slice(2,10);
-  CFG.locationGroups=locationGroups().concat([{id,name}]);CFG.selectedLocation=id;saveCfg();render();
-}
-function locationRename(id){
-  const g=locationGroups().find(x=>x.id===id);if(!g)return;
-  const name=window.prompt(interfaceCopy('Rename location group'),g.name);
-  if(name===null||!name.trim())return;g.name=name.trim().slice(0,40);saveCfg();render();
-}
 function locationTogglePerson(id,loc){
   if(!locationGroups().some(g=>g.id===loc))return;
   const p=personById(id);if(!p)return;
@@ -3079,10 +3067,25 @@ async function loadAccountRows(owner,epoch){
 
 // Bound reads only. A timed-out mutation can still have reached the server, so
 // writes retain their existing confirmation/recovery contract and are serialized.
+const ACCOUNT_PAGE_SIZE=500;
+// PostgREST caps one response (1000 rows by default), so read in stable pages.
+async function readAllDayLogs(owner,columns,signal){
+  const rows=[];let count=null;
+  for(let from=0;;from+=ACCOUNT_PAGE_SIZE){
+    let request=sb.from('day_logs').select(columns,{count:'exact'}).eq('user_id',owner).order('date',{ascending:true}).range(from,from+ACCOUNT_PAGE_SIZE-1);
+    if(signal&&typeof request.abortSignal==='function')request=request.abortSignal(signal);
+    const page=await request;
+    if(page.error||!Array.isArray(page.data))return page;
+    rows.push(...page.data);
+    if(count===null&&Number.isSafeInteger(page.count))count=page.count;
+    if(page.data.length<ACCOUNT_PAGE_SIZE)break;
+  }
+  return {data:rows,error:null,count};
+}
+
 async function readAccountRows(owner){
   const controller=typeof AbortController==='function'?new AbortController():null;
-  let request=sb.from('day_logs').select('date,data',{count:'exact'}).eq('user_id',owner);
-  if(controller&&typeof request.abortSignal==='function')request=request.abortSignal(controller.signal);
+  const request=readAllDayLogs(owner,'date,data',controller?.signal);
   let timer;
   const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{
     reject(Error('LOAD_TIMEOUT'));controller?.abort();
@@ -3096,7 +3099,7 @@ async function reconcileDeletedDays(owner,epoch){
   // Re-read this account through RLS; an unscoped event never supplies an owner.
   const before={..._state};
   try{
-    const {data,error}=await sb.from('day_logs').select('date').eq('user_id',owner);
+    const {data,error}=await readAllDayLogs(owner,'date');
     if(USER?.id!==owner||_syncEpoch!==epoch||error||!Array.isArray(data))return;
     const present=new Set(data.map(row=>row.date));
     let changed=false;
@@ -3661,6 +3664,7 @@ function skinInterfaceLabel(skin) {
   return skin?.id==='minimal'?interfaceCopy('Low stimulation'):skin?.label||'Original';
 }
 const interfaceCopies = {
+  "LOG": ["LOG", "REGISTRAR", "רישום פעילות"],
   "pts": ["pts", "pts", "נק׳"],
   "Location group name (e.g. Israel)": ["Location group name (e.g. Israel)", "Nombre del grupo de ubicación (p. ej., Israel)", "שם קבוצת מיקום (למשל, ישראל)"],
   "Who? (name)": ["Who? (name)", "¿Quién? (nombre)", "מי? (שם)"],
@@ -3721,7 +3725,7 @@ const interfaceCopies = {
   "SOLID": ["SOLID", "SÓLIDO", "יציב"],
   "AVERAGE": ["AVERAGE", "PROMEDIO", "ממוצע"],
   "LOW": ["LOW", "BAJO", "נמוך"],
-  "LOST": ["LOST", "PERDIDO", "ללא כיוון"],
+  "LOST": ["LOST", "PERDIDO", "התחלה"],
   "▪ CORE ROUTINES": ["▪ CORE ROUTINES", "▪ RUTINAS PRINCIPALES", "▪ שגרות ליבה"],
   "TODAY'S ROUTINES": ["TODAY'S ROUTINES", "RUTINAS DE HOY", "השגרות של היום"],
   "{steps} steps · {minutes} min": ["{steps} steps · {minutes} min", "{steps} pasos · {minutes} min", "{steps} שלבים · {minutes} דק׳"],
@@ -5633,7 +5637,7 @@ function renderToday(key,nested=false){
         <div ${uiStyle(`font-size:${RSZ>140?14:11.5}px;color:${gr.c};letter-spacing:0.12em;opacity:0.65`)}>${interfaceCopy(gr.n)}</div>
       </div>
         </div>
-        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""} ${routineOrbId()?'cr-log-has-orb':''}" type="button" ${ui('click','openDayLogStart')} aria-label="${interfaceCopy(dayLogActiveId()?"View active Day Log":"Log an activity")}">
+        ${isToday?`<button data-log-label="${esc(interfaceCopy('LOG'))}" class="today-log-start ${dayLogActiveId()?"live":""} ${routineOrbId()?'cr-log-has-orb':''}" type="button" ${ui('click','openDayLogStart')} aria-label="${interfaceCopy(dayLogActiveId()?"View active Day Log":"Log an activity")}">
           <span>${dayLogActiveId()?"●":"+"}</span>${dayLogActiveId()?`<b>${dayLogFmt((Date.now()-new Date(dayLogEvents(todayKey()).find(e=>e.id===dayLogActiveId()).start).getTime())/60000)}</b>`:""}
         </button>${routineOrb()}`:""}
       </div>
@@ -5653,8 +5657,8 @@ function renderToday(key,nested=false){
         <div class="ls-path"><b ${uiStyle(`color:${gr.c}`)}>${esc(gr.l)}</b><span>${interfaceLanguage==='he'?'←':'→'}</span><b ${uiStyle(`color:${nm.next.c}`)}>${esc(nm.next.l)}</b></div>
         <div class="ls-bar"><i ${uiStyle(`width:${progress}%;background:linear-gradient(90deg,${gr.c},${nm.next.c});box-shadow:0 0 12px ${nm.next.g||gr.g}`)}></i></div>
         <div class="ls-footer">
-          <span ${uiStyle(`color:${nm.next.c}`)}>${nm.need}% ${interfaceText('remaining')}</span>
-          <span>${interfaceCopy('{points} pts').replace('{points}',score+' / '+targetScore)}</span>
+          <span ${uiStyle(`color:${nm.next.c}`)}>${interfaceLanguage==='he'?'נותרו '+nm.need+'%':nm.need+'% '+interfaceText('remaining')}</span>
+          <span>${interfaceCopy('{points} pts').replace('{points}','\u2066'+score+' / '+targetScore+'\u2069')}</span>
         </div>`;
       })()}
     </div>
@@ -5672,13 +5676,13 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         return`<div class="sf-core-routine cr-compact-card" data-routine-card="${esc(item.id)}">
           <div class="cr-compact-icon" aria-hidden="true">${esc(rt.icon)}</div>
           <div class="cr-compact-copy">
-            <div class="r-lab"><span class="cr-routine-name">${esc(rt.label)}</span>${core?`<span class="sf-routine-total">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:''}</div>
+            <div class="r-lab"><span class="cr-routine-name">${esc(rt.label)}</span>${core?`<span class="sf-routine-total" dir="ltr">${Math.round(item.pts*doneFrac(st))}/${item.pts}</span>`:''}</div>
             <div class="r-sub">${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',rt.steps.length).replace('{minutes}',totalMin)}</div>
           </div>
           <div class="cr-compact-actions">
-            <button type="button" class="r-btn" aria-label="${interfaceCopy("LIGHT")}" aria-pressed="${light}" title="${interfaceCopy(light?'Clear light credit':'Light version — half credit')}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor" stroke="none"/></svg></button>
-            <button type="button" class="r-btn sf-routine-primary" aria-label="${item.id==='production'?interfaceCopy('PLAY'):interfaceText('start')}" title="${interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine')}" ${session&&!session.running?ui('click','routineResume',item.id):ui('click','startRoutine',item.id)} ${uiStyle(`background:${rt.col};color:#080810`)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4 20 12 8 20Z" fill="currentColor" stroke="none"/></svg></button>
-            <button type="button" class="r-btn" aria-label="${interfaceCopy("DONE")}" aria-pressed="${full}" title="${interfaceCopy(full?'Clear completed routine':'Mark done without the timer')}" ${ui('click','setHabitState',item.id,key,full?false:true)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 5 5L20 6"/></svg></button>
+            <button type="button" class="r-btn" aria-label="${interfaceLanguage==='he'?interfaceCopy(light?'Clear light credit':'Light version — half credit'):interfaceCopy("LIGHT")}" aria-pressed="${light}" title="${interfaceCopy(light?'Clear light credit':'Light version — half credit')}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor" stroke="none"/></svg></button>
+            <button type="button" class="r-btn sf-routine-primary" aria-label="${interfaceLanguage==='he'?interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine'):item.id==='production'?interfaceCopy('PLAY'):interfaceText('start')}" title="${interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine')}" ${session&&!session.running?ui('click','routineResume',item.id):ui('click','startRoutine',item.id)} ${uiStyle(`background:${rt.col};color:#080810`)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4 20 12 8 20Z" fill="currentColor" stroke="none"/></svg></button>
+            <button type="button" class="r-btn" aria-label="${interfaceLanguage==='he'?interfaceCopy(full?'Clear completed routine':'Mark done without the timer'):interfaceCopy("DONE")}" aria-pressed="${full}" title="${interfaceCopy(full?'Clear completed routine':'Mark done without the timer')}" ${ui('click','setHabitState',item.id,key,full?false:true)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 5 5L20 6"/></svg></button>
           </div>
         </div>`;
       }).join("")}</div>
@@ -5698,7 +5702,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         <div ${uiStyle(`display:flex;align-items:center;gap:10px;flex-shrink:0`)}>
           ${item.routine&&ROUTINES[item.id]&&st!==true&&isToday&&!nested?`
           <button ${ui('click','startRoutineNested' ,item.id)} title="${interfaceCopy("Start routine")}" ${uiStyle(`background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:700;box-shadow:0 0 10px ${ROUTINES[item.id].col}55;flex-shrink:0`)}>▶</button>`:""}
-          <span ${uiStyle(`font-size:15px;color:${st?(light?"#f59e0b":"#e2e2e299"):"#8a8aa0"};min-width:38px;text-align:right`)}>${pointsLabel(item,st)}</span>
+          <span ${uiStyle(`font-size:15px;color:${st?(light?"#f59e0b":"#e2e2e299"):"#8a8aa0"};min-width:38px;text-align:right`)}><bdi dir="ltr">${pointsLabel(item,st)}</bdi></span>
         </div>
       </div>`;}).join("")}
       </div>
@@ -5714,7 +5718,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
           ${half?chk3(st,item.col):chk(!!st,item.col)}
           <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450}`)}>${esc(item.icon)} ${esc(item.label)}</span>
         </div>
-        <span ${uiStyle(`font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}`)}>${pointsLabel(item,st)}</span>
+        <span ${uiStyle(`font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"}`)}><bdi dir="ltr">${pointsLabel(item,st)}</bdi></span>
       </div>`;}).join("")}
       </div>
     </div>
@@ -5730,7 +5734,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
           ${chk(!!st,core?"#a78bfa":"#fbbf24")}
           <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450}`)}>${esc(item.icon)} ${esc(item.label)}</span>
         </div>
-        <span ${uiStyle(`font-size:15px;color:${st?"#fbbf2499":"#8a8aa0"}`)}>${pointsLabel(item,st)}</span>
+        <span ${uiStyle(`font-size:15px;color:${st?"#fbbf2499":"#8a8aa0"}`)}><bdi dir="ltr">${pointsLabel(item,st)}</bdi></span>
       </div>`;
       }).join("")}
       </div>
@@ -6045,15 +6049,16 @@ function proWeekComparison(){
       if(!item.combo&&item.id!=='work'&&!habits.has(item.id))habits.set(item.id,item.label);
     }
   }
-  return `<section class="pro-week-comparison"><h2>${interfaceCopy("Weekly consistency")}</h2>
+  return `<details class="stats-details pro-week-comparison"><summary>${interfaceCopy("Weekly consistency")}</summary>
+    <div class="stats-detail-content">
     <table><thead><tr><th scope="col">${interfaceCopy("Habit")}</th><th scope="col">${interfaceCopy("Last 7 days")}</th><th scope="col">${interfaceCopy("Previous 7 days")}</th></tr></thead>
-    <tbody>${Array.from(habits,([id,label])=>`<tr><th scope="row">${esc(label)}</th>${weeks.map(days=>`<td>${days.filter(day=>getChecked(day)[id]===true).length} / 7</td>`).join('')}</tr>`).join('')}</tbody></table></section>`;
+    <tbody>${Array.from(habits,([id,label])=>`<tr><th scope="row">${esc(label)}</th>${weeks.map(days=>`<td>${days.filter(day=>getChecked(day)[id]===true).length} / 7</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;
 }
 function gradeInterfaceName(grade) {
   return interfaceCopy(grade.n==='SIN PLAN'?'No plan':grade.n);
 }
 function renderStatsUpdate(container,bar){
-  const details=container.querySelector('.stats-details');
+  const openDetails=[...container.querySelectorAll('.stats-details')].map(node=>node.open);
   const animate=document.documentElement.dataset.skin!=='minimal'&&
     !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const bars=new Map();
@@ -6062,8 +6067,7 @@ function renderStatsUpdate(container,bar){
     if(node.getClientRects().length)bars.set(node.dataset.statsBar,{axis,size:getComputedStyle(node)[axis],target:node.dataset.statsValue});
   }
   uiHTML(container,bar+renderStats());
-  const nextDetails=container.querySelector('.stats-details');
-  if(details?.open&&nextDetails)nextDetails.open=true;
+  container.querySelectorAll('.stats-details').forEach((node,index)=>{node.open=!!openDetails[index];});
   for(const node of container.querySelectorAll('[data-stats-bar]')){
     const previous=bars.get(node.dataset.statsBar);
     if(!previous||previous.target===node.dataset.statsValue)continue;
@@ -6960,9 +6964,9 @@ function workPhaseCard(key,item){
  const previous=legacy?' · '+interfaceCopy('Previous progress preserved'):'';
  const weekly=workWeeklyCash(key);
  const cash=completed?workMilestoneRules(key)[completed-1].amount:0;
- return `<button type="button" class="sf-core-routine sf-work wg-card" ${phases.length?'':'disabled'} aria-label="${interfaceText('work')}${previous} · ${scoreLabel} · ${progress}. ${esc(action)}" ${ui('click','workPhaseAdvance',key)}><span class="wg-head"><span>💼 ${interfaceText('work')}</span><span class="wg-points">${points}/${item.pts} pts</span></span><span class="wg-row"><span class="wg-daily"><span>${interfaceText('today')}</span><strong>₪${cash.toLocaleString(interfaceLanguage)}</strong></span>${workGeometry(phases.length,completed)}<span class="wg-weekly"><span>${interfaceText('thisWeek')}</span><strong>≈ ₪${weekly.total.toLocaleString(interfaceLanguage)}</strong></span></span></button>`;
+ return `<button type="button" class="sf-core-routine sf-work wg-card" ${phases.length?'':'disabled'} aria-label="${interfaceText('work')}${previous} · ${scoreLabel} · ${progress}. ${esc(action)}" ${ui('click','workPhaseAdvance',key)}><span class="wg-head"><span>💼 ${interfaceText('work')}</span><span class="wg-points"><bdi dir="ltr">${points}/${item.pts}</bdi> ${interfaceCopy('pts')}</span></span><span class="wg-row"><span class="wg-daily"><span>${interfaceText('today')}</span><strong>₪${cash.toLocaleString(interfaceLanguage)}</strong></span>${workGeometry(phases.length,completed)}<span class="wg-weekly"><span>${interfaceText('thisWeek')}</span><strong>≈ ₪${weekly.total.toLocaleString(interfaceLanguage)}</strong></span></span></button>`;
 }
-function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub">${Math.round(item.pts*doneFrac(state))} / ${item.pts} pts</div></div></div><div class="sf-core-actions">${socialButton(interfaceCopy(state?'Uncheck':'Complete'),'toggleHabit',[item.id,key],!!state)}</div></section>`;}
+function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub"><bdi dir="ltr">${Math.round(item.pts*doneFrac(state))} / ${item.pts}</bdi> ${interfaceCopy('pts')}</div></div></div><div class="sf-core-actions">${socialButton(interfaceCopy(state?'Uncheck':'Complete'),'toggleHabit',[item.id,key],!!state)}</div></section>`;}
 
 function socialGeneralSettings(){const bulkOpen=!!document.getElementById('social-bulk-details')?.open;return `      <div ${uiStyle(`margin-bottom:4px`)}>
         <div class="sec" ${uiStyle(`color:#fbbf24`)}>👥 SOCIAL COMBO — ${subsOn(subsList()).length} ACTIVE${subsOn(subsList()).length<subsList().length?` · ${subsList().length-subsOn(subsList()).length} PAUSED`:""}</div>

@@ -194,10 +194,21 @@ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.co
  html[data-layout="pro"] #app:has(.today.sf-today-v27) #scroll #sync-status{top:20px;inset-inline-end:24px;bottom:auto;inset-inline-start:auto;width:30px;height:36px}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start,
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{height:calc(100% - 44px)!important;min-height:172px!important;align-self:end!important}
- html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:72px;height:72px}
- html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button{width:88px;height:88px;gap:4px}
- html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add{top:96px;inset-inline-end:calc(50% - 64px)}
+ /* Day Log box: no label, larger centred circle; X in the top-start corner, + in the opposite (bottom-end) corner. */
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{padding:12px!important;gap:10px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:88px;height:88px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:104px;padding:12px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-label{display:none}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button{width:var(--orb);height:var(--orb);gap:4px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add{top:auto;right:auto;bottom:8px;inset-inline-end:8px;width:28px;height:28px;min-height:28px;font-size:20px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add::before{inset:0}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb :is(.product-orb-close,.product-end-menu){top:8px;left:auto;inset-inline-start:8px;width:auto}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .product-orb-close{width:28px;height:28px;min-height:28px;font-size:19px}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note{bottom:132px!important}
+}
+@media(min-width:1300px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:100px;height:100px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:120px}
 }
 
 /* Give every desktop sidebar tab the same card treatment. */

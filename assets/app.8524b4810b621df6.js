@@ -2481,20 +2481,8 @@ function visiblePeople(){return peopleList().filter(personVisible);}
 // Settings filter only; never changes activity scoring or historical logs.
 var peopleSettingsFilter='active';
 function setPeopleSettingsFilter(v){if(!['active','inactive','all'].includes(v))return;peopleSettingsFilter=v;bulkPeopleSelection=[];render();}
-function settingsPeople(){return peopleList().filter(p=>peopleSettingsFilter==='all'||(peopleSettingsFilter==='inactive'?p.inactive===true:p.inactive!==true));}
 function settingsOrphanPeople(){const ids=new Set(settingsPeople().map(p=>p.id));return orphanPeople().filter(p=>ids.has(p.id));}
 function locationSelect(id){if(id!=='all'&&!locationGroups().some(g=>g.id===id))return;CFG.selectedLocation=id;saveCfg();render();}
-function locationAdd(){
-  const name=(window.prompt(interfaceCopy('Location group name (e.g. Israel)'))||'').trim().slice(0,40);
-  if(!name)return;
-  const id='loc'+Math.random().toString(36).slice(2,10);
-  CFG.locationGroups=locationGroups().concat([{id,name}]);CFG.selectedLocation=id;saveCfg();render();
-}
-function locationRename(id){
-  const g=locationGroups().find(x=>x.id===id);if(!g)return;
-  const name=window.prompt(interfaceCopy('Rename location group'),g.name);
-  if(name===null||!name.trim())return;g.name=name.trim().slice(0,40);saveCfg();render();
-}
 function locationTogglePerson(id,loc){
   if(!locationGroups().some(g=>g.id===loc))return;
   const p=personById(id);if(!p)return;

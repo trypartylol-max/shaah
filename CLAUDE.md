@@ -20,13 +20,13 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 python3 scripts/build-production.py     # source/ -> assets/ hasheados, index.html, sw.js
 npm ci
 npm run test:unit                        # 299 tests, ~5 s, verdes a día 2026-11-09
-npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~15 min. NO está en verde: 75 fallos de 292 el 2026-11-09. Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout/clean
+npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~15 min. En verde a 2026-11-10: 270 pasan, 0 fallan, 25 omitidos (cada uno con su motivo en el propio test). Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout -- docs y borra los .png sueltos de la raíz
 SHAAH_SOURCE=source/app.js npm test      # probar el fuente sin reconstruir
 ```
 - Los tests unitarios ejecutan el código real de `app.js` en un `vm` con DOM simulado (`tests/helpers.cjs`, `loadApp()`); sirven para llamar funciones concretas (`calcScore`, `cfgForDate`, `persistDay`…).
 - Chromium en este entorno: `CHROMIUM_PATH=/opt/pw-browsers/chromium-1243/chrome-linux*/chrome`.
 - Build reproducible: el nombre de `app.<16 hex>.js` es el SHA-256 del contenido. Reconstruir sin cambios no deja diff.
-- Despliegue: GitHub Pages sirve la raíz del repo (inferido: no hay workflow ni CNAME). Verificar = comparar `index.html`, `sw.js` y cada archivo de `assets/` referenciado contra lo publicado. Desde el shell `github.io` está bloqueado; se hace con `fetch` + `crypto.subtle` desde el navegador integrado (pedir acceso al sitio). El 2026-11-09 coincidían los 31 archivos.
+- Despliegue: GitHub Pages sirve la raíz de `main` (workflow automático "pages build and deployment", ~2 min tras el merge; `gh api repos/trypartylol-max/shaah/actions/runs`). `gh` solo funciona por REST (`gh api`), no GraphQL (`gh pr view` falla). Verificar = comparar `index.html`, `sw.js` y cada archivo de `assets/` referenciado contra lo publicado. Desde el shell `github.io` está bloqueado; se hace con `fetch` + `crypto.subtle` desde el navegador integrado (pedir acceso al sitio). El 2026-11-09 coincidían los 31 archivos.
 - `git clone` de GitHub por HTTPS funciona desde el shell. Supabase y `github.io` no.
 
 ## Mapa de `source/app.js` (las líneas se mueven; usa grep)
@@ -86,9 +86,9 @@ RLS: solo el propietario (`auth.uid() = user_id`). La clave `anon` embebida es p
 10. Hay funciones declaradas dos veces (`settingsPeople`, `locationAdd`, `locationRename`): gana la última. Antes de tocarlas, edita la que de verdad se ejecuta (la del final del archivo).
 
 ## Torre de Control (`control/`)
-Panel privado del propietario, página independiente (`control/index.html`, 75 KB, un solo archivo con script inline). Se publica en `/shaah/control/` y también existe una variante `/api/control` fuera del repo. Login con Google (PKCE, clave de sesión `shaah-control-auth-v1`) y comprobación en cliente `user.id === OWNER` (UUID fijo en el archivo; es solo de interfaz). Pestañas: Vista general, Bitácora, PRODUCT ↔ TEST, Publicaciones, Usuarios, Roadmap/incidencias/notas.
+Panel privado del propietario, página independiente (`control/index.html`, 75 KB, un solo archivo con script inline). Se publica en `/shaah/control/` y también existe una variante `/api/control` fuera del repo. Login con Google (PKCE, clave de sesión `shaah-control-auth-v1`) y comprobación en cliente `user.id === OWNER` (UUID fijo en el archivo; en el cliente es solo de interfaz, la seguridad real está en el servidor). Pestañas: Vista general, Bitácora, PRODUCT ↔ TEST, Publicaciones, Usuarios, Roadmap/incidencias/notas.
 - Usa el **proyecto de producción** (`llpyxktcfubhmthqujpa`): tablas `shaah_control_journal`, `shaah_control_releases`, `shaah_control_environments`, `shaah_control_items`, RPC `shaah_control_metrics` y la Edge Function `control-pages` (en Pages) para publicaciones y usuarios.
-- **Nada de ese backend (tablas, RLS, RPC, función) está versionado en este repo.** La seguridad real depende de RLS y de la función, que no se han podido revisar. No supongas que el `OWNER` del cliente protege nada.
+- Ese backend (tablas, RLS, RPC, función) no está versionado en este repo. Revisado el 2026-11-10 con el conector de Supabase: RLS limita las tablas `shaah_control_*` al propietario y la Edge Function `control-pages` valida el JWT contra `/auth/v1/user`, exige el UUID del propietario, solo acepta el origen de GitHub Pages y usa la clave `anon` con el JWT del usuario (sin `service_role`); las acciones de publicación las reenvía a una función de Netlify. No supongas que el `OWNER` del cliente protege nada por sí solo.
 - Carga `supabase-js@2.118.0` desde `cdn.jsdelivr.net` sin SRI (la app principal no carga nada externo) y su CSP permite ese origen más un script inline por hash. Si cambias el script inline hay que recalcular el hash de la CSP.
 - Bitácora: tras una entrega significativa y autorizada, `AGENTS.md` y `docs/bitacora.md` piden registrar una entrada en `public.shaah_control_journal` con el conector Supabase (`source_key = github:<owner/repo>:<SHA completo>`, `state='published'` solo tras verificar el despliegue). Si no hay conector, se informa que el registro quedó pendiente; nunca afirmar que se guardó.
 
@@ -98,7 +98,8 @@ Panel privado del propietario, página independiente (`control/index.html`, 75 K
 - Flujo recomendado para un cambio: rama + PR, tests unitarios, build, merge, verificar hashes publicados y registrar en Bitácora. `main` se publica tal cual.
 
 ## Cosas conocidas (detalle en `docs/ESTADO_ACTUAL_2026-11-09.md`)
-- La suite de navegador falla en HEAD (muchos tests buscan textos en español o interfaz ya retirada). Antes de fiarte de ella, revisa cada fallo.
+- Hay 25 tests de navegador omitidos con `skip:` (Glow retirado, baselines que nunca se versionaron, diseño cambiado). Antes de reactivarlos hay que revisarlos con capturas. Ojo: el panel "Pro shortcuts" va oculto en el DOM de todos los skins y duplica la nota y la tarjeta Work, así que en los tests usa selectores con `:visible`.
+- El botón Collapse All / Expand All de Hoy cubre Core, niveles 1-3, Social combo y la nota; el anillo y el Day Log quedan fuera (`TODAY_ALL_EXCLUDED`).
 - El email personal ya no está en `source/app.js` ni en `assets/`; solo sigue en el historial de git.
 - `assets/` conserva solo el build actual y 5 `app.*` antiguos que usan los tests (fixtures `production-*`). El build no limpia los antiguos: al publicar uno nuevo, borra el anterior salvo que algún test lo use (`grep -r app.<hash> tests`).
 - `readAccountRows` no pagina: con la configuración por defecto de PostgREST (1000 filas) la carga falla al superar ese número de filas.

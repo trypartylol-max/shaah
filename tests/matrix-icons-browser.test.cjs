@@ -27,7 +27,7 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
     await page.evaluate(() => { setSkin('matrix'); setTab('today'); });
     for (const tab of ['today', 'log', 'social', 'stats', 'history']) {
       const button = page.locator(`.nav-btn[data-tab="${tab}"]`);
-      await button.locator('.matrix-icon').waitFor({ state: 'visible' });
+      await button.locator('.navigation-icon').waitFor({ state: 'visible' });
       await button.click();
       assert.equal(await button.getAttribute('aria-current'), 'page');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.getElementById('scroll').scrollWidth <= innerWidth), true);

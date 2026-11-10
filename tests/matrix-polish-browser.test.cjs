@@ -47,7 +47,7 @@ test('Matrix decorations preserve mobile hit targets and disappear or stop with 
 
 test('all five dock tabs exist in the same order before a delayed SDK finishes loading', async t => {
   const page = await openApp(t, locationFixture(), { width: 390, height: 844 });
-  const tabs = () => page.locator('#nav .nav-btn').evaluateAll(nodes => nodes.filter(node => !node.hidden).map(node => node.dataset.tab));
+  const tabs = () => page.locator('#nav .nav-btn').evaluateAll(nodes => nodes.filter(node => !node.hidden && node.dataset.tab).map(node => node.dataset.tab));
   const expected = ['today', 'log', 'social', 'stats', 'history'];
   assert.deepEqual(await tabs(), expected);
   let release, entered;

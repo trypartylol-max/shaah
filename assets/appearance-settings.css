@@ -37,12 +37,12 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
 @media(min-width:1180px){
   html[data-layout="pro"] #app:has(#scroll>.today.sf-today-v27:not(.history-day-editor))>#scroll{position:relative}
   html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-top:8px!important}
+  /* Two independent boxes in the Log column: Work/Pro (36px) on top, then
+     8px, then the Day Log card (pro-mode.css: height calc(100% - 44px), align-self:end). */
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
-    position:absolute;top:14px;inset-inline-end:26px;width:calc(max(120px,(100% - 72px)*.14) - 12px);
-    justify-content:center;border:0;border-bottom:1px solid var(--skin-edge);border-radius:0;background:transparent
+    position:absolute;top:8px;inset-inline-end:20px;width:max(120px,(100% - 72px)*.14);height:36px;box-sizing:border-box;
+    justify-content:center;border:1px solid var(--pro-edge);border-radius:14px;background:var(--pro-panel);overflow:hidden
   }
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls>:is(#desktop-work-status,#layout-quick-toggle){height:34px}
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{padding-inline:4px}
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:100%!important;min-height:216px!important;align-self:stretch!important}
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{padding-top:54px!important}
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{padding-top:54px!important}
 }

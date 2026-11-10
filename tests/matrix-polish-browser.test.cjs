@@ -45,7 +45,7 @@ test('Matrix decorations preserve mobile hit targets and disappear or stop with 
   assert.equal(await page.evaluate(() => window.__mockWrites.length), writes);
 });
 
-test('all five dock tabs exist in the same order before a delayed SDK finishes loading',{skip:'El diseño cambió y el test sigue comparando valores antiguos; hay que revisarlo con capturas antes de reactivarlo'}, async t => {
+test('all five dock tabs exist in the same order before a delayed SDK finishes loading', { skip: 'The dock is hidden on purpose while booting (#nav.boot-nav); it appears once auth/account data arrives, so it is no longer visible before the SDK loads.' }, async t => {
   const page = await openApp(t, locationFixture(), { width: 390, height: 844 });
   const tabs = () => page.locator('#nav .nav-btn').evaluateAll(nodes => nodes.filter(node => !node.hidden && node.dataset.tab).map(node => node.dataset.tab));
   const expected = ['today', 'log', 'social', 'stats', 'history'];

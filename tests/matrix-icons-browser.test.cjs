@@ -74,7 +74,7 @@ test('dynamic custom icons remain safe text and editable fields retain their val
   assert.equal(await page.evaluate(() => document.activeElement.id), 'matrix-custom-input');
 });
 
-test('Matrix keeps rendered controls and result charts within its green and neutral palette',{skip:'El diseño cambió y el test sigue comparando valores antiguos; hay que revisarlo con capturas antes de reactivarlo'}, async t => {
+test('Matrix keeps rendered controls and result charts within its green and neutral palette', async t => {
   const page = await openApp(t, iconFixture());
   await page.evaluate(() => setSkin('matrix'));
   const check = async label => {

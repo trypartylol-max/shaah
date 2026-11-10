@@ -1,64 +1,64 @@
 {
   "profile": "390x844,4x CPU;7 paired rounds;10000 timing start/finish calls per round",
-  "offMedianMs": 2.900000000023283,
-  "onMedianMs": 24.400000000023283,
-  "additionalMsPerAction": 0.00215,
+  "offMedianMs": 1.2000000000116415,
+  "onMedianMs": 22.29999999998836,
+  "additionalMsPerAction": 0.002109999999997672,
   "samples": [
     {
       "enabled": false,
-      "ms": 3.400000000023283
+      "ms": 2.7999999999883585
     },
     {
       "enabled": true,
-      "ms": 44.09999999997672
+      "ms": 65.10000000003492
     },
     {
       "enabled": false,
-      "ms": 4.899999999906868
+      "ms": 6.7000000000116415
     },
     {
       "enabled": true,
-      "ms": 36.90000000002328
+      "ms": 37.899999999965075
     },
     {
       "enabled": false,
-      "ms": 3.199999999953434
+      "ms": 2.3999999999650754
     },
     {
       "enabled": true,
-      "ms": 24.400000000023283
+      "ms": 20.70000000001164
     },
     {
       "enabled": false,
-      "ms": 2.900000000023283
+      "ms": 1.2000000000116415
     },
     {
       "enabled": true,
-      "ms": 24.599999999976717
+      "ms": 21.400000000023283
     },
     {
       "enabled": false,
-      "ms": 0.30000000004656613
+      "ms": 0.8999999999650754
     },
     {
       "enabled": true,
-      "ms": 21.29999999993015
+      "ms": 22
     },
     {
       "enabled": false,
-      "ms": 0.7000000000698492
+      "ms": 0.20000000001164153
     },
     {
       "enabled": true,
-      "ms": 23
+      "ms": 22.29999999998836
     },
     {
       "enabled": false,
-      "ms": 1.1999999999534339
+      "ms": 1.2000000000116415
     },
     {
       "enabled": true,
-      "ms": 22.5
+      "ms": 26.5
     }
   ]
 }

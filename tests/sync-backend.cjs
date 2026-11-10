@@ -18,10 +18,12 @@ function syncBackend(rows = []) {
   }
   state.client = { auth: { onAuthStateChange() {} }, rpc:(name,args)=>rpc(name,args,state.userId||state.rows[0]?.user_id||'synthetic-A'), from(table) {
     if (table !== 'day_logs') throw new Error('Unexpected table');
-    let action = 'select', payload, returning = false, countExact = false;
+    let action = 'select', payload, returning = false, countExact = false, sortKey = null, bounds = null;
     const filters = [];
     const query = {
       select(_columns,options) { if (action !== 'select') returning = true; countExact=options?.count==='exact';return query; },
+      order(key) { sortKey=key;return query; },
+      range(from,to) { bounds=[from,to];return query; },
       eq(k,v) { filters.push([k,v]); return query; },
       like(k,v) { filters.push([k,v,'prefix']);return query; },
       update(data) { action='update';payload=clone(data);return query; },
@@ -33,7 +35,7 @@ function syncBackend(rows = []) {
     async function execute() {
       if(action!=='select') await state.beforeMutation?.({action,payload,filters});
       const matches = r => filters.every(([k,v,op]) => op==='prefix'?String(r[k]).startsWith(v.slice(0,-1)):k==='data' ? isDeepStrictEqual(r.data,JSON.parse(v)) : r[k]===v);
-      if(action==='select') {await state.beforeSelect?.({filters});const data=clone(state.rows.filter(matches));return {data,count:countExact?data.length:null,error:null};}
+      if(action==='select') {await state.beforeSelect?.({filters});const found=state.rows.filter(matches);if(sortKey)found.sort((a,b)=>String(a[sortKey]).localeCompare(String(b[sortKey])));const data=clone(bounds?found.slice(bounds[0],bounds[1]+1):found);return {data,count:countExact?found.length:null,error:null};}
       if(action==='insert' && state.rows.some(r=>r.user_id===payload.user_id&&r.date===payload.date)) return {data:null,error:{code:'23505'}};
       let changed=[];
       if(action==='insert'||action==='upsert') {

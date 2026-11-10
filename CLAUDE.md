@@ -102,4 +102,4 @@ Panel privado del propietario, página independiente (`control/index.html`, 75 K
 - El botón Collapse All / Expand All de Hoy cubre Core, niveles 1-3, Social combo y la nota; el anillo y el Day Log quedan fuera (`TODAY_ALL_EXCLUDED`).
 - El email personal ya no está en `source/app.js` ni en `assets/`; solo sigue en el historial de git.
 - `assets/` conserva solo el build actual y 5 `app.*` antiguos que usan los tests (fixtures `production-*`). El build no limpia los antiguos: al publicar uno nuevo, borra el anterior salvo que algún test lo use (`grep -r app.<hash> tests`).
-- `readAccountRows` no pagina: con la configuración por defecto de PostgREST (1000 filas) la carga falla al superar ese número de filas.
+- La carga de cuenta (`readAccountRows`) y `reconcileDeletedDays` leen `day_logs` por páginas de 500 filas (`readAllDayLogs`), así que el tope de 1000 filas de PostgREST ya no rompe la carga. Los simuladores de `tests/` deben soportar `order` y `range`.

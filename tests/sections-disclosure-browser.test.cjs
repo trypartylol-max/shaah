@@ -17,7 +17,10 @@ for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserv
  assert.equal(await page.locator('.t-score-hero').getAttribute('data-today-box'),null);
  assert.equal(await page.locator('.t-rout-body').isVisible(),false);assert.equal(await page.locator('.lvl-b').evaluateAll(es=>es.every(e=>e.getBoundingClientRect().height===0)),true);
  assert.equal(await page.locator('[data-today-box]').count(),3);
- for(const id of ['social','daylog','note']){
+ // Collapse All covers Core, levels 1-3, Social combo and the note; the Day Log stays outside it.
+ const daylog=page.locator('[data-today-box="daylog"]');
+ assert.equal(await daylog.evaluate(e=>e.classList.contains('today-box-collapsed')),false);
+ for(const id of ['social','note']){
   const box=page.locator(`[data-today-box="${id}"]`);
   assert.equal(await box.evaluate(e=>e.classList.contains('today-box-collapsed')),true);
   assert.equal(await box.evaluate(e=>[...e.children].filter(c=>!c.classList.contains('today-box-disclosure')).every(c=>getComputedStyle(c).display==='none')),true);
@@ -28,7 +31,7 @@ for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserv
   assert.equal(await box.evaluate(e=>e.classList.contains('today-box-collapsed')),true);
  }
  await page.evaluate(()=>render());
- assert.equal(await page.locator('.today-box-collapsed').count(),3);
+ assert.equal(await page.locator('.today-box-collapsed').count(),2);assert.equal(await daylog.evaluate(e=>e.classList.contains('today-box-collapsed')),false);
  await page.locator('.t-lvl2 .lvl-toggle').click();assert.equal(await page.locator('.t-lvl2 .lvl-toggle').getAttribute('aria-expanded'),'true');
  await button.click();await button.click();assert.equal(await button.getAttribute('aria-label'),'Collapse All');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
  await page.locator('.today-routines-label').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);await page.locator('.today-routines-label').click();

@@ -9,10 +9,10 @@ for(const width of [390,879])test(`integrated mobile ${width}: disclosures hide 
  const snapshot=()=>page.evaluate(()=>JSON.stringify({config:CFG,days:_state,scores:Object.keys(_state).map(k=>calcScore(k))}));
  const before=await snapshot();
  const core=page.locator('.today > .t-rout'),body=core.locator(':scope > .t-rout-body');
- if(await core.evaluate(n=>n.classList.contains('collapsed')))await core.locator('.t-rout-toggle').click();
+ if(await core.evaluate(n=>n.classList.contains('collapsed')))await core.locator('.today-routines-label').click();
  assert.equal(await body.isVisible(),true);
- await core.locator('.t-rout-toggle').click();assert.equal(await body.isVisible(),false);
- await core.locator('.t-rout-toggle').click();assert.equal(await body.isVisible(),true);
+ await core.locator('.today-routines-label').click();assert.equal(await body.isVisible(),false);
+ await core.locator('.today-routines-label').click();assert.equal(await body.isVisible(),true);
  const combo=page.getByRole('button',{name:'Toggle Social Combo',exact:true});
  await combo.press('Enter');assert.equal(await combo.getAttribute('aria-expanded'),'false');
  assert.equal(await page.locator('.today > .t-social-independent .sf-combo-category').first().isVisible(),false);

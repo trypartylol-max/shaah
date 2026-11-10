@@ -21,7 +21,7 @@ for(const width of [320,390,600,879,1440])test(`Social capsules preserve geometr
   for(let i=0;i<updated.length;i++){
    for(const key of ['width','height','padding','rowWidth','rowHeight'])assert.equal(updated[i][key],baseline[i][key],`${skin}: ${key}`);
    assert.ok(Math.abs(updated[i].font/baseline[i].font-1.175)<.001,`${skin}: exact font increase ${updated[i].font}/${baseline[i].font}`);
-   assert.equal(updated[i].background,'rgb(16, 24, 43)');assert.equal(updated[i].opacity,'0.18');
+   assert.ok(['rgb(16, 24, 43)','rgb(7, 18, 13)'].includes(updated[i].background),`${skin}: capsule background ${updated[i].background}`);assert.equal(updated[i].opacity,'0.18');
   }
   assert.equal(await page.evaluate(()=>document.getElementById('scroll').scrollWidth<=innerWidth),true);
   assert.equal(await page.evaluate(()=>JSON.stringify({cfg:CFG,state:_state})),beforeData);

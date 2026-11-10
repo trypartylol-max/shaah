@@ -41,6 +41,8 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-grade{anchor-name:--shaah-next}
   html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) :is(.today-log-start,.cr-log-orb){anchor-name:--shaah-log;margin-top:50px!important;margin-inline:36px!important}
   html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{margin-top:58px!important}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{width:88px!important;min-width:88px!important;height:88px!important;min-height:88px!important}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{font-size:34px!important}
   /* Active routine: same rules as the Pro Day Log box — no label, X top-start, + in the opposite corner. */
   html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{width:88px;height:88px}
   html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button{width:88px;height:88px;gap:3px}

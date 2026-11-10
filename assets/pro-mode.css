@@ -196,7 +196,12 @@ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.co
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{height:calc(100% - 44px)!important;min-height:172px!important;align-self:end!important}
  /* Day Log box: no label, larger centred circle; X in the top-start corner, + in the opposite (bottom-end) corner. */
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{padding:12px!important;gap:10px!important}
- html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:88px;height:88px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{position:relative}
+ /* LOG lives inside the circle (and the live timer takes its place), so the circle is the only in-flow child. */
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:104px;height:104px;box-sizing:border-box;padding-bottom:18px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start.live>b{position:absolute!important;top:calc(50% + 14px)!important;left:0!important;right:0!important;bottom:auto!important;text-align:center;font-size:11px!important;line-height:1.4!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start.live::after{display:none!important}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:104px;padding:12px!important}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-label{display:none}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button{width:var(--orb);height:var(--orb);gap:4px}
@@ -207,7 +212,8 @@ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.co
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note{bottom:132px!important}
 }
 @media(min-width:1300px){
- html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:100px;height:100px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:120px;height:120px;padding-bottom:20px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 17px)!important;font-size:12px!important}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:120px}
 }
 

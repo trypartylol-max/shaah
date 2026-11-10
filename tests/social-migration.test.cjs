@@ -14,7 +14,7 @@ test('migration reactivates once with 180 days and keeps IDs, history and edited
 test('romantic capacity blocks only new assignments and permits editing existing excess contacts',()=>{
  const data=fixture();data.config.people[0].sub='flirt';const a=upgraded(data);
  a.run("socialEdit('pold02');socialDraftField('sub','flirt');socialSave()");
- assert.equal(a.read("personById('pold02').sub"),'friends');assert.ok(a.read('socialFormError').includes('límite'));
+ assert.equal(a.read("personById('pold02').sub"),'friends');assert.ok(a.read('socialFormError').includes('limit'));
  a.run("socialCancel();socialEdit('pold01');socialDraftField('every','90');socialSave()");
  assert.equal(a.read("personById('pold01').every"),90);assert.equal(a.read("peopleList().filter(p=>p.sub==='flirt').length"),2);
  a.run("socialRomanticLimitSet('3');socialEdit('pold02');socialDraftField('sub','flirt');socialSave()");
@@ -87,7 +87,7 @@ test('settings edit today preserves sorted future transition and earlier scores'
 });
 test('Settings renders rules and Work-specific fields in Vacation without UI errors',()=>{
  const a=upgraded();a.run("CFG.travel.mode='vacation';persistTravelMode('vacation');applyCfg()");
- const html=a.run('renderSettings()');assert.ok(html.includes('máximo de personas asignadas'));assert.ok(!html.includes('En pausa'));
+ const html=a.run('renderSettings()');assert.ok(html.includes('Maximum people assigned'));assert.ok(!html.includes('En pausa'));
  a.run("cfgSet('meditation','pWork','14')");assert.equal(a.read('CFG.h.meditation.pWork'),14);assert.equal(a.read('CFG.h.meditation.pVacation'),6);
 });
 test('inline groups create, rename and cancel without prompts or rewriting memberships/history',()=>{

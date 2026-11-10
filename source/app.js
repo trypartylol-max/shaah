@@ -303,7 +303,7 @@ function applyLayout(){
   const quick=document.getElementById('layout-quick-toggle');
   if(quick){quick.setAttribute('aria-pressed',String(_layout==='pro'));quick.title=interfaceCopy(_layoutSaved?'Change desktop layout':'Applied for this session only');}
   const status=document.getElementById('layout-status');
-  if(status)status.textContent=_layoutSaved?'Se guarda en este navegador. En móvil se mantiene la vista estándar.':'Aplicado durante esta sesión; el navegador no permite guardarlo.';
+  if(status)status.textContent=interfaceCopy(_layoutSaved?'Saved in this browser. Mobile keeps the standard layout.':'Applied for this session. The browser could not save it.');
 }
 function setLayout(id){
   if(!['standard','pro'].includes(id))return false;
@@ -480,7 +480,9 @@ function dayLogFmt(mins){
   if(mins==null||isNaN(mins))return '—';
   mins=Math.max(0,Math.round(mins));
   const h=Math.floor(mins/60),m=mins%60;
-  return h?`${h}h${m?` ${m}m`:''}`:`${m}m`;
+  const hours=interfaceCopy('{count}h').replace('{count}',h);
+  const minutes=interfaceCopy('{count}m').replace('{count}',m);
+  return h ? (m ? hours+' '+minutes : hours) : minutes;
 }
 function dayLogTz(){return CFG.tz&&CFG.tz!=='device'?CFG.tz:Intl.DateTimeFormat().resolvedOptions().timeZone;}
 function dayLogDateTime(key,minutes){
@@ -857,10 +859,10 @@ function dayLogRender(key=todayKey()){
   evs.forEach(e=>{
     const dur=dayLogDuration(e), running=dayLogIsRunning(e);
     html+=`<div class="dl-event" data-id="${dayLogEsc(e.id)}">
-      <div class="dl-time">${new Date(e.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`:dayLogIsSleepWake(e)?'':running?' · NOW':' · END MISSING'}</div>
+      <div class="dl-time">${new Date(e.start).toLocaleTimeString(interfaceLanguage, {hour:'2-digit',minute:'2-digit'})}${e.end?`–${new Date(e.end).toLocaleTimeString(interfaceLanguage, {hour:'2-digit',minute:'2-digit'})}`:dayLogIsSleepWake(e)?'':' · '+interfaceCopy(running?'NOW':'END MISSING')}</div>
       <div class="dl-main" role="button" tabindex="0" aria-label="${interfaceCopy("Edit activity")}" ${ui('click','dayLogEdit' ,e.id,key)} ${ui('keydown','activate')}>
         <div class="dl-title">${dayLogEsc(e.title)} ${e.meta?.light?'<span class="dl-light">½</span>':''}</div>
-        <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}${running?' · RUNNING':''}</div>
+        <div class="dl-meta">${dayLogTypeLabel(e.type)}${dur!=null?` · ${dayLogFmt(dur)}`:''}${running?' · '+interfaceCopy('RUNNING'):''}</div>
       </div>
       <div class="dl-actions">
         ${running?`<button class="dl-stop" type="button" ${ui('click','dayLogStop' ,e.id)}>${interfaceText('stop')}</button>`:''}
@@ -1152,17 +1154,20 @@ function starterAddRoutine(id){
   cfgEdit(()=>{CFG.h[id].routine=true;CFG.routines[id]={label:CFG.h[id].l,icon:CFG.h[id].i,col:'#a78bfa',steps:starterRoutineSteps(id)};});
   _starterRoutineId=null;render();
 }
+function starterProgressLabel(done,total){
+  return total?interfaceText('starterPlanCount').replace('{done}',done).replace('{total}',total):interfaceText('starterNoPlan');
+}
 function renderStarterToday(key){
   const {items,done}=starterSummary(key),ch=getChecked(key);
-  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${items.length?interfaceText('starterPlanCount').replace('{done}',done).replace('{total}',items.length):interfaceText('starterNoPlan')}</p></div>
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p></div>
     ${items.length?items.map(item=>{
       // The simple view must still expose EVERY active item and its real controls.
       if(item.combo)return legacyComboBlock(key,true);
       if(item.id==='work'&&coreLayoutFor(key))return workPhaseCard(key,item);
       const full=ch[item.id]===true,partial=ch[item.id]===0.5,rt=ROUTINES[item.id];
       return `<section class="starter-habit" data-starter-habit="${esc(item.id)}"><p class="starter-kicker">${full?interfaceText('starterDone'):interfaceText('starterTodayCommitment')}</p><h2>${esc(item.icon)} ${esc(item.label)}</h2>${partial?`<p class="starter-muted">${interfaceText('routinePartial')}</p>`:''}<div class="starter-actions"><button type="button" class="${full?'starter-secondary':'starter-primary'}" ${ui('click','setHabitState',item.id,key,!full)}>${full?interfaceText('starterMarked'):interfaceText('starterMarkDone')}</button>${full?`<button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,false)}>${interfaceText('starterUndo')}</button>`:`<button class="starter-link" type="button" ${ui('click','starterOpen',item.id)}>${interfaceText('starterChange')}</button>`}</div>
-      ${rt?`<div class="starter-routine"><span class="starter-muted">${rt.steps.length} pasos · ${rt.steps.reduce((n,s)=>n+s.dur,0)} min</span><button class="starter-secondary" type="button" ${ui('click','startRoutine',item.id)}>${sessions[item.id]?interfaceText('routineOpen'):interfaceText('routineStart')}</button><button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,partial?false:0.5)}>${interfaceText('routineLight')}</button></div>`:!full?`<button class="starter-link starter-small" type="button" ${ui('click','starterRoutinePreview',item.id)}>${interfaceText('routineSplit')}</button>`:''}
-      ${_starterRoutineId===item.id&&!rt?`<div class="starter-routine-preview"><p>${interfaceText('routineOptional')}</p><ol>${starterRoutineSteps(item.id).map(s=>`<li>${esc(s.label)} <span>${s.dur} min</span></li>`).join('')}</ol><p class="starter-muted starter-small">${interfaceText('routineEditHint')}</p><div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterAddRoutine',item.id)}>${interfaceText('routineAdd')}</button><button type="button" class="starter-link" ${ui('click','starterRoutinePreview','')}>${interfaceText('routineLater')}</button></div></div>`:''}</section>`;
+      ${rt?`<div class="starter-routine"><span class="starter-muted">${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',rt.steps.length).replace('{minutes}',rt.steps.reduce((n,s)=>n+s.dur,0))}</span><button class="starter-secondary" type="button" ${ui('click','startRoutine',item.id)}>${sessions[item.id]?interfaceText('routineOpen'):interfaceText('routineStart')}</button><button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,partial?false:0.5)}>${interfaceText('routineLight')}</button></div>`:!full?`<button class="starter-link starter-small" type="button" ${ui('click','starterRoutinePreview',item.id)}>${interfaceText('routineSplit')}</button>`:''}
+      ${_starterRoutineId===item.id&&!rt?`<div class="starter-routine-preview"><p>${interfaceText('routineOptional')}</p><ol>${starterRoutineSteps(item.id).map(s=>`<li>${esc(s.label)} <span>${dayLogFmt(s.dur)}</span></li>`).join('')}</ol><p class="starter-muted starter-small">${interfaceText('routineEditHint')}</p><div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterAddRoutine',item.id)}>${interfaceText('routineAdd')}</button><button type="button" class="starter-link" ${ui('click','starterRoutinePreview','')}>${interfaceText('routineLater')}</button></div></div>`:''}</section>`;
     }).join(''):`<section class="starter-habit"><h2>${interfaceText('starterEmpty')}</h2><p class="starter-muted">${interfaceText('starterEmptyHint')}</p><button type="button" class="starter-primary" ${ui('click','starterOpen','')}>${interfaceText('starterFirstHabit')}</button></section>`}
     <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>${interfaceText('starterAddHabit')}</button>`:''}<button type="button" class="starter-secondary" ${ui('click','openDayLogStart')}>${interfaceText('starterLog')}</button></div>
     ${dayNoteHTML(key)}<div class="starter-actions starter-view">${starterProfile()?`<button type="button" class="starter-link starter-small" ${ui('click','starterView','full')}>${interfaceText('starterFull')}</button>`:''}<button type="button" class="starter-link starter-small" ${ui('click','startTour')}>${interfaceText('starterTutorial')}</button></div></div>`;
@@ -2158,7 +2163,7 @@ function nextMove(key){
 function scoreStripHTML(key){
   if(starterSimple()||calcScore(key).max===0){
     const {items,done}=starterSummary(key);
-    return `<div id="tb-score" class="starter-score" role="status">${items.length?interfaceText('starterPlanCount').replace('{done}',done).replace('{total}',items.length):interfaceText('starterNoPlan')}</div>`;
+    return `<div id="tb-score" class="starter-score" role="status">${starterProgressLabel(done,items.length)}</div>`;
   }
   const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
   const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
@@ -2203,7 +2208,7 @@ function statusEl(){return document.getElementById('sync-status');}
 var _syncText='SYNC…',_syncColor='#f59e0b';
 function setStatus(text,color){
   _syncText=text;if(color)_syncColor=color;
-  const e=statusEl();if(e){e.title=text;e.setAttribute('aria-label',text);if(color)e.querySelector('span')?.style.setProperty('background',color);}
+  const e=statusEl();if(e){const label=syncInterfaceLabel(text);e.title=label;e.setAttribute('aria-label',label);if(color)e.querySelector('span')?.style.setProperty('background',color);}
   const notice=document.getElementById('sync-notice');if(notice)uiReplaceHTML(notice,syncNoticeHTML());
 }
 
@@ -2328,7 +2333,7 @@ function showHabitAward({record,label,current,best}){
     const badge=document.createElement('span');
     badge.className='habit-award-ring';
     badge.setAttribute('role','status');
-    badge.textContent='✦ '+current+' días seguidos';
+    badge.textContent='✦ '+interfaceCopy('{count} consecutive days').replace('{count}',current);
     ring.querySelector('.habit-award-ring')?.remove();
     ring.append(badge);
     setTimeout(()=>badge.remove(),2200);
@@ -2338,7 +2343,7 @@ function showHabitAward({record,label,current,best}){
   const dialog=document.createElement('dialog');
   dialog.className='habit-award-dialog';
   dialog.setAttribute('aria-label',interfaceCopy('Personal best'));
-  uiHTML(dialog,`<strong>✦ ${interfaceCopy('Personal best')}</strong><p>${esc(label)} · ${interfaceCopy('{count} consecutive days').replace('{count}',current)}</p><p>${interfaceCopy('Previous best: {count} days').replace('{count}',best)}</p><form method="dialog"><button>${interfaceCopy('Back to Today')}</button></form>`);
+  uiHTML(dialog,`<strong>✦ ${interfaceCopy('Personal best')}</strong><p><bdi>${esc(label)}</bdi> · ${interfaceCopy('{count} consecutive days').replace('{count}',current)}</p><p>${interfaceCopy('Previous best: {count} days').replace('{count}',best)}</p><form method="dialog"><button>${interfaceCopy('Back to Today')}</button></form>`);
   dialog.addEventListener('close',()=>dialog.remove(),{once:true});
   document.body.append(dialog);
   dialog.showModal();
@@ -2480,14 +2485,14 @@ function settingsPeople(){return peopleList().filter(p=>peopleSettingsFilter==='
 function settingsOrphanPeople(){const ids=new Set(settingsPeople().map(p=>p.id));return orphanPeople().filter(p=>ids.has(p.id));}
 function locationSelect(id){if(id!=='all'&&!locationGroups().some(g=>g.id===id))return;CFG.selectedLocation=id;saveCfg();render();}
 function locationAdd(){
-  const name=(window.prompt('Location group name (e.g. Israel)')||'').trim().slice(0,40);
+  const name=(window.prompt(interfaceCopy('Location group name (e.g. Israel)'))||'').trim().slice(0,40);
   if(!name)return;
   const id='loc'+Math.random().toString(36).slice(2,10);
   CFG.locationGroups=locationGroups().concat([{id,name}]);CFG.selectedLocation=id;saveCfg();render();
 }
 function locationRename(id){
   const g=locationGroups().find(x=>x.id===id);if(!g)return;
-  const name=window.prompt('Rename location group',g.name);
+  const name=window.prompt(interfaceCopy('Rename location group'),g.name);
   if(name===null||!name.trim())return;g.name=name.trim().slice(0,40);saveCfg();render();
 }
 function locationTogglePerson(id,loc){
@@ -2551,9 +2556,9 @@ function bulkPeoplePanel(){
       <button ${ui('click','bulkPeopleSelectVisible' ,true)} ${uiStyle(`color:#ddd;background:#171725;border:1px solid #34344a;border-radius:7px;padding:6px`)}>${interfaceText('selectVisible')}</button>
       <button ${ui('click','bulkPeopleSelectVisible' ,false)} ${uiStyle(`color:#ddd;background:#171725;border:1px solid #34344a;border-radius:7px;padding:6px`)}>${interfaceText('deselectVisible')}</button>
     </div>
-    <div ${uiStyle(`max-height:220px;overflow:auto;margin:8px 0`)}>${candidates.map(p=>`<label ${uiStyle(`display:flex;align-items:center;gap:8px;padding:6px 2px;color:#e2e2e2;font-size:13px`)}><input type="checkbox" ${bulkPeopleSelection.includes(p.id)?'checked':''} ${ui('change','bulkPeopleToggle' ,p.id)}/><span ${uiStyle(`flex:1`)}>${esc(p.name)}</span><span ${uiStyle(`color:#8888a4;font-size:11px`)}>${personLocations(p).map(id=>locationGroups().find(g=>g.id===id).name).map(esc).join(', ')||'Unassigned'}</span></label>`).join('')||("<span "+uiStyle("color:#8888a4;font-size:12px")+">${interfaceText('noMatchingContacts')}</span>")}</div>
-    <div ${uiStyle(`color:#adadbf;font-size:12px;margin-bottom:7px`)}>${selected} selected</div>
-    <div ${uiStyle(`display:flex;flex-wrap:wrap;gap:6px`)}>${locationGroups().map(g=>`<button ${!selected?'disabled':''} ${ui('click','bulkPeopleApply' ,g.id,'add')} ${uiStyle(`padding:8px;border:1px solid #34344a;border-radius:8px;background:#25253a;color:#e2e2e2`)}>+ ${esc(g.name)}</button><button ${!selected?'disabled':''} ${ui('click','bulkPeopleApply' ,g.id,'remove')} ${uiStyle(`padding:8px;border:1px solid #34344a;border-radius:8px;background:#171725;color:#adadbf`)}>− ${esc(g.name)}</button>`).join('')||("<span "+uiStyle("color:#8888a4;font-size:12px")+">${interfaceText('addLocationFirst')}</span>")}</div>
+    <div ${uiStyle(`max-height:220px;overflow:auto;margin:8px 0`)}>${candidates.map(p=>`<label ${uiStyle(`display:flex;align-items:center;gap:8px;padding:6px 2px;color:#e2e2e2;font-size:13px`)}><input type="checkbox" ${bulkPeopleSelection.includes(p.id)?'checked':''} ${ui('change','bulkPeopleToggle' ,p.id)}/><span ${uiStyle(`flex:1`)}>${esc(p.name)}</span><span ${uiStyle(`color:#8888a4;font-size:11px`)}>${personLocations(p).map(id=>locationGroups().find(g=>g.id===id).name).map(esc).join(', ')||interfaceText('unassigned')}</span></label>`).join('')||`<span ${uiStyle("color:#8888a4;font-size:12px")}>${interfaceText('noMatchingContacts')}</span>`}</div>
+    <div ${uiStyle(`color:#adadbf;font-size:12px;margin-bottom:7px`)}>${interfaceCopy('{count} selected').replace('{count}',selected)}</div>
+    <div ${uiStyle(`display:flex;flex-wrap:wrap;gap:6px`)}>${locationGroups().map(g=>`<button ${!selected?'disabled':''} ${ui('click','bulkPeopleApply' ,g.id,'add')} ${uiStyle(`padding:8px;border:1px solid #34344a;border-radius:8px;background:#25253a;color:#e2e2e2`)}>+ ${esc(g.name)}</button><button ${!selected?'disabled':''} ${ui('click','bulkPeopleApply' ,g.id,'remove')} ${uiStyle(`padding:8px;border:1px solid #34344a;border-radius:8px;background:#171725;color:#adadbf`)}>− ${esc(g.name)}</button>`).join('')||`<span ${uiStyle("color:#8888a4;font-size:12px")}>${interfaceText('addLocationFirst')}</span>`}</div>
   </div>`;
 }
 function personSetInactive(id,val){const p=personById(id);if(!p)return;p.inactive=!!val;saveCfg();render();}
@@ -2607,10 +2612,10 @@ function contactInterval(value){
   return Number.isFinite(n)&&n>0?Math.max(1,Math.min(3650,Math.trunc(n))):14;
 }
 function personAdd(sub,key){
-  const name=(window.prompt("Who? (name)")||"").trim().slice(0,40);
+  const name=(window.prompt(interfaceCopy("Who? (name)"))||"").trim().slice(0,40);
   if(!name)return;
   // La frecuencia es opcional; vacío significa sin objetivo de frecuencia.
-  const raw=window.prompt(`How often do you want to see ${name}?\nDays in between — 7 = weekly, 30 = monthly. Leave blank for no frequency.`,"");
+  const raw=window.prompt(interfaceCopy("How often do you want to see {name}?\nDays in between — 7 = weekly, 30 = monthly. Leave blank for no frequency.").replace("{name}",()=>name),"");
   if(raw===null)return;                                     // cancelar aborta el alta entera
   const every=contactInterval(raw);
   let id; do{ id='p'+Math.random().toString(36).slice(2,7).padEnd(5,'0'); }while(personById(id));
@@ -3243,7 +3248,7 @@ function renderReview(){
 
   return`<div class="edit-day-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
     <div ${uiStyle(`display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50`)}>
-      <button ${ui('click','closeReview')} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#c0c0cd;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0`)}>←</button>
+      <button ${ui('click','closeReview')} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#c0c0cd;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0`)}>${interfaceLanguage==='he'?'→':'←'}</button>
       <div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;letter-spacing:0.16em;color:#e2e2e2`)}>${interfaceText('weeklyReview')}</div>
     </div>
     <div class="fade-up" ${uiStyle(`padding:18px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
@@ -3373,7 +3378,7 @@ function performanceExport(){
   link.href=url;link.download='shaah-velocidad-local.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 // UI language is a browser preference, independent of account data.
-const interfaceLanguages = {en:'English', es:'Español'};
+const interfaceLanguages = {en:'English', es:'Español', he:'עברית'};
 const interfaceMessages = {
   welcome: ['Welcome back', 'Qué bueno verte de nuevo', 'טוב שחזרת'],
   welcomeKicker: ['YOUR NEXT HOUR', 'TU SIGUIENTE HORA', 'השעה הבאה שלך'],
@@ -3572,17 +3577,17 @@ const interfaceMessages = {
   history: ['HISTORY', 'HISTORIAL', 'היסטוריה']
 };
 const historyInterfaceCopies = {
-  "Preparando el respaldo…": ["Preparing backup…", "Preparando el respaldo…"],
-  "Selecciona el archivo descargado para comprobar que el respaldo se conserva correctamente.": ["Select the downloaded file to verify that the backup was saved correctly.", "Selecciona el archivo descargado para comprobar que el respaldo se conserva correctamente."],
-  "No se pudo preparar el respaldo.": ["Could not prepare the backup.", "No se pudo preparar el respaldo."],
-  "Verificando el archivo…": ["Verifying file…", "Verificando el archivo…"],
-  "Respaldo verificado. Revisa los cambios previstos antes de confirmar.": ["Backup verified. Review the proposed changes before confirming.", "Respaldo verificado. Revisa los cambios previstos antes de confirmar."],
-  "Respaldo verificado. No hay una reparación pendiente.": ["Backup verified. There is no pending repair.", "Respaldo verificado. No hay una reparación pendiente."],
-  "No se pudo verificar el archivo.": ["Could not verify the file.", "No se pudo verificar el archivo."],
-  "Comprobando la recuperación…": ["Checking recovery…", "Comprobando la recuperación…"],
-  "Revisa la recuperación. Los registros diarios nuevos se conservarán.": ["Review the recovery. New daily records will be preserved.", "Revisa la recuperación. Los registros diarios nuevos se conservarán."],
-  "No se pudo preparar la recuperación.": ["Could not prepare recovery.", "No se pudo preparar la recuperación."],
-  "Guardando…": ["Saving…", "Guardando…"],
+  "Preparando el respaldo…": ["Preparing backup…", "Preparando el respaldo…", "מכינים את הגיבוי…"],
+  "Selecciona el archivo descargado para comprobar que el respaldo se conserva correctamente.": ["Select the downloaded file to verify that the backup was saved correctly.", "Selecciona el archivo descargado para comprobar que el respaldo se conserva correctamente.", "בחרו את הקובץ שהורד כדי לבדוק שהגיבוי נשמר כראוי."],
+  "No se pudo preparar el respaldo.": ["Could not prepare the backup.", "No se pudo preparar el respaldo.", "לא ניתן היה להכין את הגיבוי."],
+  "Verificando el archivo…": ["Verifying file…", "Verificando el archivo…", "בודקים את הקובץ…"],
+  "Respaldo verificado. Revisa los cambios previstos antes de confirmar.": ["Backup verified. Review the proposed changes before confirming.", "Respaldo verificado. Revisa los cambios previstos antes de confirmar.", "הגיבוי אומת. בדקו את השינויים המוצעים לפני האישור."],
+  "Respaldo verificado. No hay una reparación pendiente.": ["Backup verified. There is no pending repair.", "Respaldo verificado. No hay una reparación pendiente.", "הגיבוי אומת. אין תיקון שממתין לביצוע."],
+  "No se pudo verificar el archivo.": ["Could not verify the file.", "No se pudo verificar el archivo.", "לא ניתן היה לאמת את הקובץ."],
+  "Comprobando la recuperación…": ["Checking recovery…", "Comprobando la recuperación…", "בודקים את השחזור…"],
+  "Revisa la recuperación. Los registros diarios nuevos se conservarán.": ["Review the recovery. New daily records will be preserved.", "Revisa la recuperación. Los registros diarios nuevos se conservarán.", "בדקו את השחזור. הרשומות היומיות החדשות יישמרו."],
+  "No se pudo preparar la recuperación.": ["Could not prepare recovery.", "No se pudo preparar la recuperación.", "לא ניתן היה להכין את השחזור."],
+  "Guardando…": ["Saving…", "Guardando…", "שומרים…"],
   "Descarga y verifica el respaldo antes de continuar.": ["Download and verify the backup before continuing.", "Descarga y verifica el respaldo antes de continuar.", "הורידו ואמתו את הגיבוי לפני שתמשיכו."],
   "El archivo no es un respaldo JSON válido.": ["This file is not a valid JSON backup.", "El archivo no es un respaldo JSON válido.", "הקובץ אינו גיבוי JSON תקין."],
   "El respaldo contiene campos no válidos.": ["The backup contains invalid fields.", "El respaldo contiene campos no válidos.", "הגיבוי מכיל שדות לא תקינים."],
@@ -3656,149 +3661,166 @@ function skinInterfaceLabel(skin) {
   return skin?.id==='minimal'?interfaceCopy('Low stimulation'):skin?.label||'Original';
 }
 const interfaceCopies = {
-  "Automatic (device)": ["Automatic (device)", "Automática (dispositivo)"],
-  "Israel — Jerusalem": ["Israel — Jerusalem", "Israel — Jerusalén"],
-  "Panama": ["Panama", "Panamá"],
-  "Mexico": ["Mexico", "México"],
-  "Colombia": ["Colombia", "Colombia"],
-  "Argentina": ["Argentina", "Argentina"],
-  "Spain": ["Spain", "España"],
-  "USA — Eastern": ["USA — Eastern", "EE. UU. — Este"],
-  "Pause this habit": ["Pause this habit", "Pausar este hábito"],
-  "Resume this habit": ["Resume this habit", "Reanudar este hábito"],
-  "Show my screen": ["Show my screen", "Mostrar mi pantalla"],
-  "Load data": ["Load data", "Cargar datos"],
-  "Open Today": ["Open Today", "Abrir Hoy"],
-  "Open Log": ["Open Log", "Abrir Registro"],
-  "Open Social": ["Open Social", "Abrir Social"],
-  "Open Statistics": ["Open Statistics", "Abrir Estadísticas"],
-  "Open History": ["Open History", "Abrir Historial"],
-  "Respond to a habit toggle": ["Respond to a habit toggle", "Responder al marcar"],
-  "First page content": ["First page content", "Primer contenido de la página"],
-  "Main startup content": ["Main startup content", "Contenido principal de apertura"],
-  "Observed slow interaction": ["Observed slow interaction", "Interacción lenta observada"],
-  "Local measurement enabled.": ["Local measurement enabled.", "Medición local activada."],
-  "Local measurement disabled.": ["Local measurement disabled.", "Medición local desactivada."],
-  "This browser cannot save the report. It lasts while this page is open.": ["This browser cannot save the report. It lasts while this page is open.", "El navegador no permite guardar el informe; solo durará mientras esta página esté abierta."],
-  "Disable local measurement": ["Disable local measurement", "Desactivar medición local"],
-  "Enable local measurement": ["Enable local measurement", "Activar medición local"],
-  "All places": ["All places", "Todos los lugares"],
-  "Log this day’s encounter here.": ["Log this day’s encounter here.", "Registra aquí el encuentro de este día."],
-  "Tap a name to log the encounter.": ["Tap a name to log the encounter.", "Toca un nombre para registrar el encuentro."],
-  "+ Someone new": ["+ Someone new", "+ Alguien nuevo"],
-  "Logged on this day": ["Logged on this day", "Registrados este día"],
-  "Credit {category}": ["Credit {category}", "Acreditar {category}"],
-  "Maximum people assigned": ["Maximum people assigned", "Máximo de personas asignadas"],
-  "{count} assigned · limit {limit}.": ["{count} assigned · limit {limit}.", "{count} asignadas · límite {limit}."],
-  "Existing people stay assigned. Free a place or raise the limit to add more.": ["Existing people stay assigned. Free a place or raise the limit to add more.", "Se conservan todas las personas existentes; las nuevas asignaciones requieren liberar un lugar o aumentar el límite."],
-  "Points and suggestions stay the same.": ["Points and suggestions stay the same.", "No afecta puntos ni sugerencias."],
-  "SIN PLAN": ["NO PLAN", "SIN PLAN"],
-  "UNSTOPPABLE": ["UNSTOPPABLE", "IMPARABLE"],
-  "LEGENDARY": ["LEGENDARY", "LEGENDARIO"],
-  "EXCELLENT": ["EXCELLENT", "EXCELENTE"],
-  "SOLID": ["SOLID", "SÓLIDO"],
-  "AVERAGE": ["AVERAGE", "PROMEDIO"],
-  "LOW": ["LOW", "BAJO"],
-  "LOST": ["LOST", "PERDIDO"],
-  "▪ CORE ROUTINES": ["▪ CORE ROUTINES", "▪ RUTINAS PRINCIPALES"],
-  "TODAY'S ROUTINES": ["TODAY'S ROUTINES", "RUTINAS DE HOY"],
-  "{steps} steps · {minutes} min": ["{steps} steps · {minutes} min", "{steps} pasos · {minutes} min"],
-  "Clear light credit": ["Clear light credit", "Quitar el crédito parcial"],
-  "Light version — half credit": ["Light version — half credit", "Versión ligera · medio crédito"],
-  "Open running routine": ["Open running routine", "Abrir rutina en curso"],
-  "Resume routine": ["Resume routine", "Reanudar rutina"],
-  "Play prepared step": ["Play prepared step", "Iniciar el paso preparado"],
-  "Play routine": ["Play routine", "Iniciar rutina"],
-  "Clear completed routine": ["Clear completed routine", "Desmarcar rutina completada"],
-  "Mark done without the timer": ["Mark done without the timer", "Marcar como hecha sin temporizador"],
-  "PLAY": ["PLAY", "INICIAR"],
-  "Edit": ["Edit", "Editar"],
-  "Seen today": ["Seen today", "Visto hoy"],
-  "Last encounter · {date}": ["Last encounter · {date}", "Último encuentro · {date}"],
-  "Every {count} days": ["Every {count} days", "Cada {count} días"],
-  "✓ Logged · remove": ["✓ Logged · remove", "✓ Registrado · quitar"],
-  "Saw them today": ["Saw them today", "Lo vi hoy"],
-  "Personal best": ["Personal best", "Nuevo récord personal"],
-  "Back to Today": ["Back to Today", "Volver a Hoy"],
-  "Previous best: {count} days": ["Previous best: {count} days", "Marca anterior: {count} días"],
-  "{count} consecutive days": ["{count} consecutive days", "{count} días seguidos"],
-  "Free": ["Free", "Libre"],
-  "No encounters recorded": ["No encounters recorded", "Sin encuentros registrados"],
-  "Next encounter in {count} days": ["Next encounter in {count} days", "Próximo encuentro en {count} días"],
-  "Due today": ["Due today", "Toca hoy"],
-  "Overdue by {count} days": ["Overdue by {count} days", "Pendiente desde hace {count} días"],
-  "No encounters": ["No encounters", "Sin encuentros"],
-  "Today": ["Today", "Hoy"],
-  "Yesterday": ["Yesterday", "Ayer"],
-  "{count} days ago": ["{count} days ago", "Hace {count} días"],
-  "Undo encounter with {name}": ["Undo encounter with {name}", "Deshacer encuentro con {name}"],
-  "Log encounter with {name}": ["Log encounter with {name}", "Registrar encuentro con {name}"],
-  "Edit {name}": ["Edit {name}", "Editar {name}"],
-  "No category": ["No category", "Sin categoría"],
-  "Include Family in Who to See": ["Include Family in Who to See", "Incluir a la familia en A quién ver"],
-  "Name, in any group": ["Name, in any group", "Nombre, en cualquier grupo"],
-  "Add someone": ["Add someone", "Añadir a alguien"],
-  "Start routine": ["Start routine", "Iniciar rutina"],
-  "Remove": ["Remove", "Eliminar"],
-  "Work Mode": ["Work Mode", "Modo Trabajo"],
-  "Vacation Mode": ["Vacation Mode", "Modo Vacaciones"],
-  "Delete habit": ["Delete habit", "Eliminar hábito"],
-  "Sum of the active parts below": ["Sum of the active parts below", "Suma de las partes activas de abajo"],
-  "Configure in Routines → Work": ["Configure in Routines → Work", "Configurar en Rutinas → Trabajo"],
-  "Enter a name and select an active category. Frequency is optional: leave it blank or enter 0–3650 days.": ["Enter a name and select an active category. Frequency is optional: leave it blank or enter 0–3650 days.", "Completa el nombre y una categoría activa. La frecuencia es opcional: déjala vacía o usa 0–3650 días."],
-  "{category} reached its limit. Change another person’s category or raise the limit in Settings.": ["{category} reached its limit. Change another person’s category or raise the limit in Settings.", "{category} alcanzó el límite. Cambia la categoría de otra persona o aumenta el límite en Ajustes."],
-  "Pro shortcuts": ["Pro shortcuts", "Accesos rápidos de Pro"],
-  "Habits": ["Habits", "Hábitos"],
-  "Session": ["Session", "Sesión"],
-  "Work": ["Work", "Trabajo"],
-  "Day Note": ["Day Note", "Nota del día"],
-  "Customize": ["Customize", "Personalizar"],
-  "Done": ["Done", "Listo"],
-  "Restore order": ["Restore order", "Restaurar orden"],
-  "Show {widget}": ["Show {widget}", "Mostrar {widget}"],
-  "Move {widget} up": ["Move {widget} up", "Subir {widget}"],
-  "Move {widget} down": ["Move {widget} down", "Bajar {widget}"],
-  "Hide {widget}": ["Hide {widget}", "Ocultar {widget}"],
-  "Work is unavailable today.": ["Work is unavailable today.", "Trabajo no está disponible para hoy."],
-  "How was your day?": ["How was your day?", "¿Cómo fue tu día?"],
-  "No level 2 habits": ["No level 2 habits", "Sin hábitos de nivel 2"],
-  "View active session": ["View active session", "Ver sesión en curso"],
-  "Prepare session": ["Prepare session", "Preparar sesión"],
-  "Change desktop layout": ["Change desktop layout", "Cambiar distribución de escritorio"],
-  "Applied for this session only": ["Applied for this session only", "Aplicado solo durante esta sesión"],
-  "How was your day? What did you learn?": ["How was your day? What did you learn?", "¿Cómo fue tu día? ¿Qué aprendiste?"],
-  "Your habit plan": ["Your habit plan", "Tu plan de hábitos"],
-  "Current mode": ["Current mode", "Modo actual"],
-  "MY PLAN": ["MY PLAN", "MI PLAN"],
-  "Edit person": ["Edit person", "Editar persona"],
-  "Someone new": ["Someone new", "Alguien nuevo"],
-  "Frequency in days (optional)": ["Frequency in days (optional)", "Frecuencia en días (opcional)"],
-  "Blank or 0 = no frequency or overdue reminders. 7 = weekly · 30 = monthly.": ["Blank or 0 = no frequency or overdue reminders. 7 = weekly · 30 = monthly.", "Vacío o 0 = sin frecuencia ni avisos de atraso. 7 = semanal · 30 = mensual."],
-  "previous category": ["previous category", "categoría anterior"],
-  "Save changes": ["Save changes", "Guardar cambios"],
-  "Save and log encounter": ["Save and log encounter", "Guardar y registrar encuentro"],
-  "Save person": ["Save person", "Guardar persona"],
-  "Recorded encounters": ["Recorded encounters", "Encuentros registrados"],
-  "No encounters yet.": ["No encounters yet.", "Sin encuentros todavía."],
-  "The encounter on {date} appears in Today and Social.": ["The encounter on {date} appears in Today and Social.", "Se registra el encuentro del {date} en Hoy y Social."],
-  "People": ["People", "Personas"],
-  "Groups": ["Groups", "Grupos"],
-  "Work Milestones": ["Work Milestones", "Hitos de Trabajo"],
-  "{count} milestones": ["{count} milestones", "{count} hitos"],
-  "Use increasing whole amounts and 1 to 1000 points per milestone.": ["Use increasing whole amounts and 1 to 1000 points per milestone.", "Usa montos enteros crecientes y entre 1 y 1000 puntos por hito."],
-  "Desktop layout": ["Desktop layout", "Distribución en escritorio"],
-  "Desktop layout choices": ["Desktop layout choices", "Layout de escritorio"],
-  "Choose how to organize your space. You can use any theme.": ["Choose how to organize your space. You can use any theme.", "Elige cómo organizar tu espacio. Puedes usar cualquier tema."],
-  "Standard": ["Standard", "Estándar"],
-  "The usual layout.": ["The usual layout.", "La distribución habitual."],
-  "Larger cards and side navigation on big screens.": ["Larger cards and side navigation on big screens.", "Tarjetas amplias y navegación lateral en pantallas grandes."],
-  "Saved in this browser. Mobile keeps the standard layout.": ["Saved in this browser. Mobile keeps the standard layout.", "Se guarda en este navegador. En móvil se mantiene la vista estándar."],
-  "Applied for this session. The browser could not save it.": ["Applied for this session. The browser could not save it.", "Aplicado durante esta sesión; el navegador no permite guardarlo."],
-  "Pro Mode is available on desktop. Mobile keeps your theme and the standard layout.": ["Pro Mode is available on desktop. Mobile keeps your theme and the standard layout.", "Pro Mode está disponible en escritorio. En móvil conservas tu tema y la distribución habitual."],
-  "Weekly consistency": ["Weekly consistency", "Constancia semanal"],
-  "Habit": ["Habit", "Hábito"],
-  "Last 7 days": ["Last 7 days", "Últimos 7 días"],
-  "Previous 7 days": ["Previous 7 days", "7 días anteriores"],
+  "pts": ["pts", "pts", "נק׳"],
+  "Location group name (e.g. Israel)": ["Location group name (e.g. Israel)", "Nombre del grupo de ubicación (p. ej., Israel)", "שם קבוצת מיקום (למשל, ישראל)"],
+  "Who? (name)": ["Who? (name)", "¿Quién? (nombre)", "מי? (שם)"],
+  "{count} selected": ["{count} selected", "{count} seleccionados", "{count} נבחרו"],
+  "PAUSED": ["PAUSED", "EN PAUSA", "מושהה"],
+  "View active Day Log": ["View active Day Log", "Ver el Registro en curso", "הצגת הרישום הפעיל"],
+  "CORE HABITS": ["CORE HABITS", "HÁBITOS PRINCIPALES", "הרגלי ליבה"],
+  "Current activity": ["Current activity", "Actividad actual", "פעילות נוכחית"],
+  "What are you doing?": ["What are you doing?", "¿Qué estás haciendo?", "מה אתם עושים?"],
+  "LOGGING NOW": ["LOGGING NOW", "REGISTRANDO AHORA", "מתעדים עכשיו"],
+  "Track an activity": ["Track an activity", "Registrar una actividad", "תיעוד פעילות"],
+  "{time} tracked": ["{time} tracked", "{time} registrados", "{time} תועדו"],
+  "CONSISTENCY — 60 DAYS": ["CONSISTENCY — 60 DAYS", "CONSTANCIA — 60 DÍAS", "התמדה — 60 ימים"],
+  "Pause this part": ["Pause this part", "Pausar esta parte", "השהיית החלק הזה"],
+  "Resume this part": ["Resume this part", "Reanudar esta parte", "חידוש החלק הזה"],
+  "{active}/{total} active": ["{active}/{total} active", "{active}/{total} activos", "{active}/{total} פעילים"],
+  "How often do you want to see {name}?\nDays in between — 7 = weekly, 30 = monthly. Leave blank for no frequency.": ["How often do you want to see {name}?\nDays in between — 7 = weekly, 30 = monthly. Leave blank for no frequency.", "¿Cada cuánto quieres ver a {name}?\nDías entre encuentros. 7 = semanal, 30 = mensual. Deja el campo vacío si no quieres fijar una frecuencia.", "באיזו תדירות תרצו להיפגש עם {name}?\nימים בין מפגשים. 7 = שבועי, 30 = חודשי. השאירו ריק ללא תדירות."],
+  "Automatic (device)": ["Automatic (device)", "Automática (dispositivo)", "אוטומטי לפי המכשיר"],
+  "Israel — Jerusalem": ["Israel — Jerusalem", "Israel — Jerusalén", "ישראל — ירושלים"],
+  "Panama": ["Panama", "Panamá", "פנמה"],
+  "Mexico": ["Mexico", "México", "מקסיקו"],
+  "Colombia": ["Colombia", "Colombia", "קולומביה"],
+  "Argentina": ["Argentina", "Argentina", "ארגנטינה"],
+  "Spain": ["Spain", "España", "ספרד"],
+  "USA — Eastern": ["USA — Eastern", "EE. UU. — Este", "ארה״ב — החוף המזרחי"],
+  "Pause this habit": ["Pause this habit", "Pausar este hábito", "השהיית ההרגל"],
+  "Resume this habit": ["Resume this habit", "Reanudar este hábito", "חידוש ההרגל"],
+  "Show my screen": ["Show my screen", "Mostrar mi pantalla", "הצגת המסך שלי"],
+  "Load data": ["Load data", "Cargar datos", "טעינת נתונים"],
+  "Open Today": ["Open Today", "Abrir Hoy", "פתיחת היום"],
+  "Open Log": ["Open Log", "Abrir Registro", "פתיחת יומן היום"],
+  "Open Social": ["Open Social", "Abrir Social", "פתיחת חברה"],
+  "Open Statistics": ["Open Statistics", "Abrir Estadísticas", "פתיחת סטטיסטיקה"],
+  "Open History": ["Open History", "Abrir Historial", "פתיחת היסטוריה"],
+  "Respond to a habit toggle": ["Respond to a habit toggle", "Responder al marcar", "תגובה לסימון הרגל"],
+  "First page content": ["First page content", "Primer contenido de la página", "התוכן הראשון בדף"],
+  "Main startup content": ["Main startup content", "Contenido principal de apertura", "התוכן העיקרי בפתיחה"],
+  "Observed slow interaction": ["Observed slow interaction", "Interacción lenta observada", "אינטראקציה איטית שנמדדה"],
+  "Local measurement enabled.": ["Local measurement enabled.", "Medición local activada.", "המדידה המקומית מופעלת."],
+  "Local measurement disabled.": ["Local measurement disabled.", "Medición local desactivada.", "המדידה המקומית כבויה."],
+  "This browser cannot save the report. It lasts while this page is open.": ["This browser cannot save the report. It lasts while this page is open.", "El navegador no permite guardar el informe; solo durará mientras esta página esté abierta.", "הדפדפן אינו יכול לשמור את הדוח. הדוח זמין כל עוד הדף פתוח."],
+  "Disable local measurement": ["Disable local measurement", "Desactivar medición local", "כיבוי המדידה המקומית"],
+  "Enable local measurement": ["Enable local measurement", "Activar medición local", "הפעלת המדידה המקומית"],
+  "All places": ["All places", "Todos los lugares", "כל המקומות"],
+  "Log this day’s encounter here.": ["Log this day’s encounter here.", "Registra aquí el encuentro de este día.", "תעדו כאן את המפגש מאותו יום."],
+  "Tap a name to log the encounter.": ["Tap a name to log the encounter.", "Toca un nombre para registrar el encuentro.", "לחצו על שם כדי לתעד את המפגש."],
+  "+ Someone new": ["+ Someone new", "+ Alguien nuevo", "+"],
+  "Logged on this day": ["Logged on this day", "Registrados este día", "תועדו ביום הזה"],
+  "Credit {category}": ["Credit {category}", "Acreditar {category}", "סימון {category}"],
+  "Maximum people assigned": ["Maximum people assigned", "Máximo de personas asignadas", "מספר מרבי של אנשים משויכים"],
+  "{count} assigned · limit {limit}.": ["{count} assigned · limit {limit}.", "{count} asignadas · límite {limit}.", "{count} משויכים · מגבלה {limit}."],
+  "Existing people stay assigned. Free a place or raise the limit to add more.": ["Existing people stay assigned. Free a place or raise the limit to add more.", "Se conservan todas las personas existentes; las nuevas asignaciones requieren liberar un lugar o aumentar el límite.", "השיוכים הקיימים נשמרים. כדי להוסיף שיוך, פנו מקום או הגדילו את המגבלה."],
+  "Points and suggestions stay the same.": ["Points and suggestions stay the same.", "No afecta puntos ni sugerencias.", "הניקוד וההצעות נשארים כפי שהם."],
+  "SIN PLAN": ["NO PLAN", "SIN PLAN", "ללא תוכנית"],
+  "UNSTOPPABLE": ["UNSTOPPABLE", "IMPARABLE", "בלתי ניתן לעצירה"],
+  "LEGENDARY": ["LEGENDARY", "LEGENDARIO", "אגדי"],
+  "EXCELLENT": ["EXCELLENT", "EXCELENTE", "מצוין"],
+  "SOLID": ["SOLID", "SÓLIDO", "יציב"],
+  "AVERAGE": ["AVERAGE", "PROMEDIO", "ממוצע"],
+  "LOW": ["LOW", "BAJO", "נמוך"],
+  "LOST": ["LOST", "PERDIDO", "ללא כיוון"],
+  "▪ CORE ROUTINES": ["▪ CORE ROUTINES", "▪ RUTINAS PRINCIPALES", "▪ שגרות ליבה"],
+  "TODAY'S ROUTINES": ["TODAY'S ROUTINES", "RUTINAS DE HOY", "השגרות של היום"],
+  "{steps} steps · {minutes} min": ["{steps} steps · {minutes} min", "{steps} pasos · {minutes} min", "{steps} שלבים · {minutes} דק׳"],
+  "Clear light credit": ["Clear light credit", "Quitar el crédito parcial", "ביטול ניקוד חלקי"],
+  "Light version — half credit": ["Light version — half credit", "Versión ligera · medio crédito", "גרסה קלה · חצי ניקוד"],
+  "Open running routine": ["Open running routine", "Abrir rutina en curso", "פתיחת השגרה הפעילה"],
+  "Resume routine": ["Resume routine", "Reanudar rutina", "המשך השגרה"],
+  "Play prepared step": ["Play prepared step", "Iniciar el paso preparado", "הפעלת השלב המוכן"],
+  "Play routine": ["Play routine", "Iniciar rutina", "הפעלת השגרה"],
+  "Clear completed routine": ["Clear completed routine", "Desmarcar rutina completada", "ביטול הסימון של השגרה שהושלמה"],
+  "Mark done without the timer": ["Mark done without the timer", "Marcar como hecha sin temporizador", "סימון כהושלם בלי טיימר"],
+  "PLAY": ["PLAY", "INICIAR", "הפעלה"],
+  "Edit": ["Edit", "Editar", "עריכה"],
+  "Seen today": ["Seen today", "Visto hoy", "נפגשתם היום"],
+  "Last encounter · {date}": ["Last encounter · {date}", "Último encuentro · {date}", "המפגש האחרון · {date}"],
+  "Every {count} days": ["Every {count} days", "Cada {count} días", "כל {count} ימים"],
+  "✓ Logged · remove": ["✓ Logged · remove", "✓ Registrado · quitar", "✓ תועד · הסרה"],
+  "Saw them today": ["Saw them today", "Lo vi hoy", "נפגשנו היום"],
+  "Personal best": ["Personal best", "Nuevo récord personal", "שיא אישי חדש"],
+  "Back to Today": ["Back to Today", "Volver a Hoy", "חזרה להיום"],
+  "Previous best: {count} days": ["Previous best: {count} days", "Marca anterior: {count} días", "השיא הקודם: {count} ימים"],
+  "{count} consecutive days": ["{count} consecutive days", "{count} días seguidos", "{count} ימים ברצף"],
+  "Free": ["Free", "Libre", "גמיש"],
+  "No encounters recorded": ["No encounters recorded", "Sin encuentros registrados", "אין מפגשים מתועדים"],
+  "Next encounter in {count} days": ["Next encounter in {count} days", "Próximo encuentro en {count} días", "המפגש הבא בעוד {count} ימים"],
+  "Due today": ["Due today", "Toca hoy", "מתוכנן להיום"],
+  "Overdue by {count} days": ["Overdue by {count} days", "Pendiente desde hace {count} días", "באיחור של {count} ימים"],
+  "No encounters": ["No encounters", "Sin encuentros", "אין מפגשים"],
+  "Today": ["Today", "Hoy", "היום"],
+  "Yesterday": ["Yesterday", "Ayer", "אתמול"],
+  "{count} days ago": ["{count} days ago", "Hace {count} días", "לפני {count} ימים"],
+  "Undo encounter with {name}": ["Undo encounter with {name}", "Deshacer encuentro con {name}", "ביטול המפגש עם {name}"],
+  "Log encounter with {name}": ["Log encounter with {name}", "Registrar encuentro con {name}", "תיעוד מפגש עם {name}"],
+  "Edit {name}": ["Edit {name}", "Editar {name}", "עריכת {name}"],
+  "No category": ["No category", "Sin categoría", "ללא קטגוריה"],
+  "Include Family in Who to See": ["Include Family in Who to See", "Incluir a la familia en A quién ver", "הכללת משפחה בהמלצות למפגשים"],
+  "Name, in any group": ["Name, in any group", "Nombre, en cualquier grupo", "שם בכל קבוצה"],
+  "Add someone": ["Add someone", "Añadir a alguien", "הוספת אדם"],
+  "Start routine": ["Start routine", "Iniciar rutina", "התחלת שגרה"],
+  "Remove": ["Remove", "Eliminar", "הסרה"],
+  "Work Mode": ["Work Mode", "Modo Trabajo", "מצב עבודה"],
+  "Vacation Mode": ["Vacation Mode", "Modo Vacaciones", "מצב חופשה"],
+  "Delete habit": ["Delete habit", "Eliminar hábito", "מחיקת הרגל"],
+  "Sum of the active parts below": ["Sum of the active parts below", "Suma de las partes activas de abajo", "סכום החלקים הפעילים שלהלן"],
+  "Configure in Routines → Work": ["Configure in Routines → Work", "Configurar en Rutinas → Trabajo", "הגדרה בשגרות, תחת עבודה"],
+  "Enter a name and select an active category. Frequency is optional: leave it blank or enter 0–3650 days.": ["Enter a name and select an active category. Frequency is optional: leave it blank or enter 0–3650 days.", "Completa el nombre y una categoría activa. La frecuencia es opcional: déjala vacía o usa 0–3650 días.", "הזינו שם ובחרו קטגוריה פעילה. התדירות אינה חובה: השאירו ריק או הזינו 0–3650 ימים."],
+  "{category} reached its limit. Change another person’s category or raise the limit in Settings.": ["{category} reached its limit. Change another person’s category or raise the limit in Settings.", "{category} alcanzó el límite. Cambia la categoría de otra persona o aumenta el límite en Ajustes.", "הקטגוריה {category} הגיעה למגבלה. שנו את הקטגוריה של אדם אחר או הגדילו את המגבלה בהגדרות."],
+  "Pro shortcuts": ["Pro shortcuts", "Accesos rápidos de Pro", "קיצורי דרך של Pro"],
+  "Habits": ["Habits", "Hábitos", "הרגלים"],
+  "Session": ["Session", "Sesión", "פעילות"],
+  "Work": ["Work", "Trabajo", "עבודה"],
+  "Day Note": ["Day Note", "Nota del día", "הערת היום"],
+  "Customize": ["Customize", "Personalizar", "התאמה אישית"],
+  "Done": ["Done", "Listo", "סיום"],
+  "Restore order": ["Restore order", "Restaurar orden", "שחזור סדר"],
+  "Show {widget}": ["Show {widget}", "Mostrar {widget}", "הצגת {widget}"],
+  "Move {widget} up": ["Move {widget} up", "Subir {widget}", "העברת {widget} למעלה"],
+  "Move {widget} down": ["Move {widget} down", "Bajar {widget}", "העברת {widget} למטה"],
+  "Hide {widget}": ["Hide {widget}", "Ocultar {widget}", "הסתרת {widget}"],
+  "Work is unavailable today.": ["Work is unavailable today.", "Trabajo no está disponible para hoy.", "עבודה אינה זמינה היום."],
+  "How was your day?": ["How was your day?", "¿Cómo fue tu día?", "איך עבר היום?"],
+  "No level 2 habits": ["No level 2 habits", "Sin hábitos de nivel 2", "אין הרגלים ברמה 2"],
+  "View active session": ["View active session", "Ver sesión en curso", "הצגת פעילות נוכחית"],
+  "Prepare session": ["Prepare session", "Preparar sesión", "הכנת פעילות"],
+  "Change desktop layout": ["Change desktop layout", "Cambiar distribución de escritorio", "שינוי פריסת המחשב"],
+  "Applied for this session only": ["Applied for this session only", "Aplicado solo durante esta sesión", "הוחל להפעלה הזאת בלבד"],
+  "How was your day? What did you learn?": ["How was your day? What did you learn?", "¿Cómo fue tu día? ¿Qué aprendiste?", "איך עבר היום? מה למדת?"],
+  "Your habit plan": ["Your habit plan", "Tu plan de hábitos", "תוכנית ההרגלים שלך"],
+  "Current mode": ["Current mode", "Modo actual", "המצב הנוכחי"],
+  "MY PLAN": ["MY PLAN", "MI PLAN", "התוכנית שלי"],
+  "Edit person": ["Edit person", "Editar persona", "עריכת אדם"],
+  "Someone new": ["Someone new", "Alguien nuevo", "אדם חדש"],
+  "Frequency in days (optional)": ["Frequency in days (optional)", "Frecuencia en días (opcional)", "תדירות בימים (לא חובה)"],
+  "Blank or 0 = no frequency or overdue reminders. 7 = weekly · 30 = monthly.": ["Blank or 0 = no frequency or overdue reminders. 7 = weekly · 30 = monthly.", "Vacío o 0 = sin frecuencia ni avisos de atraso. 7 = semanal · 30 = mensual.", "שדה ריק או 0 מבטל תדירות ותזכורות לאיחור. 7 = שבועי · 30 = חודשי."],
+  "previous category": ["previous category", "categoría anterior", "קטגוריה קודמת"],
+  "Save changes": ["Save changes", "Guardar cambios", "שמירת השינויים"],
+  "Save and log encounter": ["Save and log encounter", "Guardar y registrar encuentro", "שמירה ותיעוד המפגש"],
+  "Save person": ["Save person", "Guardar persona", "שמירת האדם"],
+  "Recorded encounters": ["Recorded encounters", "Encuentros registrados", "מפגשים שתועדו"],
+  "No encounters yet.": ["No encounters yet.", "Sin encuentros todavía.", "עדיין אין מפגשים."],
+  "The encounter on {date} appears in Today and Social.": ["The encounter on {date} appears in Today and Social.", "Se registra el encuentro del {date} en Hoy y Social.", "המפגש בתאריך {date} מופיע בהיום ובחברה."],
+  "People": ["People", "Personas", "אנשים"],
+  "Groups": ["Groups", "Grupos", "קבוצות"],
+  "Work Milestones": ["Work Milestones", "Hitos de Trabajo", "אבני דרך בעבודה"],
+  "{count} milestones": ["{count} milestones", "{count} hitos", "{count} אבני דרך"],
+  "Use increasing whole amounts and 1 to 1000 points per milestone.": ["Use increasing whole amounts and 1 to 1000 points per milestone.", "Usa montos enteros crecientes y entre 1 y 1000 puntos por hito.", "הזינו סכומים שלמים בסדר עולה ו־1 עד 1,000 נקודות לכל אבן דרך."],
+  "Desktop layout": ["Desktop layout", "Distribución en escritorio", "פריסת מחשב"],
+  "Desktop layout choices": ["Desktop layout choices", "Layout de escritorio", "אפשרויות פריסה במחשב"],
+  "Choose how to organize your space. You can use any theme.": ["Choose how to organize your space. You can use any theme.", "Elige cómo organizar tu espacio. Puedes usar cualquier tema.", "בחרו כיצד לסדר את סביבת העבודה. אפשר להשתמש בכל ערכת עיצוב."],
+  "Standard": ["Standard", "Estándar", "רגיל"],
+  "The usual layout.": ["The usual layout.", "La distribución habitual.", "הפריסה הרגילה."],
+  "Larger cards and side navigation on big screens.": ["Larger cards and side navigation on big screens.", "Tarjetas amplias y navegación lateral en pantallas grandes.", "כרטיסים גדולים וניווט צדדי במסכים גדולים."],
+  "Saved in this browser. Mobile keeps the standard layout.": ["Saved in this browser. Mobile keeps the standard layout.", "Se guarda en este navegador. En móvil se mantiene la vista estándar.", "נשמר בדפדפן הזה. בנייד נשארת הפריסה הרגילה."],
+  "Applied for this session. The browser could not save it.": ["Applied for this session. The browser could not save it.", "Aplicado durante esta sesión; el navegador no permite guardarlo.", "הוחל להפעלה הזאת. הדפדפן לא הצליח לשמור את ההעדפה."],
+  "Pro Mode is available on desktop. Mobile keeps your theme and the standard layout.": ["Pro Mode is available on desktop. Mobile keeps your theme and the standard layout.", "Pro Mode está disponible en escritorio. En móvil conservas tu tema y la distribución habitual.", "מצב Pro זמין במחשב. בנייד ערכת העיצוב נשמרת והפריסה נשארת רגילה."],
+  "Weekly consistency": ["Weekly consistency", "Constancia semanal", "התמדה שבועית"],
+  "Habit": ["Habit", "Hábito", "הרגל"],
+  "Last 7 days": ["Last 7 days", "Últimos 7 días", "שבעת הימים האחרונים"],
+  "Previous 7 days": ["Previous 7 days", "7 días anteriores", "שבעת הימים שלפניהם"],
   "Collapse {section}": ["Collapse {section}", "Contraer {section}", "כיווץ {section}"],
   "Expand {section}": ["Expand {section}", "Expandir {section}", "הרחבת {section}"],
   "Collapse All": ["Collapse All", "Contraer todo", "כיווץ הכול"],
@@ -4016,7 +4038,7 @@ const interfaceCopies = {
   "POINT EVENT": ["POINT EVENT", "EVENTO PUNTUAL", "אירוע נקודתי"],
   "SLEEP LOGGED": ["SLEEP LOGGED", "SUEÑO REGISTRADO", "השינה תועדה"],
   "WAKE LOGGED": ["WAKE LOGGED", "DESPERTAR REGISTRADO", "היקיצה תועדה"],
-  "+ Person": ["+ Person", "+ Persona", "+ אדם"],
+  "+ Person": ["+ Person", "+ Persona", "+"],
   "Rename": ["Rename", "Renombrar", "שינוי שם"],
   "Rename group": ["Rename group", "Renombrar grupo", "שינוי שם קבוצה"],
   "Add group": ["Add group", "Añadir grupo", "הוספת קבוצה"],
@@ -4093,7 +4115,83 @@ const interfaceCopies = {
   "Save milestones": ["Save milestones", "Guardar hitos", "שמירת אבני דרך"],
   "+ ADD TO COMBO": ["+ ADD TO COMBO", "+ AÑADIR AL COMBO", "+ הוספה לשילוב"],
   "Organize multiple people by group": ["Organize multiple people by group", "Organizar varias personas por grupo", "ארגון כמה אנשים לפי קבוצה"],
+  "Previous day": ["Previous day", "Día anterior", "היום הקודם"],
+  "Next day": ["Next day", "Día siguiente", "היום הבא"],
+  "CORE": ["CORE", "NÚCLEO", "ליבה"],
+  "BONUS": ["BONUS", "BONUS", "בונוס"],
+  "Best:": ["Best:", "Mejor:", "הטוב ביותר:"],
+  "Chips": ["Chips", "Indicadores", "תגיות"],
+  "Side by side": ["Side by side", "En paralelo", "זה לצד זה"],
+  "Bar": ["Bar", "Barra", "פס"],
+  "One thin line": ["One thin line", "Una línea fina", "קו דק"],
+  "Circle": ["Circle", "Círculo", "עיגול"],
+  "Smallest": ["Smallest", "Más compacto", "הקטן ביותר"],
+  "AUTOMATIC": ["AUTOMATIC", "AUTOMÁTICO", "אוטומטי"],
+  "switches to Work on {date}": ["switches to Work on {date}", "cambia a Trabajo el {date}", "מעבר לעבודה בתאריך {date}"],
+  "{habits} habits · {people}": ["{habits} habits · {people}", "{habits} hábitos · {people}", "{habits} הרגלים · {people}"],
+  "{count} person": ["{count} person", "{count} persona", "אדם אחד"],
+  "No plan": ["No plan", "Sin plan", "ללא תוכנית"],
+  "{count}h": ["{count}h", "{count} h", "{count} שע׳"],
+  "{count}m": ["{count}m", "{count} min", "{count} דק׳"],
+  "INCOMPLETE": ["INCOMPLETE", "INCOMPLETA", "לא הושלמה"],
+  "COMPLETED": ["COMPLETED", "COMPLETADA", "הושלמה"],
+  "This activity is linked to completion of a {kind}. Its name and type are managed automatically; you can edit the time.": ["This activity is linked to completion of a {kind}. Its name and type are managed automatically; you can edit the time.", "Esta actividad está vinculada a la finalización de un elemento de tipo {kind}. El nombre y el tipo se asignan automáticamente. Puedes cambiar la hora.", "הפעילות מקושרת להשלמה של פריט מסוג {kind}. השם והסוג נקבעים אוטומטית. אפשר לשנות את השעה."],
+  "Calculated on save": ["Calculated on save", "Se calcula al guardar", "יחושב בעת השמירה"],
+  "Maximum from tomorrow: {points} points.": ["Maximum from tomorrow: {points} points.", "Máximo desde mañana: {points} puntos.", "המקסימום ממחר: {points} נקודות."],
+  "Use increasing whole-number amounts and 1 to 1000 points per milestone.": ["Use increasing whole-number amounts and 1 to 1000 points per milestone.", "Usa montos enteros crecientes y entre 1 y 1000 puntos por hito.", "הזינו סכומים שלמים בסדר עולה ו־1 עד 1,000 נקודות לכל אבן דרך."],
+  "Rename location group": ["Rename location group", "Renombrar grupo de ubicación", "שינוי שם של קבוצת מיקום"],
+  "total": ["total", "total", "סך הכול"],
+  "{count}d": ["{count}d", "{count} d", "{count} ימים"],
+  "W{count}": ["W{count}", "S{count}", "שבוע {count}"],
+  "{count} days left": ["{count} days left", "Quedan {count} días", "נותרו {count} ימים"],
+  "{count} OVERDUE": ["{count} OVERDUE", "{count} PENDIENTES", "{count} באיחור"],
+  "ALL CURRENT": ["ALL CURRENT", "AL DÍA", "הכול מעודכן"],
+  "Enter a name and choose an active category. Frequency is optional: leave it blank or enter 0–3650 days.": ["Enter a name and choose an active category. Frequency is optional: leave it blank or enter 0–3650 days.", "Completa el nombre y una categoría activa. La frecuencia es opcional: déjala vacía o usa 0–3650 días.", "הזינו שם ובחרו קטגוריה פעילה. התדירות אינה חובה: השאירו ריק או הזינו 0–3650 ימים."],
+  "Enter a group name.": ["Enter a group name.", "Escribe un nombre para el grupo.", "הזינו שם לקבוצה."],
+  "Flexible": ["Flexible", "Libre", "גמיש"],
+  "✓ Recorded · remove": ["✓ Recorded · remove", "✓ Registrado · quitar", "✓ תועד · הסרה"],
+  "Met today": ["Met today", "Lo vi hoy", "נפגשנו היום"],
+  "Maximum assigned people": ["Maximum assigned people", "máximo de personas asignadas", "מספר מרבי של אנשים משויכים"],
+  "Existing assignments are kept. For new assignments, free a spot or raise the limit.": ["Existing assignments are kept. For new assignments, free a spot or raise the limit.", "Se conservan todas las personas existentes; las nuevas asignaciones requieren liberar un lugar o aumentar el límite.", "השיוכים הקיימים נשמרים. כדי להוסיף שיוך, פנו מקום או הגדילו את המגבלה."],
+  "Does not affect points or suggestions.": ["Does not affect points or suggestions.", "No afecta puntos ni sugerencias.", "אין השפעה על ניקוד או הצעות."],
+  "Blank or 0 disables frequency and overdue notices. 7 = weekly · 30 = monthly.": ["Blank or 0 disables frequency and overdue notices. 7 = weekly · 30 = monthly.", "Vacío o 0 = sin frecuencia ni avisos de atraso. 7 = semanal · 30 = mensual.", "שדה ריק או 0 מבטל תדירות ותזכורות לאיחור. 7 = שבועי · 30 = חודשי."],
+  "Previous category": ["Previous category", "Categoría anterior", "קטגוריה קודמת"],
+  "Save and record encounter": ["Save and record encounter", "Guardar y registrar encuentro", "שמירה ותיעוד המפגש"],
+  "The encounter on {date} is recorded in Today and Social.": ["The encounter on {date} is recorded in Today and Social.", "Se registra el encuentro del {date} en Hoy y Social.", "המפגש בתאריך {date} יתועד בהיום ובחברה."],
+  "Record encounter with {name}": ["Record encounter with {name}", "Registrar encuentro con {name}", "תיעוד מפגש עם {name}"],
+  "Uncategorized": ["Uncategorized", "Sin categoría", "ללא קטגוריה"],
+  "{count}d logged": ["{count}d logged", "{count} días registrados", "{count} ימים מתועדים"],
+  "no days logged": ["no days logged", "sin días registrados", "אין ימים מתועדים"],
+  "Previous month": ["Previous month", "Mes anterior", "החודש הקודם"],
+  "Next month": ["Next month", "Mes siguiente", "החודש הבא"],
+  "Name in any group": ["Name in any group", "Nombre, en cualquier grupo", "שם בכל קבוצה"],
+  "Open {date}": ["Open {date}", "Abrir {date}", "פתיחת {date}"],
+  "Delete milestone {number}": ["Delete milestone {number}", "Eliminar hito {number}", "מחיקת אבן דרך {number}"],
+  "All locations": ["All locations", "Todos los lugares", "כל המקומות"],
+  "Record this day’s meeting here.": ["Record this day’s meeting here.", "Registra aquí el encuentro de este día.", "תעדו כאן את המפגש מאותו יום."],
+  "Tap a name to record the meeting.": ["Tap a name to record the meeting.", "Toca un nombre para registrar el encuentro.", "לחצו על שם כדי לתעד את המפגש."],
+  "Recorded on this day": ["Recorded on this day", "Registrados este día", "תועדו ביום הזה"],
+  "NOW": ["NOW", "AHORA", "עכשיו"],
+  "END MISSING": ["END MISSING", "FALTA LA HORA DE FIN", "חסרה שעת סיום"],
+  "New personal record": ["New personal record", "Nuevo récord personal", "שיא אישי חדש"],
+  "Previous record: {count} days": ["Previous record: {count} days", "Marca anterior: {count} días", "השיא הקודם: {count} ימים"],
+  "SYNC…": ["SYNC…", "SINCRONIZANDO…", "מסנכרן…"],
+  "LIVE": ["LIVE", "EN LÍNEA", "מחובר"],
+  "OFFLINE": ["OFFLINE", "SIN CONEXIÓN", "לא מחובר"],
+  "OFFLINE — SAVED LOCALLY": ["OFFLINE — SAVED LOCALLY", "SIN CONEXIÓN · GUARDADO EN ESTE DISPOSITIVO", "לא מחובר · נשמר במכשיר הזה"],
+  "SAVE CONFLICT — CHANGES KEPT ON THIS DEVICE": ["SAVE CONFLICT — CHANGES KEPT ON THIS DEVICE", "CONFLICTO DE GUARDADO · CAMBIOS CONSERVADOS EN ESTE DISPOSITIVO", "התנגשות בשמירה · השינויים נשמרו במכשיר הזה"],
+  "SAVE FAILED — CHANGES KEPT ON THIS DEVICE": ["SAVE FAILED — CHANGES KEPT ON THIS DEVICE", "ERROR AL GUARDAR · CAMBIOS CONSERVADOS EN ESTE DISPOSITIVO", "השמירה נכשלה · השינויים נשמרו במכשיר הזה"],
+  "SOCIAL COMBO": ["SOCIAL COMBO", "COMBO SOCIAL", "שילוב חברתי"],
+  "DAY NOTE": ["DAY NOTE", "NOTA DEL DÍA", "הערת היום"],
+  "TODAY’S ROUTINES": ["TODAY’S ROUTINES", "RUTINAS DE HOY", "השגרות של היום"],
+  "Clear this level": ["Clear this level", "Desmarcar este nivel", "ביטול סימון הרמה"],
+  "Check this level": ["Check this level", "Marcar este nivel", "סימון הרמה"],
+  "{points} pts": ["{points} pts", "{points} pts", "{points} נק׳"],
+  "RESET DAY": ["RESET DAY", "REINICIAR DÍA", "איפוס היום"],
 };
+function syncInterfaceLabel(text) {
+  return text==='✓'?text:interfaceCopy(text);
+}
 function interfaceCopy(english) {
   return interfaceCopies[english][Object.keys(interfaceLanguages).indexOf(interfaceLanguage)];
 }
@@ -4109,7 +4207,7 @@ function interfaceText(key) {
 function applyInterfaceLanguage() {
   if (!document.documentElement) return;
   document.documentElement.lang = interfaceLanguage;
-  document.documentElement.dir = 'ltr';
+  document.documentElement.dir = interfaceLanguage==='he'?'rtl':'ltr';
   document.querySelector('.pro-nav-settings')?.setAttribute('aria-label',interfaceText('settings'));
   document.querySelectorAll('.nav-label[data-interface-text]').forEach(label => {
     label.textContent = interfaceText(label.dataset.interfaceText);
@@ -4119,7 +4217,7 @@ function interfaceLanguagePicker() {
   return `<label class="interface-language"><span>${interfaceText('language')}</span>
     <select data-interface-language>
       ${Object.entries(interfaceLanguages).map(([code, name]) =>
-        `<option value="${code}" lang="${code}"${code === interfaceLanguage ? ' selected' : ''}>${name}</option>`
+        `<option value="${code}" lang="${code}" dir="${code==='he'?'rtl':'ltr'}"${code === interfaceLanguage ? ' selected' : ''}>${name}</option>`
       ).join('')}
     </select></label>`;
 }
@@ -4142,7 +4240,7 @@ function renderSettings(){
   const lvlBlock=(n,title,col)=>`
     <div ${uiStyle(`margin-bottom:20px`)}>
       <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${buildLevel(n).filter(i=>!i.combo).reduce((a,i)=>a+i.pts,0)}%</div>
-      <div ${uiStyle(`display:flex;justify-content:flex-end;gap:4px;margin:-7px 10px 5px;padding-right:42px;font-size:9px;letter-spacing:.06em;color:#66667d`)}><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('work')}</span><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('vacation')}</span></div>
+      <div class="settings-mode-labels" ${uiStyle(`display:flex;justify-content:flex-end;gap:4px;margin:-7px 10px 5px;font-size:9px;letter-spacing:.06em;color:#66667d`)}><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('work')}</span><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('vacation')}</span></div>
       ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&!CFG.h[id].combo).map(id=>{const x=CFG.h[id];return `
         <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}`)}>
           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
@@ -4152,7 +4250,7 @@ function renderSettings(){
           </div>
           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="${interfaceCopy("Icon")}"
             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
-          <input value="${esc(x.l)}" ${ui('change','cfgSet' ,id,'l')}
+          <input dir="auto" value="${esc(x.l)}" ${ui('change','cfgSet' ,id,'l')}
             ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0`)}/>
           ${x.combo
             ?`<span title="${interfaceCopy("Sum of the active parts below")}" ${uiStyle(`width:96px;flex-shrink:0;color:${col};font-size:12px;text-align:center;line-height:1.25`)}>W ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'work'),0)}% · V ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'vacation'),0)}%</span>`
@@ -4186,8 +4284,8 @@ function renderSettings(){
 <div ${uiStyle(`display:flex;gap:7px;margin-bottom:16px`)}>
         ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
           <button ${ui('click','cfgPill' ,id)} ${uiStyle(`flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer`)}>
-            <div ${uiStyle(`font-size:13px`)}>${lbl}</div>
-            <div ${uiStyle(`font-size:10px;color:#7e7e97;margin-top:3px`)}>${sub}</div>
+            <div ${uiStyle(`font-size:13px`)}>${interfaceCopy(lbl)}</div>
+            <div ${uiStyle(`font-size:10px;color:#7e7e97;margin-top:3px`)}>${interfaceCopy(sub)}</div>
           </button>`).join("")}
       </div>
 <div class="st-div"></div>
@@ -4216,7 +4314,7 @@ function renderSettings(){
         <span ${uiStyle(`font-size:14px;color:#c0c0cd;flex:1`)}>${interfaceText('autoWork')}</span>
         <input type="date" value="${esc(CFG.travel.resumeOn||'')}" ${ui('change','setTravelResume')} ${uiStyle(`background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px`)}/>
       </div>
-      <button ${ui('click','setTravelAuto' ,!CFG.travel.auto)} ${uiStyle(`width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer`)}>${CFG.travel.auto?'✓':'○'} AUTOMATIC${CFG.travel.auto&&CFG.travel.resumeOn?` — switches to Work on ${esc(CFG.travel.resumeOn)}`:''}</button>`,"st-col-b")}
+      <button ${ui('click','setTravelAuto' ,!CFG.travel.auto)} ${uiStyle(`width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer`)}>${CFG.travel.auto?'✓':'○'} ${interfaceCopy('AUTOMATIC')}${CFG.travel.auto&&CFG.travel.resumeOn?` — ${interfaceCopy('switches to Work on {date}').replace('{date}',esc(CFG.travel.resumeOn))}`:''}</button>`,"st-col-b")}
             ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
       ${lvlBlock(2,interfaceCopy("▪ LVL 2 — HABITS"),"#a78bfa")}
       ${lvlBlock(3,interfaceCopy("· LVL 3 — BONUS"),"#fbbf24")}
@@ -4226,12 +4324,12 @@ function renderSettings(){
           <div ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:10px`)}>
             <span ${uiStyle(`font-size:17px`)}>${esc(r.icon)}</span>
             <span ${uiStyle(`font-size:16.5px;color:#e2e2e2`)}>${esc(r.label)}</span>
-            <span ${uiStyle(`margin-left:auto;font-size:15px;color:#adadbf`)}>${r.steps.length} steps · ${tm} min</span>
+            <span class="settings-routine-summary" ${uiStyle(`font-size:15px;color:#adadbf`)}>${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',r.steps.length).replace('{minutes}',tm)}</span>
           </div>
           ${r.steps.map((s,i)=>`
             <div ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:4px`)}>
               <span ${uiStyle(`font-size:16.5px;width:20px;text-align:center`)}>${esc(s.icon)}</span>
-              <input value="${esc(s.label)}" ${ui('change','stepSet' ,rid,i,'label')}
+              <input dir="auto" value="${esc(s.label)}" ${ui('change','stepSet' ,rid,i,'label')}
                 ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:15px;padding:3px 0`)}/>
               <input type="number" min="1" max="180" value="${esc(s.dur)}" ${ui('change','stepSet' ,rid,i,'dur')}
                 ${uiStyle(`width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:15px;padding:4px;text-align:center`)}/>
@@ -4244,8 +4342,8 @@ function renderSettings(){
       ${bakList().length?bakList().map(b=>`
         <div ${uiStyle(`display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,0.03);margin-bottom:5px`)}>
           <div ${uiStyle(`flex:1;min-width:0`)}>
-            <div ${uiStyle(`font-size:14.5px;color:#e2e2e2`)}>${new Date(b.t).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</div>
-            <div ${uiStyle(`font-size:13px;color:#8888a4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap`)}>${b.habits} habits · ${b.people} ${b.people===1?"person":"people"}${b.names?" — "+esc(b.names):""}</div>
+            <div ${uiStyle(`font-size:14.5px;color:#e2e2e2`)}>${new Date(b.t).toLocaleString(interfaceLanguage,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</div>
+            <div ${uiStyle(`font-size:13px;color:#8888a4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap`)}>${interfaceCopy('{habits} habits · {people}').replace('{habits}',b.habits).replace('{people}',interfaceCopy(b.people===1?'{count} person':'{count} people').replace('{count}',b.people))}${b.names?" — "+esc(b.names):""}</div>
           </div>
           <button ${ui('click','bakRestore' ,b.i)} ${uiStyle(`flex-shrink:0;background:none;border:1px solid #222;color:#c0c0cd;font-family:inherit;font-size:13px;letter-spacing:.08em;padding:7px 12px;border-radius:8px;cursor:pointer`)}>${interfaceText('restore')}</button>
         </div>`).join(""):`<div ${uiStyle(`font-size:14px;color:#9a9ab2;padding:6px 0`)}>${interfaceText('backupEmpty')}</div>`}`,"st-col-b")}
@@ -5082,11 +5180,11 @@ function navigationIcon(name){
 
 function resetDayControl(key){
   const armed=resetDayRequest?.key===key&&resetDayRequest.owner===USER?.id&&resetDayRequest.epoch===_syncEpoch;
-  return `<div class="t-reset" ${ui('keydown','resetDayEscape')}><button class="reset-day-trigger" ${ui('click','resetDay',key)} aria-label="${interfaceCopy("Reset day")}" aria-expanded="${armed}">${navigationIcon("reset")} RESET DAY</button>${armed?`<div class="product-end-menu reset-day-confirm" role="group" aria-label="${interfaceCopy("Confirm clearing all data for today")}"><span class="reset-day-warning">${interfaceCopy("Clear all of today’s data?")}</span><button id="reset-day-cancel" ${ui('click','resetDayCancel')} aria-label="${interfaceCopy("Cancel deletion")}">×</button><button ${ui('click','resetDayConfirm',key)} aria-label="${interfaceCopy("Clear all data for today")}">✓</button></div>`:''}</div>`;
+  return `<div class="t-reset" ${ui('keydown','resetDayEscape')}><button class="reset-day-trigger" ${ui('click','resetDay',key)} aria-label="${interfaceCopy("Reset day")}" aria-expanded="${armed}">${navigationIcon("reset")} ${interfaceCopy("RESET DAY")}</button>${armed?`<div class="product-end-menu reset-day-confirm" role="group" aria-label="${interfaceCopy("Confirm clearing all data for today")}"><span class="reset-day-warning">${interfaceCopy("Clear all of today’s data?")}</span><button id="reset-day-cancel" ${ui('click','resetDayCancel')} aria-label="${interfaceCopy("Cancel deletion")}">×</button><button ${ui('click','resetDayConfirm',key)} aria-label="${interfaceCopy("Clear all data for today")}">✓</button></div>`:''}</div>`;
 }
 function routineOrb(){
  const id=routineOrbId(),s=sessions[id],rt=ROUTINES[id];if(!id||!s||!rt)return '';
- return `<div class="cr-log-orb"><button class="product-orb-close" ${ui('click','productEndAsk',id)} aria-label="${interfaceCopy("End activity")}">×</button>${productEndId===id?`<div class="product-end-menu" role="group" aria-label="${interfaceCopy("Save time and end activity")}"><button ${ui('click','productEndCancel')} aria-label="${interfaceCopy("Cancel")}">×</button><button ${ui('click','productEndConfirm',id)} aria-label="${interfaceCopy("Confirm")}">✓</button></div>`:''}<button class="cr-orb-button" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${s.paused?'Resume':'Open'} ${esc(rt.label)}"><span class="cr-orb-icon">${esc(rt.icon)}</span><b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b><span class="cr-orb-step">${s.paused?'PAUSED · ':''}${Object.keys(s.done).length+1} / ${rt.steps.length}</span></button><button class="cr-orb-add" ${ui('click','openDayLogStart')} aria-label="${interfaceCopy("Log an activity")}" title="Log an activity">+</button><span class="cr-orb-label">${esc(rt.label)}${liveSessions().length>1?' · +'+(liveSessions().length-1):''}</span></div>`;
+ return `<div class="cr-log-orb"><button class="product-orb-close" ${ui('click','productEndAsk',id)} aria-label="${interfaceCopy("End activity")}">×</button>${productEndId===id?`<div class="product-end-menu" role="group" aria-label="${interfaceCopy("Save time and end activity")}"><button ${ui('click','productEndCancel')} aria-label="${interfaceCopy("Cancel")}">×</button><button ${ui('click','productEndConfirm',id)} aria-label="${interfaceCopy("Confirm")}">✓</button></div>`:''}<button class="cr-orb-button" ${s.paused?ui('click','routineResume',id):ui('click','openRoutine',id)} aria-label="${interfaceCopy(s.paused?'Resume':'Open')} ${esc(rt.label)}"><span class="cr-orb-icon">${esc(rt.icon)}</span><b data-routine-clock="${esc(id)}">${routineTime(s.secs)}</b><span class="cr-orb-step">${s.paused?interfaceCopy('PAUSED')+' · ':''}${Object.keys(s.done).length+1} / ${rt.steps.length}</span></button><button class="cr-orb-add" ${ui('click','openDayLogStart')} aria-label="${interfaceCopy("Log an activity")}" title="${interfaceCopy('Log an activity')}">+</button><span class="cr-orb-label">${esc(rt.label)}${liveSessions().length>1?' · +'+(liveSessions().length-1):''}</span></div>`;
 }
 function renderResume(){
   const el=document.getElementById("resume");if(!el)return;
@@ -5162,7 +5260,7 @@ function dayNoteHTML(key,sidebar=false){
       <div class="sec">${interfaceCopy("✎ DAY NOTE")}</div>
       <div class="notecard${getNote(key)?" filled":""}">
         <div class="notebar"></div>
-        <textarea id="note-${key}" placeholder="${interfaceCopy('How was your day? What did you learn?')}"
+        <textarea id="note-${key}" dir="auto" placeholder="${interfaceCopy("How was your day? What did you learn?")}"
           ${ui('input','noteGrow')} ${ui('change','setNote' ,key)}
           ${uiStyle(`width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text`)}>${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
         ${getNote(key)?`<div ${uiStyle(`position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088`)}>${interfaceText('saved')}</div>`:""}
@@ -5184,9 +5282,9 @@ function topbarHTML(){
     <div id="desktop-status-controls">
     <div id="desktop-work-status">
     <div id="mode-status" title="${interfaceCopy(starterProfile()?'Your habit plan':'Current mode')}">${starterProfile()?interfaceCopy('MY PLAN'):interfaceText(travelMode()==='vacation'?'vacation':'work')}</div>
-    <div id="sync-status" title="${esc(_syncText)}" aria-label="${esc(_syncText)}"><span ${uiStyle(`background:${dot}`)}></span></div>
+    <div id="sync-status" title="${esc(syncInterfaceLabel(_syncText))}" aria-label="${esc(syncInterfaceLabel(_syncText))}"><span ${uiStyle(`background:${dot}`)}></span></div>
     </div>
-    <button type="button" id="layout-quick-toggle" aria-label="Pro Mode" aria-pressed="${_layout==='pro'}" ${ui('click','toggleLayout')}>Pro</button>
+    <button type="button" id="layout-quick-toggle" aria-label="${interfaceLanguage==='he'?'מצב Pro':'Pro Mode'}" aria-pressed="${_layout==='pro'}" ${ui('click','toggleLayout')}>Pro</button>
     </div>
   </div>
   ${syncNoticeHTML()}
@@ -5295,11 +5393,11 @@ function legacyComboBlock(key,alwaysOpen){
             ${chk(!!ch.social,"#fbbf24",18)}
             <div>
               <div class="cb-tit" ${uiStyle(`font-size:16.5px;font-weight:${ch.social?600:450}`)}>${interfaceCopy("👥 Social Combo")}</div>
-              ${expanded?`<div class="cb-sub" ${uiStyle(`font-size:14.5px;color:#adadbf;margin-top:2px`)}>${activeSubs}/${nSubs} active · ${socialPts}%</div>`:""}
+              ${expanded?`<div class="cb-sub" ${uiStyle(`font-size:14.5px;color:#adadbf;margin-top:2px`)}>${interfaceCopy('{active}/{total} active').replace('{active}',activeSubs).replace('{total}',nSubs)} · ${socialPts}%</div>`:""}
             </div>
           </div>
           <div ${uiStyle(`display:flex;align-items:center;gap:10px;flex-shrink:0`)} ${ui('click','stop')}>
-            ${alwaysOpen?"":`<button class="edit-btn" ${ui('click','toggleSocialExpand' ,key)}>${expanded?"✕":"EDIT"}</button>`}
+            ${alwaysOpen?"":`<button class="edit-btn" ${ui('click','toggleSocialExpand' ,key)}>${expanded?"✕":interfaceText('edit')}</button>`}
             <span ${uiStyle(`font-size:15px;color:${ch.social?"#fbbf2499":"#8a8aa0"};min-width:38px;text-align:right`)}>${ch.social?socialPts:comboPts}%</span>
           </div>
         </div>
@@ -5333,7 +5431,7 @@ let todaySectionsSession=false;
 let todayBoxesOpen={social:true,daylog:true,note:true};
 const TODAY_ALL_EXCLUDED='daylog';
 function todayBoxDefinitions(){
-  return [['social','.t-social-independent','SOCIAL COMBO'],['daylog','.t-daylog','DAY LOG'],['note','.t-note','DAY NOTE']];
+  return [['social','.t-social-independent',interfaceCopy('SOCIAL COMBO')],['daylog','.t-daylog',interfaceText('dayLog')],['note','.t-note',interfaceCopy('DAY NOTE')]];
 }
 function prepareTodayBoxes(fragment){
   fragment.querySelectorAll('.today:not(.history-day-editor)').forEach(root=>{
@@ -5483,7 +5581,7 @@ function proTodayHTML(key,config){
   const work=config.inVacation?null:config.L1.find(item=>item.id==='work');
   const content={
     work:work?workPhaseCard(key,work):interfaceCopy('Work is unavailable today.'),
-    note:`<textarea aria-label="${interfaceCopy('Day Note')}" placeholder="${interfaceCopy('How was your day?')}" ${ui('change','setNote',key)}>${esc(getNote(key))}</textarea>`,
+    note:`<textarea aria-label="${interfaceCopy('Day Note')}" dir="auto" placeholder="${interfaceCopy('How was your day?')}" ${ui('change','setNote',key)}>${esc(getNote(key))}</textarea>`,
     habits:habits.length?habits.map(item=>`<button type="button" aria-pressed="${!!checked[item.id]}" ${ui('click','toggleHabit',item.id,key)}>${checked[item.id]?'✓ ':''}${esc(item.label)}</button>`).join(''):interfaceCopy('No level 2 habits'),
     session:`<button type="button" ${ui('click','openDayLogStart')}>${interfaceCopy(active?'View active session':'Prepare session')}</button>`
   };
@@ -5504,7 +5602,7 @@ function renderToday(key,nested=false){
   const comboPts=(C.L3.find(x=>x.combo)||{pts:18}).pts;
   const allBtn=(lv,items)=>{ if(!items.length)return"";
     const on=items.every(i=>ch[i.id]), col=LVL_COL[lv];
-    return`<button ${ui('click','toggleLevelAll' ,lv,key)} title="${on?'Clear this level':'Check this level'}" ${uiStyle(`background:${on?col:'none'};border:1.5px solid ${on?col:'#252535'};color:${on?'#080810':'#9a9ab2'};border-radius:8px;font-size:13px;line-height:1;width:36px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0`)}>✓</button>`;};
+    return`<button ${ui('click','toggleLevelAll' ,lv,key)} title="${interfaceCopy(on?'Clear this level':'Check this level')}" ${uiStyle(`background:${on?col:'none'};border:1.5px solid ${on?col:'#252535'};color:${on?'#080810':'#9a9ab2'};border-radius:8px;font-size:13px;line-height:1;width:36px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0`)}>✓</button>`;};
   const socialPts=ch.social?(activeSubs>0?Math.round((activeSubs/nSubs)*comboPts):comboPts):0;
   const isToday=key===todayKey();
   // LVL 1 se lista entero, rutinas incluidas: esconderlas dejaba el nivel a medias
@@ -5534,7 +5632,7 @@ function renderToday(key,nested=false){
         <div ${uiStyle(`font-size:${RSZ>140?14:11.5}px;color:${gr.c};letter-spacing:0.12em;opacity:0.65`)}>${interfaceCopy(gr.n)}</div>
       </div>
         </div>
-        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""} ${routineOrbId()?'cr-log-has-orb':''}" type="button" ${ui('click','openDayLogStart')} aria-label="${dayLogActiveId()?"View active Day Log":"Log an activity"}">
+        ${isToday?`<button class="today-log-start ${dayLogActiveId()?"live":""} ${routineOrbId()?'cr-log-has-orb':''}" type="button" ${ui('click','openDayLogStart')} aria-label="${interfaceCopy(dayLogActiveId()?"View active Day Log":"Log an activity")}">
           <span>${dayLogActiveId()?"●":"+"}</span>${dayLogActiveId()?`<b>${dayLogFmt((Date.now()-new Date(dayLogEvents(todayKey()).find(e=>e.id===dayLogActiveId()).start).getTime())/60000)}</b>`:""}
         </button>${routineOrb()}`:""}
       </div>
@@ -5551,11 +5649,11 @@ function renderToday(key,nested=false){
           <span class="ls-kicker">◎&nbsp; ${interfaceText('nextLevel')}</span>
           <span class="ls-need" ${uiStyle(`color:${nm.next.c}`)}>+${nm.need}%</span>
         </div>
-        <div class="ls-path"><b ${uiStyle(`color:${gr.c}`)}>${esc(gr.l)}</b><span>→</span><b ${uiStyle(`color:${nm.next.c}`)}>${esc(nm.next.l)}</b></div>
+        <div class="ls-path"><b ${uiStyle(`color:${gr.c}`)}>${esc(gr.l)}</b><span>${interfaceLanguage==='he'?'←':'→'}</span><b ${uiStyle(`color:${nm.next.c}`)}>${esc(nm.next.l)}</b></div>
         <div class="ls-bar"><i ${uiStyle(`width:${progress}%;background:linear-gradient(90deg,${gr.c},${nm.next.c});box-shadow:0 0 12px ${nm.next.g||gr.g}`)}></i></div>
         <div class="ls-footer">
           <span ${uiStyle(`color:${nm.next.c}`)}>${nm.need}% ${interfaceText('remaining')}</span>
-          <span>${score} / ${targetScore} pts</span>
+          <span>${interfaceCopy('{points} pts').replace('{points}',score+' / '+targetScore)}</span>
         </div>`;
       })()}
     </div>
@@ -5586,7 +5684,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
     </div>`}
 
     ${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>${core?'CORE HABITS':'⬛ LVL 1 — CORE'}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
+      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>${interfaceCopy(core?'CORE HABITS':'⬛ LVL 1 — CORE')}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlOpen[1]?"":" cl"}">
       ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
@@ -5640,10 +5738,10 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
     ${isToday?`<div class="t-daylog" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="t-daylog-card ${dayLogActiveId()?"running":""}">
         <div class="t-daylog-row">
-          <input id="dayLogInput" type="text" placeholder="${dayLogActiveId()?"Current activity":"What are you doing?"}" autocomplete="off" ${ui('keydown','dayLogEnter')}>
-          <button id="dayLogStartBtn" type="button" ${ui('click','dayLogToggle')}>${dayLogActiveId()?"STOP":"START"}</button>
+          <input id="dayLogInput" dir="auto" type="text" placeholder="${interfaceCopy(dayLogActiveId()?"Current activity":"What are you doing?")}" autocomplete="off" ${ui('keydown','dayLogEnter')}>
+          <button id="dayLogStartBtn" type="button" ${ui('click','dayLogToggle')}>${interfaceText(dayLogActiveId()?'stop':'start')}</button>
         </div>
-        <div class="t-daylog-meta">${dayLogActiveId()?"LOGGING NOW":"Track an activity"} · ${dayLogFmt(dayLogSummary(key).tracked)} tracked</div>
+        <div class="t-daylog-meta">${interfaceCopy(dayLogActiveId()?"LOGGING NOW":"Track an activity")} · ${interfaceCopy('{time} tracked').replace('{time}',dayLogFmt(dayLogSummary(key).tracked))}</div>
       </div>
     </div>`:""}
     ${isToday&&!nested&&USER?proTodayHTML(key,C):''}
@@ -5732,7 +5830,7 @@ function renderDayLogTab(){
               const a=dayLogMinutes(e.start),b=dayLogMinutes(e.end||(dayLogIsRunning(e)?new Date(Date.now()).toISOString():null));if(a==null)return '';
               const aa=Math.max(totalStart,Math.min(totalEnd,a)),bb=Math.max(aa+2,Math.min(totalEnd,b??Math.min(totalEnd,a+20)));
               const left=((aa-totalStart)/span)*100,width=((bb-aa)/span)*100;
-              return `<button type="button" class="logdesk-seg s${i%4} ${e.id===window.__dayLogSelectedId?'selected':''}" ${uiStyle(`left:${left}%;width:${Math.max(1.2,width)}%`)} title="${dayLogEsc(e.title)}" ${ui('click','dayLogPanelSelect' ,e.id)} aria-label="Edit ${dayLogEsc(e.title)}"></button>`;
+              return `<button type="button" class="logdesk-seg s${i%4} ${e.id===window.__dayLogSelectedId?'selected':''}" ${uiStyle(`left:${left}%;width:${Math.max(1.2,width)}%`)} title="${dayLogEsc(e.title)}" ${ui('click','dayLogPanelSelect' ,e.id)} aria-label="${esc(interfaceCopy("Edit {name}").replace('{name}',()=>e.title))}"></button>`;
             }).join('')}
           </div>
           <div class="logdesk-legend">${evs.filter(e=>!dayLogIsSleepWake(e)).slice(0,6).map((e,i)=>`<span><i class="s${i%4}" ${uiStyle(`background:${['#12cfa8','#f4b62b','#178ee8','#9b45e9'][i%4]}`)}></i>${dayLogEsc(e.title)}</span>`).join('')}${!evs.some(e=>!dayLogIsSleepWake(e))?`<span>${interfaceText('emptyTimeline')}</span>`:''}</div>
@@ -5744,11 +5842,11 @@ function renderDayLogTab(){
           ${evs.length?evs.map(e=>{
             const dur=dayLogDuration(e),running=dayLogIsRunning(e);
             return `<div class="logdesk-row ${e.id===window.__dayLogSelectedId&&mode==='edit'?'selected':''}" role="button" tabindex="0" aria-label="${interfaceCopy("Edit activity")}" ${ui('click','dayLogPanelSelect' ,e.id)} ${ui('keydown','activate')}>
-              <div class="logdesk-time">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:(dayLogIsSleepWake(e)?'':running?' · NOW':' · END MISSING')}</div>
-              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(dayLogSleepRole(e)==='sleep'?interfaceCopy("SLEEP"):dayLogSleepRole(e)==='wake'?interfaceCopy("WAKE"):interfaceCopy("RECORDED TIME")):(running?`<span class="logdesk-running"><span class="logdesk-running-dot"></span>${interfaceCopy("RUNNING")}</span>`:(e.meta?.endedEarly?'INCOMPLETE':e.meta?.completed?'COMPLETED':''))}</div></div>
+              <div class="logdesk-time"><bdi dir="ltr">${dayLogPanelTime(e.start)}${e.end?` – ${dayLogPanelTime(e.end)}`:''}</bdi>${e.end?'':(dayLogIsSleepWake(e)?'':' · '+interfaceCopy(running?'NOW':'END MISSING'))}</div>
+              <div class="logdesk-activity"><div class="logdesk-activity-name">${dayLogEsc(e.title)}</div><div class="logdesk-activity-sub">${dayLogIsSleepWake(e)?(dayLogSleepRole(e)==='sleep'?interfaceCopy("SLEEP"):dayLogSleepRole(e)==='wake'?interfaceCopy("WAKE"):interfaceCopy("RECORDED TIME")):(running?`<span class="logdesk-running"><span class="logdesk-running-dot"></span>${interfaceCopy("RUNNING")}</span>`:(e.meta?.endedEarly?interfaceCopy('INCOMPLETE'):e.meta?.completed?interfaceCopy('COMPLETED'):''))}</div></div>
               <div><span class="logdesk-type ${esc(e.type)}">${dayLogTypeLabel(e.type)}</span></div>
               <div class="logdesk-duration" data-daylog-duration="${esc(e.id)}" data-daylog-key="${esc(key)}">${dayLogFmt(dur)}</div>
-              <button class="logdesk-edit" type="button" ${ui('click','dayLogPanelSelectNested' ,e.id)} aria-label="Edit ${dayLogEsc(e.title)}">✎</button>
+              <button class="logdesk-edit" type="button" ${ui('click','dayLogPanelSelectNested' ,e.id)} aria-label="${esc(interfaceCopy("Edit {name}").replace('{name}',()=>e.title))}">✎</button>
             </div>`;
           }).join(''):`<div class="logdesk-empty">${interfaceText('noActivity')}<br>${interfaceCopy("Use {action} to add your first entry.").replace('{action}', `<b>${interfaceText('logActivity')}</b>`)}</div>`}
         </div>
@@ -5759,10 +5857,10 @@ function renderDayLogTab(){
         <div class="logdesk-editor-body">
           <div class="logdesk-editor-head"><div><div class="logdesk-editor-kicker">${mode==='new'?interfaceText('newActivity'):interfaceText('editActivity')}</div><div class="logdesk-editor-title">${mode==='new'?interfaceText('logNewActivity'):dayLogEsc(panelTitle)}</div></div></div>
           ${mode==='edit'&&panelEv&&panelEv.type==='manual'?`<div class="logdesk-identity"><div class="logdesk-icon">${icon}</div><div><span class="logdesk-badge">${dayLogTypeLabel(panelEv.type)}</span></div></div>`:''}
-          ${mode==='new'||(mode==='edit'&&panelEv&&panelEv.type==='manual')?`<div class="logdesk-field"><label for="logPanelName">${interfaceText('activity')}</label><input id="logPanelName" class="logdesk-input" type="text" maxlength="120" value="${dayLogEsc(panelTitle)}" placeholder="${interfaceText('activityExample')}" autocomplete="off"></div>`:''}
-          ${mode==='edit'&&panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-note">${interfaceCopy("Wake & Sleep Early uses two timestamps: the first tap logs when you woke up, the second logs when you went to sleep. The overnight span is not drawn on the timeline.")}</div>`:mode==='edit'&&panelEv&&panelEv.type!=='manual'?`<div class="logdesk-note">This activity is linked to ${dayLogTypeLabel(panelEv.type).toLowerCase()} completion. Its name and type are managed automatically; you can edit the time.</div>`:''}
+          ${mode==='new'||(mode==='edit'&&panelEv&&panelEv.type==='manual')?`<div class="logdesk-field"><label for="logPanelName">${interfaceText('activity')}</label><input id="logPanelName" dir="auto" class="logdesk-input" type="text" maxlength="120" value="${dayLogEsc(panelTitle)}" placeholder="${interfaceText('activityExample')}" autocomplete="off"></div>`:''}
+          ${mode==='edit'&&panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-note">${interfaceCopy("Wake & Sleep Early uses two timestamps: the first tap logs when you woke up, the second logs when you went to sleep. The overnight span is not drawn on the timeline.")}</div>`:mode==='edit'&&panelEv&&panelEv.type!=='manual'?`<div class="logdesk-note">${interfaceCopy('This activity is linked to completion of a {kind}. Its name and type are managed automatically; you can edit the time.').replace('{kind}',dayLogTypeLabel(panelEv.type).toLowerCase())}</div>`:''}
           ${panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-field"><label>${panelSleepRole==='sleep'?interfaceCopy("SLEEP TIME"):panelSleepRole==='wake'?interfaceCopy("WAKE TIME"):interfaceCopy("RECORDED TIME")}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"></div></div>`:`<div class="logdesk-field"><label>${interfaceCopy("START / END")}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"><input id="logPanelEnd" class="logdesk-input" type="time" value="${panelEnd}"></div></div>`}
-          <div class="logdesk-duration-line"><span>${panelEv&&dayLogIsSleepWake(panelEv)?interfaceCopy("POINT EVENT"):interfaceText('duration')}</span><b>${panelEv&&dayLogIsSleepWake(panelEv)?(panelSleepRole==='sleep'?interfaceCopy("SLEEP LOGGED"):panelSleepRole==='wake'?interfaceCopy("WAKE LOGGED"):interfaceCopy("RECORDED TIME")):panelEv&&dayLogDuration(panelEv)!=null?dayLogFmt(dayLogDuration(panelEv)):'Calculated on save'}</b></div>
+          <div class="logdesk-duration-line"><span>${panelEv&&dayLogIsSleepWake(panelEv)?interfaceCopy("POINT EVENT"):interfaceText('duration')}</span><b>${panelEv&&dayLogIsSleepWake(panelEv)?(panelSleepRole==='sleep'?interfaceCopy("SLEEP LOGGED"):panelSleepRole==='wake'?interfaceCopy("WAKE LOGGED"):interfaceCopy("RECORDED TIME")):panelEv&&dayLogDuration(panelEv)!=null?dayLogFmt(dayLogDuration(panelEv)):interfaceCopy('Calculated on save')}</b></div>
           <div class="logdesk-actions">${mode==='new'?`<button type="button" class="logdesk-cancel" ${ui('click','dayLogPanelCancel')}>${interfaceText('cancel')}</button><button type="button" class="logdesk-save" ${ui('click','dayLogPanelSave' ,key)}>${interfaceText('addActivity')}</button>`:`<button type="button" class="logdesk-delete" ${ui('click','dayLogPanelDelete' ,key)}>${interfaceText('delete')}</button><button type="button" class="logdesk-save" ${ui('click','dayLogPanelSave' ,key)}>${interfaceText('save')}</button>`}</div>
         </div>
       </aside>
@@ -5778,7 +5876,7 @@ function renderEditDay(){
   const dateStr=new Date(editDayKey+"T12:00:00").toLocaleDateString(interfaceLanguage,{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
   return`<div class="edit-day-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
     <div ${uiStyle(`display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50`)}>
-      <button ${ui('click','closeEditDay')} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#d0d0da;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0`)}>←</button>
+      <button ${ui('click','closeEditDay')} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#d0d0da;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0`)}>${interfaceLanguage==='he'?'→':'←'}</button>
       <div ${uiStyle(`font-family:'Bebas Neue';font-size:17px;letter-spacing:0.12em;color:#e2e2e2`)}>${interfaceText('editDay')}</div>
       <div ${uiStyle(`font-size:14.5px;color:#adadbf;margin-left:4px`)}>${dateStr}</div>
     </div>
@@ -5832,7 +5930,7 @@ function renderWeekReview(){
           <div ${uiStyle(`font-size:13px;color:${acol};margin-top:5px`)}>
             ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
           </div>
-          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>Best: ${keyToDate(r.bestDay.key).toLocaleDateString(interfaceLanguage,{weekday:"short"})} · ${dPct(r.bestDay.data)}%</div>`:""}
+          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>${interfaceCopy("Best:")} ${keyToDate(r.bestDay.key).toLocaleDateString(interfaceLanguage,{weekday:"short"})} · ${dPct(r.bestDay.data)}%</div>`:""}
         </div>
       </div>
       <div ${uiStyle(`display:flex;gap:8px;margin-bottom:16px`)}>
@@ -5856,13 +5954,13 @@ function renderSocial(){
   const got=getChecked(tk).social?(C.subs.some(x=>soc[x.id])?C.subs.reduce((a,x)=>a+(soc[x.id]?x.p:0),0):cb):0;
   const d=keyToDate(tk);
   const etiqueta=esHoy?interfaceText('today'):d.toLocaleDateString(interfaceLanguage,{weekday:"short",day:"numeric",month:"short"}).toUpperCase();
-  const nav=(paso,txt,on)=>`<button class="sd-nav" ${on?ui('click','socialShift',paso):''} ${on?"":"disabled"}>${txt}</button>`;
+  const nav=(paso,txt,on)=>`<button class="sd-nav" aria-label="${interfaceCopy(paso<0?'Previous day':'Next day')}" ${on?ui('click','socialShift',paso):''} ${on?"":"disabled"}>${txt}</button>`;
   return`<div class="fade-up soc" ${uiStyle(`padding:0 14px 8px;display:flex;flex-direction:column;gap:7px`)}>
     <div>
       <div class="sec sd-bar">
-        ${nav(-1,"‹",true)}
+        ${nav(-1,interfaceLanguage==='he'?"›":"‹",true)}
         <span class="sd-day">${esc(etiqueta)}</span>
-        ${nav(1,"›",!esHoy)}
+        ${nav(1,interfaceLanguage==='he'?"‹":"›",!esHoy)}
         ${esHoy?"":`<button class="sd-hoy" ${ui('click','socialToday')}>${interfaceText('today')}</button>`}
         <span class="sd-pts" ${uiStyle(`margin-left:auto;color:${got>0?"#fbbf24":"#7e7e97"}`)}>${got}/${cb}%</span></div>
       ${socialWorkspace(tk)}
@@ -5899,7 +5997,7 @@ function weekdayAvg(){
 function renderConsistency(){
   const rows=habitGrid(60).filter(r=>r.con>0);
   if(!rows.length)return"";
-  return`<div><div class="sec" ${uiStyle(`display:flex;align-items:center;gap:8px`)}>CONSISTENCY — 60 DAYS
+  return`<div><div class="sec" ${uiStyle(`display:flex;align-items:center;gap:8px`)}>${interfaceCopy('CONSISTENCY — 60 DAYS')}
       <span ${uiStyle(`margin-left:auto;font-size:11px;color:#7e7e97`)}>${interfaceCopy("STREAK · HIT RATE")}</span></div>
     <div class="card" ${uiStyle(`display:flex;flex-direction:column;gap:10px`)}>
       ${rows.map(r=>`<div class="cg-row">
@@ -5910,9 +6008,13 @@ function renderConsistency(){
       </div>`).join("")}
     </div></div>`;
 }
+function interfaceWeekdays(width) {
+  const formatter=new Intl.DateTimeFormat(interfaceLanguage,{weekday:width,timeZone:'UTC'});
+  return Array.from({length:7},(_,day)=>formatter.format(new Date(Date.UTC(2024,0,7+day))).toUpperCase());
+}
 function renderWeekday(){
   const w=weekdayAvg(); if(!w.some(x=>x.n))return"";
-  const N=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const N=interfaceWeekdays("short");
   // Escala ABSOLUTA sobre 100, no sobre el maximo: con 22-28% todas las barras
   // salian casi llenas y parecia una semana estupenda. La altura dice el nivel,
   // no solo quien gana.
@@ -5946,6 +6048,9 @@ function proWeekComparison(){
     <table><thead><tr><th scope="col">${interfaceCopy("Habit")}</th><th scope="col">${interfaceCopy("Last 7 days")}</th><th scope="col">${interfaceCopy("Previous 7 days")}</th></tr></thead>
     <tbody>${Array.from(habits,([id,label])=>`<tr><th scope="row">${esc(label)}</th>${weeks.map(days=>`<td>${days.filter(day=>getChecked(day)[id]===true).length} / 7</td>`).join('')}</tr>`).join('')}</tbody></table></section>`;
 }
+function gradeInterfaceName(grade) {
+  return interfaceCopy(grade.n==='SIN PLAN'?'No plan':grade.n);
+}
 function renderStats(){
   const tk=todayKey(),{score}=calcScore(tk),h=getStatsHistory();
   const allDays=Object.entries(h).sort(([a],[b])=>a.localeCompare(b));
@@ -5961,12 +6066,12 @@ function renderStats(){
     </div>`;
   }
   const metrics = [
-    {icon:"🔥",label:interfaceText('currentStreak'),val:`${streak}d`,col:"#FFD700",sub:`${bestStreak>0?`${interfaceCopy("record")} ${bestStreak}d · `:``}${interfaceCopy("days in a row")} ≥${Math.round(STREAK_MIN*100)}%`},
+    {icon:"🔥",label:interfaceText('currentStreak'),val:interfaceCopy('{count}d').replace('{count}',streak),col:"#FFD700",sub:`${bestStreak>0?`${interfaceCopy("record")} ${interfaceCopy('{count}d').replace('{count}',bestStreak)} · `:``}${interfaceCopy("days in a row")} ≥${Math.round(STREAK_MIN*100)}%`},
     {icon:review?.best?.icon||"✓",label:interfaceText('mostConsistent'),val:`${review?.best?.done??0}/${review?.best?.eligible??7}`,col:"#4ade80",sub:review?.best?.label||"—"},
     {icon:review?.worst?.icon||"·",label:interfaceText('needsWork'),val:`${review?.worst?.done??0}/${review?.worst?.eligible??7}`,col:"#ef4444",sub:review?.worst?.label||"—"},
-    {icon:"🏆",label:interfaceText('bestDay'),val:`${best}%`,col:total?GRADE(best,100).c:"#333",sub:total?interfaceCopy(GRADE(best,100).n):"—"},
-    {icon:"📊",label:interfaceText('average'),val:`${oAvg}%`,col:total?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% ${interfaceCopy("vs prev week")}`:(total?interfaceCopy(GRADE(oAvg,100).n):"—")},
-    {icon:"📅",label:interfaceText('daysLogged'),val:total,col:"#60a5fa",sub:"total"}
+    {icon:"🏆",label:interfaceText('bestDay'),val:`${best}%`,col:total?GRADE(best,100).c:"#333",sub:total?gradeInterfaceName(GRADE(best,100)):"—"},
+    {icon:"📊",label:interfaceText('average'),val:`${oAvg}%`,col:total?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% ${interfaceCopy("vs prev week")}`:(total?gradeInterfaceName(GRADE(oAvg,100)):"—")},
+    {icon:"📅",label:interfaceText('daysLogged'),val:total,col:"#60a5fa",sub:interfaceCopy("total")}
   ];
   return`<div class="fade-up stats-page" ${uiStyle(`padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
     <div class="stats-heading"><h1>${interfaceText('stats')}</h1><span>${interfaceText('progress')}</span></div>
@@ -5983,7 +6088,7 @@ function renderStats(){
     <div class="stats-detail-content">
     <div class="stats-detail-habits">${metrics.slice(1,3).map(m=>`<div class="card"><div class="sec">${esc(m.label)}</div><strong>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div>`).join("")}</div>
     ${total>0?`<div><div class="sec">${interfaceText('gradeDistribution')}</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
-    ${total>=2?`<div><div class="sec">${interfaceText('fourWeekTrend')}</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>W${4-wi}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
+    ${total>=2?`<div><div class="sec">${interfaceText('fourWeekTrend')}</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
     </div></details>
     ${socialOwnTab()?"":renderWhoToSee()}
   </div>`;
@@ -5996,10 +6101,10 @@ function renderWhoToSee(){
     <div ${uiStyle(`font-size:15px;color:#adadbf;line-height:1.6;max-width:280px;margin:0 auto`)}>${interfaceCopy("Tick a part of the Social Combo in {today} and tap {who} to start tracking who you spend time with.").replace('{today}', `<b ${uiStyle(`color:#d0d0da`)}>${interfaceText('today')}</b>`).replace('{who}', `<b ${uiStyle(`color:#fbbf24`)}>${interfaceCopy("+ who?")}</b>`)}</div></div></div>`;
   const late=st.filter(p=>p.ratio>1).length;
   const col=p=>p.every===0||p.ratio===Infinity?"#8888a4":p.ratio>1.5?"#ef4444":p.ratio>1?"#f59e0b":"#4ade80";
-  const when=p=>p.days==null?"never logged":p.days===0?"today":p.days===1?"yesterday":`${p.days} days ago`;
-  const due=p=>p.every===0?"sin frecuencia":p.days==null?`every ${p.every}d`:p.overdue>0?`${p.overdue}d over`:p.overdue===0?"due today":`${-p.overdue}d left`;
-  return`<div>${locationSelector()}<div class="sec" ${uiStyle(`display:flex;align-items:center;gap:8px`)}>WHO TO SEE
-      <span ${uiStyle(`margin-left:auto;font-size:11px;color:${late?"#f59e0b":"#4ade80"}`)}>${late?`${late} OVERDUE`:"ALL CURRENT"}</span></div>
+  const when=p=>interfaceCopy(p.days==null?'No encounters recorded':p.days===0?'Today':p.days===1?'Yesterday':'{count} days ago').replace('{count}',p.days);
+  const due=p=>p.every===0?interfaceCopy('No frequency'):p.days==null?interfaceCopy('Every {count} days').replace('{count}',p.every):interfaceCopy(p.overdue>0?'Overdue by {count} days':p.overdue===0?'Due today':'{count} days left').replace('{count}',Math.abs(p.overdue));
+  return`<div>${locationSelector()}<div class="sec" ${uiStyle(`display:flex;align-items:center;gap:8px`)}>${interfaceText('whoToSee')}
+      <span ${uiStyle(`margin-left:auto;font-size:11px;color:${late?"#f59e0b":"#4ade80"}`)}>${interfaceCopy(late?'{count} OVERDUE':'ALL CURRENT').replace('{count}',late)}</span></div>
     <div class="card" ${uiStyle(`display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px 22px`)}>
       ${st.map(p=>{const c=col(p),sb=subsList().find(x=>x.id===p.sub);
       return`<div ${uiStyle(`display:flex;align-items:center;gap:11px`)}>
@@ -6040,7 +6145,7 @@ function renderHistWeek(){
             ${data?`<div ${uiStyle(`position:relative;width:42px;height:42px`)}>${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div ${uiStyle(`position:absolute;inset:0;display:flex;align-items:center;justify-content:center`)}><span class="h-num" ${uiStyle(`font-family:'Bebas Neue';font-size:16.5px;color:${g.c}`)}>${data.score}</span></div></div><div class="h-grade" ${uiStyle(`font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1`)}>${esc(g.l)}</div><button class="h-edit" ${ui('click','openEditDay' ,key)} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#a2a2b6;font-family:inherit;font-size:14.5px;padding:5px 10px;border-radius:7px;cursor:pointer`)}>${interfaceText('edit')}</button>`:`<button ${ui('click','openEditDay' ,key)} ${uiStyle(`background:#161626;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;font-size:14.5px;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500`)}>${interfaceText('addLog')}</button>`}
           </div>
         </div>
-        ${data?`<div ${uiStyle(`display:flex;gap:8px`)}>${[["CORE",data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],["HABITS",data.l2,data.l2max||LVL2_MAX,"#a78bfa"],["BONUS",data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div ${uiStyle(`flex:1`)}><div class="h-lvl" ${uiStyle(`display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px`)}><span>${lb}</span><span ${uiStyle(`color:${v>0?c+"aa":"#252535"}`)}>${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
+        ${data?`<div ${uiStyle(`display:flex;gap:8px`)}>${[[interfaceCopy("CORE"),data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],[interfaceText("habits"),data.l2,data.l2max||LVL2_MAX,"#a78bfa"],[interfaceCopy("BONUS"),data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div ${uiStyle(`flex:1`)}><div class="h-lvl" ${uiStyle(`display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px`)}><span>${lb}</span><span ${uiStyle(`color:${v>0?c+"aa":"#252535"}`)}>${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
       </div>`;
     }).join("")}
   </div>`;
@@ -6057,15 +6162,15 @@ function renderHistMonth(){
   const g=a>0?GRADE(a,100):null;
   const best=scored.reduce((m,c)=>!m||dPct(c.data)>dPct(m.data)?c:m,null);
   const canFwd=ym<nowYM;
-  const nav=(d,lab,on)=>`<button class="history-month-nav" ${on?ui('click','histMonthShift',d):''} ${on?"":"disabled"}>${lab}</button>`;
+  const nav=(d,lab,on)=>`<button class="history-month-nav" aria-label="${interfaceCopy(d<0?'Previous month':'Next month')}" ${on?ui('click','histMonthShift',d):''} ${on?"":"disabled"}>${lab}</button>`;
   return`<div class="history-month-wrap" ${uiStyle(`display:flex;flex-direction:column;gap:14px`)}>
     <div class="history-month-head history-month-bar">
-      ${nav(-1,"‹",true)}
+      ${nav(-1,interfaceLanguage==='he'?"›":"‹",true)}
       <div class="history-month-summary">
         <div class="history-month-title" ${uiStyle(`font-family:'Bebas Neue';letter-spacing:0.09em;color:#e2e2e2`)}>${title.toUpperCase()}</div>
         <span class="history-month-divider"></span>
-        <div class="history-month-meta">${logged.length?`${logged.length}d logged`:"no days logged"}</div>
-        ${g?`<span class="history-month-divider"></span><div class="history-month-meta">AVG ${a}%</div><span class="history-month-divider"></span><div class="history-month-grade" ${uiStyle(`color:${g.c}`)}>${esc(g.l)}</div>`:""}
+        <div class="history-month-meta">${interfaceCopy(logged.length?'{count}d logged':'no days logged').replace('{count}',logged.length)}</div>
+        ${g?`<span class="history-month-divider"></span><div class="history-month-meta">${interfaceText('avg')} ${a}%</div><span class="history-month-divider"></span><div class="history-month-grade" ${uiStyle(`color:${g.c}`)}>${esc(g.l)}</div>`:""}
       </div>
       ${best?`<div class="history-month-best-inline">
         <span class="history-month-best-icon">🏆</span>
@@ -6073,11 +6178,11 @@ function renderHistMonth(){
         <span class="history-month-best-date">${new Date(Date.UTC(yy,mm-1,best.day,12)).toLocaleDateString(interfaceLanguage,{month:"short",day:"numeric",timeZone:"UTC"})}</span>
         <span class="history-month-best-score" ${uiStyle(`color:${GRADE(best.data.score,best.data.max).c}`)}>${best.data.score} · ${GRADE(best.data.score,best.data.max).l}</span>
       </div>`:""}
-      ${nav(1,"›",canFwd)}
+      ${nav(1,interfaceLanguage==='he'?"‹":"›",canFwd)}
     </div>
     <div class="card history-month-card ${Math.ceil(cells.length/7)>=6?"history-month-card--six-weeks":""}">
       <div class="month-weekdays" ${uiStyle(`display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:7px`)}>
-        ${["S","M","T","W","T","F","S"].map(d=>`<div ${uiStyle(`text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em`)}>${d}</div>`).join("")}
+        ${interfaceWeekdays("narrow").map(d=>`<div ${uiStyle(`text-align:center;font-size:13px;color:#9a9ab2;letter-spacing:.06em`)}>${d}</div>`).join("")}
       </div>
       <div class="month-days" ${uiStyle(`display:grid;grid-template-columns:repeat(7,1fr);gap:5px`)}>
         ${cells.map(c=>{
@@ -6085,7 +6190,7 @@ function renderHistMonth(){
           const isT=c.key===tk, future=c.key>tk;
           const dg=c.data?GRADE(c.data.score,c.data.max):null;
           if(future)return`<div class="month-day" ${uiStyle(`height:102px;border-radius:9px;border:1px dashed #101020;display:flex;align-items:flex-start;justify-content:flex-start;padding:2px 0 0 5px;box-sizing:border-box`)}><span ${uiStyle(`font-size:11px;line-height:1;color:#22223a`)}>${c.day}</span></div>`;
-          return`<div class="month-day" role="button" tabindex="0" aria-label="Open ${c.key}" ${ui('click','openEditDay' ,c.key)} ${ui('keydown','activate')} title="${c.key}" ${uiStyle(`position:relative;height:102px;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer`)}>
+          return`<div class="month-day" role="button" tabindex="0" aria-label="${esc(interfaceCopy("Open {date}").replace('{date}',()=>c.key))}" ${ui('click','openEditDay' ,c.key)} ${ui('keydown','activate')} title="${c.key}" ${uiStyle(`position:relative;height:102px;border-radius:9px;background:${c.data?dg.c+"18":"#0a0a14"};border:1.5px solid ${isT?(dg?dg.c:"#e2e2e2")+"66":c.data?dg.c+"28":"#111120"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer`)}>
             <span ${uiStyle(`position:absolute;top:2px;left:5px;font-size:13px;line-height:1;color:${c.data?dg.c+"88":"#8a8aa0"}`)}>${c.day}</span>
             ${c.data?`<span class="month-grade" ${uiStyle(`font-family:'Bebas Neue';font-size:23px;color:${dg.c};line-height:1;margin-top:9px`)}>${esc(dg.l)}</span><span class="month-score" ${uiStyle(`font-size:15px;color:#9a9ab2;line-height:1.2`)}>${c.data.score}</span>`:`<span ${uiStyle(`font-size:20px;color:#9a9ab2;margin-top:7px`)}>+</span>`}
           </div>`;
@@ -6097,7 +6202,7 @@ function renderHistMonth(){
 
 function renderHistYear(){
   const days=getDays(365),months={};
-  days.forEach(d=>{const mk=d.date.toLocaleDateString("en",{month:"long",year:"numeric"});if(!months[mk])months[mk]=[];months[mk].push(d);});
+  days.forEach(d=>{const mk=d.date.toLocaleDateString(interfaceLanguage,{month:"long",year:"numeric"});if(!months[mk])months[mk]=[];months[mk].push(d);});
   const filled=Object.entries(months).filter(([,md])=>md.some(d=>d.data||d.key===todayKey()));
   if(!filled.length)return`<div ${uiStyle(`text-align:center;padding:48px 24px;color:#a2a2b6;font-size:15px;line-height:1.6`)}>${interfaceText('noYearDays')}</div>`;
   return`<div ${uiStyle(`display:flex;flex-direction:column;gap:14px`)}><div class="sec">${interfaceText('yearCalendar')}</div>
@@ -6106,12 +6211,12 @@ function renderHistYear(){
       return`<div class="card">
         <div ${uiStyle(`display:flex;justify-content:space-between;align-items:center;margin-bottom:14px`)}>
           <div ${uiStyle(`font-size:15px;color:#aaaabe;text-transform:uppercase;letter-spacing:0.12em`)}>${month}</div>
-          ${mg?`<div ${uiStyle(`font-family:'Bebas Neue';font-size:17px;color:${mg.c}`)}>AVG ${ma}%</div>`:""}
+          ${mg?`<div ${uiStyle(`font-family:'Bebas Neue';font-size:17px;color:${mg.c}`)}>${interfaceText('avg')} ${ma}%</div>`:""}
         </div>
         <div ${uiStyle(`display:flex;flex-wrap:wrap;gap:4px`)}>
           ${mdays.map(({key,data})=>{
             const dg=data?GRADE(data.score,data.max):null,isT=key===todayKey(),tgr=GRADE(calcScore(todayKey()).score);
-            return`<div role="button" tabindex="0" aria-label="Open ${key}" ${ui('click','openEditDay' ,key)} ${ui('keydown','activate')} title="${data?`${key}: ${data.score}%`:key}" ${uiStyle(`width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer`)}>
+            return`<div role="button" tabindex="0" aria-label="${esc(interfaceCopy("Open {date}").replace('{date}',()=>key))}" ${ui('click','openEditDay' ,key)} ${ui('keydown','activate')} title="${data?`${key}: ${data.score}%`:key}" ${uiStyle(`width:24px;height:24px;border-radius:6px;background:${data?dg.c+"20":"#090914"};border:1px solid ${isT?(dg?dg.c:tgr.c)+"66":data?dg.c+"28":"#111120"};display:flex;align-items:center;justify-content:center;cursor:pointer`)}>
               ${data?`<span ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${dg.c}`)}>${esc(dg.l)}</span>`:`<span ${uiStyle(`font-size:14px;color:#9a9ab2`)}>·</span>`}
             </div>`;
           }).join("")}
@@ -6479,11 +6584,12 @@ document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touc
 document.addEventListener("touchend",e=>{
   const dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY;
   if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)*0.8)return;
-  if(dx>0){if(settingsOpen){closeSettings();return;}if(editDayKey){closeEditDay();return;}if(routineId&&routineView){exitRoutine();return;}}
+  const inlineDelta=interfaceLanguage==='he'?-dx:dx;
+  if(inlineDelta>0){if(settingsOpen){closeSettings();return;}if(editDayKey){closeEditDay();return;}if(routineId&&routineView){exitRoutine();return;}}
   if((routineId&&routineView)||editDayKey||settingsOpen)return;
   const T=tabsOrder(), idx=T.indexOf(currentTab);
-  if(dx<0&&idx<T.length-1)setTab(T[idx+1]);
-  if(dx>0&&idx>0)setTab(T[idx-1]);
+  if(inlineDelta<0&&idx<T.length-1)setTab(T[idx+1]);
+  if(inlineDelta>0&&idx>0)setTab(T[idx-1]);
 },{passive:true});
 
 // Production Social/Core config migration v1. Pure, versioned, idempotent, never edits day rows.
@@ -6539,7 +6645,7 @@ function socialSearch(value){
   if(box)uiHTML(box,socialSearchRows(socialKeyForView()));
 }
 function socialKeyForView(){return editDayKey|| (currentTab==='social'?socialKey():todayKey());}
-function socialButton(label,action,args=[],primary=false){return `<button type="button" class="sf-button${primary?' sf-primary':''}" ${ui('click',action,...args)}>${label}</button>`;}
+function socialButton(label,action,args=[],primary=false){return `<button type="button" class="sf-button${primary?' sf-primary':''}"  ${label==='+'?'aria-label="הוספת איש קשר"':''} ${ui('click',action,...args)}>${label}</button>`;}
 function socialPersonButton(p,key){const on=getPeople(key).includes(p.id);return `<button type="button" class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}><span class="sf-person-check">${on?'✓ ':''}</span><span class="sf-person-name">${esc(p.name)}</span></button>`;}
 function socialSearchRows(key){
   if(!socialQuery.trim())return '';
@@ -6554,7 +6660,7 @@ function socialCapture(key,compact=false){
   const seen=peopleList().filter(p=>getPeople(key).includes(p.id));
   return `<section class="sf-capture"><div class="sf-heading"><strong>${interfaceCopy("Who did you meet?")}</strong>${compact?socialButton(interfaceCopy("Open Social →"),'setTab',['social']):''}</div><div class="sf-muted">${interfaceCopy(compact?'Log this day’s encounter here.':'Tap a name to log the encounter.')}</div>
     <div class="sf-buttons">${recent.map(p=>socialPersonButton(p,key)).join('')}${socialButton(interfaceCopy('+ Someone new'),'socialNew',[key],true)}</div>
-    <label class="sf-field">${interfaceCopy("Search for anyone")}<input id="social-search" type="search" maxlength="80" placeholder="${interfaceCopy("Name, in any group")}" value="${esc(socialQuery)}" ${ui('input','socialSearch')}></label><div id="social-search-results">${socialSearchRows(key)}</div>
+    <label class="sf-field">${interfaceCopy("Search for anyone")}<input id="social-search" dir="auto" type="search" maxlength="80" placeholder="${interfaceCopy("Name, in any group")}" value="${esc(socialQuery)}" ${ui('input','socialSearch')}></label><div id="social-search-results">${socialSearchRows(key)}</div>
     ${seen.length?`<div class="sf-muted">${interfaceCopy('Logged on this day')} · ${seen.length}</div><div class="sf-buttons">${seen.map(p=>socialPersonButton(p,key)).join('')}</div>`:''}
   </section>`;
 }
@@ -6587,7 +6693,7 @@ function socialEditor(){
   const history=d.id?Object.keys(_state).filter(k=>DATE_RE.test(k)&&getPeople(k).includes(d.id)).sort().reverse():[];
   return `<section class="card sf-editor"><div class="sf-heading"><strong>${interfaceCopy(d.id?'Edit person':'Someone new')}</strong>${socialButton(interfaceCopy("Cancel"),'socialCancel')}</div>
     ${socialFormError?`<p role="alert">${esc(socialFormError)}</p>`:''}
-    <label class="sf-field">${interfaceCopy("Name")}<input id="sf-name" maxlength="40" value="${esc(d.name)}" ${ui('input','socialDraftName')}></label>
+    <label class="sf-field">${interfaceCopy("Name")}<input id="sf-name" dir="auto" maxlength="40" value="${esc(d.name)}" ${ui('input','socialDraftName')}></label>
     <label class="sf-field">${interfaceCopy('Frequency in days (optional)')}<input id="sf-every" type="number" min="0" max="3650" step="1" placeholder="${interfaceCopy("No frequency")}" value="${esc(d.every)}" ${ui('input','socialDraftEvery')}></label><p class="sf-muted">${interfaceCopy('Blank or 0 = no frequency or overdue reminders. 7 = weekly · 30 = monthly.')}</p>
     <label class="sf-field">${interfaceText('category')}<select id="sf-sub" ${ui('change','socialDraftSub')}>${socialCategories().map(s=>`<option value="${esc(s.id)}" ${d.sub===s.id?'selected':''}>${esc(s.label)}</option>`).join('')}${!socialCategories().some(s=>s.id===d.sub)?`<option value="${esc(d.sub)}" selected>${d.sub==='family'?interfaceCopy('Family'):esc(d.sub)+' · '+interfaceCopy('previous category')}</option>`:''}</select></label>
 
@@ -6623,7 +6729,7 @@ function socialDirectoryToggle(){
 var socialPeopleOpen=false;
 var socialBulkOpen=false;
 var socialFamilyIncluded=true;
-function socialPeople(){return `<section class="card sf-people-box" aria-label="${interfaceText('peopleGroups')}"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} ${interfaceText('peopleGroups')} <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading sf-directory-actions">${socialButton(interfaceCopy("+ Person"),'socialNew',[''],true)}<button type="button" id="social-directory-toggle" class="sf-button" aria-controls="social-directory-results social-groups-view" aria-pressed="${socialDirectoryView==='groups'}" ${ui('click','socialDirectoryToggle')}>${socialDirectoryView==='groups'?'People':'Groups'}</button></div><div class="sf-directory-filters"><label class="sf-field">${interfaceCopy("Search")}<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">${interfaceCopy("Group")}<select ${ui('change','socialDirectoryGroup')}><option value="all">${interfaceCopy("Everyone")}</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">${interfaceText('category')}<select ${ui('change','socialDirectoryCategory')}><option value="all">${interfaceCopy("All")}</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory" ${socialDirectoryView==='groups'?'hidden':''}>${socialDirectoryRows()}</div><div id="social-groups-view" ${socialDirectoryView==='groups'?'':'hidden'}>${socialGroups()}</div></div></div></section>`;}
+function socialPeople(){return `<section class="card sf-people-box" aria-label="${interfaceText('peopleGroups')}"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} ${interfaceText('peopleGroups')} <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading sf-directory-actions">${socialButton(interfaceCopy("+ Person"),'socialNew',[''],true)}<button type="button" id="social-directory-toggle" class="sf-button" aria-controls="social-directory-results social-groups-view" aria-pressed="${socialDirectoryView==='groups'}" ${ui('click','socialDirectoryToggle')}>${interfaceCopy(socialDirectoryView==='groups'?'People':'Groups')}</button></div><div class="sf-directory-filters"><label class="sf-field">${interfaceCopy("Search")}<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">${interfaceCopy("Group")}<select ${ui('change','socialDirectoryGroup')}><option value="all">${interfaceCopy("Everyone")}</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">${interfaceText('category')}<select ${ui('change','socialDirectoryCategory')}><option value="all">${interfaceCopy("All")}</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory" ${socialDirectoryView==='groups'?'hidden':''}>${socialDirectoryRows()}</div><div id="social-groups-view" ${socialDirectoryView==='groups'?'':'hidden'}>${socialGroups()}</div></div></div></section>`;}
 function socialGroups(){return `<section class="card sf-groups"><div class="sec">${interfaceCopy("GROUPS")}</div><p class="sf-muted">${interfaceCopy("One person can belong to multiple groups.")}</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?interfaceCopy("person"):interfaceCopy("people")}</span>${socialButton(interfaceCopy("Rename"),'locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>${interfaceCopy("+ Add group")}</button></div><p class="sf-muted">${interfaceCopy("Group focus filters Friends and Strangers suggestions. You can still record encounters with anyone.")}</p></section>`;}
 function socialSuggestions(){
   const list=peopleStatus().filter(p=>p.every>0&&(p.days==null||p.overdue>=0));
@@ -6699,9 +6805,9 @@ function comboBlock(key,alwaysOpen){
  if(socialDraft&&socialDraft.key===key&&currentTab!=='social')return socialEditor();
  const C=cfgForDate(key),soc=getSocial(key),checked=getChecked(key).social;
  const total=C.subs.reduce((n,s)=>n+s.p,0),earned=checked?(C.subs.some(s=>soc[s.id])?C.subs.reduce((n,s)=>n+(soc[s.id]?s.p:0),0):total):0;
- return `<section class="card sf-compact-combo" aria-label="${interfaceCopy("Social Combo")}"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>${interfaceCopy("👥 Social Combo")}</strong><span>${alwaysOpen?earned+' / '+total+' pts':earned+'/'+total}</span></div>${C.subs.map(s=>{
+ return `<section class="card sf-compact-combo" aria-label="${interfaceCopy("Social Combo")}"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>${interfaceCopy("👥 Social Combo")}</strong><span>${alwaysOpen?earned+' / '+total+' '+interfaceCopy('pts'):earned+'/'+total}</span></div>${C.subs.map(s=>{
  const open=comboDisclosureIsOpen(s.id,key);
- return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="combo-category-row"><button type="button" class="combo-category-credit" aria-label="${esc(interfaceCopy('Credit {category}').replace('{category}',()=>s.label))}" aria-pressed="${!!soc[s.id]}" ${ui('click','comboCategoryCredit',s.id,key)}>${soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}><span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} pts</span><span class="combo-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton(interfaceCopy("+ Person"),'socialNewCategory',[key,s.id])}</div></div></div></div>`;
+ return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="combo-category-row"><button type="button" class="combo-category-credit" aria-label="${esc(interfaceCopy('Credit {category}').replace('{category}',()=>s.label))}" aria-pressed="${!!soc[s.id]}" ${ui('click','comboCategoryCredit',s.id,key)}>${soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}><span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} ${interfaceCopy('pts')}</span><span class="combo-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${peopleList().filter(p=>socialCategory(p)===s.id).map(p=>socialPersonButton(p,key)).join('')}${socialButton(interfaceCopy("+ Person"),'socialNewCategory',[key,s.id])}</div></div></div></div>`;
  }).join('')}</section>`;
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
@@ -6719,7 +6825,7 @@ function socialGroupCancel(){socialGroupDraft=null;socialGroupError='';render();
 function socialGroupSave(){
  if(!socialGroupDraft)return;
  const name=String(socialGroupDraft.name).trim();
- if(!name){socialGroupError='Escribe un nombre para el grupo.';render();return;}
+ if(!name){socialGroupError=interfaceCopy("Enter a group name.");render();return;}
  if(socialGroupDraft.id){const group=locationGroups().find(g=>g.id===socialGroupDraft.id);if(!group)return;group.name=name;}
  else{let id;do{id='loc'+Math.random().toString(36).slice(2,10);}while(locationGroups().some(g=>g.id===id));CFG.locationGroups=locationGroups().concat({id,name});}
  socialGroupDraft=null;socialGroupError='';saveCfg();render();
@@ -6752,7 +6858,7 @@ function workMilestonesRead(){
  return Array.from(document.querySelectorAll('.sf-work-settings-row')).map(row=>({amount:Number(row.querySelector('[data-work-amount]').value),points:Number(row.querySelector('[data-work-points]').value)}));
 }
 function workMilestonesSummary(){
- const summary=document.getElementById('work-settings-max');if(summary)summary.textContent='Máximo desde mañana: '+workMilestonesRead().reduce((n,p)=>n+p.points,0)+' puntos.';
+ const summary=document.getElementById('work-settings-max');if(summary)summary.textContent=interfaceCopy('Maximum from tomorrow: {points} points.').replace('{points}',workMilestonesRead().reduce((n,p)=>n+p.points,0));
 }
 function workMilestonesChange(index){
  const card=document.querySelector('.sf-work-settings');if(!card)return;
@@ -6762,7 +6868,7 @@ function workMilestonesChange(index){
 }
 function workMilestonesSettings(draft){
  const rules=draft||workMilestoneRules(keyMinus(todayKey(),-1));
- return `<div class="card sf-work-settings"><div class="sec">💼 ${interfaceCopy('Work Milestones')} · ${interfaceCopy('{count} milestones').replace('{count}',rules.length)}</div><p class="sf-muted">${interfaceCopy("Extra points per milestone. Changes apply tomorrow and preserve the rules for today and earlier days. After the last milestone, the next tap resets to zero.")}</p>${rules.map((p,i)=>`<div class="sf-work-settings-row"><span>${i+1}</span><label>${interfaceCopy("Amount ₪")}<input data-work-amount id="work-amount-${i}" type="number" min="1" step="1" value="${esc(p.amount)}"></label><label>${interfaceCopy("Points +")}<input data-work-points ${ui('input','workMilestonesSummary')} id="work-points-${i}" type="number" min="1" max="1000" step="1" value="${esc(p.points)}"></label><button type="button" class="sf-button" aria-label="Eliminar milestone ${i+1}" ${ui('click','workMilestonesDelete',i)}>🗑</button></div>`).join('')}<button type="button" class="sf-button" ${ui('click','workMilestonesAdd')}>${interfaceCopy("+ Add milestone")}</button><p id="work-settings-max" class="sf-muted">Máximo desde mañana: ${rules.reduce((n,p)=>n+p.points,0)} puntos.</p><p id="work-settings-error" role="alert"></p><button class="sf-button sf-primary" ${ui('click','workMilestonesSave')}>${interfaceCopy("Save milestones")}</button></div>`;
+ return `<div class="card sf-work-settings"><div class="sec">💼 ${interfaceCopy('Work Milestones')} · ${interfaceCopy('{count} milestones').replace('{count}',rules.length)}</div><p class="sf-muted">${interfaceCopy("Extra points per milestone. Changes apply tomorrow and preserve the rules for today and earlier days. After the last milestone, the next tap resets to zero.")}</p>${rules.map((p,i)=>`<div class="sf-work-settings-row"><span>${i+1}</span><label>${interfaceCopy("Amount ₪")}<input data-work-amount id="work-amount-${i}" type="number" min="1" step="1" value="${esc(p.amount)}"></label><label>${interfaceCopy("Points +")}<input data-work-points ${ui('input','workMilestonesSummary')} id="work-points-${i}" type="number" min="1" max="1000" step="1" value="${esc(p.points)}"></label><button type="button" class="sf-button" aria-label="${esc(interfaceCopy("Delete milestone {number}").replace('{number}',()=>i+1))}" ${ui('click','workMilestonesDelete',i)}>🗑</button></div>`).join('')}<button type="button" class="sf-button" ${ui('click','workMilestonesAdd')}>${interfaceCopy("+ Add milestone")}</button><p id="work-settings-max" class="sf-muted">${interfaceCopy('Maximum from tomorrow: {points} points.').replace('{points}',rules.reduce((n,p)=>n+p.points,0))}</p><p id="work-settings-error" role="alert"></p><button class="sf-button sf-primary" ${ui('click','workMilestonesSave')}>${interfaceCopy("Save milestones")}</button></div>`;
 }
 function workMilestonesSave(){
  const steps=workMilestonesRead();
@@ -6852,7 +6958,7 @@ function socialGeneralSettings(){const bulkOpen=!!document.getElementById('socia
           <input type="number" min="0" max="99" value="${esc(modePts(x,'vacation'))}" ${ui('change','subSet' ,i,'pVacation')}
              title="${interfaceCopy("Vacation Mode")}" aria-label="${interfaceCopy("Vacation Mode points")}"
              ${uiStyle(`width:44px;flex-shrink:0;background:#111120;border:1px solid #222;border-radius:6px;color:#fbbf24;font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
-          <button ${ui('click','subToggle' ,i)} title="${x.on!==false?"Pause this part":"Resume this part"}" ${uiStyle(`background:none;border:1px solid #222;color:${x.on!==false?"#fbbf24":"#555"};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer;flex-shrink:0`)}>${x.on!==false?"✓":"○"}</button>
+          <button ${ui('click','subToggle' ,i)} title="${interfaceCopy(x.on!==false?"Pause this part":"Resume this part")}" ${uiStyle(`background:none;border:1px solid #222;color:${x.on!==false?"#fbbf24":"#555"};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer;flex-shrink:0`)}>${x.on!==false?"✓":"○"}</button>
           ${subsList().length>1?`<button ${ui('click','subDel' ,i)} title="${interfaceCopy("Remove")}" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
         </div>`).join("")}
         <button ${ui('click','subAdd')} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceCopy("+ ADD TO COMBO")}</button>

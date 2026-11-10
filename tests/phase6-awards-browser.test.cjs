@@ -18,7 +18,7 @@ test('A failed write waits for a successful retry and the milestone appears once
   assert.equal(await badge.count(),0);
   await p.evaluate(async()=>{sendDayItem=window.originalDaySender;await flushOfflineQueue();});
   await badge.waitFor();
-  assert.match(await badge.textContent(),/5 días/);
+  assert.match(await badge.textContent(),/5 consecutive days/);
   await badge.waitFor({state:'detached'});
   await p.evaluate(()=>{toggleHabit(window.awardTestHabit,todayKey());toggleHabit(window.awardTestHabit,todayKey());});
   await p.waitForFunction(()=>!_pending[todayKey()]);

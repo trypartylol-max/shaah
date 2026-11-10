@@ -3094,3 +3094,16 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
   font: inherit;
   padding: 0.5rem;
 }
+
+[dir="rtl"] .settings-back svg,
+[dir="rtl"] .st-chevron:not(.is-open) {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .wg-card .wg-weekly {
+  text-align: end;
+}
+
+
+.settings-mode-labels { padding-inline-end: 42px; }
+.settings-routine-summary { margin-inline-start: auto; }

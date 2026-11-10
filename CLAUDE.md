@@ -20,7 +20,7 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 python3 scripts/build-production.py     # source/ -> assets/ hasheados, index.html, sw.js
 npm ci
 npm run test:unit                        # 299 tests, ~5 s, verdes a día 2026-11-09
-npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~15 min. En verde a 2026-11-10: 293 pasan, 0 fallan, 1 omitido (el del dock de Matrix, con su motivo en el propio test). Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout -- docs y borra los .png sueltos de la raíz
+npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~15 min. En verde a 2026-11-10: sin omitidos ni fallos. Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout -- docs y borra los .png sueltos de la raíz
 SHAAH_SOURCE=source/app.js npm test      # probar el fuente sin reconstruir
 ```
 - Los tests unitarios ejecutan el código real de `app.js` en un `vm` con DOM simulado (`tests/helpers.cjs`, `loadApp()`); sirven para llamar funciones concretas (`calcScore`, `cfgForDate`, `persistDay`…).
@@ -98,7 +98,7 @@ Panel privado del propietario, página independiente (`control/index.html`, 75 K
 - Flujo recomendado para un cambio: rama + PR, tests unitarios, build, merge, verificar hashes publicados y registrar en Bitácora. `main` se publica tal cual.
 
 ## Cosas conocidas (detalle en `docs/ESTADO_ACTUAL_2026-11-09.md`)
-- Queda 1 test de navegador omitido con `skip:` (dock de Matrix: el menú se oculta a propósito durante el arranque). Se eliminaron la suite de Glow y la de paridad CSP (comparaban contra builds congelados) y se reactivaron el resto con los valores actuales. Ojo: el panel "Pro shortcuts" va oculto en el DOM de todos los skins y duplica la nota y la tarjeta Work, así que en los tests usa selectores con `:visible`.
+- No queda ningún test de navegador omitido. (El dock se oculta a propósito durante el arranque, `#nav.boot-nav`; su test lo comprueba.) Se eliminaron la suite de Glow y la de paridad CSP (comparaban contra builds congelados) y se reactivaron el resto con los valores actuales. Ojo: el panel "Pro shortcuts" va oculto en el DOM de todos los skins y duplica la nota y la tarjeta Work, así que en los tests usa selectores con `:visible`.
 - El botón Collapse All / Expand All de Hoy cubre Core, niveles 1-3, Social combo y la nota; el anillo y el Day Log quedan fuera (`TODAY_ALL_EXCLUDED`).
 - El email personal ya no está en `source/app.js` ni en `assets/`; solo sigue en el historial de git.
 - `assets/` conserva solo el build actual y 5 `app.*` antiguos que usan los tests (fixtures `production-*`). El build no limpia los antiguos: al publicar uno nuevo, borra el anterior salvo que algún test lo use (`grep -r app.<hash> tests`).

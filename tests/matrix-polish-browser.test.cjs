@@ -45,7 +45,7 @@ test('Matrix decorations preserve mobile hit targets and disappear or stop with 
   assert.equal(await page.evaluate(() => window.__mockWrites.length), writes);
 });
 
-test('all five dock tabs exist in the same order before a delayed SDK finishes loading', { skip: 'The dock is hidden on purpose while booting (#nav.boot-nav); it appears once auth/account data arrives, so it is no longer visible before the SDK loads.' }, async t => {
+test('dock stays hidden while a delayed SDK loads, then shows all five tabs in the same order', async t => {
   const page = await openApp(t, locationFixture(), { width: 390, height: 844 });
   const tabs = () => page.locator('#nav .nav-btn').evaluateAll(nodes => nodes.filter(node => !node.hidden && node.dataset.tab).map(node => node.dataset.tab));
   const expected = ['today', 'log', 'social', 'stats', 'history'];
@@ -60,10 +60,13 @@ test('all five dock tabs exist in the same order before a delayed SDK finishes l
   await page.reload({ waitUntil: 'commit' });
   await intercepted;
   try {
-    await page.locator('#nav .nav-btn[data-tab="history"]').waitFor({ state: 'visible' });
-    assert.deepEqual(await tabs(), expected);
-    for (const tab of expected) assert.equal(await page.locator(`.nav-btn[data-tab="${tab}"]`).isVisible(), true);
+    // While booting the dock is hidden on purpose (#nav.boot-nav).
+    assert.equal(await page.locator('#nav').evaluate(node => node.classList.contains('boot-nav')), true);
+    assert.equal(await page.locator('#nav').isVisible(), false);
   } finally { release(); }
+  await page.locator('#nav .nav-btn[data-tab="history"]').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#nav').evaluate(node => node.classList.contains('boot-nav')), false);
+  for (const tab of expected) assert.equal(await page.locator(`.nav-btn[data-tab="${tab}"]`).isVisible(), true);
   await page.waitForFunction(() => typeof _cfgReady !== 'undefined' && _cfgReady && _live);
   assert.deepEqual(await tabs(), expected);
 });

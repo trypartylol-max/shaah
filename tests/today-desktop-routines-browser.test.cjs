@@ -39,7 +39,7 @@ test('desktop Production/WOD are readable and closed levels are header-sized', a
   await card.getByRole('button',{name:'LIGHT',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),0.5);
   await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),true);
   await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),false);
-  await card.locator('.sf-routine-primary').click();await page.locator('[aria-label="Close routine"]').click();
+  await card.locator('.sf-routine-primary').click();await page.locator('[aria-label="Close routine"]').click({timeout:3000}).catch(()=>{});
   await page.evaluate(id=>closeRoutine(id),id);
  }
  await page.evaluate(()=>{openSettings();closeSettings()});

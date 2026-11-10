@@ -10,29 +10,29 @@
       "apiMs": 600
     },
     "initial": {
-      "fcpMs": 1148,
-      "readyMs": 3567.800000011921
+      "fcpMs": 1192,
+      "readyMs": 3545.2000000000116
     },
     "tabs": [
       {
         "tab": "social",
-        "paintMs": 103.80000001192093
+        "paintMs": 80.90000000002328
       },
       {
         "tab": "stats",
-        "paintMs": 55.80000001192093
+        "paintMs": 74.20000000001164
       },
       {
         "tab": "history",
-        "paintMs": 52.70000001788139
+        "paintMs": 87.60000000003492
       },
       {
         "tab": "log",
-        "paintMs": 64.19999998807907
+        "paintMs": 88
       },
       {
         "tab": "today",
-        "paintMs": 38.099999994039536
+        "paintMs": 55.100000000034925
       }
     ],
     "slowWriteFinal": "latest note preserved",
@@ -57,110 +57,110 @@
           "key": "app_ready",
           "unit": "ms",
           "count": 1,
-          "last": 2650.4,
-          "p50": 2650.4,
-          "p95": 2650.4,
-          "max": 2650.4,
+          "last": 2958.6,
+          "p50": 2958.6,
+          "p95": 2958.6,
+          "max": 2958.6,
           "failures": 0
         },
         {
           "key": "data_load",
           "unit": "ms",
           "count": 1,
-          "last": 633,
-          "p50": 633,
-          "p95": 633,
-          "max": 633,
+          "last": 652.5,
+          "p50": 652.5,
+          "p95": 652.5,
+          "max": 652.5,
           "failures": 0
         },
         {
           "key": "tab_today",
           "unit": "ms",
           "count": 1,
-          "last": 37.4,
-          "p50": 37.4,
-          "p95": 37.4,
-          "max": 37.4,
+          "last": 55.1,
+          "p50": 55.1,
+          "p95": 55.1,
+          "max": 55.1,
           "failures": 0
         },
         {
           "key": "tab_log",
           "unit": "ms",
           "count": 1,
-          "last": 63.5,
-          "p50": 63.5,
-          "p95": 63.5,
-          "max": 63.5,
+          "last": 87.9,
+          "p50": 87.9,
+          "p95": 87.9,
+          "max": 87.9,
           "failures": 0
         },
         {
           "key": "tab_social",
           "unit": "ms",
           "count": 1,
-          "last": 102.6,
-          "p50": 102.6,
-          "p95": 102.6,
-          "max": 102.6,
+          "last": 78.8,
+          "p50": 78.8,
+          "p95": 78.8,
+          "max": 78.8,
           "failures": 0
         },
         {
           "key": "tab_stats",
           "unit": "ms",
           "count": 1,
-          "last": 55.7,
-          "p50": 55.7,
-          "p95": 55.7,
-          "max": 55.7,
+          "last": 74.1,
+          "p50": 74.1,
+          "p95": 74.1,
+          "max": 74.1,
           "failures": 0
         },
         {
           "key": "tab_history",
           "unit": "ms",
           "count": 1,
-          "last": 52.6,
-          "p50": 52.6,
-          "p95": 52.6,
-          "max": 52.6,
+          "last": 87.6,
+          "p50": 87.6,
+          "p95": 87.6,
+          "max": 87.6,
           "failures": 0
         },
         {
           "key": "habit_response",
           "unit": "ms",
           "count": 1,
-          "last": 63.6,
-          "p50": 63.6,
-          "p95": 63.6,
-          "max": 63.6,
+          "last": 54.3,
+          "p50": 54.3,
+          "p95": 54.3,
+          "max": 54.3,
           "failures": 0
         },
         {
           "key": "fcp",
           "unit": "ms",
           "count": 1,
-          "last": 876,
-          "p50": 876,
-          "p95": 876,
-          "max": 876,
+          "last": 1180,
+          "p50": 1180,
+          "p95": 1180,
+          "max": 1180,
           "failures": 0
         },
         {
           "key": "lcp",
           "unit": "ms",
           "count": 1,
-          "last": 2676,
-          "p50": 2676,
-          "p95": 2676,
-          "max": 2676,
+          "last": 2980,
+          "p50": 2980,
+          "p95": 2980,
+          "max": 2980,
           "failures": 0
         },
         {
           "key": "slow_event_max",
           "unit": "ms",
           "count": 1,
-          "last": 120,
-          "p50": 120,
-          "p95": 120,
-          "max": 120,
+          "last": 104,
+          "p50": 104,
+          "p95": 104,
+          "max": 104,
           "failures": 0
         }
       ]
@@ -177,29 +177,29 @@
       "apiMs": 1500
     },
     "initial": {
-      "fcpMs": 2572,
-      "readyMs": 10237.5
+      "fcpMs": 3236,
+      "readyMs": 11531.799999999988
     },
     "tabs": [
       {
         "tab": "social",
-        "paintMs": 143.69999998807907
+        "paintMs": 107
       },
       {
         "tab": "stats",
-        "paintMs": 126.80000001192093
+        "paintMs": 98.5
       },
       {
         "tab": "history",
-        "paintMs": 70.19999998807907
+        "paintMs": 101.80000000004657
       },
       {
         "tab": "log",
-        "paintMs": 87.2999999821186
+        "paintMs": 129.60000000003492
       },
       {
         "tab": "today",
-        "paintMs": 57.70000001788139
+        "paintMs": 90.89999999996508
       }
     ],
     "slowWriteFinal": "latest note preserved",
@@ -224,110 +224,110 @@
           "key": "app_ready",
           "unit": "ms",
           "count": 1,
-          "last": 8835.5,
-          "p50": 8835.5,
-          "p95": 8835.5,
-          "max": 8835.5,
+          "last": 9959.9,
+          "p50": 9959.9,
+          "p95": 9959.9,
+          "max": 9959.9,
           "failures": 0
         },
         {
           "key": "data_load",
           "unit": "ms",
           "count": 1,
-          "last": 1632.7,
-          "p50": 1632.7,
-          "p95": 1632.7,
-          "max": 1632.7,
+          "last": 1580.8,
+          "p50": 1580.8,
+          "p95": 1580.8,
+          "max": 1580.8,
           "failures": 0
         },
         {
           "key": "tab_today",
           "unit": "ms",
           "count": 1,
-          "last": 57.9,
-          "p50": 57.9,
-          "p95": 57.9,
-          "max": 57.9,
+          "last": 89.6,
+          "p50": 89.6,
+          "p95": 89.6,
+          "max": 89.6,
           "failures": 0
         },
         {
           "key": "tab_log",
           "unit": "ms",
           "count": 1,
-          "last": 87.3,
-          "p50": 87.3,
-          "p95": 87.3,
-          "max": 87.3,
+          "last": 129.5,
+          "p50": 129.5,
+          "p95": 129.5,
+          "max": 129.5,
           "failures": 0
         },
         {
           "key": "tab_social",
           "unit": "ms",
           "count": 1,
-          "last": 142.6,
-          "p50": 142.6,
-          "p95": 142.6,
-          "max": 142.6,
+          "last": 102,
+          "p50": 102,
+          "p95": 102,
+          "max": 102,
           "failures": 0
         },
         {
           "key": "tab_stats",
           "unit": "ms",
           "count": 1,
-          "last": 126.3,
-          "p50": 126.3,
-          "p95": 126.3,
-          "max": 126.3,
+          "last": 98.5,
+          "p50": 98.5,
+          "p95": 98.5,
+          "max": 98.5,
           "failures": 0
         },
         {
           "key": "tab_history",
           "unit": "ms",
           "count": 1,
-          "last": 70.1,
-          "p50": 70.1,
-          "p95": 70.1,
-          "max": 70.1,
+          "last": 101.8,
+          "p50": 101.8,
+          "p95": 101.8,
+          "max": 101.8,
           "failures": 0
         },
         {
           "key": "habit_response",
           "unit": "ms",
           "count": 1,
-          "last": 115.4,
-          "p50": 115.4,
-          "p95": 115.4,
-          "max": 115.4,
+          "last": 87.9,
+          "p50": 87.9,
+          "p95": 87.9,
+          "max": 87.9,
           "failures": 0
         },
         {
           "key": "fcp",
           "unit": "ms",
           "count": 1,
-          "last": 2512,
-          "p50": 2512,
-          "p95": 2512,
-          "max": 2512,
+          "last": 3208,
+          "p50": 3208,
+          "p95": 3208,
+          "max": 3208,
           "failures": 0
         },
         {
           "key": "lcp",
           "unit": "ms",
           "count": 1,
-          "last": 8868,
-          "p50": 8868,
-          "p95": 8868,
-          "max": 8868,
+          "last": 9976,
+          "p50": 9976,
+          "p95": 9976,
+          "max": 9976,
           "failures": 0
         },
         {
           "key": "slow_event_max",
           "unit": "ms",
           "count": 1,
-          "last": 152,
-          "p50": 152,
-          "p95": 152,
-          "max": 152,
+          "last": 144,
+          "p50": 144,
+          "p95": 144,
+          "max": 144,
           "failures": 0
         }
       ]

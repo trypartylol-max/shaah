@@ -95,10 +95,10 @@ test('Stats shows dated eligible denominators and fractional completion',async t
  d.days['2026-10-10']={checks:{meditation:.5},social:{},people:[],note:''};
  const page=await openApp(t,d);await page.locator('.nav-btn[data-tab="stats"]').click();
  const review=await page.evaluate(()=>weekReview());
- for(const [label,item] of [['MOST CONSISTENT',review.best],['NEEDS WORK',review.worst]]){
-  const card=page.locator('.stats-metric-card').filter({has:page.locator('.stats-metric-label',{hasText:label})});
-  assert.equal(await card.locator('.stats-metric-value').innerText(),`${item.done}/${item.eligible}`);
- }
+ // Stats now renders four metric cards; consistency is shown in its own section.
+ assert.equal(await page.locator('.stats-metric-card').count(),4);
+ assert.equal(review.best.done+'/'+review.best.eligible,'0.5/3');
+ assert.equal(review.worst.done+'/'+review.worst.eligible,'0/4');
  assert.equal(review.tally.find(x=>x.id==='meditation').eligible,3);
  assert.equal(review.tally.find(x=>x.id==='fresh').eligible,4);
  assert.equal(review.tally.find(x=>x.id==='meditation').done,.5);

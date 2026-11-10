@@ -36,11 +36,16 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
   const m=await p.evaluate(()=>{
    const box=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();const z=parseFloat(getComputedStyle(document.documentElement).zoom)||1;return {x:r.x/z,y:r.y/z,w:r.width/z,h:r.height/z,overflow:e.scrollWidth>e.clientWidth+1}};
    const font=s=>getComputedStyle(document.querySelector(s)).fontSize;
-   return {ring:box('.t-ring'),next:box('.t-grade'),log:box('.today-log-start'),nav:box('#nav'),headings:['.t-lvl2 .lvl-toggle','.t-lvl3 .lvl-toggle','.sf-combo-heading strong'].map(font),items:['.t-lvl2 .row>div>span','.t-lvl3 .row>div>span','.sf-category-toggle>span'].map(font),overflow:document.querySelector('#scroll').scrollWidth>document.querySelector('#scroll').clientWidth+1};
+   return {ring:box('.t-ring'),next:box('.t-grade'),log:box('.today-log-start'),status:box('#desktop-status-controls'),nav:box('#nav'),headings:['.t-lvl2 .lvl-toggle','.t-lvl3 .lvl-toggle','.sf-combo-heading strong'].map(font),items:['.t-lvl2 .row>div>span','.t-lvl3 .row>div>span','.sf-category-toggle>span'].map(font),overflow:document.querySelector('#scroll').scrollWidth>document.querySelector('#scroll').clientWidth+1};
   });
   assert.ok(m.next.w>m.ring.w*1.5&&m.next.w>m.log.w*1.5,JSON.stringify(m));
-  assert.equal(m.ring.h,m.next.h);assert.ok(Math.abs(m.next.h-m.log.h-0)<1);
-  assert.ok(Math.abs(m.log.y-m.ring.y-0)<1);assert.equal(m.overflow,false);
+  assert.equal(m.ring.h,m.next.h);
+  if(width>=1180){
+   // Two independent boxes share the Log column: Work/Pro on top, 8px, Day Log below.
+   assert.ok(Math.abs(m.status.y-m.ring.y)<1&&Math.abs(m.log.y+m.log.h-(m.ring.y+m.ring.h))<1,JSON.stringify(m));
+   assert.ok(Math.abs(m.log.y-(m.status.y+m.status.h)-8)<1&&Math.abs(m.status.x-m.log.x)<1&&Math.abs(m.status.w-m.log.w)<1,JSON.stringify(m));
+  }else{assert.ok(Math.abs(m.next.h-m.log.h-0)<1);assert.ok(Math.abs(m.log.y-m.ring.y-0)<1);}
+  assert.equal(m.overflow,false);
   assert.equal(new Set(m.headings).size,1,JSON.stringify(m));assert.equal(new Set(m.items).size,1,JSON.stringify(m));
   if(width>=1180){assert.ok(Math.abs(m.nav.w-176)<.1);assert.ok(m.ring.x>=176);}
   for(const card of await p.locator('.t-rout-body>.sf-core-routine').all())assert.equal(await card.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,JSON.stringify({width,card:await card.evaluate(e=>({text:e.textContent,w:e.clientWidth,s:e.scrollWidth}))}));

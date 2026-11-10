@@ -2851,12 +2851,13 @@ dialog.cr-dialog::backdrop{background:#03030bbb;backdrop-filter:blur(6px)}
 @media(max-width:879px){
  #resume.cr-mini-in-orb{display:none!important}
  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.cr-log-has-orb{display:none!important}
- #scroll .today:not(.history-day-editor) .t-score-hero .cr-log-orb{display:block!important;visibility:visible!important;grid-column:2;position:relative;width:94px;height:110px;margin:0 auto;align-self:center;justify-self:center;transform:none!important}
- .cr-orb-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:88px;height:88px;padding:8px;border:1.5px solid #bba5f0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#b89aef20,#171323 75%);box-shadow:0 0 20px #b297e91a;color:#eee7fc;font:inherit;cursor:pointer}
- .cr-orb-icon{font-size:18px;line-height:1}.cr-orb-button b{font:500 18px 'DM Mono',monospace;letter-spacing:-.6px}.cr-orb-step{font-size:9px;letter-spacing:.07em;color:#c2b3d9}
- .cr-orb-add{position:absolute;right:-10px;top:57px;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:#e5d9fa;font:400 25px 'DM Sans',sans-serif;cursor:pointer;isolation:isolate}
+ #scroll .today:not(.history-day-editor) .t-score-hero .cr-log-orb{display:block!important;visibility:visible!important;grid-column:2;position:relative;width:104px;height:104px;margin:0 auto;align-self:center;justify-self:center;transform:none!important}
+ .cr-orb-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:104px;height:104px;padding:8px;border:1.5px solid #bba5f0;border-radius:50%;background:radial-gradient(circle at 50% 40%,#b89aef20,#171323 75%);box-shadow:0 0 20px #b297e91a;color:#eee7fc;font:inherit;cursor:pointer}
+ .cr-orb-icon{font-size:20px;line-height:1}.cr-orb-button b{font:500 21px 'DM Mono',monospace;letter-spacing:-.6px}.cr-orb-step{font-size:9px;letter-spacing:.07em;color:#c2b3d9}
+ .cr-orb-add{position:absolute;right:-14px;bottom:-14px;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:#e5d9fa;font:400 25px 'DM Sans',sans-serif;cursor:pointer;isolation:isolate}
  .cr-orb-add::before{content:"";position:absolute;inset:6px;background:#282035;border:1px solid #9c85c566;border-radius:50%;z-index:-1}
- .cr-orb-label{position:absolute;top:94px;left:-12px;right:-6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;color:#bfb2d0;font-size:10px}
+ /* Name hidden: the X stays top-left and + bottom-right, the circle fills the freed space. */
+ .cr-orb-label{display:none}
  .cr-orb-button:focus-visible,.cr-orb-add:focus-visible{outline:2px solid #d3c2fa;outline-offset:3px}
 }
 /* Desktop proposal: use the LOG circle as the routine's compact home too. */

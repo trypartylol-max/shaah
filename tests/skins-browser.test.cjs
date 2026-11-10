@@ -57,7 +57,7 @@ test('skin choice persists after reload, ignores corrupt values and survives una
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await choose(page, 'minimal').click();
   assert.equal(await page.locator('html').getAttribute('data-skin'), 'minimal');
-  assert.match(await page.locator('#skin-status').innerText(), /durante esta sesión/);
+  assert.match(await page.locator('#skin-status').innerText(), /for this session/);
 });
 
 test('low stimulation disables glow and motion; Matrix respects system reduced motion', async t => {
@@ -108,7 +108,7 @@ test('another tab follows a skin change without replacing its pending note or se
   await other.goto('http://shaah.test/');
   await other.waitForFunction(() => _cfgReady && _live);
   await other.evaluate(() => { setTab('today'); });
-  const note = other.locator('textarea').first();
+  const note = other.locator('textarea:visible').first();
   await note.fill('Unsaved local note — keep focus');
   await page.evaluate(() => setSkin('matrix'));
   await other.waitForFunction(() => document.documentElement.dataset.skin === 'matrix');

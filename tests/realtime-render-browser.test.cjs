@@ -21,7 +21,7 @@ for(const skin of ['classic','matrix','minimal'])test(`${skin}: desktop Today an
   const desktop=await open(t),mobile=await open(t,{width:390,height:844});
   assert.notEqual(desktop.context(),mobile.context());
   await desktop.evaluate(skin=>setSkin(skin),skin);await watch(desktop);
-  const note=desktop.locator('textarea').first();await note.fill('Synthetic unsaved desktop draft');
+  const note=desktop.locator('textarea:visible').first();await note.fill('Synthetic unsaved desktop draft');
   const rows=await mobile.evaluate(()=>JSON.parse(localStorage.getItem('shaah_mock_rows')));
   await desktop.evaluate(rows=>{
     for(let i=0;i<20;i++){
@@ -43,7 +43,7 @@ test('a real remote change refreshes Today without restarting its entrance anima
     row.user_id='regression-user';row.data._note='Synthetic remote note visible once';
     __emitMockRealtime({eventType:'UPDATE',new:row});__emitMockRealtime({eventType:'UPDATE',new:row});
   });
-  assert.equal(await page.locator('textarea').first().inputValue(),'Synthetic remote note visible once');
+  assert.equal(await page.locator('textarea:visible').first().inputValue(),'Synthetic remote note visible once');
   assert.equal(await page.locator('.today').evaluate(node=>getComputedStyle(node).animationName),'none');
   assert.equal(await page.evaluate(()=>__renderCount),1);
   assert.equal(await page.evaluate(()=>__mockWrites.length),before.writes);
@@ -62,6 +62,6 @@ test('background visibility changes coalesce remote updates into one repaint on 
   assert.equal(await page.evaluate(()=>getNote(todayKey())),'Synthetic latest background note');
   await page.evaluate(()=>{window.__fakeHidden=false;document.dispatchEvent(new Event('visibilitychange'));});
   assert.equal(await page.evaluate(()=>__renderCount),1);
-  assert.equal(await page.locator('textarea').first().inputValue(),'Synthetic latest background note');
+  assert.equal(await page.locator('textarea:visible').first().inputValue(),'Synthetic latest background note');
   assert.equal(await page.locator('.today').evaluate(node=>getComputedStyle(node).animationName),'none');
 });

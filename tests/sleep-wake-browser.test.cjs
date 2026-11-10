@@ -2,7 +2,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');con
 function fixture(){const a=loadApp();a.run("CFG.h.sleep={l:'Wake Up and Sleep Early',p:8,pWork:8,pVacation:8,lv:2,on:true};CFG.order.push('sleep');for(const e of CFG.log){e.h.sleep={...CFG.h.sleep};e.order.push('sleep')}_dayCfgCache={};applyCfg();_state[todayKey()]={checks:{},social:blankSocial(),people:[],note:'',_daylog:[]}");return {config:a.read('CFG'),days:a.read('_state')};}
 for(const width of [390,1440])test(`Wake and Sleep retain complementary times and shared score across reload at ${width}px`,async t=>{
  const p=await openApp(t,fixture(),{width,height:1000});
- const row=p.locator('[data-ui-click="toggleHabit"][data-ui-click-args*="sleep"]');
+ const row=p.locator('[data-ui-click="toggleHabit"][data-ui-click-args*="sleep"]:visible');
  await p.clock.setFixedTime(new Date('2026-10-16T07:00:00Z'));await p.evaluate(()=>{lvlOpen[2]=true;setTab('today')});
  const baseScore=await p.evaluate(()=>calcScore(todayKey()).score);await row.click();
  assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),baseScore+4);

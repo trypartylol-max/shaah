@@ -43,13 +43,13 @@ test('real remote day changes preserve the screen and update a clean note withou
     window.__steadyToday=document.querySelector('.today');window.__steadyRing=document.querySelector('.t-ring svg');
     const before=__mockWrites.length;
     __emitMockRealtime({eventType:'UPDATE',new:{user_id:'regression-user',date:todayKey(),data:{_checks:{work:true},_social:blankSocial(),_people:[],_daylog:[],_note:'Synthetic remote clean note'}}});
-    return {sameToday:__steadyToday===document.querySelector('.today'),sameRing:__steadyRing===document.querySelector('.t-ring svg'),note:document.querySelector('textarea').value,writes:__mockWrites.length-before};
+    return {sameToday:__steadyToday===document.querySelector('.today'),sameRing:__steadyRing===document.querySelector('.t-ring svg'),note:document.querySelector('.t-note textarea').value,writes:__mockWrites.length-before};
   });
   assert.deepEqual(r,{sameToday:true,sameRing:true,note:'Synthetic remote clean note',writes:0});
-  await page.locator('textarea').fill('Synthetic local unfinished draft');
+  await page.locator('textarea:visible').fill('Synthetic local unfinished draft');
   await page.evaluate(()=>__emitMockRealtime({eventType:'UPDATE',new:{user_id:'regression-user',date:todayKey(),data:{_checks:{work:0.5},_social:blankSocial(),_note:'Synthetic newer remote note'}}}));
-  assert.equal(await page.locator('textarea').inputValue(),'Synthetic local unfinished draft');
-  assert.equal(await page.locator('textarea').evaluate(node=>node===document.activeElement),true);
+  assert.equal(await page.locator('textarea:visible').inputValue(),'Synthetic local unfinished draft');
+  assert.equal(await page.locator('textarea:visible').evaluate(node=>node===document.activeElement),true);
 });
 
 test('habit and score feedback is immediate and uses short motion without moving the whole page',async t=>{

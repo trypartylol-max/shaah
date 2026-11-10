@@ -16,7 +16,7 @@ for(const [width,height] of [[320,740],[390,844],[879,900]])test(`Reset is acces
  p=await position(page);assert.ok(p.top>=0&&p.bottom<=p.dockTop&&p.hit,`expanded ${JSON.stringify(p)}`);
  await page.getByRole('button',{name:'Reset day',exact:true}).click();
  assert.equal(await page.locator('.reset-day-confirm').count(),1);
- await page.getByRole('button',{name:'Cancelar borrado',exact:true}).click();
+ await page.getByRole('button',{name:'Cancel deletion',exact:true}).click();
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  if(width===390)await page.screenshot({path:'test-results/reset-mobile-accessible.png'});
 });

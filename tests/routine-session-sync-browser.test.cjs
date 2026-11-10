@@ -37,7 +37,7 @@ test('desktop and mobile share timer, pause, resume, next, early finish and cold
  assert.equal(await desktop.evaluate(()=>sessions.production.endAt),await mobile.evaluate(()=>sessions.production.endAt));
  await mobile.screenshot({path:'test-results/routine-session-sync-mobile.png'});
  await desktop.screenshot({path:'test-results/routine-session-sync-desktop.png'});
- await mobile.locator('#cr-dialog .cr-session-menu summary').click();await mobile.locator('#cr-dialog').getByRole('button',{name:'Finalizar antes',exact:true}).click();await mobile.evaluate(()=>flushRoutineCloud());await realtime(desktop,backend,'production');
+ await mobile.locator('#cr-dialog .cr-session-menu summary').click();await mobile.locator('#cr-dialog').getByRole('button',{name:'Finish early',exact:true}).click();await mobile.evaluate(()=>flushRoutineCloud());await realtime(desktop,backend,'production');
  assert.equal(await desktop.locator('.cr-log-orb').count(),0);assert.equal(await desktop.evaluate(()=>!!sessions.production),false);
  assert.equal(await mobile.evaluate(()=>getChecked(todayKey()).production||false),false);
 });

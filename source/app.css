@@ -3041,8 +3041,8 @@ html[data-skin] #app #scroll div.today.starter-today:not(.history-day-editor){di
 
 /* Global section disclosure: presentation only, inside the existing header. */
 #scroll .today .t-rout>.today-routines-heading{display:flex!important;align-items:center;justify-content:space-between;gap:8px;pointer-events:auto!important;position:relative;}
-.today .today-routines-label{display:flex;align-items:center;gap:7px;background:none;border:0;padding:0;color:inherit;font:inherit;letter-spacing:inherit;text-align:left;cursor:pointer;min-width:0;}
-.today .today-sections-toggle{position:absolute;right:0;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:6px;margin-left:auto;padding:0 4px;min-height:24px;flex-shrink:0;background:none;border:0;color:#9a9ab2;font:inherit;font-size:11px;cursor:pointer;}
+.today .today-routines-label{display:flex;align-items:center;gap:7px;background:none;border:0;padding:0;color:inherit;font:inherit;letter-spacing:inherit;text-align:start;cursor:pointer;min-width:0;}
+.today .today-sections-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;margin-inline-start:auto;padding:0 4px;min-height:24px;flex-shrink:0;background:none;border:0;color:#9a9ab2;font:inherit;font-size:11px;cursor:pointer;}
 .today .today-sections-toggle svg{flex-shrink:0;}
 .today .today-sections-toggle .sections-expand{transform:rotate(180deg);}
 .today .today-sections-toggle:focus-visible,.today .today-routines-label:focus-visible{outline:2px solid #a78bfa;outline-offset:3px;}
@@ -3107,3 +3107,5 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
 
 .settings-mode-labels { padding-inline-end: 42px; }
 .settings-routine-summary { margin-inline-start: auto; }
+
+.today .sf-core-total { direction:ltr; unicode-bidi:isolate; }

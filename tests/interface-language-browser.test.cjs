@@ -167,3 +167,20 @@ test('Hebrew contact form and calendar use the current language without rewritin
   const weekdays = await page.locator('.month-weekdays').textContent();
   assert.match(weekdays, /[א-ת]/);
 });
+
+test('Hebrew Today keeps core headings apart and localizes the activity shortcut', async t => {
+  const page = await openApp(t, undefined, { width: 1440, height: 900 }, { stayOnToday: true });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.locator('[data-interface-language]').selectOption('he');
+  await page.getByRole('button', { name: 'חזרה', exact: true }).click();
+  for (const layout of ['standard', 'pro']) {
+    await page.evaluate(layout => setLayout(layout), layout);
+    const heading = page.locator('.today-routines-heading');
+    assert.equal(await heading.evaluate(el => {
+      const title = el.querySelector('.today-routines-label').getBoundingClientRect();
+      const toggle = el.querySelector('.today-sections-toggle').getBoundingClientRect();
+      return toggle.right <= title.left;
+    }), true, layout);
+  }
+  assert.equal(await page.locator('.today-log-start').evaluate(el => getComputedStyle(el, '::after').content), '"רישום פעילות"');
+});

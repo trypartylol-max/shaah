@@ -7,42 +7,6 @@ const skins=['classic','aurora','matrix','minimal'];
 const account=p=>p.evaluate(()=>JSON.stringify({config:CFG,days:_state,scores:Object.keys(_state).filter(k=>/^\d{4}-/.test(k)).map(k=>[k,calcScore(k)]),writes:__mockWrites.filter(r=>r.date!=='cfgbak')}));
 const root=path.resolve(__dirname,'..');
 
-for(const width of [320,390,879,880,1440])test(`Four identities preserve mobile structure and account state at ${width}px`,{skip:'Requiere docs/phase4/baseline-*.css, que nunca se versionó en git'},async t=>{
-  const p=await openApp(t,undefined,{width,height:1000});
-  const old=await openApp(t,undefined,{width,height:1000},{htmlFile:path.join(root,'docs/phase2/baseline.html'),assetsRoot:root,beforePage:async context=>{for(const name of ['pro-mode.css','display-adaptation.css','appearance-settings.css'])await context.route('**/assets/'+name+'*',route=>route.fulfill({contentType:'text/css',body:fs.readFileSync(path.join(root,'docs/phase4/baseline-'+name))}));}});
-  // Warm the normal render-time normalization and configuration upgrade before
-  // measuring skin changes; otherwise first opening Today changes the fixture.
-  for(const page of [p,old]){
-    for(const tab of ['today','log','social','stats','history'])await page.locator(`.nav-btn[data-tab="${tab}"]`).click();
-    await page.getByRole('button',{name:'Settings',exact:true}).click();
-    await page.evaluate(async()=>{await flushCfgSaves();closeSettings();});
-  }
-  const state=await account(p);
-  for(const skin of skins){
-    await p.evaluate(s=>setSkin(s),skin);await old.evaluate(s=>setSkin(s),skin);
-    for(const tab of ['today','log','social','stats','history']){
-      for(const page of [p,old])await page.locator(`.nav-btn[data-tab="${tab}"]`).click();
-      const geometry=page=>page.evaluate(()=>({
-        boxes:[...document.querySelectorAll('.t-lvl,.t-rout,.t-note,.wg-card,.stats-metric-card,#nav')].map(e=>{const r=e.getBoundingClientRect();return [e.className,r.x,r.y,r.width,r.height]}),
-        overflow:document.querySelector('#scroll').scrollWidth>document.querySelector('#scroll').clientWidth+1,
-      }));
-      const next=await geometry(p),before=await geometry(old);
-      assert.equal(next.overflow,false,skin+' '+tab);
-      if(width<880)assert.deepEqual(next.boxes,before.boxes,skin+' '+tab+' preserves mobile card geometry');
-      if((width===390||width===1440)&&['today','stats','social','log'].includes(tab)){
-        await p.screenshot({path:`docs/phase2/${skin}-${tab}-${width}.png`});
-        if(tab==='today')await p.locator('.wg-card:visible').screenshot({path:`docs/phase2/${skin}-work-${width}.png`});
-      }
-    }
-    await p.getByRole('button',{name:'Settings',exact:true}).click();
-    assert.deepEqual(await p.locator('.skin-options [data-skin-choice]').evaluateAll(es=>es.map(e=>e.dataset.skinChoice)),skins);
-    assert.equal(await p.locator('[data-skin-choice="pro"]').count(),0);
-    if(width===390)await p.locator('.skin-settings').screenshot({path:`docs/phase2/${skin}-settings-${width}.png`});
-    await p.evaluate(()=>closeSettings());
-    assert.equal(await account(p),state,'Switching identity preserves account, history, scores and writes');
-  }
-});
-
 test('WORK identity reaches amounts, geometry and focus; quiet mode and reduced motion suppress completion effects',async t=>{
   const p=await openApp(t);await p.evaluate(()=>setTab('today'));
   const identities=[];

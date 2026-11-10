@@ -9,7 +9,7 @@ const order = ['data', 'trav', 'hab', 'rout', 'ppl', 'bak', 'appearance', 'perfo
 const snapshot = page => page.evaluate(() => JSON.stringify({ config: CFG, days: _state }));
 
 for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['desktop', { width: 1440, height: 1000 }]]) {
-  test(`${device}: compact settings list preserves editors, keyboard order, collapse state and synthetic data`,{skip:'El diseño cambió y el test sigue comparando valores antiguos; hay que revisarlo con capturas antes de reactivarlo'}, async t => {
+  test(`${device}: compact settings list preserves editors, keyboard order, collapse state and synthetic data`, async t => {
     const page = await openApp(t, locationFixture(), viewport);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const before = await snapshot(page);
@@ -26,7 +26,7 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
       assert.equal(await page.locator('#settings-section-' + id).getAttribute('inert'), '');
     }
     const listBox = await page.locator('.settings-list').boundingBox();
-    assert.ok(listBox.height <= 510, 'All collapsed rows fit as one compact list');
+    assert.ok(listBox.height <= 580, 'All 8 collapsed rows (incl. Performance) fit as one compact list');
     await page.locator('#settings-toggle-data').focus();
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'settings-toggle-trav', 'Hidden account editors are skipped');
@@ -45,9 +45,9 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
     await page.reload();
     await page.waitForFunction(() => _cfgReady && _live);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    assert.equal(await page.locator('.st-head[aria-expanded="false"]').count(), 7, 'Stored open/collapse choices survive reload');
+    assert.equal(await page.locator('.st-head[aria-expanded="false"]').count(), 8, 'Stored open/collapse choices survive reload');
     await page.getByRole('button', { name: 'Social Settings', exact: true }).click();
-    await page.getByText('Organizar varias personas por grupo',{exact:true}).click();
+    await page.getByText(/^(Organize multiple people by group|Organizar varias personas por grupo)$/).click();
     await page.getByRole('textbox', { name: 'Search contacts for bulk assignment' }).waitFor({ state: 'visible' });
     assert.equal(await page.locator('#settings-section-ppl').getAttribute('inert'), null);
     assert.equal(await snapshot(page), before, 'Menu actions preserve contacts, history and scores');

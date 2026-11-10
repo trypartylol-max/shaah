@@ -5532,6 +5532,7 @@ function pointsLabel(item,state){
 }
 
 const PRO_TODAY_WIDGETS=['habits','session','work','note'];
+const PRO_TODAY_DEFAULT=['session','note'];
 let proTodayEditing=false;
 function proTodayWidgets(){
   const key='shaah:pro-today:v2:'+USER.id;
@@ -5545,7 +5546,7 @@ function proTodayWidgets(){
       }
     }
   }catch(_){}
-  const order=Array.isArray(saved)?[...new Set(saved.filter(id=>PRO_TODAY_WIDGETS.includes(id)))]:[...PRO_TODAY_WIDGETS];
+  const order=Array.isArray(saved)?[...new Set(saved.filter(id=>PRO_TODAY_WIDGETS.includes(id)))]:[...PRO_TODAY_DEFAULT];
   return order;
 }
 function toggleProTodayEditor(){
@@ -5558,7 +5559,7 @@ function changeProToday(widget,action){
   if(!proTodayEditing||!USER||currentTab!=='today'||document.documentElement.dataset.layout!=='pro')return;
   const order=proTodayWidgets();
   const index=order.indexOf(widget);
-  if(action==='reset')order.splice(0,order.length,...PRO_TODAY_WIDGETS);
+  if(action==='reset')order.splice(0,order.length,...PRO_TODAY_DEFAULT);
   else if(!PRO_TODAY_WIDGETS.includes(widget))return;
   else if(action==='hide'&&index>=0)order.splice(index,1);
   else if(action==='show'&&index<0)order.push(widget);

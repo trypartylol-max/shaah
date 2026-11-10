@@ -121,14 +121,14 @@ test('Pro shortcuts switch languages without changing widget order or data', asy
   const snapshot = () => page.evaluate(() => JSON.stringify({config: CFG, days: _state, writes: window.__mockWrites}));
   const before = await snapshot();
   const english = page.getByRole('region', { name: 'Pro shortcuts' });
-  assert.deepEqual(await english.getByRole('heading').allTextContents(), ['Habits', 'Session', 'Work', 'Day Note']);
+  assert.deepEqual(await english.getByRole('heading').allTextContents(), ['Session', 'Day Note']);
   await page.getByRole('button', { name: 'Settings', exact: true }).first().click();
   await page.locator('[data-interface-language]').selectOption('es');
   await page.getByRole('button', { name: 'Volver', exact: true }).click();
   const spanish = page.getByRole('region', { name: 'Accesos rápidos de Pro' });
-  assert.deepEqual(await spanish.getByRole('heading').allTextContents(), ['Hábitos', 'Sesión', 'Trabajo', 'Nota del día']);
+  assert.deepEqual(await spanish.getByRole('heading').allTextContents(), ['Sesión', 'Nota del día']);
   await spanish.getByRole('button', { name: 'Personalizar' }).click();
-  assert.equal(await spanish.getByRole('button', { name: 'Ocultar Trabajo' }).isVisible(), true);
+  assert.equal(await spanish.getByRole('button', { name: 'Mostrar Trabajo' }).isVisible(), true);
   assert.equal(await snapshot(), before);
 });
 
@@ -139,6 +139,7 @@ test('Hebrew desktop Pro mirrors the sidebar and translates shortcuts and compar
   await page.getByRole('button', { name: 'חזרה', exact: true }).click();
   await page.evaluate(() => { arrivalDismiss(); setLayout('pro'); });
   const shortcuts = page.getByRole('region', { name: 'קיצורי דרך של Pro' });
+  await page.evaluate(()=>{CFG.proTodayOrder=['habits','session','work','note'];render();});
   assert.deepEqual(await shortcuts.getByRole('heading').allTextContents(), ['הרגלים','פעילות','עבודה','הערת היום']);
   await shortcuts.getByRole('button', { name: 'התאמה אישית' }).click();
   await shortcuts.getByRole('button', { name: 'העברת הרגלים למטה' }).waitFor();

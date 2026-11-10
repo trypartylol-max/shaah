@@ -7,18 +7,19 @@ test('Pro Today shortcuts can be reordered, hidden and restored independently of
   await page.evaluate(() => {arrivalDismiss();setTab('today');setLayout('pro');});
   const panel = page.getByRole('region', {name:'Pro shortcuts'});
   const order = () => panel.getByRole('heading').allTextContents();
-  assert.deepEqual(await order(), ['Habits','Session','Work','Day Note']);
+  assert.deepEqual(await order(), ['Session','Day Note']);
   await panel.getByRole('button',{name:'Customize'}).click();
-  await panel.getByRole('button',{name:'Move Habits down'}).click();
-  assert.deepEqual(await order(), ['Session','Habits','Work','Day Note']);
+  await panel.getByRole('button',{name:'Show Habits'}).click();
+  await panel.getByRole('button',{name:'Show Work'}).click();
+  await panel.getByRole('button',{name:'Move Habits up'}).click();
+  assert.deepEqual(await order(), ['Session','Habits','Day Note','Work']);
   await panel.getByRole('button',{name:'Hide Session'}).click();
-  assert.deepEqual(await order(), ['Habits','Work','Day Note']);
   await page.waitForFunction(() => __mockWrites.some(row => row.date==='settings' &&
-    JSON.stringify(row.data._cfg.proTodayOrder)===JSON.stringify(['habits','work','note'])));
-  await page.evaluate(() => render());
+    JSON.stringify(row.data._cfg.proTodayOrder)===JSON.stringify(['habits','note','work'])));
   await panel.getByRole('button',{name:'Show Session'}).click();
-  assert.deepEqual(await order(), ['Habits','Work','Day Note','Session']);
+  assert.deepEqual(await order(), ['Habits','Day Note','Work','Session']);
   await panel.getByRole('button',{name:'Restore order'}).click();
+  assert.deepEqual(await order(), ['Session','Day Note']);
   await panel.getByRole('button',{name:'Done'}).click();
   await panel.getByRole('textbox',{name:'Day Note'}).fill('Nota de prueba');
   await panel.getByRole('textbox',{name:'Day Note'}).blur();
@@ -50,6 +51,9 @@ test('both Work triangles stay inside their cards on desktop Pro', async t => {
   app.run("CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config");
   const page = await openApp(t, { config: app.read('CFG'), days: app.read('_state') }, { width: 1440, height: 1000 });
   await page.evaluate(() => { arrivalDismiss(); setTab('today'); setLayout('pro'); });
+  const panel=page.getByRole('region',{name:'Pro shortcuts'});
+  await panel.getByRole('button',{name:'Customize'}).click();
+  await panel.getByRole('button',{name:'Show Work'}).click();
   const figures = page.locator('.wg-card .wg-figure');
   assert.equal(await figures.count(), 2);
   assert.equal(await figures.evaluateAll(elements => elements.every(figure => {

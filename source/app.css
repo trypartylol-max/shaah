@@ -3075,7 +3075,7 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
 .stats-page .stats-four-grid .stats-metric-sub{font-size:13px;text-align:left;white-space:normal;overflow-wrap:anywhere;margin-top:auto}
 .stats-details{border:1px solid #8884;border-radius:14px;padding:16px}.stats-details summary{cursor:pointer;font-size:16px;font-weight:600}.stats-details summary span{font-size:13px;color:#adadbf;margin-left:12px;font-weight:400}
 .stats-details summary:focus-visible{outline:2px solid #ad90fd;outline-offset:6px}.stats-detail-content{display:flex;flex-direction:column;gap:20px;margin-top:20px}.stats-detail-habits{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats-detail-habits strong{font-size:26px}
-@media(max-width:879px){.stats-four-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats-heading{align-items:flex-start;flex-direction:column;gap:4px}.stats-page .stats-four-grid .stats-metric-card{min-height:168px!important;padding:14px!important}.stats-details summary span{display:block;margin:6px 0 0}.stats-detail-habits{grid-template-columns:1fr}}
+@media(max-width:879px){.stats-four-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats-heading{align-items:flex-start;flex-direction:column;gap:4px}.stats-page .stats-four-grid{gap:8px}.stats-page .stats-four-grid .stats-metric-card{align-items:flex-start!important;min-height:112px!important;padding:12px 14px!important;gap:4px}.stats-page .stats-four-grid .stats-metric-main{gap:2px}.stats-page .stats-four-grid .stats-metric-value{font-size:30px;line-height:1.05}.stats-page .stats-four-grid .stats-metric-label{font-size:13px;letter-spacing:.06em;opacity:.8}.stats-page .stats-four-grid .stats-metric-sub{font-size:13px;margin-top:auto;grid-column:auto}.stats-details summary span{display:block;margin:6px 0 0}.stats-detail-habits{grid-template-columns:1fr}}
 .stats-page{justify-content:flex-start!important;gap:16px!important;height:auto!important;min-height:0!important;max-width:1120px;margin:0 auto;width:100%;box-sizing:border-box}
 .stats-page>*{flex:0 0 auto!important}
 
@@ -3084,12 +3084,12 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
-  color: #d0d0da;
+  color: var(--skin-copy, #d0d0da);
 }
 .interface-language select {
   color: inherit;
-  background: #111120;
-  border: 1px solid #34344a;
+  background: var(--skin-panel, #111120);
+  border: 1px solid var(--skin-edge, #34344a);
   border-radius: 0.6rem;
   font: inherit;
   padding: 0.5rem;

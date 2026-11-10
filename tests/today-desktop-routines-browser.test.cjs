@@ -1,6 +1,6 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');const {loadApp}=require('./helpers.cjs');
-test('desktop Production/WOD are readable and closed levels are header-sized',{skip:'El diseño cambió y el test sigue comparando valores antiguos; hay que revisarlo con capturas antes de reactivarlo'}, async t=>{
+test('desktop Production/WOD are readable and closed levels are header-sized', async t=>{
  const a=loadApp();a.run(`
  for(const id of ['production','wod']){CFG.h[id]={...LEGACY_CFG.h[id],pWork:LEGACY_CFG.h[id].p,pVacation:LEGACY_CFG.h[id].p};}
  CFG.order=['work','production','wod',...CFG.order.filter(id=>!['work','production','wod'].includes(id))];
@@ -39,7 +39,7 @@ test('desktop Production/WOD are readable and closed levels are header-sized',{s
   await card.getByRole('button',{name:'LIGHT',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),0.5);
   await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),true);
   await card.getByRole('button',{name:'DONE',exact:true}).click();assert.equal(await page.evaluate(id=>getChecked(todayKey())[id],id),false);
-  await card.getByRole('button',{name:'START',exact:true}).click();await page.locator('[aria-label="Close routine"]').click();
+  await card.locator('.sf-routine-primary').click();await page.locator('[aria-label="Close routine"]').click();
   await page.evaluate(id=>closeRoutine(id),id);
  }
  await page.evaluate(()=>{openSettings();closeSettings()});

@@ -5,7 +5,7 @@ Guía para sesiones futuras. Está escrita a partir del código en `68032b3` (20
 ## Qué es
 PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día puntúa contra el plan vigente ese día y recibe una nota de F a S+. Incluye rutinas con temporizador, Day Log (actividades con hora), Social (personas y combo), Stats e Historial. Datos y login en Supabase (Google, PKCE). Se publica en GitHub Pages: https://trypartylol-max.github.io/shaah/
 
-**El repositorio es público.** No escribas en el código ni en `docs/` emails, nombres de personas, tokens ni datos personales. (El email fijo de `source/app.js` se retiró en la rama `fix/remove-personal-email`; sigue en builds antiguos de `assets/` y en el historial de git, y el UUID del propietario sigue en `control/index.html`. Ver `docs/ESTADO_ACTUAL_2026-11-09.md`.)
+**El repositorio es público.** No escribas en el código ni en `docs/` emails, nombres de personas, tokens ni datos personales. (El email fijo de `source/app.js` ya se retiró y los builds antiguos de `assets/` se borraron; solo sigue en el historial de git, y el UUID del propietario sigue en `control/index.html`. Ver `docs/ESTADO_ACTUAL_2026-11-09.md`.)
 
 ## Reglas de trabajo
 - **Nunca cargues `source/app.js` entero** (6.900 líneas, 530 KB, ~150k tokens). Localiza con `grep -n 'function nombre' source/app.js` y lee con `sed -n 'A,Bp'`. Edita con la herramienta Edit.
@@ -99,6 +99,6 @@ Panel privado del propietario, página independiente (`control/index.html`, 75 K
 
 ## Cosas conocidas (detalle en `docs/ESTADO_ACTUAL_2026-11-09.md`)
 - La suite de navegador falla en HEAD (muchos tests buscan textos en español o interfaz ya retirada). Antes de fiarte de ella, revisa cada fallo.
-- El email personal ya no está en `source/app.js`, pero sigue en builds antiguos de `assets/` y en el historial de git.
-- `assets/` guarda 139 archivos `app.*` (casi todos builds antiguos); el build no los limpia.
+- El email personal ya no está en `source/app.js` ni en `assets/`; solo sigue en el historial de git.
+- `assets/` conserva solo el build actual y 5 `app.*` antiguos que usan los tests (fixtures `production-*`). El build no limpia los antiguos: al publicar uno nuevo, borra el anterior salvo que algún test lo use (`grep -r app.<hash> tests`).
 - `readAccountRows` no pagina: con la configuración por defecto de PostgREST (1000 filas) la carga falla al superar ese número de filas.

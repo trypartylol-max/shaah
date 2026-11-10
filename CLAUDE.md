@@ -37,6 +37,7 @@ El propietario revisa los cambios **antes** de publicarlos. No hagas merge a `ma
 - **Cómo entregar un cambio:** rama → tests → build → `git fetch` + `git checkout <rama>` en `~/Sites/shaah` (por `device_bash`) → avisar al propietario para que lo mire en local → con su OK: PR, merge, verificar hashes publicados y registrar en la Bitácora. Cambios sin efecto visible (docs, tests, limpieza) pueden publicarse directamente.
 - Al terminar, deja `~/Sites/shaah` de nuevo en `main` actualizado.
 - Redirect URLs: producción tiene `http://localhost:8080/**`; SHAAH-TEST, `http://localhost:8081/**`.
+- Auth: en producción solo está activo Google; el proveedor Email se desactivó el 2026-11-10 (todos los usuarios son de Google y evita altas con contraseña por la API). En SHAAH-TEST Email sigue activo porque el modo TEST local entra con email y contraseña. El aviso "Leaked Password Protection Disabled" del linter persiste porque esa opción es del plan Pro; con Email apagado no aplica.
 
 ## Mapa de `source/app.js` (las líneas se mueven; usa grep)
 | Zona | Dónde buscar |

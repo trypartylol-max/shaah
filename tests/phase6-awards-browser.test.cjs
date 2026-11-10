@@ -42,6 +42,10 @@ test('A new personal record uses the card and respects reduced motion',async t=>
   await card.getByRole('button',{name:'Back to Today'}).click();
   await p.evaluate(()=>{setLayout('pro');setTab('stats');});
   const table=p.locator('.pro-week-comparison table');
+  assert.equal(await table.isVisible(),false);
+  await p.locator('.pro-week-comparison summary').press('Enter');
+  await p.evaluate(()=>render());
+  assert.equal(await p.locator('.stats-details:not(.pro-week-comparison)').evaluate(node=>node.open),false);
   assert.equal(await table.isVisible(),true);
   const label=await p.evaluate(()=>cfgForDate(todayKey()).L2[0].label);
   const row=table.getByRole('row').filter({has:p.getByRole('rowheader',{name:label,exact:true})});

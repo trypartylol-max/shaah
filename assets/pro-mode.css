@@ -271,8 +271,7 @@ html[data-layout="pro"] #app #scroll .today>.pro-today-widgets.has-note~.t-note{
 .pro-today-grid textarea{box-sizing:border-box;width:100%;min-height:84px;resize:vertical;padding:8px;border:1px solid var(--skin-edge);border-radius:8px;background:var(--skin-panel);color:var(--skin-copy);font:inherit}
 
 .pro-week-comparison{display:none}
-html[data-layout="pro"] .pro-week-comparison{display:block;color:var(--skin-copy);background:var(--skin-panel);border:1px solid var(--skin-edge);border-radius:12px;padding:14px}
-.pro-week-comparison h2{margin:0 0 10px;font-size:18px}
+html[data-layout="pro"] .pro-week-comparison{display:block}
 .pro-week-comparison table{width:100%;border-collapse:collapse}
 .pro-week-comparison th,.pro-week-comparison td{text-align:start;padding:7px;border-bottom:1px solid var(--skin-edge)}
 .habit-award-ring{position:absolute;inset:10%;z-index:2;display:grid;place-items:center;text-align:center;border:3px solid #e8c480;border-radius:50%;background:var(--skin-panel,#161c35);color:var(--skin-copy,#fff);font-weight:700}

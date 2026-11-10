@@ -6045,15 +6045,16 @@ function proWeekComparison(){
       if(!item.combo&&item.id!=='work'&&!habits.has(item.id))habits.set(item.id,item.label);
     }
   }
-  return `<section class="pro-week-comparison"><h2>${interfaceCopy("Weekly consistency")}</h2>
+  return `<details class="stats-details pro-week-comparison"><summary>${interfaceCopy("Weekly consistency")}</summary>
+    <div class="stats-detail-content">
     <table><thead><tr><th scope="col">${interfaceCopy("Habit")}</th><th scope="col">${interfaceCopy("Last 7 days")}</th><th scope="col">${interfaceCopy("Previous 7 days")}</th></tr></thead>
-    <tbody>${Array.from(habits,([id,label])=>`<tr><th scope="row">${esc(label)}</th>${weeks.map(days=>`<td>${days.filter(day=>getChecked(day)[id]===true).length} / 7</td>`).join('')}</tr>`).join('')}</tbody></table></section>`;
+    <tbody>${Array.from(habits,([id,label])=>`<tr><th scope="row">${esc(label)}</th>${weeks.map(days=>`<td>${days.filter(day=>getChecked(day)[id]===true).length} / 7</td>`).join('')}</tr>`).join('')}</tbody></table></div></details>`;
 }
 function gradeInterfaceName(grade) {
   return interfaceCopy(grade.n==='SIN PLAN'?'No plan':grade.n);
 }
 function renderStatsUpdate(container,bar){
-  const details=container.querySelector('.stats-details');
+  const openDetails=[...container.querySelectorAll('.stats-details')].map(node=>node.open);
   const animate=document.documentElement.dataset.skin!=='minimal'&&
     !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const bars=new Map();
@@ -6062,8 +6063,7 @@ function renderStatsUpdate(container,bar){
     if(node.getClientRects().length)bars.set(node.dataset.statsBar,{axis,size:getComputedStyle(node)[axis],target:node.dataset.statsValue});
   }
   uiHTML(container,bar+renderStats());
-  const nextDetails=container.querySelector('.stats-details');
-  if(details?.open&&nextDetails)nextDetails.open=true;
+  container.querySelectorAll('.stats-details').forEach((node,index)=>{node.open=!!openDetails[index];});
   for(const node of container.querySelectorAll('[data-stats-bar]')){
     const previous=bars.get(node.dataset.statsBar);
     if(!previous||previous.target===node.dataset.statsValue)continue;

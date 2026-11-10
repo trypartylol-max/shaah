@@ -148,7 +148,7 @@ test('Hebrew desktop Pro mirrors the sidebar and translates shortcuts and compar
   assert.ok(nav.x > scroll.x);
   assert.ok(scroll.x + scroll.width <= nav.x + 1);
   await page.locator('.nav-btn[data-tab="stats"]').click();
-  await page.getByRole('heading', { name: 'התמדה שבועית' }).waitFor();
+  await page.locator('.pro-week-comparison summary').filter({hasText:'התמדה שבועית'}).waitFor();
 });
 
 test('Hebrew contact form and calendar use the current language without rewriting data', async t => {

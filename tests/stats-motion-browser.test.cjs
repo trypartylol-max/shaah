@@ -7,13 +7,13 @@ test('Stats only transitions changed bars and respects quiet preferences',async 
  await page.evaluate(()=>{arrivalDismiss();setSkin('classic');setTab('stats');});
  const active=()=>[...document.querySelectorAll('[data-stats-bar]')].filter(node=>node.getAnimations().length).length;
  assert.equal(await page.evaluate(active),0);
- await page.locator('.stats-details summary').click();
+ await page.locator('.stats-details:not(.pro-week-comparison) summary').click();
  const moving=await page.evaluate(()=>{
   setChecked(todayKey(),{meditation:true});render();
   return [...document.querySelectorAll('[data-stats-bar]')].filter(node=>node.getAnimations().length).length;
  });
  assert.ok(moving>0);
- assert.equal(await page.locator('.stats-details').evaluate(node=>node.open),true);
+ assert.equal(await page.locator('.stats-details:not(.pro-week-comparison)').evaluate(node=>node.open),true);
  const quiet=async skin=>page.evaluate(skin=>{
   setSkin(skin);
   setChecked(todayKey(),{meditation:!getChecked(todayKey()).meditation});render();

@@ -79,7 +79,7 @@ test('Layout storage failures and remote changes preserve skin and unsaved input
  await p.getByRole('button',{name:'Settings',exact:true}).click();
  await p.evaluate(()=>{window.__layoutSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k===LAYOUT_KEY)throw new DOMException('blocked','QuotaExceededError');return window.__layoutSet.call(this,k,v)}});
  await p.locator('[data-layout-choice="pro"]').click();
- assert.match(await p.locator('#layout-status').innerText(),/durante esta sesión/);
+ assert.match(await p.locator('#layout-status').innerText(),/durante esta sesión|for this session/);
  assert.equal(await p.evaluate(()=>localStorage.getItem(LAYOUT_KEY)),'standard');
  assert.equal(await p.locator('html').getAttribute('data-skin'),'matrix');
  await p.evaluate(()=>{Storage.prototype.setItem=window.__layoutSet;closeSettings();setTab('today')});

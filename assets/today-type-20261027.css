@@ -15,13 +15,20 @@
 #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout > .sec,
 #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout > .t-rout-toggle,
 #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .sec,
-#scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .lvl-h .lvl-toggle,
 #scroll .today.sf-today-v27:not(.history-day-editor) > .t-note > .sec,
 #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading {
   font-family:'DM Sans',system-ui,sans-serif!important;
   font-size:16px!important;
   font-weight:500!important;
   letter-spacing:.06em!important;
+  line-height:1.35!important;
+}
+/* Level headings use the Social Combo title size at every width (owner decision 2026-11-10). */
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .lvl-h .lvl-toggle {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:19px!important;
+  font-weight:500!important;
+  letter-spacing:.05em!important;
   line-height:1.35!important;
 }
 #scroll .today.sf-today-v27:not(.history-day-editor) .t-lvl .lvl-n,

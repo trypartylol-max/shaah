@@ -29,6 +29,15 @@ SHAAH_SOURCE=source/app.js npm test      # probar el fuente sin reconstruir
 - Despliegue: GitHub Pages sirve la raíz de `main` (workflow automático "pages build and deployment", ~2 min tras el merge; `gh api repos/trypartylol-max/shaah/actions/runs`). `gh` solo funciona por REST (`gh api`), no GraphQL (`gh pr view` falla). Verificar = comparar `index.html`, `sw.js` y cada archivo de `assets/` referenciado contra lo publicado. Desde el shell `github.io` está bloqueado; se hace con `fetch` + `crypto.subtle` desde el navegador integrado (pedir acceso al sitio). El 2026-11-09 coincidían los 31 archivos.
 - `git clone` de GitHub por HTTPS funciona desde el shell. Supabase y `github.io` no.
 
+## Flujo local → test → producción (desde 2026-11-10)
+El propietario revisa los cambios **antes** de publicarlos. No hagas merge a `main` de un cambio visible o de comportamiento sin su OK explícito ("publica").
+- **Local (datos reales):** clon en `~/Sites/shaah` del Mac del propietario (carpeta `~/Sites`, accesible con `device_bash` en `$HOME/mnt/Sites`). Él abre `~/Sites/SHAAH local.command` → `http://localhost:8080/`, sin caché y sin service worker (el servidor devuelve 404 a `sw.js`). Comparte cuenta y datos con producción: lo que marque ahí se guarda de verdad.
+- **Test (datos ficticios):** `~/Sites/SHAAH local TEST.command` → `http://localhost:8081/test-login.html`. Mismo código, pero el servidor reescribe al vuelo la URL y la clave `anon` de Supabase hacia SHAAH-TEST y quita el `integrity` del script de la app; no toca el repo. Login con email y contraseña (Google está desactivado en SHAAH-TEST). Úsalo para cambios de puntuación, persistencia, sincronización o migraciones.
+- Los `.command` viven fuera del repo (en `~/Sites`), a propósito.
+- **Cómo entregar un cambio:** rama → tests → build → `git fetch` + `git checkout <rama>` en `~/Sites/shaah` (por `device_bash`) → avisar al propietario para que lo mire en local → con su OK: PR, merge, verificar hashes publicados y registrar en la Bitácora. Cambios sin efecto visible (docs, tests, limpieza) pueden publicarse directamente.
+- Al terminar, deja `~/Sites/shaah` de nuevo en `main` actualizado.
+- Redirect URLs: producción tiene `http://localhost:8080/**`; SHAAH-TEST, `http://localhost:8081/**`.
+
 ## Mapa de `source/app.js` (las líneas se mueven; usa grep)
 | Zona | Dónde buscar |
 |---|---|
@@ -101,5 +110,5 @@ Panel privado del propietario, página independiente (`control/index.html`, 75 K
 - No queda ningún test de navegador omitido. (El dock se oculta a propósito durante el arranque, `#nav.boot-nav`; su test lo comprueba.) Se eliminaron la suite de Glow y la de paridad CSP (comparaban contra builds congelados) y se reactivaron el resto con los valores actuales. Ojo: el panel "Pro shortcuts" va oculto en el DOM de todos los skins y duplica la nota y la tarjeta Work, así que en los tests usa selectores con `:visible`.
 - El botón Collapse All / Expand All de Hoy cubre Core, niveles 1-3, Social combo y la nota; el anillo y el Day Log quedan fuera (`TODAY_ALL_EXCLUDED`).
 - El email personal ya no está en `source/app.js` ni en `assets/`; solo sigue en el historial de git.
-- `assets/` conserva solo el build actual y 5 `app.*` antiguos que usan los tests (fixtures `production-*`). El build no limpia los antiguos: al publicar uno nuevo, borra el anterior salvo que algún test lo use (`grep -r app.<hash> tests`).
+- `assets/` conserva solo el build actual y los `app.*` antiguos que usan los tests (fixtures `production-*`; limpiados el 2026-11-10). El build no limpia los antiguos: al publicar uno nuevo, borra el anterior salvo que algún test lo use (`grep -r app.<hash> tests`).
 - La carga de cuenta (`readAccountRows`) y `reconcileDeletedDays` leen `day_logs` por páginas de 500 filas (`readAllDayLogs`), así que el tope de 1000 filas de PostgREST ya no rompe la carga. Los simuladores de `tests/` deben soportar `order` y `range`.

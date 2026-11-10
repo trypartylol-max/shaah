@@ -7,11 +7,13 @@ for(const width of [880,1440])test(`Pro quick toggle has one fixed desktop ancho
   await p.evaluate(s=>{setSkin(s);setLayout('standard');setTab('today')},skin);
   const button=p.getByRole('button',{name:'Pro Mode',exact:true});
   const bounds=()=>button.evaluate(e=>{const r=e.getBoundingClientRect();return [r.x,r.y,r.width,r.height]});
-  const standard=await bounds();assert.equal(await button.getAttribute('aria-pressed'),'false');
+  // The corner anchor is measured outside Today: on Standard Today the box sits above the Log circle
+  // (desktop-work-daylog-boxes-browser.test.cjs).
+  await p.evaluate(()=>setTab('log'));const standard=await bounds();await p.evaluate(()=>setTab('today'));assert.equal(await button.getAttribute('aria-pressed'),'false');
   const note=p.locator('.t-note textarea');await note.fill('');
   await p.evaluate(()=>window.__quickNote=document.querySelector('.t-note textarea'));
   await button.click();assert.equal(await button.getAttribute('aria-pressed'),'true');
-  if(width<1180)assert.deepEqual(await bounds(),standard,'Stable position in Standard and compact Pro');
+  if(width<1180)assert.deepEqual(await bounds(),standard,'Compact Pro keeps the corner anchor');
   assert.equal(await note.evaluate(e=>e===window.__quickNote),true);
   assert.equal(await p.locator('html').getAttribute('data-skin'),skin);
   const controls=await p.evaluate(()=>{const a=document.querySelector('#layout-quick-toggle').getBoundingClientRect(),b=document.querySelector('#desktop-work-status').getBoundingClientRect();return {gap:a.left-b.right,top:a.top===b.top}});

@@ -34,15 +34,39 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout] #layout-quick-toggle{display:grid;place-items:center;min-width:44px;height:36px;padding:0 8px;border:0;border-inline-start:1px solid var(--skin-edge);background:transparent;color:var(--skin-copy);font:600 12px/1.4 var(--identity-font,'DM Sans',sans-serif);cursor:pointer;box-shadow:none}
   html[data-layout] #layout-quick-toggle[aria-pressed="true"]{text-decoration:underline;text-underline-offset:4px}
 }
+/* Standard Today desktop: Work/Pro sits centred above the Log circle, its top level with
+   the Next Level card; the circle drops below it. Unsupported browsers keep the corner anchor. */
+@supports (anchor-name:--a) and (top:anchor(--a top)){
+@media(min-width:880px){
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-grade{anchor-name:--shaah-next}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) :is(.today-log-start,.cr-log-orb){anchor-name:--shaah-log;margin-top:50px!important;margin-inline:36px!important}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{margin-top:58px!important}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{width:88px!important;min-width:88px!important;height:88px!important;min-height:88px!important}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{font-size:34px!important}
+  /* Active routine: same rules as the Pro Day Log box — no label, X top-start, + in the opposite corner. */
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{width:88px;height:88px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button{width:88px;height:88px;gap:3px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-icon{font-size:17px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button b{font-size:19px;letter-spacing:-.6px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-step{font-size:9px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-label{display:none}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb :is(.product-orb-close,.product-end-menu){top:-10px;left:auto;inset-inline-start:-12px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add{top:auto;right:auto;bottom:-14px;inset-inline-end:-16px}
+  html[data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
+    position:absolute;position-anchor:--shaah-log;top:anchor(--shaah-next top);bottom:auto;
+    right:auto;left:anchor(--shaah-log center);inset-inline-end:auto;translate:-50% 0
+  }
+}
+}
 @media(min-width:1180px){
   html[data-layout="pro"] #app:has(#scroll>.today.sf-today-v27:not(.history-day-editor))>#scroll{position:relative}
   html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-top:8px!important}
+  /* Two independent boxes in the Log column: Work/Pro (36px) on top, then
+     8px, then the Day Log card (pro-mode.css: height calc(100% - 44px), align-self:end). */
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
-    position:absolute;top:14px;inset-inline-end:26px;width:calc(max(120px,(100% - 72px)*.14) - 12px);
-    justify-content:center;border:0;border-bottom:1px solid var(--skin-edge);border-radius:0;background:transparent
+    position:absolute;top:8px;inset-inline-end:20px;width:max(120px,(100% - 72px)*.14);height:36px;box-sizing:border-box;
+    justify-content:center;border:1px solid var(--pro-edge);border-radius:14px;background:var(--pro-panel);overflow:hidden
   }
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls>:is(#desktop-work-status,#layout-quick-toggle){height:34px}
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{padding-inline:4px}
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:100%!important;min-height:216px!important;align-self:stretch!important}
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{padding-top:54px!important}
-  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{padding-top:54px!important}
 }

@@ -42,3 +42,23 @@ test('Standard Today desktop: Work/Pro centred above the Log, level with Next Le
  }
  await p.locator('#layout-quick-toggle').click();assert.equal(await p.locator('html').getAttribute('data-layout'),'pro');
 });
+
+test('Work/Pro scrolls away with the page on every tab instead of floating over it',async t=>{
+ const p=await openApp(t,fixture(),{width:1280,height:520},{stayOnToday:true});
+ for(const layout of ['standard','pro'])for(const tab of ['today','stats','history','social']){
+  await p.evaluate(({layout,tab})=>{arrivalDismiss?.();setLayout(layout);setTab(tab);document.querySelector('#scroll').scrollTop=0},{layout,tab});await frame(p);
+  const before=(await rect(p,'#desktop-status-controls')).t;
+  const moved=await p.evaluate(()=>{const s=document.querySelector('#scroll');s.scrollTop=120;return s.scrollTop});await frame(p);
+  const after=(await rect(p,'#desktop-status-controls')).t;
+  if(moved>0)assert.ok(Math.abs(before-moved-after)<1.5,JSON.stringify({layout,tab,before,moved,after}));
+ }
+});
+
+test('Collapsed Core Routines in Pro leaves no reserved space',async t=>{
+ const p=await openApp(t,fixture(),{width:1280,height:900},{stayOnToday:true});
+ await p.evaluate(()=>{arrivalDismiss?.();setLayout('pro');setTab('today');todayRoutinesOpen=false;render()});await frame(p);
+ const rout=await rect(p,'.t-rout'),toggle=await rect(p,'.t-rout-toggle'),lvl2=await rect(p,'.t-lvl2');
+ assert.ok(rout.b-toggle.b<12&&lvl2.t-rout.b<24,JSON.stringify({rout,toggle,lvl2}));
+ await p.evaluate(()=>{todayRoutinesOpen=true;render()});await frame(p);
+ assert.ok((await rect(p,'.t-rout')).h>100);
+});

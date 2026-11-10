@@ -157,6 +157,7 @@ html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal 
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .cr-log-orb{height:100%!important;min-height:216px}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout{display:flex!important;flex-direction:column!important;min-height:174px}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout .t-rout-body{flex:1;min-height:140px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout.collapsed{min-height:0}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl{align-self:start!important;min-height:0;overflow:visible}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl){align-self:start!important}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-note{position:fixed!important;top:var(--pro-note-top)!important;bottom:178px!important;inset-inline-start:16px!important;width:calc(var(--pro-sidebar) - 32px)!important;max-width:none!important;height:auto!important;min-height:70px!important;margin:0!important;padding:10px 0 0!important;border:0!important;border-top:1px solid var(--pro-edge)!important;border-radius:0!important;background:transparent!important;display:flex;flex-direction:column;z-index:1000;grid-row:auto!important;grid-column:auto!important}

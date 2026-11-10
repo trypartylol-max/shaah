@@ -5331,6 +5331,7 @@ function loadTodayRoutines(){
 // Presentation only: no storage, config, completion, score or timer writes.
 let todaySectionsSession=false;
 let todayBoxesOpen={social:true,daylog:true,note:true};
+const TODAY_ALL_EXCLUDED='daylog';
 function todayBoxDefinitions(){
   return [['social','.t-social-independent','SOCIAL COMBO'],['daylog','.t-daylog','DAY LOG'],['note','.t-note','DAY NOTE']];
 }
@@ -5371,7 +5372,8 @@ function toggleTodayBox(id){
   syncTodaySections();
 }
 function todaySectionsExpanded(){
-  return todayRoutinesOpen || [1,2,3].some(n=>lvlOpen[n]) || Object.values(todayBoxesOpen).some(Boolean);
+  // Collapse All / Expand All covers Core routines, levels 1-3, Social combo and the note; the ring and Day Log stay out.
+  return todayRoutinesOpen || [1,2,3].some(n=>lvlOpen[n]) || Object.entries(todayBoxesOpen).some(([id,open])=>id!==TODAY_ALL_EXCLUDED&&open);
 }
 function todaySectionsButton(){
   const open=todaySectionsExpanded(), label=interfaceCopy(open?'Collapse All':'Expand All');
@@ -5412,7 +5414,7 @@ function toggleTodaySections(){
   const open=!todaySectionsExpanded();
   todaySectionsSession=true;
   todayRoutinesOpen=open;
-  Object.keys(todayBoxesOpen).forEach(id=>{todayBoxesOpen[id]=open;});
+  Object.keys(todayBoxesOpen).forEach(id=>{if(id!==TODAY_ALL_EXCLUDED)todayBoxesOpen[id]=open;});
   [1,2,3].forEach(n=>{lvlOpen[n]=open;});
   syncTodaySections();
 }

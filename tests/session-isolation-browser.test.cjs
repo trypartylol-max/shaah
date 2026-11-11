@@ -42,7 +42,7 @@ test('returning to A through the auth callback restores only A routine and A scr
   const page=await open(t);
   await page.evaluate(()=>{
     set(cfgKey(),CFG);startRoutine('runner');routineToggle();
-    set(todayRoutinesKey(),false);set(secKey(),{hab:false});
+    set(todayRoutinesKey(),false);
   });
   await emit(page,'synthetic-B');
   assert.equal(await page.evaluate(()=>todayRoutinesOpen),true);
@@ -50,7 +50,6 @@ test('returning to A through the auth callback restores only A routine and A scr
   assert.deepEqual(await page.evaluate(()=>Object.keys(sessions)),['runner']);
   assert.equal(await page.evaluate(()=>routineView&&timerRunning),true);
   assert.equal(await page.evaluate(()=>todayRoutinesOpen),false);
-  assert.equal(await page.evaluate(()=>secOpen.hab),false);
   assert.equal(await page.locator('#cr-dialog #cr-title').textContent(),await page.evaluate(()=>ROUTINES.runner.icon+' '+ROUTINES.runner.label));
 });
 

@@ -169,6 +169,14 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
     window.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[instant]));}static now(){return instant;}};
   });
   else await page.clock.setFixedTime(new Date('2026-10-16T12:00:00Z'));
+  // Settings sections start collapsed in the app. Suites that are not about that
+  // behaviour open every section when Settings opens, so their selectors stay valid.
+  if(!options.collapsedSettings)await context.addInitScript(()=>{
+    addEventListener('load',()=>{
+      const original=window.openSettings;if(typeof original!=='function')return;
+      window.openSettings=function(){original();document.querySelectorAll('[data-settings-section]').forEach(node=>{secOpen[node.dataset.settingsSection]=true;});render();};
+    });
+  });
   await page.goto(options.url || 'http://shaah.test/');
   if (options.loggedOut) await page.getByRole('button', { name: options.loginButtonName || 'Continue with Google' }).waitFor();
   else if(options.emptyAccount){

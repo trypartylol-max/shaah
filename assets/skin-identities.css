@@ -194,10 +194,26 @@ html[data-skin="apple"] .nav-label::first-letter {text-transform:uppercase}
 html[data-skin="apple"] .today.sf-today-v27 {--today-card-border:transparent;--today-card-bg:#1c1c1e}
 html[data-skin="apple"] #scroll :is(.stats-metric-card,.stats-details,.stats-weekday,.stats-card) {border-color:transparent!important;background:#1c1c1e!important;border-radius:14px!important}
 
-/* Owner request: one purple for every check, and finished rows step back
-   (dimmed, lightly struck through) so what is still pending leads. */
-html[data-skin="apple"] #scroll .row.on>div>div:first-child {background:#8b6cff!important;border-color:#8b6cff!important;box-shadow:none!important}
-html[data-skin="apple"] #scroll .row {transition:opacity .2s ease,transform 100ms ease-out,background-color 100ms ease-out}
-html[data-skin="apple"] #scroll .row.on {opacity:.5;background:transparent!important;border-color:transparent!important}
-html[data-skin="apple"] #scroll .row.on>div>:not(:first-child) {text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(255,255,255,.55)}
-@media(prefers-contrast:more){html[data-skin="apple"] #scroll .row.on {opacity:.7}}
+/* Apple: done = purple check, and the row recedes (struck through, translucent)
+   so what is still missing carries the screen. "Light" (½) stays prominent. */
+html[data-skin="apple"] {--apple-done:#8b6cff}
+html[data-skin="apple"] #scroll .row.on>div:first-child>div:first-child {
+  background-color:var(--apple-done)!important;border-color:var(--apple-done)!important;box-shadow:none!important;
+}
+html[data-skin="apple"] #scroll .row.on.half>div:first-child>div:first-child {
+  background-color:transparent!important;
+  background-image:linear-gradient(90deg,var(--apple-done) 50%,transparent 50%)!important;
+}
+html[data-skin="apple"] #scroll .row.on:not(.half):not(.history-work-row) {
+  opacity:.45;background:transparent!important;border-color:transparent!important;transition:opacity .25s ease,transform 100ms ease-out,background-color 100ms ease-out;
+}
+html[data-skin="apple"] #scroll .row.on:not(.half):not(.history-work-row)>div:first-child>span {
+  text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(255,255,255,.7);font-weight:450!important;
+}
+html[data-skin="apple"] #scroll .row.on.half>span:last-child {color:var(--apple-done)!important}
+html[data-skin="apple"] .combo-category-credit[aria-pressed="true"] {color:var(--apple-done)!important;font-weight:700}
+html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) {opacity:.42;transition:opacity .25s ease}
+html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) .sf-category-toggle {text-decoration:line-through;text-decoration-thickness:1.5px}
+@media(prefers-contrast:more){
+  html[data-skin="apple"] #scroll .row.on:not(.half),html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) {opacity:.7}
+}

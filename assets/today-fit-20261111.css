@@ -93,7 +93,7 @@
 
  html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:4px!important;gap:4px!important}
  html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:2px!important;height:20px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:8px 14px!important}
+ html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:6px 14px!important}
  html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{row-gap:6px!important}
  html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:6px 12px!important}
  html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{padding-bottom:2px!important}
@@ -103,6 +103,6 @@
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:4px!important}
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:6px 12px!important}
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{height:36px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:6px!important;padding-bottom:6px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset .reset-day-trigger{min-height:36px!important;height:36px!important}
+ html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:3px!important;padding-bottom:3px!important;min-height:0!important}
+ html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset .reset-day-trigger{min-height:32px!important;height:32px!important;padding-top:4px!important;padding-bottom:4px!important}
 }

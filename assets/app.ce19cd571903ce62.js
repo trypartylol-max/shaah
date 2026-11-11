@@ -86,7 +86,7 @@ const SKINS=[
   {id:'aurora',label:'Aurora',detail:'Azul, violeta y rosa, con el brillo de Glow integrado.'},
   {id:'matrix',label:'Matrix',detail:'Tipografía de terminal, negro verdoso y acentos de fósforo.'},
   {id:'minimal',label:'Bajo estímulo',detail:'Tipografía serena, superficies neutras y ningún efecto animado.'},
-  {id:'apple',label:'Apple',detail:'Letra del sistema, superficies negras agrupadas, vidrio translúcido y respuesta al tocar.'}
+  {id:'apple',label:'Tapuaj',detail:'Letra del sistema, superficies negras agrupadas, vidrio translúcido y respuesta al tocar.'}
 ];
 const LEGACY_SKINS=[
   {id:'glow',label:'Glow',detail:'Preferencia anterior, conservada hasta su migración a Aurora.'},

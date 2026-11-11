@@ -78,4 +78,9 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   /* Larger type inside the same box. */
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls #mode-status{font-size:14px!important}
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{font-size:14px}
+  /* Optical centring: the dot's hit area shrinks to the dot so "WORK ●" centres as one group,
+     and caps are trimmed to cap height so they sit on the true vertical middle. */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{gap:8px}
+  html[data-layout="pro"] #app #scroll #desktop-status-controls #sync-status{width:9px!important}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) :is(#desktop-status-controls #mode-status,#layout-quick-toggle){text-box:trim-both cap alphabetic}
 }

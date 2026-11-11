@@ -16,6 +16,10 @@ self.addEventListener('install',event=>{
   })());
   // Let existing tabs finish with their current release; no forced reload.
 });
+// A waiting release activates only when the page asks (offline-register.js):
+// right after opening, before any interaction, or when the app goes to the background.
+// Without this, an app that is never fully closed (iPhone, desktop pane) stays on an old release.
+self.addEventListener('message',event=>{if(event.data==='SKIP_WAITING')self.skipWaiting();});
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{
     for(const name of await caches.keys())if(name.startsWith(CACHE_PREFIX)&&name!==CACHE_NAME)await caches.delete(name);

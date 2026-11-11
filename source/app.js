@@ -5718,7 +5718,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
         return`
-      <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
+      <div class="row${st?" on":""}${st===0.5?" half":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
         <div ${uiStyle(`display:flex;align-items:center;gap:13px;min-width:0;flex:1`)}>
           ${(item.routine||half)?chk3(st,item.col):chk(!!st,item.col)}
           <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis;white-space:nowrap`)}>${esc(item.icon)} ${esc(item.label)}</span>
@@ -5737,7 +5737,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       ${C.L2.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5;
         return`
-      <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
+      <div class="row${st?" on":""}${st===0.5?" half":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
         <div ${uiStyle(`display:flex;align-items:center;gap:13px`)}>
           ${half?chk3(st,item.col):chk(!!st,item.col)}
           <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450}`)}>${esc(item.icon)} ${esc(item.label)}</span>
@@ -5753,7 +5753,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       ${C.L3.filter(x=>!x.combo).map(item=>{
         const st=ch[item.id];
         return `
-      <div class="row${st?" on":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
+      <div class="row${st?" on":""}${st===0.5?" half":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit' ,item.id,key)} ${ui('keydown','activate')}>
         <div ${uiStyle(`display:flex;align-items:center;gap:13px`)}>
           ${chk(!!st,core?"#a78bfa":"#fbbf24")}
           <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450}`)}>${esc(item.icon)} ${esc(item.label)}</span>

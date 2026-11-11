@@ -34,7 +34,8 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout] #app #scroll #desktop-status-controls #mode-status{position:static!important;display:block!important;width:auto!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;font:500 12px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;color:var(--skin-copy)!important;letter-spacing:.05em;text-align:center}
   html[data-layout] #app #scroll #desktop-status-controls #sync-status{position:static!important;display:flex!important;width:22px!important;height:34px!important;margin:0!important;padding:0!important}
   html[data-layout] #layout-quick-toggle{display:grid;place-items:center;min-width:44px;height:36px;padding:0 8px;border:0;border-inline-start:1px solid var(--skin-edge);background:transparent;color:var(--skin-copy);font:600 12px/1.4 var(--identity-font,'DM Sans',sans-serif);cursor:pointer;box-shadow:none}
-  html[data-layout] #layout-quick-toggle[aria-pressed="true"]{text-decoration:underline;text-underline-offset:4px}
+  /* Active Pro: a quiet filled segment instead of an underline. */
+  html[data-layout] #layout-quick-toggle[aria-pressed="true"]{text-decoration:none;background:color-mix(in srgb,var(--skin-copy) 10%,transparent);color:var(--skin-copy)}
 }
 /* Standard Today desktop: Work/Pro sits centred above the Log circle, its top level with
    the Next Level card; the circle drops below it. Unsupported browsers keep the corner anchor. */
@@ -70,5 +71,7 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
     justify-content:center;border:1px solid var(--pro-edge);border-radius:14px;background:var(--pro-panel);overflow:hidden
   }
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls>:is(#desktop-work-status,#layout-quick-toggle){height:34px}
-  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{padding-inline:4px}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{flex:1 1 auto;min-width:0;padding-inline:8px}
+  /* The box spans the Log column: Work fills the space, Pro stays a fixed segment flush right. */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{flex:0 0 52px;height:100%!important}
 }

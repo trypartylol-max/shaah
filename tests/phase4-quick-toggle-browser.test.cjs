@@ -17,7 +17,8 @@ for(const width of [880,1440])test(`Pro quick toggle has one fixed desktop ancho
   assert.equal(await note.evaluate(e=>e===window.__quickNote),true);
   assert.equal(await p.locator('html').getAttribute('data-skin'),skin);
   const controls=await p.evaluate(()=>{const a=document.querySelector('#layout-quick-toggle').getBoundingClientRect(),b=document.querySelector('#desktop-work-status').getBoundingClientRect();return {gap:a.left-b.right,top:a.top===b.top}});
-  assert.equal(controls.gap,0);assert.equal(controls.top,true);
+  // Today Pro (≥1180) is a segmented control with a 3px inset gap; elsewhere the two segments touch.
+  assert.ok(controls.gap>=0&&controls.gap<=3,`gap ${controls.gap}`);assert.equal(controls.top,true);
   for(const tab of ['log','social','stats','history']){
    await p.locator(`.nav-btn[data-tab="${tab}"]`).click();assert.deepEqual(await bounds(),standard);
    assert.equal(await p.locator('#mode-status').isVisible(),true);

@@ -125,7 +125,7 @@ html[data-skin="matrix"] :is(.performance-local,.performance-local .performance-
    reduced transparency and increased contrast. */
 html[data-skin="apple"] {
   --identity-font:-apple-system,'SF Pro Text',system-ui,'Helvetica Neue',sans-serif;
-  --identity-accent:#0a84ff;--identity-ink:#ffffff;
+  --identity-accent:#8b6cff;--identity-ink:#ffffff;
   --identity-input:#2c2c2e;
   --apple-glass:rgba(30,30,32,.62);--apple-glass-edge:rgba(255,255,255,.2);
   font-optical-sizing:auto;
@@ -157,7 +157,7 @@ html[data-skin="apple"] .t-ring {filter:none!important}
     box-shadow:0 8px 24px rgba(0,0,0,.35);padding:4px 6px;
   }
   html[data-skin="apple"] #nav .nav-btn {border-top:none;border-radius:26px;min-height:52px}
-  html[data-skin="apple"] #nav .nav-btn.active {background:rgba(255,255,255,.12);color:#0a84ff}
+  html[data-skin="apple"] #nav .nav-btn.active {background:rgba(255,255,255,.12);color:#8b6cff}
 }
 /* Sticky score strip becomes a translucent layer, not an opaque band. */
 html[data-skin="apple"] #tb-score {
@@ -193,3 +193,11 @@ html[data-skin="apple"] .nav-label {display:inline-block;text-transform:lowercas
 html[data-skin="apple"] .nav-label::first-letter {text-transform:uppercase}
 html[data-skin="apple"] .today.sf-today-v27 {--today-card-border:transparent;--today-card-bg:#1c1c1e}
 html[data-skin="apple"] #scroll :is(.stats-metric-card,.stats-details,.stats-weekday,.stats-card) {border-color:transparent!important;background:#1c1c1e!important;border-radius:14px!important}
+
+/* Owner request: one purple for every check, and finished rows step back
+   (dimmed, lightly struck through) so what is still pending leads. */
+html[data-skin="apple"] #scroll .row.on>div>div:first-child {background:#8b6cff!important;border-color:#8b6cff!important;box-shadow:none!important}
+html[data-skin="apple"] #scroll .row {transition:opacity .2s ease,transform 100ms ease-out,background-color 100ms ease-out}
+html[data-skin="apple"] #scroll .row.on {opacity:.5;background:transparent!important;border-color:transparent!important}
+html[data-skin="apple"] #scroll .row.on>div>:not(:first-child) {text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(255,255,255,.55)}
+@media(prefers-contrast:more){html[data-skin="apple"] #scroll .row.on {opacity:.7}}

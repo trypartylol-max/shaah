@@ -127,12 +127,12 @@ function skinTone(hex,id=_skin){
     }
     return skinColorParts('#'+tone).slice(0,3);
   }
-  // Apple: iOS dark system palette. Violet accents become system blue;
+  // Apple: iOS dark system palette. Violet accents become one system purple;
   // grade colours keep their meaning with the matching system hues.
   if(id==='apple'){
     const semantic={fff1a8:'ffe57a',ffd700:'ffd60a','4ade80':'30d158','60a5fa':'64d2ff',
       f59e0b:'ff9f0a',f97316:'ff8a3d',ef4444:'ff453a',f87171:'ff6961',
-      a78bfa:'0a84ff',fbbf24:'ffd60a'};
+      a78bfa:'8b6cff',fbbf24:'ffd60a'};
     let tone=semantic[hex];
     if(!tone){
       const high=Math.max(r,g,b),low=Math.min(r,g,b),y=.2126*r+.7152*g+.0722*b;
@@ -143,7 +143,8 @@ function skinTone(hex,id=_skin){
       else if(r>g*1.35&&r>b*1.15)tone='ff453a';
       else if(r>120&&g>r*.55&&b<g*.7)tone='ff9f0a';
       else if(g>r&&g>=b)tone='30d158';
-      else tone='0a84ff';
+      else if(b>r*1.6)tone='0a84ff';
+      else tone='8b6cff';
     }
     return skinColorParts('#'+tone).slice(0,3);
   }

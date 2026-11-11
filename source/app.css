@@ -2333,7 +2333,7 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
 /* Device-local appearance; layout and score thresholds are shared by all skins. */
 :root{color-scheme:dark;--skin-focus:#7aa2ff;--skin-panel:#10101c;--skin-edge:#303047;--skin-selected:#b8a4ff;--skin-muted:#adadbf;--skin-copy:#ececf2;--skin-active-bg:#1e1b31}
 :root[data-skin="matrix"]{--skin-focus:#00ff41;--skin-panel:#07120d;--skin-edge:#244433;--skin-selected:#00ff41;--skin-muted:#a0b9ac;--skin-copy:#e0f5e9;--skin-active-bg:#0d251a;--matrix-phosphor:#00ff41}
-:root[data-skin="apple"]{--skin-focus:#0a84ff;--skin-panel:#1c1c1e;--skin-edge:#38383a;--skin-selected:#0a84ff;--skin-muted:#aeaeb2;--skin-copy:#ffffff;--skin-active-bg:#2c2c2e}
+:root[data-skin="apple"]{--skin-focus:#8b6cff;--skin-panel:#1c1c1e;--skin-edge:#38383a;--skin-selected:#8b6cff;--skin-muted:#aeaeb2;--skin-copy:#ffffff;--skin-active-bg:#2c2c2e}
 :root[data-skin="minimal"]{--skin-focus:#b9c8d6;--skin-panel:#1c1f23;--skin-edge:#3e444c;--skin-selected:#cdd2d8;--skin-muted:#b2b8c0;--skin-copy:#e2e5e9;--skin-active-bg:#272b30}
 .skin-settings{grid-column:1/-1}
 .skin-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -2353,8 +2353,8 @@ html[data-skin="minimal"] .settings-list{background:var(--skin-panel);border-col
 .skin-preview-classic i{background:#e2e2e2}.skin-preview-classic i:nth-child(2){background:#a78bfa}.skin-preview-classic i:nth-child(3){background:#fbbf24}
 .skin-preview-matrix{background:#020705;border-color:#244433;color:#23ed98}
 .skin-preview-matrix i{background:#23ed98}.skin-preview-matrix i:nth-child(2){background:#4a9e76}.skin-preview-matrix i:nth-child(3){background:#244433}
-.skin-preview-apple{background:#000000;border-color:#38383a;color:#30d158;font-family:-apple-system,system-ui,sans-serif}
-.skin-preview-apple i{background:#1c1c1e}.skin-preview-apple i:nth-child(2){background:#0a84ff}.skin-preview-apple i:nth-child(3){background:#3a3a3c}
+.skin-preview-apple{background:#000000;border-color:#38383a;color:#8b6cff;font-family:-apple-system,system-ui,sans-serif}
+.skin-preview-apple i{background:#1c1c1e}.skin-preview-apple i:nth-child(2){background:#8b6cff}.skin-preview-apple i:nth-child(3){background:#3a3a3c}
 .skin-preview-minimal{background:#15171a;border-color:#3e444c;color:#9fbaa9}
 .skin-preview-minimal i{background:#cdd2d8}.skin-preview-minimal i:nth-child(2){background:#9198a2}.skin-preview-minimal i:nth-child(3){background:#646b74}
 html[data-skin="matrix"] body,html[data-skin="matrix"] button,html[data-skin="matrix"] input,html[data-skin="matrix"] select,html[data-skin="matrix"] textarea{font-family:'DM Mono',ui-monospace,monospace}

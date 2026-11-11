@@ -13,7 +13,7 @@ const measure=p=>p.evaluate(()=>{
   note:!!document.querySelector('.today .pro-today-grid textarea, .today .t-note:not(.today-box-collapsed) textarea'),
   next:r('.t-grade'),footer:r('.t-grade .ls-footer'),orbCard:r('.cr-log-orb'),orb:r('.cr-orb-button')};
 });
-for(const [width,height] of [[1280,720],[1366,768]]){
+for(const [width,height] of [[1280,720],[1366,768],[1280,640],[1440,610]]){
  test(`Today fits one ${width}x${height} screen: Pro with everything open, Standard with only the Day Note closed`,async t=>{
   const p=await openApp(t,fixture(),{width,height},{stayOnToday:true});
   for(const layout of ['pro','standard']){

@@ -2798,7 +2798,7 @@ function resetAccountView(){
   currentTab='today';histTab='week';histMonth=null;tourStep=null;
   tourDemo={};tourOwner=null;tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourFocusStep=null;tourScroll=0;
   lvlOpen={1:true,2:true,3:true};
-  secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
+  secOpen={};
   todaySectionsSession=false;todayBoxesOpen={social:true,daylog:true,note:true};todayRoutinesOpen=true;peopleSettingsFilter='active';socialDraft=null;socialQuery='';socialView='register';socialFormError='';socialDirectoryQuery='';socialDirectoryGroup='all';socialDirectoryCategory='all';socialPeopleOpen=false;socialBulkOpen=false;socialFamilyIncluded=true;socialGroupDraft=null;socialGroupError='';workPhaseOpenKey=null;
   bulkPeopleSelection=[];bulkPeopleQuery='';bulkPeopleScope='all';_historySafety=historySafetyState();
   window.__dayLogActive=null;window.__dayLogSelectedId=null;window.__dayLogPanelMode='edit';
@@ -3372,7 +3372,7 @@ function settingsRowInfo(key){
   return rows[key];
 }
 function stCard(key,title,col,body,extra){
-  const open=secOpen[key]!==false;
+  const open=secOpen[key]===true;
   const row=settingsRowInfo(key)||{label:title,icon:''};
   return`<section class="st-card${extra?" "+extra:""}" data-settings-section="${esc(key)}">
     <button type="button" id="settings-toggle-${esc(key)}" class="st-head" aria-expanded="${open}" aria-controls="settings-section-${esc(key)}" ${ui('click','toggleSec' ,key)}>
@@ -4467,7 +4467,7 @@ function stepSet(rid,i,k,v){ const s=CFG.routines[rid]&&CFG.routines[rid].steps[
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
 function openReview(){ reviewOpen=true; haptic(10); render(); }
 function closeReview(){ reviewOpen=false; render(); }
-function openSettings(){ settingsOpen=true; haptic(10); render(); }
+function openSettings(){ settingsOpen=true; secOpen={}; haptic(10); render(); }
 function closeSettings(){ settingsOpen=false; render(); }
 // Importa un export de SHAAH, o un archivo suelto de personas.
 // Nunca pisa días que ya existen, y deja instantánea antes de tocar la config.
@@ -4802,10 +4802,9 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
-let secOpen={tz:true,ind:true,trav:true,hab:true,ppl:true,bak:false,rout:false,data:true};
-function secKey(){return `shaah_sec_${USER?USER.id:'anon'}`;}
-function loadSec(){const v=get(secKey());if(v&&typeof v==='object')secOpen={...secOpen,...v};}
-function toggleSec(k){secOpen[k]=secOpen[k]===false;haptic(9);set(secKey(),secOpen);render();document.getElementById('settings-toggle-'+k)?.focus({preventScroll:true});}
+let secOpen={};   // Settings sections start collapsed every time Settings opens
+function loadSec(){secOpen={};}
+function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);render();document.getElementById('settings-toggle-'+k)?.focus({preventScroll:true});}
 function lvlKey(){return `shaah_lvl_${USER?USER.id:'anon'}`;}
 // Preferencia de interfaz: se guarda sin pasar por saveCfg() para no tocar el
 // anillo de respaldos (5 huecos; una copia buena vale mas que un plegado).

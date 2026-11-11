@@ -10,7 +10,7 @@ const snapshot = page => page.evaluate(() => JSON.stringify({ config: CFG, days:
 
 for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['desktop', { width: 1440, height: 1000 }]]) {
   test(`${device}: compact settings list preserves editors, keyboard order, collapse state and synthetic data`, async t => {
-    const page = await openApp(t, locationFixture(), viewport);
+    const page = await openApp(t, locationFixture(), viewport, { collapsedSettings: true });
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const before = await snapshot(page);
     await page.evaluate(()=>flushCfgSaves());
@@ -45,7 +45,7 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
     await page.reload();
     await page.waitForFunction(() => _cfgReady && _live);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
-    assert.equal(await page.locator('.st-head[aria-expanded="false"]').count(), 8, 'Stored open/collapse choices survive reload');
+    assert.equal(await page.locator('.st-head[aria-expanded="false"]').count(), 8, 'Every Settings section starts collapsed after reload');
     await page.getByRole('button', { name: 'Social Settings', exact: true }).click();
     await page.getByText(/^(Organize multiple people by group|Organizar varias personas por grupo)$/).click();
     await page.getByRole('textbox', { name: 'Search contacts for bulk assignment' }).waitFor({ state: 'visible' });
@@ -55,16 +55,18 @@ for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['des
   });
 }
 
-test('an initially open Appearance section closes on the first click even without a stored flag', async t => {
-  const page = await openApp(t, locationFixture());
+test('every Settings section starts collapsed and reopening Settings collapses them again', async t => {
+  const page = await openApp(t, locationFixture(), undefined, { collapsedSettings: true });
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  assert.equal(await page.locator('.st-head[aria-expanded="true"]').count(), 0);
   const appearance = page.getByRole('button', { name: 'Appearance', exact: true });
-  assert.equal(await page.evaluate(() => Object.hasOwn(secOpen, 'appearance')), false);
+  await appearance.click();
   assert.equal(await appearance.getAttribute('aria-expanded'), 'true');
+  assert.equal(await page.locator('[data-skin-choice="matrix"]').isVisible(), true);
   await appearance.click();
   assert.equal(await appearance.getAttribute('aria-expanded'), 'false');
   assert.equal(await page.locator('#settings-section-appearance').getAttribute('inert'), '');
   await appearance.click();
-  assert.equal(await appearance.getAttribute('aria-expanded'), 'true');
-  assert.equal(await page.locator('[data-skin-choice="matrix"]').isVisible(), true);
+  await page.evaluate(() => { closeSettings(); openSettings(); });
+  assert.equal(await page.locator('.st-head[aria-expanded="true"]').count(), 0);
 });

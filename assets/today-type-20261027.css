@@ -57,3 +57,19 @@
   font-weight:500!important;
   letter-spacing:.06em!important;
 }
+
+/* Collapsed Social Combo / Day Log / Day Note headers read exactly like level headings (2026-11-11). */
+#scroll .today.sf-today-v27:not(.history-day-editor) > .today-box-collapsed > .today-box-disclosure {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:19px!important;
+  font-weight:500!important;
+  letter-spacing:.05em!important;
+  line-height:1.35!important;
+  color:var(--today-title,rgba(var(--skin-rgb-a0a0b6,160,160,182),1))!important;
+  height:auto!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) > .today-box-collapsed > .today-box-disclosure > span {
+  font:inherit!important;
+  letter-spacing:inherit!important;
+  color:inherit!important;
+}

@@ -115,6 +115,7 @@ html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal 
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-kicker,
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .lvl-toggle,
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading strong,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-box-collapsed>.today-box-disclosure,
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-head,
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .cr-routine-name{font:600 16px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:.02em!important;text-transform:uppercase}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>div:first-child>span,
@@ -306,4 +307,9 @@ html[data-layout="pro"] .pro-week-comparison{display:block}
  html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-row{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);gap:6px}
  html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-figure{position:static;width:48px;height:48px;transform:none}
  html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-row strong{font-size:16px!important;white-space:normal}
+}
+
+/* Collapsed Social Combo / Day Log / Day Note headers share the level-heading colour. */
+@media(min-width:880px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-box-collapsed>.today-box-disclosure{color:var(--pro-copy)!important}
 }

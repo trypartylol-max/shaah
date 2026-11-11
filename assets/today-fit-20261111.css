@@ -58,6 +58,6 @@
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:8px 12px!important}
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section>h3{margin-bottom:4px!important}
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{min-height:0!important;height:48px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:10px!important;padding-bottom:10px!important}
+ html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:7px!important;padding-bottom:7px!important}
  html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset{padding-top:0!important;padding-bottom:0!important}
 }

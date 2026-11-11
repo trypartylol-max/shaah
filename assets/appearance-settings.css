@@ -75,4 +75,7 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{padding:3px;gap:3px}
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{flex:1 1 auto;min-width:0;padding-inline:8px;height:28px!important}
   html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{flex:0 0 48px;height:28px!important}
+  /* Larger type inside the same box. */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls #mode-status{font-size:14px!important}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{font-size:14px}
 }

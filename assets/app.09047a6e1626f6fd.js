@@ -85,7 +85,8 @@ const SKINS=[
   {id:'classic',label:'Original',detail:'Colores originales, acentos violeta y cifras claras.'},
   {id:'aurora',label:'Aurora',detail:'Azul, violeta y rosa, con el brillo de Glow integrado.'},
   {id:'matrix',label:'Matrix',detail:'Tipografía de terminal, negro verdoso y acentos de fósforo.'},
-  {id:'minimal',label:'Bajo estímulo',detail:'Tipografía serena, superficies neutras y ningún efecto animado.'}
+  {id:'minimal',label:'Bajo estímulo',detail:'Tipografía serena, superficies neutras y ningún efecto animado.'},
+  {id:'apple',label:'Apple',detail:'Letra del sistema, superficies negras agrupadas, vidrio translúcido y respuesta al tocar.'}
 ];
 const LEGACY_SKINS=[
   {id:'glow',label:'Glow',detail:'Preferencia anterior, conservada hasta su migración a Aurora.'},
@@ -123,6 +124,27 @@ function skinTone(hex,id=_skin){
       else if(g>r&&g>=b)tone='68e0bb';
       else if(b>r*1.25)tone='75baff';
       else tone='b9a2ff';
+    }
+    return skinColorParts('#'+tone).slice(0,3);
+  }
+  // Apple: iOS dark system palette. Violet accents become one system purple;
+  // grade colours keep their meaning with the matching system hues.
+  if(id==='apple'){
+    const semantic={fff1a8:'ffe57a',ffd700:'ffd60a','4ade80':'30d158','60a5fa':'64d2ff',
+      f59e0b:'ff9f0a',f97316:'ff8a3d',ef4444:'ff453a',f87171:'ff6961',
+      a78bfa:'8b6cff',fbbf24:'ffd60a'};
+    let tone=semantic[hex];
+    if(!tone){
+      const high=Math.max(r,g,b),low=Math.min(r,g,b),y=.2126*r+.7152*g+.0722*b;
+      if(high-low<=Math.max(32,high*.18)||(high<100&&Math.abs(r-g)<20)){
+        const bucket=[9,20,32,55,80,115,165,205].findIndex(n=>y<=n);
+        tone=['000000','0e0e10','1c1c1e','2c2c2e','3a3a3c','636366','8e8e93','c7c7cc','f2f2f7'][bucket<0?8:bucket];
+      }else if(high<100)tone='1c1c1e';
+      else if(r>g*1.35&&r>b*1.15)tone='ff453a';
+      else if(r>120&&g>r*.55&&b<g*.7)tone='ff9f0a';
+      else if(g>r&&g>=b)tone='30d158';
+      else if(b>r*1.6)tone='0a84ff';
+      else tone='8b6cff';
     }
     return skinColorParts('#'+tone).slice(0,3);
   }
@@ -283,7 +305,7 @@ function applySkin(){
     else root.style.setProperty(key,skinTone(hex).join(','));
   }
   const theme=document.querySelector('meta[name="theme-color"]');
-  if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='aurora'?'#050b1b':'#07070f';
+  if(theme)theme.content=_skin==='matrix'?'#020705':_skin==='minimal'?'#15171a':_skin==='apple'?'#000000':_skin==='aurora'?'#050b1b':'#07070f';
   document.querySelectorAll('[data-skin-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.skinChoice===_skin)));
   syncComboDisclosureDOM();
   syncSkinPreviewDOM();
@@ -3659,6 +3681,7 @@ const skinDetailKeys = {
   aurora: "Blue, purple and pink, with Glow’s lighting built in.",
   matrix: "Terminal typography, green-black and phosphor accents.",
   minimal: "Calm typography, neutral surfaces and no animated effects.",
+  apple: "System type, grouped black surfaces, translucent glass and instant touch feedback.",
 };
 function skinInterfaceLabel(skin) {
   return skin?.id==='minimal'?interfaceCopy('Low stimulation'):skin?.label||'Original';
@@ -3857,6 +3880,7 @@ const interfaceCopies = {
   "Original colors, purple accents and clear numbers.": ["Original colors, purple accents and clear numbers.", "Colores originales, acentos violeta y cifras claras.", "צבעים מקוריים, הדגשות סגולות ומספרים ברורים."],
   "Blue, purple and pink, with Glow’s lighting built in.": ["Blue, purple and pink, with Glow’s lighting built in.", "Azul, violeta y rosa, con el brillo de Glow integrado.", "כחול, סגול וורוד, עם התאורה של Glow."],
   "Terminal typography, green-black and phosphor accents.": ["Terminal typography, green-black and phosphor accents.", "Tipografía de terminal, negro verdoso y acentos de fósforo.", "טיפוגרפיית מסוף, שחור ירקרק והדגשות זרחניות."],
+  "System type, grouped black surfaces, translucent glass and instant touch feedback.": ["System type, grouped black surfaces, translucent glass and instant touch feedback.", "Letra del sistema, superficies negras agrupadas, vidrio translúcido y respuesta inmediata al tocar.", "גופן מערכת, משטחים שחורים מקובצים, זכוכית שקופה ותגובה מיידית למגע."],
   "Calm typography, neutral surfaces and no animated effects.": ["Calm typography, neutral surfaces and no animated effects.", "Tipografía serena, superficies neutras y ningún efecto animado.", "טיפוגרפיה רגועה, משטחים ניטרליים וללא אפקטים מונפשים."],
   "APPEARANCE · SKINS": ["APPEARANCE · SKINS", "APARIENCIA · TEMAS", "מראה · ערכות עיצוב"],
   "Choose a habit or write your own.": ["Choose a habit or write your own.", "Elige un hábito o escribe el tuyo.", "בחרו הרגל או כתבו הרגל משלכם."],

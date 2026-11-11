@@ -217,3 +217,14 @@ html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-press
 @media(prefers-contrast:more){
   html[data-skin="apple"] #scroll .row.on:not(.half),html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) {opacity:.7}
 }
+
+/* One accent in both layouts: Standard and Pro share black ground, grouped
+   #1c1c1e surfaces without hairlines, and the same purple. */
+html[data-skin="apple"] .nav-btn.active {color:#8b6cff}
+html[data-skin="apple"][data-layout="pro"] {--pro-panel:#1c1c1e;--pro-edge:#1c1c1e;--pro-accent:#8b6cff;--pro-copy:#ffffff;--pro-muted:#aeaeb2}
+html[data-skin="apple"][data-layout="pro"] body {background:#000000}
+html[data-skin="apple"][data-layout="pro"] #nav {background:#1c1c1e;border-inline-end-color:#2c2c2e}
+html[data-skin="apple"][data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) {--today-card-bg:#1c1c1e;--today-card-border:transparent}
+html[data-skin="apple"][data-layout="pro"] #app #scroll .today.sf-today-v27>.t-note {border-color:transparent!important}
+html[data-skin="apple"][data-layout="pro"] #nav .nav-btn.active {background:rgba(255,255,255,.08);border-color:transparent!important;border-inline-start:2px solid #8b6cff!important;color:#ffffff}
+html[data-skin="apple"][data-layout="pro"] #app #scroll .today.sf-today-v27 .row.on {background:transparent}

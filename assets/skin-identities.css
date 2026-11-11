@@ -29,44 +29,44 @@ html[data-skin="minimal"] {
 @media(max-width:600px){.skin-options{grid-template-columns:1fr}}
 
 /* Include new shared components which previously kept hard-coded violet. */
-html:is([data-skin="matrix"],[data-skin="minimal"]) .today.sf-today-v27 {
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .today.sf-today-v27 {
   --today-card-bg:var(--skin-panel);--today-card-border:var(--skin-edge);
   --today-title:var(--skin-muted);--today-copy:var(--skin-copy);
   --today-muted:var(--skin-muted);--today-accent:var(--identity-accent);
   --today-active:var(--skin-active-bg);
 }
-html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra,.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor,.cr-modal,.cr-bottom-dock,.cr-session-menu-panel) {
+html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra,.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor,.cr-modal,.cr-bottom-dock,.cr-session-menu-panel) {
   background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy);
 }
-html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-muted,.sf-field,.sf-scoring summary,.sd-help,.sf-work-info .r-sub,.sf-work-points,.sf-work-targets) {color:var(--skin-muted)}
-html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-button,.sd-location-toggle,.cr-session-menu>summary,.cr-session-menu-panel button) {
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-muted,.sf-field,.sf-scoring summary,.sd-help,.sf-work-info .r-sub,.sf-work-points,.sf-work-targets) {color:var(--skin-muted)}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-button,.sd-location-toggle,.cr-session-menu>summary,.cr-session-menu-panel button) {
   color:var(--skin-copy);background:var(--skin-panel);border-color:var(--skin-edge);
 }
-html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-primary,.sf-routine-primary,.sf-work-register,.sf-work-next,.logdesk-new,.logdesk-save) {
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-primary,.sf-routine-primary,.sf-work-register,.sf-work-next,.logdesk-new,.logdesk-save) {
   background:var(--identity-accent)!important;border-color:var(--identity-accent)!important;color:var(--identity-ink)!important;
 }
-html:is([data-skin="matrix"],[data-skin="minimal"]) :is(.sf-selected,.htab.active,.logdesk-row.selected,.skin-option[aria-pressed="true"]) {
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-selected,.htab.active,.logdesk-row.selected,.skin-option[aria-pressed="true"]) {
   background:var(--skin-active-bg);border-color:var(--identity-accent);color:var(--identity-accent);
 }
-html:is([data-skin="matrix"],[data-skin="minimal"]) #app #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb) {
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) #app #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb) {
   background:var(--skin-panel)!important;border-color:var(--identity-accent)!important;color:var(--identity-accent)!important;box-shadow:none!important;
 }
-html:is([data-skin="matrix"],[data-skin="minimal"]) #app #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span {color:var(--identity-accent)!important}
-html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) :is(.sf-field input,.sf-field select,.logdesk-input,.logdesk-sort) {
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) #app #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span {color:var(--identity-accent)!important}
+html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-field input,.sf-field select,.logdesk-input,.logdesk-sort) {
   background:var(--identity-input);color:var(--skin-copy);border-color:var(--skin-edge);
 }
 
 /* WORK has a single interactive DOM and dated calculation in every skin.
    Carry identity through its title, amounts, surface, geometry and focus. */
-html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) #scroll .today.sf-today-v27 .wg-card {
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) #scroll .today.sf-today-v27 .wg-card {
   font-family:var(--identity-font);color:var(--skin-copy);
   background:var(--skin-panel);border-color:var(--skin-edge);
 }
-html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) .wg-card .wg-head>span:first-child {color:var(--identity-accent)}
-html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) .wg-card :is(.wg-daily,.wg-weekly) strong {
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card .wg-head>span:first-child {color:var(--identity-accent)}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card :is(.wg-daily,.wg-weekly) strong {
   color:var(--skin-copy);font-variant-numeric:tabular-nums;
 }
-html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"]) .wg-card:focus-visible {outline-color:var(--identity-accent)}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card:focus-visible {outline-color:var(--identity-accent)}
 html[data-skin="classic"] .wg-figure{--work-geom:#c4b5fd;--work-geom-dim:#363047}
 html[data-skin="aurora"] .wg-card{box-shadow:inset 0 1px 0 #67dfff18,0 0 18px #758dff0a}
 html[data-skin="matrix"] .wg-card{box-shadow:inset 2px 0 0 #00ff4138}
@@ -117,3 +117,79 @@ html[data-skin="matrix"] .today :is(.today-sections-toggle,.today-box-disclosure
 html[data-skin="matrix"] .sd-time-pill {background-color:var(--skin-panel)}
 html[data-skin="matrix"] .stats-page :is(.stats-heading span,.stats-details summary span) {color:var(--skin-muted)}
 html[data-skin="matrix"] :is(.performance-local,.performance-local .performance-state,.performance-local .performance-explanation) {color:var(--skin-copy)}
+
+/* ── Apple (design A, emilkowalski/skills › apple-design) ──────────────────
+   Presentation only. System type with size-specific tracking, grouped black
+   surfaces, a translucent floating tab bar with content scrolling under it,
+   feedback on press (not release), and answers for reduced motion,
+   reduced transparency and increased contrast. */
+html[data-skin="apple"] {
+  --identity-font:-apple-system,'SF Pro Text',system-ui,'Helvetica Neue',sans-serif;
+  --identity-accent:#0a84ff;--identity-ink:#ffffff;
+  --identity-input:#2c2c2e;
+  --apple-glass:rgba(30,30,32,.62);--apple-glass-edge:rgba(255,255,255,.2);
+  font-optical-sizing:auto;
+}
+html[data-skin="apple"] body,
+html[data-skin="apple"] body :is(div,span,p,h1,h2,h3,h4,label,button,a,input,textarea,select,summary,strong,b,em,small,li,td,th,output,time) {
+  font-family:var(--identity-font)!important;
+}
+/* Size-specific tracking: the old condensed labels used wide caps tracking. */
+html[data-skin="apple"] body :is(.sec,.st-title,.nav-btn,.ts-l,.t-score-hero *,.sf-muted,.sf-scoring summary) {letter-spacing:.01em}
+html[data-skin="apple"] body :is(h1,h2,.t-pct,.ts-p,.stats-metric-value) {letter-spacing:-.02em}
+html[data-skin="apple"] .nav-btn {text-transform:none;font-size:11px;font-weight:600}
+html[data-skin="apple"] :is(.t-pct,.ts-p,.stats-metric-value,.wg-card strong) {font-variant-numeric:tabular-nums}
+
+/* Grouped surfaces: no hairline boxes, iOS radii. */
+html[data-skin="apple"] :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra,.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor,.notecard,.settings-list) {
+  border-color:transparent!important;border-radius:14px;
+}
+html[data-skin="apple"] #scroll .today.sf-today-v27 .wg-card {border-color:transparent;border-radius:14px}
+html[data-skin="apple"] .t-ring {filter:none!important}
+
+/* Floating glass tab bar (mobile): content scrolls underneath it. */
+@media(max-width:879px){
+  html[data-skin="apple"] #nav:not(.tucked) {
+    left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
+    border-radius:32px;border:.5px solid var(--apple-glass-edge);border-top-color:var(--apple-glass-edge);
+    background:var(--apple-glass);
+    backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+    box-shadow:0 8px 24px rgba(0,0,0,.35);padding:4px 6px;
+  }
+  html[data-skin="apple"] #nav .nav-btn {border-top:none;border-radius:26px;min-height:52px}
+  html[data-skin="apple"] #nav .nav-btn.active {background:rgba(255,255,255,.12);color:#0a84ff}
+}
+/* Sticky score strip becomes a translucent layer, not an opaque band. */
+html[data-skin="apple"] #tb-score {
+  background:rgba(0,0,0,.6);border-bottom-color:transparent;
+  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+
+/* Response: feedback on press, instant and small. */
+html[data-skin="apple"] :is(button,.row,.qtile,.nav-btn,.sf-button,.sf-primary,[role="button"]) {
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:transform 100ms ease-out,background-color 100ms ease-out,color .2s,opacity .2s;
+}
+html[data-skin="apple"] :is(button,.row,.qtile,.sf-button,.sf-primary,[role="button"]):active:not(:disabled) {transform:scale(.97)}
+html[data-skin="apple"] .nav-btn:active {opacity:1;transform:scale(.94)}
+html[data-skin="apple"] :is(.sf-primary,.sf-routine-primary,.sf-work-register,.sf-work-next,.logdesk-new,.logdesk-save) {
+  color:#ffffff!important;border-radius:999px!important;
+}
+
+/* Accessibility: gentler, not absent. */
+@media(prefers-reduced-motion:reduce){
+  html[data-skin="apple"] :is(button,.row,.qtile,.nav-btn,.sf-button,.sf-primary,[role="button"]):active {transform:none!important}
+}
+@media(prefers-reduced-transparency:reduce){
+  html[data-skin="apple"] :is(#nav,#tb-score) {background:#1c1c1e!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+@media(prefers-contrast:more){
+  html[data-skin="apple"] :is(#nav,#tb-score) {background:#1c1c1e!important;border:1px solid #8e8e93!important}
+  html[data-skin="apple"] :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra) {border-color:#636366!important}
+}
+html[data-skin="apple"] :is(.today-disclosure-box,.t-lvl,.t-note) {border-color:transparent!important;border-radius:14px}
+html[data-skin="apple"] :is(.t-ring,.t-ring *,.t-score-hero svg *) {filter:none!important}
+html[data-skin="apple"] .nav-label {display:inline-block;text-transform:lowercase;letter-spacing:.01em}
+html[data-skin="apple"] .nav-label::first-letter {text-transform:uppercase}
+html[data-skin="apple"] .today.sf-today-v27 {--today-card-border:transparent;--today-card-bg:#1c1c1e}
+html[data-skin="apple"] #scroll :is(.stats-metric-card,.stats-details,.stats-weekday,.stats-card) {border-color:transparent!important;background:#1c1c1e!important;border-radius:14px!important}

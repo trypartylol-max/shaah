@@ -166,3 +166,12 @@ html[data-today-fit~="tight"]{--today-gap-base:6px}
 html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h{border-bottom:0!important;padding-bottom:0!important;margin-bottom:0!important;min-height:0!important}
 html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h>.lvl-toggle{min-height:0!important}
 html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h>button:not(.lvl-toggle){margin-top:-4px!important;margin-bottom:-4px!important}
+
+/* ---------- Standard desktop (2026-11-12): vertical gaps = horizontal gaps between boxes;
+   the open Day Note gets one more line instead of extra spacing. ---------- */
+html[data-today-fit~="roomy"]{--today-std-gap:16px}
+html[data-today-fit~="mild"]{--today-std-gap:14px}
+html[data-today-fit~="compact"]{--today-std-gap:12px}
+html[data-today-fit~="tight"]{--today-std-gap:6px}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:var(--today-std-gap,16px)!important;column-gap:var(--today-std-gap,16px)!important}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(3lh + 18px)!important}

@@ -183,6 +183,15 @@ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core
  align-self:stretch!important;align-items:end!important;align-content:end!important;min-height:44px}
 html[data-layout="pro"] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions{min-height:48px}
 html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-compact-actions .r-btn{
- min-height:0!important;height:44px!important;padding:0 4px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+ min-height:0!important;height:42px!important;padding:0 4px!important;display:flex!important;align-items:center!important;justify-content:center!important}
 html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-compact-actions .cr-action-icon{
  width:28px!important;height:28px!important}
+
+/* Routine card: "N steps · M min" always sits under the title, never beside it (2026-11-12). */
+@media (min-width:880px){
+ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy{grid-template-columns:minmax(0,1fr) auto!important;row-gap:4px!important;align-self:start!important}
+ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{grid-column:2!important;grid-row:1!important}
+ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{grid-column:1/-1!important;grid-row:2!important}
+}
+/* Routine card: steps · minutes a bit more legible (2026-11-12). */
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{font-size:16px!important;font-weight:500!important;line-height:1.4!important;opacity:1!important;color:var(--today-copy)!important}

@@ -11,7 +11,7 @@ test('Today density visual audit',async t=>{
  for(const [w,h] of [[390,844],[375,667],[1440,1000]]){
  await page.setViewportSize({width:w,height:h});
  await page.evaluate(()=>{setSkin('glow');todayRoutinesOpen=false;lvlOpen={1:false,2:false,3:false};render()});
- const social=page.locator('.sf-combo-heading');if(await social.getAttribute('aria-expanded')==='true')await social.click();
+ const social=page.locator('[data-today-box="social"] > .today-box-disclosure'),socialHead=page.locator('[data-today-box="social"] .sf-combo-heading');if(await social.getAttribute('aria-expanded')==='true')await socialHead.click();
  await page.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await page.waitForTimeout(400);
  if(w<880){
  const m=await page.evaluate(()=>{const r=document.querySelector('.t-reset').getBoundingClientRect(),n=document.querySelector('#nav').getBoundingClientRect(),c=getComputedStyle(document.querySelector('.t-rout'));return {reset:r.bottom,nav:n.top,navBottom:n.bottom,position:getComputedStyle(document.querySelector('#nav')).position,overflow:document.querySelector('#scroll').scrollWidth>innerWidth,background:c.backgroundColor,border:c.borderTopWidth,shadow:c.boxShadow}});

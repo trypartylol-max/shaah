@@ -13,12 +13,15 @@ for(const width of [390,879])test(`integrated mobile ${width}: disclosures hide 
  assert.equal(await body.isVisible(),true);
  await core.locator('.today-routines-label').click();assert.equal(await body.isVisible(),false);
  await core.locator('.today-routines-label').click();assert.equal(await body.isVisible(),true);
- const combo=page.getByRole('button',{name:'Toggle Social Combo',exact:true});
- await combo.press('Enter');assert.equal(await combo.getAttribute('aria-expanded'),'false');
- assert.equal(await page.locator('.today > .t-social-independent .sf-combo-category').first().isVisible(),false);
+ // The whole Social Combo heading row forwards to the box disclosure (arrow before the title, like LVL 2/3).
+ const combo=page.locator('.today > [data-today-box="social"] > .today-box-disclosure'),cats=page.locator('.today > .t-social-independent .sf-combo-category').first();
+ await page.locator('.today > [data-today-box="social"] .sf-combo-heading > span').last().click();assert.equal(await combo.getAttribute('aria-expanded'),'false');
+ assert.equal(await cats.isVisible(),false);
  await page.evaluate(()=>render());assert.equal(await combo.getAttribute('aria-expanded'),'false');
- await combo.press('Space');assert.equal(await combo.getAttribute('aria-expanded'),'true');
- assert.equal(await page.locator('.today > .t-social-independent .sf-combo-category').first().isVisible(),true);
+ await combo.press('Enter');assert.equal(await combo.getAttribute('aria-expanded'),'true');
+ assert.equal(await cats.isVisible(),true);
+ await combo.press('Space');assert.equal(await combo.getAttribute('aria-expanded'),'false');
+ await combo.click();assert.equal(await cats.isVisible(),true);
  assert.equal(await snapshot(),before);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.getElementById('scroll').scrollWidth<=innerWidth),true);
 });

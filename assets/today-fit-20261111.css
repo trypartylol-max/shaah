@@ -105,3 +105,13 @@
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:3px!important;padding-bottom:3px!important;min-height:0!important}
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset .reset-day-trigger{min-height:32px!important;height:32px!important;padding-top:4px!important;padding-bottom:4px!important}
 
+
+/* Social Combo / Day Note: arrow before the title (like LVL 2/3) and the whole heading row toggles (2026-11-12). */
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box]:is([data-today-box="social"],[data-today-box="note"]):not(.today-box-collapsed)>.today-box-disclosure{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box]:is([data-today-box="social"],[data-today-box="note"]):not(.today-box-collapsed):has(>.today-box-disclosure:focus-visible){outline:2px solid #a78bfa;outline-offset:2px}
+#app #scroll .today.sf-today-v27:not(.history-day-editor) .today-box-head{cursor:pointer!important;user-select:none;-webkit-user-select:none}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="social"] .sf-combo-heading::before{content:none!important}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="social"] .sf-combo-heading>strong::before,
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="note"]>.sec::before{content:"▾";display:inline-block;margin-right:8px;font:400 13px/1 system-ui,sans-serif;letter-spacing:0;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1);vertical-align:middle;transform:translateY(-1px)}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>.today-box-collapsed>.today-box-disclosure{justify-content:flex-start!important;gap:8px!important;padding-left:0!important}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>.today-box-collapsed>.today-box-disclosure>b{order:-1;font:400 13px/1 system-ui,sans-serif!important;letter-spacing:0!important;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1)!important}

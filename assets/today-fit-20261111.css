@@ -175,3 +175,14 @@ html[data-today-fit~="compact"]{--today-std-gap:12px}
 html[data-today-fit~="tight"]{--today-std-gap:6px}
  html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:var(--today-std-gap,16px)!important;column-gap:var(--today-std-gap,16px)!important}
  html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(3lh + 18px)!important}
+
+/* ---------- Routine card buttons: shorter, bigger icon, anchored to the bottom (2026-11-12) ----------
+   The actions row keeps the card's previous height; the buttons shrink and sit at the bottom,
+   so the freed space goes between the title and the buttons. */
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions{
+ align-self:stretch!important;align-items:end!important;align-content:end!important;min-height:44px}
+html[data-layout="pro"] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions{min-height:48px}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-compact-actions .r-btn{
+ min-height:0!important;height:44px!important;padding:0 4px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-compact-actions .cr-action-icon{
+ width:28px!important;height:28px!important}

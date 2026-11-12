@@ -3438,7 +3438,6 @@ const interfaceMessages = {
   activityExample: ["e.g. Deep Work, Lunch, Gym…", "P. ej., concentración, almuerzo, gimnasio…", "למשל, עבודה מרוכזת, ארוחת צהריים, אימון…"],
   cancel: ["CANCEL", "CANCELAR", "ביטול"],
   addActivity: ["ADD ACTIVITY", "AÑADIR ACTIVIDAD", "הוספת פעילות"],
-  progress: ["Your progress, at a glance", "Tu progreso de un vistazo", "ההתקדמות שלך במבט אחד"],
   currentStreak: ["CURRENT STREAK", "RACHA ACTUAL", "רצף נוכחי"],
   mostConsistent: ["MOST CONSISTENT", "MAYOR CONSTANCIA", "ההרגל העקבי ביותר"],
   needsWork: ["NEEDS WORK", "POR MEJORAR", "דורש שיפור"],
@@ -6122,7 +6121,7 @@ function renderStats(){
     {icon:"📅",label:interfaceText('daysLogged'),val:total,col:"#60a5fa",sub:interfaceCopy("total")}
   ];
   return`<div class="fade-up stats-page" ${uiStyle(`padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
-    <div class="stats-heading"><h1>${interfaceText('stats')}</h1><span>${interfaceText('progress')}</span></div>
+    <div class="stats-heading"><h1>${interfaceText('stats')}</h1></div>
     <div class="stats-four-grid">
       ${[metrics[0],metrics[4],metrics[3],metrics[5]].map(m=>`<div class="card stats-metric-card" ${uiStyle(`border:1px solid ${m.col}20;background:${m.col}08`)}>
         <div class="stats-metric-icon">${esc(m.icon)}</div>

@@ -5,8 +5,10 @@ async function position(page){return page.locator('.t-reset').evaluate(el=>{cons
 for(const [width,height] of [[320,740],[390,844],[879,900]])test(`Reset is accessible with sections collapsed and after scrolling expanded content at ${width}px`,async t=>{
  const page=await openApp(t,undefined,{width,height});
  await page.evaluate(()=>{todayRoutinesOpen=false;lvlOpen={1:false,2:false,3:false};setTab('today')});
- const combo=page.locator('.today .sf-combo-heading');
- if(await combo.count()&&await combo.getAttribute('aria-expanded')==='true')await combo.click();
+ // Social Combo folds through its box disclosure (the whole heading row forwards to it since #70).
+ const comboHead=page.locator('.today > [data-today-box="social"]:not(.today-box-collapsed) .today-box-head');
+ if(await comboHead.count())await comboHead.click();
+ else{const combo=page.locator('.today .sf-combo-heading');if(await combo.count()&&await combo.getAttribute('aria-expanded')==='true')await combo.click();}
  await page.evaluate(()=>document.getElementById('scroll').scrollTop=0);
  let p=await position(page);
  assert.ok(p.top>=0&&p.bottom<=p.dockTop&&p.hit,`collapsed ${JSON.stringify(p)}`);

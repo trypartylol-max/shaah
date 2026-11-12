@@ -22,21 +22,20 @@ test('Pro Day Log box: no label, centred larger circle, X top-start and + in the
  await p.locator('.cr-orb-add').click();await p.locator('#logPanelName').waitFor();
 });
 
-test('Standard Today desktop: Work/Pro centred above the Log, level with Next Level, idle and with a routine',async t=>{
+test('Standard Today desktop: Work/Pro in the header corner like the gear; Log 8-20% smaller than the ring, idle and with a routine',async t=>{
  const p=await openApp(t,fixture(),{width:1440,height:900},{stayOnToday:true});
  await p.evaluate(()=>{arrivalDismiss?.();setLayout('standard');setTab('today');});
- const supported=await p.evaluate(()=>CSS.supports('anchor-name','--a'));
  for(const orb of [false,true]){
   if(orb)await withOrb(p);
-  for(const [width,height] of [[880,900],[1180,900],[1440,900],[1920,1000]]){
+  for(const [width,height] of [[880,900],[1180,900],[1440,900],[1920,1000],[1366,768],[1280,680]]){
    await p.setViewportSize({width,height});await frame(p);
-   const status=await rect(p,'#desktop-status-controls'),next=await rect(p,'.t-grade'),log=await rect(p,orb?'.cr-orb-button':'.today-log-start');
-   const ctx=JSON.stringify({orb,width,status,next,log});
-   if(!supported){assert.ok(status.t<next.t,ctx);continue;}
-   assert.ok(Math.abs(status.t-next.t)<1.5,ctx);
-   assert.ok(Math.abs((status.l+status.r)/2-(log.l+log.r)/2)<1.5,ctx);
-   assert.ok(status.b+8<=log.t&&status.l>next.r+8,ctx);
-   assert.ok(log.b<=next.b+4,ctx);
+   const status=await rect(p,'#desktop-status-controls'),gear=await rect(p,'#gear'),ring=await rect(p,'.t-ring>svg'),log=await rect(p,orb?'.cr-orb-button':'.today-log-start');
+   const vw=await p.evaluate(()=>document.querySelector('#scroll').getBoundingClientRect().right);
+   const ctx=JSON.stringify({orb,width,height,status,gear,ring,log});
+   assert.ok(Math.abs(status.t-gear.t)<1.5&&Math.abs(status.h-gear.h)<1.5,ctx);
+   assert.ok(Math.abs((vw-status.r)-gear.l)<2,ctx); // mirrors the gear's inset
+   const ratio=log.w/ring.w;assert.ok(ratio>=0.8&&ratio<=0.92,ctx+' ratio '+ratio);
+   assert.ok(Math.abs((log.t+log.b)/2-(ring.t+ring.b)/2)<2,ctx);
   }
   if(orb)assert.equal(await p.locator('.cr-log-orb .cr-orb-label').isVisible(),false);
  }

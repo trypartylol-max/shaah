@@ -161,3 +161,8 @@ html[data-today-fit~="tight"]{--today-gap-base:6px}
 #app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="note"]>.sec::before{content:"▾";display:inline-block;margin-right:8px;font:400 13px/1 system-ui,sans-serif;letter-spacing:0;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1);vertical-align:middle;transform:translateY(-1px)}
 #app #scroll .today.sf-today-v27:not(.history-day-editor)>.today-box-collapsed>.today-box-disclosure{justify-content:flex-start!important;gap:8px!important;padding-left:0!important}
 #app #scroll .today.sf-today-v27:not(.history-day-editor)>.today-box-collapsed>.today-box-disclosure>b{order:-1;font:400 13px/1 system-ui,sans-serif!important;letter-spacing:0!important;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1)!important}
+
+/* Collapsed LVL 1/2/3: no separator line under the heading, same as collapsed Social Combo (2026-11-12). */
+html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h{border-bottom:0!important;padding-bottom:0!important;margin-bottom:0!important;min-height:0!important}
+html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h>.lvl-toggle{min-height:0!important}
+html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h>button:not(.lvl-toggle){margin-top:-4px!important;margin-bottom:-4px!important}

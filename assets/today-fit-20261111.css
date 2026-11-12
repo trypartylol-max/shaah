@@ -1,108 +1,107 @@
-/* Today fits one desktop screen (2026-11-11).
+/* Today fits one desktop screen (2026-11-11/12).
    Pro: everything open fits. Standard: everything open except the Day Note fits.
-   Desktop screens up to 860px tall (e.g. 1280x720, 1366x768, 1280x800) are compacted; taller ones keep the roomy layout.
+   display-adaptation.js sets html[data-today-fit] from the EFFECTIVE viewport
+   (after its zoom on large displays): "compact" when the layout is >=880px wide
+   and <=960px tall, plus "tight" when <=760px tall. Taller screens keep the roomy layout.
    Scoped to live Today (not the past-day editor, which reuses renderToday). */
-@media (min-width:880px) and (max-height:860px){
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:10px!important;column-gap:12px!important}
+
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:10px!important;column-gap:12px!important}
 
  /* ---------- Hero: ring · next level · log ---------- */
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:136px auto auto!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:136px!important;min-height:136px!important;gap:12px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:136px!important;min-height:0!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:96px!important;padding:8px!important;gap:6px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:76px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:76px!important;height:76px!important;flex:none!important;gap:1px!important;padding:6px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-icon{font-size:15px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:17px!important;letter-spacing:-.5px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-step{font-size:8px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:76px!important;height:76px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:120px!important;height:120px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:120px!important;height:120px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;gap:6px!important;justify-content:space-between!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:28px!important;line-height:1!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:136px auto auto!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:136px!important;min-height:136px!important;gap:12px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:136px!important;min-height:0!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:96px!important;padding:8px!important;gap:6px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:76px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:76px!important;height:76px!important;flex:none!important;gap:1px!important;padding:6px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-icon{font-size:15px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:17px!important;letter-spacing:-.5px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-step{font-size:8px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:76px!important;height:76px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:120px!important;height:120px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:120px!important;height:120px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;gap:6px!important;justify-content:space-between!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:28px!important;line-height:1!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
 
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:128px!important;min-height:0!important;gap:20px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:116px!important;height:116px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;height:auto!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin-bottom:4px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin-bottom:8px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:6px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{width:72px!important;height:72px!important;min-width:0!important;min-height:0!important}
- html[data-layout="standard"] body #topbar{min-height:0!important;padding-top:4px!important;padding-bottom:0!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:128px!important;min-height:0!important;gap:20px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:116px!important;height:116px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;height:auto!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin-bottom:4px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin-bottom:8px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:6px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #topbar{min-height:0!important;padding-top:4px!important;padding-bottom:0!important}
 
  /* ---------- Core routines ---------- */
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:6px!important;gap:6px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important;min-height:0!important;height:22px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:12px 16px!important;min-height:0!important;height:auto!important;gap:8px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{min-height:0!important;grid-template-rows:auto 44px!important;row-gap:10px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body .wg-row{min-height:0!important;height:auto!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body .wg-row svg{max-height:56px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:6px!important;gap:6px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important;min-height:0!important;height:22px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:12px 16px!important;min-height:0!important;height:auto!important;gap:8px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{min-height:0!important;grid-template-rows:auto 44px!important;row-gap:10px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body .wg-row{min-height:0!important;height:auto!important}
 
  /* ---------- LVL 2 / LVL 3 / Social combo ---------- */
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:10px 14px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{margin-bottom:2px!important;padding-bottom:4px!important;min-height:0!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:36px!important;height:36px!important;padding-top:4px!important;padding-bottom:4px!important;margin-top:0!important;margin-bottom:0!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .sf-combo-category{min-height:0!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:10px 14px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{margin-bottom:2px!important;padding-bottom:4px!important;min-height:0!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:36px!important;height:36px!important;padding-top:4px!important;padding-bottom:4px!important;margin-top:0!important;margin-bottom:0!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .sf-combo-category{min-height:0!important}
 
  /* ---------- Day note / widgets / reset ---------- */
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-edit{min-height:0!important;height:26px!important;padding:2px 10px!important;margin:0!important;font-size:12px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:6px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:8px 12px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section>h3{margin-bottom:4px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{min-height:0!important;height:48px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:7px!important;padding-bottom:7px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset{padding-top:0!important;padding-bottom:0!important}
-}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-edit{min-height:0!important;height:26px!important;padding:2px 10px!important;margin:0!important;font-size:12px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:6px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:8px 12px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section>h3{margin-bottom:4px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{min-height:0!important;height:48px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:7px!important;padding-bottom:7px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset{padding-top:0!important;padding-bottom:0!important}
 
-/* Laptop browser windows (~650px of page under tabs + bookmarks bar): a tighter tier. */
-@media (min-width:880px) and (max-height:700px){
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:6px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:104px auto auto!important;padding-top:6px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:104px!important;min-height:104px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:104px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:64px!important;padding:4px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:54px!important;height:54px!important;padding-bottom:12px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 8px)!important;font-size:9px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:56px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:56px!important;height:56px!important;padding:3px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-icon,.cr-orb-step){display:none!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:14px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-add,.product-orb-close){width:22px!important;height:22px!important;min-height:22px!important;font-size:15px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:92px!important;height:92px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:30px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:9px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:8px 18px!important;gap:4px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;margin:0!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.ls-top,.ls-footer){margin:0!important}
 
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:100px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:92px!important;height:92px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{width:52px!important;height:52px!important;min-width:0!important;min-height:0!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:100px!important;justify-content:space-between!important}
+/* Laptop browser windows (~650px of page): a tighter tier on top of "compact". */
 
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:4px!important;gap:4px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:2px!important;height:20px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:6px 14px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{row-gap:6px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:6px 12px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{padding-bottom:2px!important}
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
- html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:31px!important;height:31px!important;padding-top:2px!important;padding-bottom:2px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:6px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:104px auto auto!important;padding-top:6px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:104px!important;min-height:104px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:104px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:64px!important;padding:4px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:54px!important;height:54px!important;padding-bottom:12px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 8px)!important;font-size:9px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:56px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:56px!important;height:56px!important;padding:3px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-icon,.cr-orb-step){display:none!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:14px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-add,.product-orb-close){width:22px!important;height:22px!important;min-height:22px!important;font-size:15px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:92px!important;height:92px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:30px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:9px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:8px 18px!important;gap:4px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;margin:0!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.ls-top,.ls-footer){margin:0!important}
 
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:4px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:6px 12px!important}
- html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{height:36px!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:3px!important;padding-bottom:3px!important;min-height:0!important}
- html[data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset .reset-day-trigger{min-height:32px!important;height:32px!important;padding-top:4px!important;padding-bottom:4px!important}
-}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:100px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:92px!important;height:92px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:100px!important;justify-content:space-between!important}
+
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:4px!important;gap:4px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:2px!important;height:20px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:6px 14px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{row-gap:6px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:6px 12px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{padding-bottom:2px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:31px!important;height:31px!important;padding-top:2px!important;padding-bottom:2px!important}
+
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:4px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:6px 12px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{height:36px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:3px!important;padding-bottom:3px!important;min-height:0!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset .reset-day-trigger{min-height:32px!important;height:32px!important;padding-top:4px!important;padding-bottom:4px!important}
+

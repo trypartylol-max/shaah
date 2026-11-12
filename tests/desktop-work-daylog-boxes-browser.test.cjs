@@ -8,8 +8,9 @@ async function withOrb(p){await p.evaluate(()=>{if(!sessions.production){startRo
 test('Pro Day Log box: no label, centred larger circle, X top-start and + in the opposite corner',async t=>{
  const p=await openApp(t,fixture(),{width:1440,height:900},{stayOnToday:true});
  await p.evaluate(()=>{arrivalDismiss?.();setLayout('pro');setTab('today');});await withOrb(p);
- for(const [width,min] of [[1180,100],[1440,116],[1920,116]]){
-  await p.setViewportSize({width,height:900});await frame(p);
+ // 1920 wide is either zoomed (taller) or, at 900px, the compact Today-fit tier: check the compact orb there.
+ for(const [width,height,min] of [[1180,1000,100],[1440,1000,116],[1920,900,76]]){
+  await p.setViewportSize({width,height});await frame(p);
   const card=await rect(p,'.cr-log-orb'),circle=await rect(p,'.cr-orb-button'),x=await rect(p,'.product-orb-close'),plus=await rect(p,'.cr-orb-add'),status=await rect(p,'#desktop-status-controls');
   const ctx=JSON.stringify({width,card,circle,x,plus,status});
   assert.equal(await p.locator('.cr-log-orb .cr-orb-label').isVisible(),false,ctx);

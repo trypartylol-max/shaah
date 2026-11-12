@@ -65,14 +65,10 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:131px}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){margin:0 16px!important}
 }
-/* today-fit tiers shrink the ring to 116px / 92px; the Log follows at the same ratio. */
-@media(min-width:880px) and (max-height:860px){
-  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:95px}
-  html[data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{top:4px}
-}
-@media(min-width:880px) and (max-height:700px){
-  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:75px}
-}
+/* today-fit tiers (html[data-today-fit], set from the effective viewport) shrink the ring to 116px / 92px; the Log follows at the same ratio. */
+html[data-today-fit~="compact"][data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:95px}
+html[data-today-fit~="compact"][data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{top:4px}
+html[data-today-fit~="tight"][data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:75px}
 @media(min-width:1180px){
   html[data-layout="pro"] #app:has(#scroll>.today.sf-today-v27:not(.history-day-editor))>#scroll{position:relative}
   html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-top:8px!important}

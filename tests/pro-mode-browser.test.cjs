@@ -1,3 +1,4 @@
+// Roomy-layout geometry: viewports stay taller than the Today-fit compact tier (effective height > 960px, see today-fit-20261111.css).
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');
@@ -32,7 +33,7 @@ test('Pro Mode desktop geometry, equal typography, overflow and legacy skin rest
  const p=await openApp(t,proFixture());
  await p.evaluate(()=>{setLayout('pro');setTab('today');todayRoutinesOpen=true;lvlOpen={1:true,2:true,3:true};render()});
  for(const width of [880,1024,1180,1280,1440,1672,1920]){
-  await p.setViewportSize({width,height:1000});
+  await p.setViewportSize({width,height:Math.max(1000,Math.ceil(width*.65))});
   const m=await p.evaluate(()=>{
    const box=s=>{const e=document.querySelector(s),r=e.getBoundingClientRect();const z=parseFloat(getComputedStyle(document.documentElement).zoom)||1;return {x:r.x/z,y:r.y/z,w:r.width/z,h:r.height/z,overflow:e.scrollWidth>e.clientWidth+1}};
    const font=s=>getComputedStyle(document.querySelector(s)).fontSize;

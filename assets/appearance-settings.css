@@ -48,6 +48,10 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
   html[data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{border-inline-start-color:rgba(var(--skin-rgb-1e1e2e,30,30,46),1)}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:151px}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){margin:0 36px!important;align-self:center!important}
+  /* Score ring mirrors the Log circle: its centre sits as far from the Next Level card as the Log's centre does
+     (margin to where the Log's centre would be, then shift by half its own width — the ring is larger than the Log). */
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-gap:36px}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-score-stack>.t-ring{justify-self:end!important;align-self:center!important;margin:0!important;margin-inline-end:calc(var(--log-gap) + var(--log-d)/2)!important;translate:50% 0}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{width:var(--log-d)!important;min-width:var(--log-d)!important;height:var(--log-d)!important;min-height:var(--log-d)!important}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{font-size:calc(var(--log-d)*.3)!important}
   /* Active routine: same rules as the Pro Day Log box — no label, X top-start, + in the opposite corner. */
@@ -64,6 +68,7 @@ html[data-appearance-preview] #scroll{padding-bottom:180px}
 @media(min-width:880px) and (max-width:1250px){
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:131px}
   html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){margin:0 16px!important}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-gap:16px}
 }
 /* today-fit tiers (html[data-today-fit], set from the effective viewport) shrink the ring to 116px / 92px; the Log follows at the same ratio. */
 html[data-today-fit~="mild"][data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:118px}

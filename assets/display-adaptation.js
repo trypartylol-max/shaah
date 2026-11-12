@@ -9,6 +9,10 @@
     // Both dimensions constrain enlargement, including short ultrawide windows.
     const scale = Math.max(1, Math.min(2, width / 1600, height / 900));
     const active = scale > 1.001;
+    // Today fit tiers use the effective (post-zoom) viewport; see today-fit-20261111.css.
+    const effW = width / scale, effH = height / scale;
+    const fit = effW >= 880 ? (effH <= 760 ? 'compact tight' : effH <= 960 ? 'compact' : '') : '';
+    if (fit) root.setAttribute('data-today-fit', fit); else root.removeAttribute('data-today-fit');
     root.toggleAttribute('data-wide-display', active);
     if (active) {
       root.style.setProperty('--app-display-scale', String(scale));

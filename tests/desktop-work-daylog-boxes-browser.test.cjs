@@ -58,7 +58,9 @@ test('Collapsed Core Routines in Pro leaves no reserved space',async t=>{
  const p=await openApp(t,fixture(),{width:1280,height:900},{stayOnToday:true});
  await p.evaluate(()=>{arrivalDismiss?.();setLayout('pro');setTab('today');todayRoutinesOpen=false;render()});await frame(p);
  const rout=await rect(p,'.t-rout'),toggle=await rect(p,'.t-rout-toggle'),lvl2=await rect(p,'.t-lvl2');
- assert.ok(rout.b-toggle.b<12&&lvl2.t-rout.b<24,JSON.stringify({rout,toggle,lvl2}));
+ // Leftover screen space spread between blocks (today-fit --today-fit-gap) is not reserved space.
+ const fitGap=await p.evaluate(()=>parseFloat(document.documentElement.style.getPropertyValue('--today-fit-gap'))||0);
+ assert.ok(rout.b-toggle.b<12&&lvl2.t-rout.b<24+fitGap,JSON.stringify({rout,toggle,lvl2,fitGap}));
  await p.evaluate(()=>{todayRoutinesOpen=true;render()});await frame(p);
  assert.ok((await rect(p,'.t-rout')).h>100);
 });

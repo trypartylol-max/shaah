@@ -3143,10 +3143,10 @@ html body #scroll .stats-page .stats-four-grid .stats-metric-main{grid-row:1;gri
 html body #scroll .stats-page .stats-four-grid .stats-metric-value{font-size:38px;line-height:.95}
 html body #scroll .stats-page .stats-four-grid .stats-metric-valrow{display:flex;align-items:center;gap:10px}
 html body #scroll .stats-page .stats-four-grid .stats-metric-chip{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;line-height:1;padding:4px 7px;border:1px solid;border-radius:6px}
-html body #scroll .stats-page .stats-four-grid .stats-metric-label{font-size:11.5px;letter-spacing:.1em;opacity:.7;order:-1}
+html body #scroll .stats-page .stats-four-grid .stats-metric-label{font-size:13px;letter-spacing:.08em;opacity:.7;order:-1}
 html body #scroll .stats-page .stats-four-grid .stats-metric-viz{grid-row:2;grid-column:1 / -1;height:34px;display:flex;align-items:center;min-width:0}
-html body #scroll .stats-page .stats-four-grid .stats-metric-foot{grid-row:3;grid-column:1 / -1;display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0;font-size:13px;line-height:1.3;padding-top:12px;border-top:1px solid rgba(var(--skin-rgb-ffffff,255,255,255),.06)}
-html body #scroll .stats-page .stats-four-grid .stats-metric-foot .stats-metric-sub{margin:0!important;text-align:left!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html body #scroll .stats-page .stats-four-grid .stats-metric-foot{grid-row:3;grid-column:1 / -1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 10px;min-width:0;font-size:13px;line-height:1.3;padding-top:12px;border-top:1px solid rgba(var(--skin-rgb-ffffff,255,255,255),.06)}
+html body #scroll .stats-page .stats-four-grid .stats-metric-foot .stats-metric-sub{margin:0!important;text-align:left!important;white-space:normal;min-width:0}
 html body #scroll .stats-page .stats-four-grid .stats-metric-note{flex-shrink:0;white-space:nowrap;color:var(--muted,#adadbf)}
 html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-metric-dsub) .stats-metric-sub:not(.stats-metric-dsub){display:none}
 .stats-four-grid .smv-dots{display:grid;grid-template-columns:repeat(14,1fr);gap:5px;width:100%}
@@ -3182,3 +3182,18 @@ html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-met
 .stats-page .stats-habit-rise strong{color:#c4b5fd}
 .stats-page .stats-habit-delta{font-size:12.5px;color:#c4b5fd;white-space:nowrap}
 @media(max-width:879px){.stats-page .stats-habit-grid{grid-auto-flow:row}.stats-page .stats-habit-grid>:nth-child(odd):last-child{grid-column:1 / -1}}
+/* Habit headline row (2026-11-14): Most consistent / Needs work / Biggest rise, compact. */
+.stats-page .stats-detail-habits{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))!important;grid-auto-flow:row}
+.stats-page .stats-detail-habits .stats-habit-card{padding:12px 16px!important;gap:14px}
+.stats-page .stats-detail-habits .stats-habit-icon{width:42px;height:42px;font-size:21px;border-radius:12px}
+.stats-page .stats-detail-habits .stats-habit-body{gap:2px}
+.stats-page .stats-detail-habits .sec{margin:0 0 2px!important;padding:0!important}
+.stats-page .stats-detail-habits strong{font-size:22px!important;line-height:1.1}
+.stats-page .stats-detail-habits .stats-habit-body>div:last-child{font-size:13.5px;color:var(--muted,#adadbf);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:879px){.stats-page .stats-detail-habits{grid-auto-flow:row;grid-template-columns:1fr!important}}
+.stats-page .stats-habit-drop{border-color:#fb718555!important;background:#fb71850d!important}
+.stats-page .stats-habit-drop .stats-habit-icon{background:#fb71851f;border-color:#fb718555}
+.stats-page .stats-habit-drop strong{color:#fda4af}
+.stats-page .stats-habit-forgot{border-color:#94a3b855!important;background:#94a3b80d!important}
+.stats-page .stats-habit-forgot .stats-habit-icon{background:#94a3b81f;border-color:#94a3b855;filter:grayscale(.6)}
+.stats-page .stats-habit-forgot strong{color:#cbd5e1}

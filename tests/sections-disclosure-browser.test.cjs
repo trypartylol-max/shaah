@@ -10,7 +10,7 @@ for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserv
  const boxes=await geometry();const button=page.locator('.today-sections-toggle');
  assert.equal(await button.locator('span').isVisible(),width>=880);
  const label=await page.locator('.today-routines-label').boundingBox(),b=await button.boundingBox();assert.ok(b.x>=label.x+label.width-1);assert.ok(Math.abs((label.y+label.height/2)-(b.y+b.height/2))<2);
- await button.focus();await page.keyboard.press('Enter');assert.equal(await button.getAttribute('aria-label'),'Expand All');assert.equal(await button.evaluate(e=>e===document.activeElement),true);
+ await button.focus();await page.keyboard.press('Enter');assert.equal(await button.getAttribute('aria-label'),'Expand');assert.equal(await button.evaluate(e=>e===document.activeElement),true);
  await page.waitForFunction(()=>[...document.querySelectorAll('.lvl-b')].every(e=>e.getBoundingClientRect().height===0));
  assert.equal(await page.locator('.t-score-hero .t-ring').isVisible(),true);
  assert.equal(await page.locator('.t-score-hero .today-box-disclosure').count(),0);
@@ -33,9 +33,9 @@ for(const width of [390,879,880,1440])test(`global disclosure ${width}px preserv
  await page.evaluate(()=>render());
  assert.equal(await page.locator('.today-box-collapsed').count(),2);assert.equal(await daylog.evaluate(e=>e.classList.contains('today-box-collapsed')),false);
  await page.locator('.t-lvl2 .lvl-toggle').click();assert.equal(await page.locator('.t-lvl2 .lvl-toggle').getAttribute('aria-expanded'),'true');
- await button.click();await button.click();assert.equal(await button.getAttribute('aria-label'),'Collapse All');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
+ await button.click();await button.click();assert.equal(await button.getAttribute('aria-label'),'Collapse');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
  await page.locator('.today-routines-label').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);await page.locator('.today-routines-label').click();
  await page.waitForTimeout(350);assert.equal(await snapshot(),before);assert.deepEqual(await geometry(),boxes);
- await page.evaluate(()=>{loadLvl();loadTodayRoutines();render();});assert.equal(await button.getAttribute('aria-label'),'Collapse All');
+ await page.evaluate(()=>{loadLvl();loadTodayRoutines();render();});assert.equal(await button.getAttribute('aria-label'),'Collapse');
  }
 });

@@ -3851,6 +3851,8 @@ const interfaceCopies = {
   "Expand {section}": ["Expand {section}", "Expandir {section}", "הרחבת {section}"],
   "Collapse All": ["Collapse All", "Contraer todo", "כיווץ הכול"],
   "Expand All": ["Expand All", "Expandir todo", "הרחבת הכול"],
+  "Collapse": ["Collapse", "Contraer", "כיווץ"],
+  "Expand": ["Expand", "Expandir", "הרחבה"],
   "{tracked} tracked · {gap} untracked · {events} events": ["{tracked} tracked · {gap} untracked · {events} events", "{tracked} registrado · {gap} sin registrar · {events} eventos", "{tracked} תועדו · {gap} לא תועדו · {events} אירועים"],
   "1 gap to review": ["1 gap to review", "1 intervalo por revisar", "פער אחד לבדיקה"],
   "{count} gaps to review": ["{count} gaps to review", "{count} intervalos por revisar", "{count} פערים לבדיקה"],
@@ -5496,11 +5498,11 @@ function toggleTodayBox(id){
   syncTodaySections();
 }
 function todaySectionsExpanded(){
-  // Collapse All / Expand All covers Core routines, levels 1-3, Social combo and the note; the ring and Day Log stay out.
+  // Collapse / Expand covers Core routines, levels 1-3, Social combo and the note; the ring and Day Log stay out.
   return todayRoutinesOpen || [1,2,3].some(n=>lvlOpen[n]) || Object.entries(todayBoxesOpen).some(([id,open])=>id!==TODAY_ALL_EXCLUDED&&open);
 }
 function todaySectionsButton(){
-  const open=todaySectionsExpanded(), label=interfaceCopy(open?'Collapse All':'Expand All');
+  const open=todaySectionsExpanded(), label=interfaceCopy(open?'Collapse':'Expand');
   return `<button type="button" class="today-sections-toggle" ${ui('click','toggleTodaySections')} aria-label="${label}" title="${label}" aria-expanded="${open}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="${open?'':'sections-expand'}"><path d="m6 12 6-6 6 6M6 18l6-6 6 6"/></svg><span>${label}</span></button>`;
 }
 function syncTodaySections(){
@@ -5525,7 +5527,7 @@ function syncTodaySections(){
     applyTodayBoxState(root);
     const control=root.querySelector('.today-sections-toggle');
     if(control){
-      const open=todaySectionsExpanded(), label=interfaceCopy(open?'Collapse All':'Expand All');
+      const open=todaySectionsExpanded(), label=interfaceCopy(open?'Collapse':'Expand');
       control.setAttribute('aria-expanded',String(open));
       control.setAttribute('aria-label',label);
       control.title=label;

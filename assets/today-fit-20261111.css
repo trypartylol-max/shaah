@@ -11,33 +11,33 @@
 
  /* ---------- Hero: ring · next level · log ---------- */
  html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:136px auto auto!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:136px!important;min-height:136px!important;gap:12px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:136px!important;min-height:0!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:96px!important;padding:8px!important;gap:6px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:76px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:76px!important;height:76px!important;flex:none!important;gap:1px!important;padding:6px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-icon{font-size:15px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:17px!important;letter-spacing:-.5px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-step{font-size:8px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:76px!important;height:76px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:120px!important;height:120px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:120px!important;height:120px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;gap:6px!important;justify-content:space-between!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:28px!important;line-height:1!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
- html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:136px!important;min-height:136px!important;gap:12px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:136px!important;min-height:0!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:96px!important;padding:8px!important;gap:6px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:76px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:76px!important;height:76px!important;flex:none!important;gap:1px!important;padding:6px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-icon{font-size:15px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:17px!important;letter-spacing:-.5px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-step{font-size:8px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:76px!important;height:76px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:120px!important;height:120px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:120px!important;height:120px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;gap:6px!important;justify-content:space-between!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:28px!important;line-height:1!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
 
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:128px!important;min-height:0!important;gap:20px!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:116px!important;height:116px!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;height:auto!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin-bottom:4px!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin-bottom:8px!important}
- html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:6px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:128px!important;min-height:0!important;gap:20px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:116px!important;height:116px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;height:auto!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin-bottom:4px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin-bottom:8px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:6px!important}
  html[data-today-fit~="compact"][data-layout="standard"] body #topbar{min-height:0!important;padding-top:4px!important;padding-bottom:0!important}
 
  /* ---------- Core routines ---------- */
@@ -67,29 +67,29 @@
 
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:6px!important}
  html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:104px auto auto!important;padding-top:6px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:104px!important;min-height:104px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:104px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:64px!important;padding:4px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:54px!important;height:54px!important;padding-bottom:12px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 8px)!important;font-size:9px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:56px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:56px!important;height:56px!important;padding:3px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-icon,.cr-orb-step){display:none!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:14px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-add,.product-orb-close){width:22px!important;height:22px!important;min-height:22px!important;font-size:15px!important}
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
- html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:92px!important;height:92px!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:30px!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:9px!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:8px 18px!important;gap:4px!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;margin:0!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.ls-top,.ls-footer){margin:0!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:104px!important;min-height:104px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:104px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:64px!important;padding:4px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:54px!important;height:54px!important;padding-bottom:12px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 8px)!important;font-size:9px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:56px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:56px!important;height:56px!important;padding:3px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-icon,.cr-orb-step){display:none!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:14px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-add,.product-orb-close){width:22px!important;height:22px!important;min-height:22px!important;font-size:15px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:92px!important;height:92px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:30px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:9px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:8px 18px!important;gap:4px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;margin:0!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.ls-top,.ls-footer){margin:0!important}
 
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:92px!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:88px!important;height:88px!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:92px!important;justify-content:space-between!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:92px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:88px!important;height:88px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:92px!important;justify-content:space-between!important}
 
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:4px!important;gap:4px!important}
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important;height:28px!important}
@@ -117,23 +117,23 @@ html[data-today-fit][data-layout="pro"] body #app #scroll .today.sf-today-v27:no
 /* ---------- "mild": between roomy and compact ---------- */
  html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:12px!important;column-gap:14px!important}
  html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:176px auto auto!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:176px!important;min-height:176px!important;gap:14px!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:176px!important;min-height:0!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:132px!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:96px!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:96px!important;height:96px!important;flex:none!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:96px!important;height:96px!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:156px!important;height:156px!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:48px!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:16px 20px!important;gap:8px!important;justify-content:space-between!important}
- html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:176px!important;min-height:176px!important;gap:14px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:176px!important;min-height:0!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:132px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:96px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:96px!important;height:96px!important;flex:none!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:96px!important;height:96px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:156px!important;height:156px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:48px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:16px 20px!important;gap:8px!important;justify-content:space-between!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
 
- html[data-today-fit~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:164px!important;min-height:0!important}
- html[data-today-fit~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
- html[data-today-fit~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:144px!important;height:144px!important}
- html[data-today-fit~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:46px!important}
- html[data-today-fit~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:14px 20px!important;height:auto!important;min-height:0!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:164px!important;min-height:0!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:144px!important;height:144px!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:46px!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:14px 20px!important;height:auto!important;min-height:0!important}
 
  html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:8px!important;gap:8px!important}
  html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important}
@@ -198,11 +198,11 @@ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core
 /* Routine card: steps · minutes a bit more legible (2026-11-12). */
 html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{font-size:16px!important;font-weight:500!important;line-height:1.4!important;opacity:1!important;color:var(--today-copy)!important}
  /* Tight Standard: Next Level card keeps its bar and REMAINING line inside 100px. */
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin:0!important;line-height:1.1!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;line-height:1!important;margin:0!important;flex:none!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-bar{flex:none!important;height:8px!important;min-height:8px!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:2px!important;line-height:1.2!important;flex:none!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{gap:2px!important;padding-top:6px!important;padding-bottom:6px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin:0!important;line-height:1.1!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;line-height:1!important;margin:0!important;flex:none!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-bar{flex:none!important;height:8px!important;min-height:8px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:2px!important;line-height:1.2!important;flex:none!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{gap:2px!important;padding-top:6px!important;padding-bottom:6px!important}
  /* Tight Standard: the open Day Note keeps two lines so Today does not scroll. */
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(2lh + 14px)!important;height:calc(2lh + 14px)!important}

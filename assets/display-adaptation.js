@@ -7,8 +7,19 @@
   // scrolling; in Pro any space left over goes to the Day Note.
   const TIERS = ['roomy', 'mild', 'compact', 'compact tight'];
   function setFit(fit) { if (fit) root.setAttribute('data-today-fit', fit); else root.removeAttribute('data-today-fit'); }
+  // The score ring, Next Level card and Log orb keep one size per screen, whatever is open or
+  // collapsed: their tier depends only on the effective height and the layout (data-today-hero).
+  let effHeight = 0;
+  function setHero() {
+    if (!band) { root.removeAttribute('data-today-hero'); return; }
+    const pro = typeof root.getAttribute === 'function' && root.getAttribute('data-layout') === 'pro';
+    const tier = pro ? (effHeight <= 680 ? 'compact tight' : effHeight <= 820 ? 'compact' : 'mild')
+      : (effHeight <= 800 ? 'compact tight' : 'compact');
+    root.setAttribute('data-today-hero', tier);
+  }
   function fitToday() {
     fitPending = 0;
+    setHero();
     if (typeof document.getElementById !== 'function') { setFit(fallback); return; }
     const scroll = document.getElementById('scroll');
     const today = band && scroll && scroll.querySelector(':scope>.today.sf-today-v27:not(.history-day-editor)');
@@ -70,6 +81,7 @@
     // tier falls back to the screen height alone.
     const effW = width / scale, effH = height / scale;
     band = effW >= 880 && effH <= 960;
+    effHeight = effH;
     fallback = band ? (effH <= 760 ? 'compact tight' : 'compact') : '';
     root.toggleAttribute('data-wide-display', active);
     if (active) {

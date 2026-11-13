@@ -3133,3 +3133,29 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
 @media(min-width:880px){
   html:not([data-layout="pro"]) #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important;}
 }
+
+/* Stats desktop cards (2026-11-13): icon + value, a per-card mini visual, and a context line. */
+@media(min-width:880px){
+html body #scroll .stats-page .stats-four-grid{gap:12px}
+html body #scroll .stats-page .stats-four-grid .stats-metric-card{display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;grid-template-rows:auto 34px auto!important;column-gap:14px!important;row-gap:14px!important;align-items:center!important;justify-items:stretch!important;text-align:left!important;min-height:0!important;padding:18px 20px 16px!important;position:relative;overflow:hidden}
+html body #scroll .stats-page .stats-four-grid .stats-metric-icon{display:flex!important;grid-row:1;grid-column:1;width:44px;height:44px;font-size:22px;border-radius:12px}
+html body #scroll .stats-page .stats-four-grid .stats-metric-main{grid-row:1;grid-column:2;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:4px!important;text-align:left!important}
+html body #scroll .stats-page .stats-four-grid .stats-metric-value{font-size:38px;line-height:.95}
+html body #scroll .stats-page .stats-four-grid .stats-metric-valrow{display:flex;align-items:center;gap:10px}
+html body #scroll .stats-page .stats-four-grid .stats-metric-chip{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;line-height:1;padding:4px 7px;border:1px solid;border-radius:6px}
+html body #scroll .stats-page .stats-four-grid .stats-metric-label{font-size:11.5px;letter-spacing:.1em;opacity:.7;order:-1}
+html body #scroll .stats-page .stats-four-grid .stats-metric-viz{grid-row:2;grid-column:1 / -1;height:34px;display:flex;align-items:center;min-width:0}
+html body #scroll .stats-page .stats-four-grid .stats-metric-foot{grid-row:3;grid-column:1 / -1;display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0;font-size:13px;line-height:1.3;padding-top:12px;border-top:1px solid rgba(var(--skin-rgb-ffffff,255,255,255),.06)}
+html body #scroll .stats-page .stats-four-grid .stats-metric-foot .stats-metric-sub{margin:0!important;text-align:left!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html body #scroll .stats-page .stats-four-grid .stats-metric-note{flex-shrink:0;white-space:nowrap;color:var(--muted,#adadbf)}
+html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-metric-dsub) .stats-metric-sub:not(.stats-metric-dsub){display:none}
+.stats-four-grid .smv-dots{display:grid;grid-template-columns:repeat(14,1fr);gap:5px;width:100%}
+.stats-four-grid .smv-dots i{display:block;height:14px;border-radius:4px}
+.stats-four-grid .smv-spark{width:100%;height:34px;overflow:visible}
+.stats-four-grid .smv-ladder{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
+.stats-four-grid .smv-ladder span{display:flex;align-items:center;justify-content:center;height:26px;border-radius:6px;font-family:'Bebas Neue';font-size:16px;letter-spacing:.04em}
+.stats-four-grid .smv-heat{display:grid;grid-template-columns:repeat(14,1fr);grid-template-rows:repeat(2,13px);gap:4px;width:100%}
+.stats-four-grid .smv-heat i{display:block;border-radius:3px}
+}
+.stats-metric-valrow{display:contents}
+@media(max-width:879px){.stats-four-grid .stats-metric-dsub,.stats-four-grid .stats-metric-viz,.stats-four-grid .stats-metric-note,.stats-four-grid .stats-metric-chip{display:none}.stats-four-grid .stats-metric-foot{margin-top:auto}}

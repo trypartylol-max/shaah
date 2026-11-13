@@ -3929,6 +3929,11 @@ const interfaceCopies = {
   "vs prev week": ["vs prev week", "frente a la semana anterior", "לעומת השבוע הקודם"],
   "days in a row": ["days in a row", "días seguidos", "ימים ברצף"],
   "record": ["record", "récord", "שיא"],
+  "{count} to tie record": ["{count} to tie record", "{count} para igualar el récord", "עוד {count} לשיא"],
+  "Record pace": ["Record pace", "Ritmo de récord", "קצב שיא"],
+  "this week {count}%": ["this week {count}%", "esta semana {count}%", "השבוע {count}%"],
+  "since {date}": ["since {date}", "desde {date}", "מאז {date}"],
+  "{count}/7 this week": ["{count}/7 this week", "{count}/7 esta semana", "{count}/7 השבוע"],
   "Restore the settings from before this repair? Daily records will be preserved.": ["Restore the settings from before this repair? Daily records will be preserved.", "¿Confirmas recuperar la configuración anterior de esta reparación? Los registros diarios se conservarán.", "לשחזר את ההגדרות מלפני התיקון? הרשומות היומיות יישמרו."],
   "Apply the date and score changes shown? The current mode and daily records will be preserved.": ["Apply the date and score changes shown? The current mode and daily records will be preserved.", "¿Confirmas aplicar los cambios de fechas y puntuaciones mostrados? El modo actual y los registros diarios se conservarán.", "להחיל את השינויים המוצגים בתאריכים ובניקוד? המצב הנוכחי והרשומות היומיות יישמרו."],
   "Use this device’s settings for your account? Other devices will receive these settings.": ["Use this device’s settings for your account? Other devices will receive these settings.", "¿Usar los ajustes de este dispositivo? Se aplicarán también en los demás dispositivos.", "להשתמש בהגדרות של מכשיר זה? הן יחולו גם במכשירים האחרים."],
@@ -6122,13 +6127,40 @@ function renderStats(){
     {icon:"📊",label:interfaceText('average'),val:`${oAvg}%`,col:total?GRADE(oAvg,100).c:"#333",sub:trend?`${trend.diff>=0?"▲":"▼"} ${Math.abs(trend.diff)}% ${interfaceCopy("vs prev week")}`:(total?gradeInterfaceName(GRADE(oAvg,100)):"—")},
     {icon:"📅",label:interfaceText('daysLogged'),val:total,col:"#60a5fa",sub:interfaceCopy("total")}
   ];
+  // Desktop context: a meter (0-100) and a second line per card, so the tiles carry information instead of empty space.
+  const shortDate=k=>keyToDate(k).toLocaleDateString(interfaceLanguage,{month:"short",day:"numeric"});
+  const bestKey=allDays.reduce((m,[k,d])=>dPct(d)>=(m?dPct(h[m]):-1)?k:m,null);
+  const weekLogged=getDays(7).filter(d=>d.data).length;
+  metrics[0].meter=bestStreak?Math.min(100,streak/bestStreak*100):0;
+  metrics[0].note=bestStreak&&streak>=bestStreak?interfaceCopy("Record pace"):bestStreak?interfaceCopy("{count} to tie record").replace('{count}',interfaceCopy('{count}d').replace('{count}',bestStreak-streak)):"";
+  metrics[4].meter=oAvg;
+  metrics[4].note=trend?interfaceCopy("this week {count}%").replace('{count}',trend.cur):"";
+  metrics[3].meter=best;
+  metrics[3].note=bestKey?shortDate(bestKey):"";
+  metrics[5].meter=weekLogged/7*100;
+  metrics[5].note=total?interfaceCopy("since {date}").replace('{date}',shortDate(allDays[0][0])):"";
+  metrics[5].sub=interfaceCopy("{count}/7 this week").replace('{count}',weekLogged);
+  // Per-card mini visual (desktop): streak dots, average sparkline, grade ladder, 28-day heat strip.
+  const last14=getDays(14),last28=getDays(28),ok=d=>d.data&&dPct(d.data)>=STREAK_MIN*100;
+  const dots=`<div class="smv-dots">${last14.map(d=>`<i ${uiStyle(`background:${ok(d)?metrics[0].col:d.data?metrics[0].col+'38':'rgba(255,255,255,.07)'}`)}></i>`).join("")}</div>`;
+  const pts=last14.map((d,i)=>d.data?[i/13*100,30-Math.min(100,dPct(d.data))/100*28]:null).filter(Boolean);
+  const avgY=30-Math.min(100,oAvg)/100*28;
+  const spark=`<svg class="smv-spark" viewBox="0 0 100 32" preserveAspectRatio="none"><line x1="0" x2="100" y1="${avgY}" y2="${avgY}" stroke="${metrics[4].col}" stroke-opacity=".35" stroke-dasharray="2 2" vector-effect="non-scaling-stroke"/>${pts.length>1?`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${metrics[4].col}" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`:""}</svg>`;
+  const ladder=[["F",0],["D",15],["C",30],["B",45],["A",72],["S",85],["S+",95]];
+  const bestL=total?GRADE(best,100).l:null;
+  const steps=`<div class="smv-ladder">${ladder.map(([l,t])=>{const g=GRADE(t,100),on=bestL&&best>=t;return`<span ${uiStyle(`color:${l===bestL?'#07070f':on?g.c:'rgba(255,255,255,.25)'};background:${l===bestL?g.c:on?g.c+'22':'rgba(255,255,255,.04)'}`)}>${l}</span>`;}).join("")}</div>`;
+  const heat=`<div class="smv-heat">${last28.map(d=>`<i title="${esc(d.key)}" ${uiStyle(`background:${d.data?GRADE(dPct(d.data),100).c:'rgba(255,255,255,.06)'};opacity:${d.data?.35+Math.min(100,dPct(d.data))/100*.65:1}`)}></i>`).join("")}</div>`;
+  metrics[0].viz=dots;metrics[4].viz=spark;metrics[3].viz=steps;metrics[5].viz=heat;
+  metrics[0].dsub=bestStreak?`${interfaceCopy("record")} ${interfaceCopy('{count}d').replace('{count}',bestStreak)}`:`≥${Math.round(STREAK_MIN*100)}%`;
+  metrics[4].chip=total?GRADE(oAvg,100).l:"";
   return`<div class="fade-up stats-page" ${uiStyle(`padding:2px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
     <div class="stats-heading"><h1>${interfaceText('stats')}</h1></div>
     <div class="stats-four-grid">
       ${[metrics[0],metrics[4],metrics[3],metrics[5]].map(m=>`<div class="card stats-metric-card" ${uiStyle(`border:1px solid ${m.col}20;background:${m.col}08`)}>
         <div class="stats-metric-icon">${esc(m.icon)}</div>
-        <div class="stats-metric-main"><div class="stats-metric-value" ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</div><div class="stats-metric-label">${esc(m.label)}</div></div>
-        <div class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</div>
+        <div class="stats-metric-main"><div class="stats-metric-valrow"><div class="stats-metric-value" ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</div>${m.chip?`<span class="stats-metric-chip" ${uiStyle(`color:${m.col};border-color:${m.col}55`)}>${esc(m.chip)}</span>`:""}</div><div class="stats-metric-label">${esc(m.label)}</div></div>
+        ${m.viz?`<div class="stats-metric-viz" aria-hidden="true">${m.viz}</div>`:""}
+        <div class="stats-metric-foot"><span class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</span>${m.dsub?`<span class="stats-metric-sub stats-metric-dsub" ${uiStyle(`color:${m.col}`)}>${esc(m.dsub)}</span>`:""}${m.note?`<span class="stats-metric-note">${esc(m.note)}</span>`:""}</div>
       </div>`).join("")}
     </div>
     ${proWeekComparison()}

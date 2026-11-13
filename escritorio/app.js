@@ -45,7 +45,7 @@ function countTo(el, v) {
   if (!el) return;
   const from = typeof el._v === 'number' ? el._v : 0;
   el._v = v;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || from === v) { el.innerHTML = moneyH(v); return; }
+  if (document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches || from === v) { el.innerHTML = moneyH(v); return; }
   const t0 = performance.now(), dur = 700;
   const step = t => {
     const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);

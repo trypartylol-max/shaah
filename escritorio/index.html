@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0b0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Escritorio">
+<title>Escritorio</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+
+<aside class="dock" aria-label="Apps">
+  <div id="apps"></div>
+  <div class="dock-foot">
+    <button type="button" class="dbtn" id="addApp" title="Añadir acceso" aria-label="Añadir acceso">+</button>
+    <button type="button" class="dbtn" id="editApps">Editar</button>
+  </div>
+</aside>
+
+<main class="wrap" id="wrap">
+  <header class="hd">
+    <h1 id="month">Escritorio</h1>
+    <div class="hd-r">
+      <span class="live"><span class="dot" id="liveDot"></span><span id="status">cargando…</span></span>
+      <button type="button" class="ibtn kbd" id="cmdBtn" title="Comandos (⌘K)" aria-label="Abrir comandos">⌘K</button>
+      <button type="button" class="ibtn" id="focusBtn" title="Modo foco (F)" aria-label="Modo foco"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/></svg></button>
+      <button type="button" class="ibtn" id="privBtn" title="Modo privado (P)" aria-label="Modo privado"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+  </header>
+
+  <section class="kpis">
+    <button type="button" class="k k-hero" data-detail="budget">
+      <span class="k-top"><span class="lbl">Te queda del budget</span><span class="pill pv" id="pct">—</span></span>
+      <span class="hv pv" id="left">—</span>
+      <span class="bar"><i id="leftBar"></i><b class="mk" id="paceMk"></b></span>
+      <span class="sub pv" id="heroSub"></span>
+    </button>
+    <button type="button" class="k k-earn" data-detail="earn">
+      <span class="lbl">Ganado</span>
+      <span class="kv pos pv" id="earn">—</span>
+      <span class="bar split"><i id="splitA"></i><i id="splitB"></i></span>
+      <span class="sub pv" id="earnSub"></span>
+    </button>
+    <button type="button" class="k k-spent" data-detail="spent">
+      <span class="lbl">Gastado</span>
+      <span class="kv neg pv" id="spent">—</span>
+      <span class="bar"><i id="spentBar"></i></span>
+      <span class="sub pv" id="spentSub"></span>
+    </button>
+    <button type="button" class="k k-bal" data-detail="bal">
+      <span class="lbl">Balance</span>
+      <span class="kv pv" id="bal">—</span>
+      <span class="bar ratio"><i id="ratioBar"></i></span>
+      <span class="sub pv" id="balSub"></span>
+    </button>
+  </section>
+
+  <form class="addbar" id="addForm" autocomplete="off">
+    <label class="sr" for="aMonto">Monto</label><input id="aMonto" type="number" inputmode="decimal" step="any" min="0" placeholder="₪ 0" required>
+    <label class="sr" for="aCat">Categoría</label><select id="aCat"><option value="">Categoría</option></select>
+    <label class="sr" for="aCom">Dónde o qué</label><input id="aCom" placeholder="Dónde / qué   ·   G para escribir aquí" required>
+    <button id="aBtn" aria-label="Guardar gasto"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
+  </form>
+
+  <section class="lower">
+    <div class="col">
+      <div class="card" id="metasCard" hidden><h2>Metas</h2><div class="metas" id="metas"></div></div>
+      <details class="card cmp" id="cmpCard" hidden><summary><span class="ch">Este mes vs <span id="prevName">mes pasado</span></span><span class="cs pv" id="cmpS"></span></summary><div id="cmp"></div></details>
+    </div>
+    <div class="col">
+      <div class="card" id="agCard"><h2>Próximos días</h2><div id="agenda" class="muted">cargando…</div></div>
+      <div class="card" id="vouCard" hidden><h2 class="h2row">Vouchers<span class="vtot pv" id="vouTot"></span></h2><div id="vou"></div><button type="button" class="more" id="vouMore"></button></div>
+    </div>
+  </section>
+</main>
+
+<div class="focus" id="focus" hidden>
+  <div class="f-lbl">Te queda del budget</div>
+  <div class="f-v pv" id="fLeft">—</div>
+  <div class="f-sub pv" id="fSub"></div>
+  <button type="button" class="ibtn f-x" id="focusX" aria-label="Salir del modo foco">✕</button>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-live="polite">
+  <button type="button" class="ibtn d-x" id="drawerX" aria-label="Cerrar">✕</button>
+  <div id="drawerBody"></div>
+</aside>
+
+<div class="pal" id="pal" hidden role="dialog" aria-label="Comandos">
+  <div class="pal-box">
+    <input id="palIn" placeholder="45 super shufersal  ·  o escribe: privado, foco, caja…" autocomplete="off" spellcheck="false">
+    <div id="palList" class="pal-list"></div>
+    <div class="pal-hint">Enter para ejecutar · ↑↓ para elegir · Esc para cerrar</div>
+  </div>
+</div>
+
+<div class="modal" id="appModal" hidden role="dialog" aria-label="Nuevo acceso">
+  <form class="modal-box" id="appForm">
+    <h2>Nuevo acceso</h2>
+    <label>Nombre<input id="fName" required></label>
+    <label>Enlace<input id="fUrl" required inputmode="url" placeholder="https://…"></label>
+    <label>Icono (una letra o emoji)<input id="fIcon" maxlength="4"></label>
+    <label>Sección<select id="fSec"></select></label>
+    <div class="row"><button type="button" class="btn" id="fCancel">Cancelar</button><button class="btn pri">Guardar</button></div>
+  </form>
+</div>
+
+<div class="setup" id="setup" hidden>
+  <form class="modal-box" id="setupForm">
+    <h2>Conectar el escritorio</h2>
+    <p class="muted">Pega tu clave. Se guarda solo en este dispositivo.</p>
+    <label class="sr" for="setupKey">Clave</label><input id="setupKey" type="password" autocomplete="off" required placeholder="Clave">
+    <div class="row"><span class="muted" id="setupMsg"></span><button class="btn pri">Conectar</button></div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="./app.js"></script>
+</body>
+</html>

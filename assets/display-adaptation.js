@@ -34,6 +34,12 @@
       return limit - bottom;
     };
     const keep = scroll.scrollTop; scroll.scrollTop = 0;
+    // Measure as if every section were open, so collapsing or expanding never moves or resizes
+    // what stays visible: the tier and gaps are always those of the expanded view. Class changes
+    // are reverted below in the same task, before the browser paints.
+    const shut = [];
+    for (const [sel, cls] of [['.t-rout.collapsed', 'collapsed'], ['.lvl-b.cl', 'cl'], ['.today-box-collapsed', 'today-box-collapsed']])
+      for (const el of today.querySelectorAll(sel)) { el.classList.remove(cls); shut.push([el, cls]); }
     root.style.removeProperty('--today-fit-gap');
     let chosen = TIERS[TIERS.length - 1], spare = 0;
     // A tier fits only if Today ends above the limit and #scroll itself does not overflow.
@@ -67,6 +73,7 @@
       }
       if (gap < 1) root.style.removeProperty('--today-fit-gap');
     }
+    for (const [el, cls] of shut) el.classList.add(cls);
     scroll.scrollTop = keep;
   }
   function scheduleFit() { if (!fitPending) fitPending = requestAnimationFrame(fitToday); }

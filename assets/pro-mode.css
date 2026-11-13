@@ -340,3 +340,9 @@ html[data-layout="pro"] .pro-week-comparison{display:block}
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="true"]{display:inline-block!important;float:right!important}
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-grid{clear:both}
 }
+
+/* Pro desktop Today: text that was white uses the same title colour as Standard (titles included). */
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) :is(.today-routines-label,.today-routines-label>span:not(.sf-core-total),.today-sections-toggle,.t-lvl>.sec,.t-lvl>.sec strong,.lvl-toggle,.sf-combo-heading>strong,.wg-daily strong,.wg-weekly strong,.cr-routine-name,.r-sub,.row,.row>*,.row>*>span:not([class]),.sf-category-toggle,.pro-today-edit,.pro-today-grid h3,.pro-today-grid section>button){color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] :is(.r-sub,.cr-routine-name){color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important}
+}

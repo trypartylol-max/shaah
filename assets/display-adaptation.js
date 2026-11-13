@@ -42,9 +42,9 @@
           if (grow >= 1) { root.style.setProperty('--today-fit-spare', Math.floor(grow) + 'px'); left -= Math.floor(grow); }
         }
       }
-      // Pro: the rest spreads between rows and under the Core heading. Standard keeps its
-      // vertical gaps equal to the horizontal ones (today-fit-20261111.css).
-      const gap = pro ? Math.min(24, Math.floor(left / 4)) : 0;
+      // The rest spreads between rows and under the Core heading; Standard also widens the
+      // horizontal gaps by the same amount so boxes keep even spacing (today-fit-20261111.css).
+      const gap = pro ? Math.min(24, Math.floor(left / 4)) : Math.min(20, Math.floor(left / 5));
       if (gap >= 1) {
         root.style.setProperty('--today-fit-gap', gap + 'px');
         if (room() < 0) root.style.removeProperty('--today-fit-gap');

@@ -5604,6 +5604,9 @@ function changeProToday(widget,action){
   renderDayChange(todayKey());
   document.querySelector('.pro-today-edit')?.focus();
 }
+function proTodayEditButton(){
+  return `<button type="button" class="pro-today-edit" aria-expanded="${proTodayEditing}" ${ui('click','editProToday')}>${interfaceCopy(proTodayEditing?'Done':'Customize')}</button>`;
+}
 function proTodayHTML(key,config){
   const order=proTodayWidgets();
   const labels={habits:interfaceCopy('Habits'),session:interfaceCopy('Session'),work:interfaceCopy('Work'),note:interfaceCopy('Day Note')};
@@ -5620,7 +5623,7 @@ function proTodayHTML(key,config){
     session:`<button type="button" ${ui('click','openDayLogStart')}>${interfaceCopy(active?'View active session':'Prepare session')}</button>`
   };
   return `<section class="pro-today-widgets${order.includes('note')?' has-note':''}" aria-label="${interfaceCopy('Pro shortcuts')}">
-    <button type="button" class="pro-today-edit" aria-expanded="${proTodayEditing}" ${ui('click','editProToday')}>${interfaceCopy(proTodayEditing?'Done':'Customize')}</button>
+    ${proTodayEditButton()}
     ${proTodayEditing?control('','reset',interfaceCopy('Restore order'))+PRO_TODAY_WIDGETS.filter(id=>!order.includes(id)).map(id=>control(id,'show',widgetAction('Show {widget}',id))).join(''):''}
     <div class="pro-today-grid">${order.map((id,index)=>`<section><h3>${labels[id]}</h3>${content[id]}${proTodayEditing?`<div>${index>0?control(id,'up',widgetAction('Move {widget} up',id)):''}${index<order.length-1?control(id,'down',widgetAction('Move {widget} down',id)):''}${control(id,'hide',widgetAction('Hide {widget}',id))}</div>`:''}</section>`).join('')}</div>
   </section>`;

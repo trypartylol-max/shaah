@@ -247,7 +247,7 @@ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.co
  html[data-layout="pro"] #app #scroll>.pro-sidebar-note .notecard{flex:1;min-height:0;display:flex;border:1px solid var(--pro-edge);border-radius:10px;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),1)}
  html[data-layout="pro"] #app #scroll>.pro-sidebar-note .notebar{display:none}
  html[data-layout="pro"] #app #scroll>.pro-sidebar-note textarea{height:100%!important;min-height:0!important;overflow-y:auto!important;padding:12px!important;font:400 14px/1.5 var(--identity-font,'DM Sans',sans-serif)!important;resize:none}
- html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #scroll{padding-top:64px}
+ html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])):not(:has(.edit-day-screen)) #scroll{padding-top:64px}
  html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #mode-status{top:20px;inset-inline-end:20px;bottom:auto;inset-inline-start:auto;width:160px;min-width:0;height:36px;padding:0 36px 0 12px;text-align:center;line-height:34px;border-color:var(--pro-edge);border-radius:12px;background:var(--pro-panel)}
  html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #sync-status{top:20px;inset-inline-end:24px;bottom:auto;inset-inline-start:auto;width:30px;height:36px}
  html[data-layout="pro"] #app:has(#nav .nav-btn[data-tab="log"].active) #mode-status,

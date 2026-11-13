@@ -4832,7 +4832,8 @@ function loadLvl(){
   if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
 }
 function toggleLvl(n){
-  if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];syncTodaySections();return;}
+  // syncTodaySections() se salta el editor de historial: ahi hay que repintar.
+  if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];haptic(9);if(editDayKey)render();else syncTodaySections();return;}
   lvlOpen[n]=!lvlOpen[n];haptic(9);
   set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
   CFG.lvlOpen={...lvlOpen};saveCfgPref();    // y alcanza al otro dispositivo

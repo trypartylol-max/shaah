@@ -86,14 +86,14 @@
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important}
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.ls-top,.ls-footer){margin:0!important}
 
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:100px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:92px!important}
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:92px!important;height:92px!important}
- html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:100px!important;justify-content:space-between!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:88px!important;height:88px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:92px!important;justify-content:space-between!important}
 
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:4px!important;gap:4px!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:2px!important;height:24px!important}
- html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .today-sections-toggle{min-height:24px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important;height:28px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .today-sections-toggle{min-height:26px!important}
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:6px 14px!important}
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{row-gap:6px!important}
  html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:6px 12px!important}
@@ -152,6 +152,7 @@ html[data-today-fit~="tight"]{--today-gap-base:6px}
  html[data-today-fit][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:calc(var(--today-gap-base,16px) + var(--today-fit-gap,0px))!important}
  html[data-today-fit][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body{margin-top:var(--today-fit-gap,0px)!important}
  html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{margin-top:var(--today-fit-gap,0px)!important}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body{column-gap:calc(var(--today-std-gap,16px) + var(--today-fit-gap,0px))!important}
 
 /* Social Combo / Day Note: arrow before the title (like LVL 2/3) and the whole heading row toggles (2026-11-12). */
 #app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box]:is([data-today-box="social"],[data-today-box="note"]):not(.today-box-collapsed)>.today-box-disclosure{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
@@ -174,7 +175,7 @@ html[data-today-fit~="roomy"]{--today-std-gap:16px}
 html[data-today-fit~="mild"]{--today-std-gap:14px}
 html[data-today-fit~="compact"]{--today-std-gap:12px}
 html[data-today-fit~="tight"]{--today-std-gap:6px}
- html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:var(--today-std-gap,16px)!important;column-gap:var(--today-std-gap,16px)!important}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:calc(var(--today-std-gap,16px) + var(--today-fit-gap,0px))!important;column-gap:calc(var(--today-std-gap,16px) + var(--today-fit-gap,0px))!important}
  html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(3lh + 18px)!important}
 
 /* ---------- Routine card buttons: shorter, bigger icon, anchored to the bottom (2026-11-12) ----------
@@ -196,3 +197,10 @@ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core
 }
 /* Routine card: steps · minutes a bit more legible (2026-11-12). */
 html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{font-size:16px!important;font-weight:500!important;line-height:1.4!important;opacity:1!important;color:var(--today-copy)!important}
+ /* Tight Standard: Next Level card keeps its bar and REMAINING line inside 100px. */
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin:0!important;line-height:1.1!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;line-height:1!important;margin:0!important;flex:none!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-bar{flex:none!important;height:8px!important;min-height:8px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:2px!important;line-height:1.2!important;flex:none!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{gap:2px!important;padding-top:6px!important;padding-bottom:6px!important}

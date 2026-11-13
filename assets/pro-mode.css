@@ -322,3 +322,8 @@ html[data-layout="pro"] .pro-week-comparison{display:block}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-sections-toggle{font-size:14px!important;color:var(--pro-copy)!important;border-color:color-mix(in srgb,var(--pro-accent) 45%,transparent)!important;background:color-mix(in srgb,var(--pro-accent) 8%,transparent)!important}
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-sections-toggle:hover{background:color-mix(in srgb,var(--pro-accent) 18%,transparent)!important;border-color:var(--pro-accent)!important}
 }
+
+/* Customize stays above the Pro widgets, aligned right. */
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit{display:block!important;margin-inline-start:auto!important}
+}

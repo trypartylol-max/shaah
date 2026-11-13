@@ -7,8 +7,19 @@
   // scrolling; in Pro any space left over goes to the Day Note.
   const TIERS = ['roomy', 'mild', 'compact', 'compact tight'];
   function setFit(fit) { if (fit) root.setAttribute('data-today-fit', fit); else root.removeAttribute('data-today-fit'); }
+  // The score ring, Next Level card and Log orb keep one size per screen, whatever is open or
+  // collapsed: their tier depends only on the effective height and the layout (data-today-hero).
+  let effHeight = 0;
+  function setHero() {
+    if (!band) { root.removeAttribute('data-today-hero'); return; }
+    const pro = typeof root.getAttribute === 'function' && root.getAttribute('data-layout') === 'pro';
+    const tier = pro ? (effHeight <= 680 ? 'compact tight' : effHeight <= 820 ? 'compact' : 'mild')
+      : (effHeight <= 800 ? 'compact tight' : 'compact');
+    root.setAttribute('data-today-hero', tier);
+  }
   function fitToday() {
     fitPending = 0;
+    setHero();
     if (typeof document.getElementById !== 'function') { setFit(fallback); return; }
     const scroll = document.getElementById('scroll');
     const today = band && scroll && scroll.querySelector(':scope>.today.sf-today-v27:not(.history-day-editor)');
@@ -23,6 +34,12 @@
       return limit - bottom;
     };
     const keep = scroll.scrollTop; scroll.scrollTop = 0;
+    // Measure as if every section were open, so collapsing or expanding never moves or resizes
+    // what stays visible: the tier and gaps are always those of the expanded view. Class changes
+    // are reverted below in the same task, before the browser paints.
+    const shut = [];
+    for (const [sel, cls] of [['.t-rout.collapsed', 'collapsed'], ['.lvl-b.cl', 'cl'], ['.today-box-collapsed', 'today-box-collapsed']])
+      for (const el of today.querySelectorAll(sel)) { el.classList.remove(cls); shut.push([el, cls]); }
     root.style.removeProperty('--today-fit-gap');
     let chosen = TIERS[TIERS.length - 1], spare = 0;
     // A tier fits only if Today ends above the limit and #scroll itself does not overflow.
@@ -56,6 +73,7 @@
       }
       if (gap < 1) root.style.removeProperty('--today-fit-gap');
     }
+    for (const [el, cls] of shut) el.classList.add(cls);
     scroll.scrollTop = keep;
   }
   function scheduleFit() { if (!fitPending) fitPending = requestAnimationFrame(fitToday); }
@@ -70,6 +88,7 @@
     // tier falls back to the screen height alone.
     const effW = width / scale, effH = height / scale;
     band = effW >= 880 && effH <= 960;
+    effHeight = effH;
     fallback = band ? (effH <= 760 ? 'compact tight' : 'compact') : '';
     root.toggleAttribute('data-wide-display', active);
     if (active) {

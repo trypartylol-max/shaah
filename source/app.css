@@ -3159,3 +3159,26 @@ html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-met
 }
 .stats-metric-valrow{display:contents}
 @media(max-width:879px){.stats-four-grid .stats-metric-dsub,.stats-four-grid .stats-metric-viz,.stats-four-grid .stats-metric-note,.stats-four-grid .stats-metric-chip{display:none}.stats-four-grid .stats-metric-foot{margin-top:auto}}
+
+/* Stats icons (2026-11-13): section headings and habit cards. */
+.stats-page .sec-ico{display:inline-block;margin-right:8px;font-size:1.05em;letter-spacing:0;vertical-align:-1px;filter:saturate(.9)}
+
+.stats-page .stats-habit-card{display:flex;align-items:center;gap:16px}
+.stats-page .stats-habit-icon{flex-shrink:0;width:52px;height:52px;border-radius:14px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:26px}
+.stats-page .stats-habit-body{min-width:0;display:flex;flex-direction:column;gap:4px}
+@media(max-width:879px){.stats-page .stats-habit-icon{width:42px;height:42px;font-size:21px;border-radius:12px}}
+.stats-page .stats-habit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));grid-auto-flow:column;gap:12px}
+.stats-page .stats-habit-mini{padding:14px 16px!important;gap:14px!important;min-width:0}
+.stats-page .stats-habit-mini .stats-habit-icon{width:42px;height:42px;font-size:21px;border-radius:12px}
+.stats-page .stats-habit-mini .stats-habit-body{flex:1;gap:6px}
+.stats-page .stats-habit-name{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats-page .stats-habit-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stats-page .stats-habit-row strong{font-size:20px!important;line-height:1}
+.stats-page .stats-habit-dots{display:grid;grid-template-columns:repeat(7,10px);gap:4px}
+.stats-page .stats-habit-dots i{display:block;width:10px;height:10px;border-radius:3px;box-sizing:border-box}
+@media(max-width:879px){.stats-page .stats-habit-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stats-page .stats-habit-mini{min-width:0}.stats-page .stats-habit-row{flex-direction:column;align-items:flex-start;gap:6px}.stats-page .stats-habit-mini{padding:11px 12px!important;gap:10px!important}.stats-page .stats-habit-mini .stats-habit-icon{width:34px;height:34px;font-size:17px}.stats-page .stats-habit-dots{grid-template-columns:repeat(7,7px);gap:3px}.stats-page .stats-habit-dots i{width:7px;height:7px}}
+.stats-page .stats-habit-rise{border-color:#a78bfa55!important;background:#a78bfa0d!important}
+.stats-page .stats-habit-rise .stats-habit-icon{background:#a78bfa1f;border-color:#a78bfa55}
+.stats-page .stats-habit-rise strong{color:#c4b5fd}
+.stats-page .stats-habit-delta{font-size:12.5px;color:#c4b5fd;white-space:nowrap}
+@media(max-width:879px){.stats-page .stats-habit-grid{grid-auto-flow:row}.stats-page .stats-habit-grid>:nth-child(odd):last-child{grid-column:1 / -1}}

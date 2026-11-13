@@ -215,3 +215,8 @@ html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-c
 html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>span:nth-child(2){flex:none;font-variant-numeric:tabular-nums}
 html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>.combo-category-chevron{font:18px/1 sans-serif!important;flex:0 0 12px!important;color:var(--pro-muted,#8a8aa0)!important;opacity:.7}
 html[data-skin="apple"] body #app #scroll .today .sf-combo-category:has(.combo-as-row){opacity:1}
+/* Social Combo people: compact chips on desktop; phones keep 38px touch targets. */
+@media(min-width:880px){
+html[data-layout] body #app #scroll .today .sf-compact-combo .sf-reveal .sf-buttons{gap:5px!important;padding:3px 0 5px!important;max-height:65px!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .sf-reveal .sf-buttons>.sf-button{min-height:26px!important;height:26px!important;padding:0 9px!important;font-size:13px!important;line-height:1!important;border-radius:7px!important}
+}

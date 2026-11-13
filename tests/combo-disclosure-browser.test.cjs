@@ -18,7 +18,7 @@ for(const width of [390,1440])test(`Social disclosure is independent of theme an
    assert.equal(await panel.locator('.sf-reveal.is-open').count(),1);
    const m=await strangers.locator('.sf-buttons').evaluate(e=>{const rows=[...new Set([...e.children].map(x=>Math.round(x.offsetTop)))].sort((a,b)=>a-b);return {h:e.clientHeight,scroll:e.scrollHeight,third:rows[2],top:e.offsetTop}});
    assert.ok(m.scroll>m.h,JSON.stringify({skin,tab,m}));
-   const option=await strangers.locator('.sf-button').first().boundingBox();assert.ok(option.height>=38);
+   const option=await strangers.locator('.sf-button').first().boundingBox();assert.ok(option.height>=(width>=880?26:38));
    assert.equal(await state(),before);assert.equal(await p.evaluate(()=>__mockWrites.filter(x=>x.date!=='cfgbak').length),writes);
   }
  }

@@ -3748,7 +3748,7 @@ const interfaceCopies = {
   "AVERAGE": ["AVERAGE", "PROMEDIO", "ממוצע"],
   "LOW": ["LOW", "BAJO", "נמוך"],
   "LOST": ["LOST", "PERDIDO", "התחלה"],
-  "▪ CORE ROUTINES": ["▪ CORE ROUTINES", "▪ RUTINAS PRINCIPALES", "▪ שגרות ליבה"],
+  "▪ CORE ROUTINES": ["CORE ROUTINES", "RUTINAS PRINCIPALES", "שגרות ליבה"],
   "TODAY'S ROUTINES": ["TODAY'S ROUTINES", "RUTINAS DE HOY", "השגרות של היום"],
   "{steps} steps · {minutes} min": ["{steps} steps · {minutes} min", "{steps} pasos · {minutes} min", "{steps} שלבים · {minutes} דק׳"],
   "Clear light credit": ["Clear light credit", "Quitar el crédito parcial", "ביטול ניקוד חלקי"],
@@ -3901,9 +3901,9 @@ const interfaceCopies = {
   "{completed} of {total} milestones": ["{completed} of {total} milestones", "{completed} de {total} hitos", "{completed} מתוך {total} אבני דרך"],
   "Complete": ["Complete", "Completar", "השלמה"],
   "Uncheck": ["Uncheck", "Desmarcar", "ביטול סימון"],
-  "▪ LVL 2 — HABITS": ["▪ LVL 2 — HABITS", "▪ NIVEL 2 — HÁBITOS", "▪ רמה 2 — הרגלים"],
-  "· LVL 3 — BONUS": ["· LVL 3 — BONUS", "· NIVEL 3 — BONUS", "· רמה 3 — בונוס"],
-  "⬛ LVL 1 — CORE": ["⬛ LVL 1 — CORE", "⬛ NIVEL 1 — NÚCLEO", "⬛ רמה 1 — ליבה"],
+  "▪ LVL 2 — HABITS": ["LVL 2 — HABITS", "NIVEL 2 — HÁBITOS", "רמה 2 — הרגלים"],
+  "· LVL 3 — BONUS": ["LVL 3 — BONUS", "NIVEL 3 — BONUS", "רמה 3 — בונוס"],
+  "⬛ LVL 1 — CORE": ["LVL 1 — CORE", "NIVEL 1 — NÚCLEO", "רמה 1 — ליבה"],
   "Use {action} to add your first entry.": ["Use {action} to add your first entry.", "Usa {action} para añadir tu primera entrada.", "השתמשו ב־{action} כדי להוסיף את הרשומה הראשונה."],
   "Log your first habit in {today} and your stats start building.": ["Log your first habit in {today} and your stats start building.", "Registra tu primer hábito en {today} para empezar a ver tus estadísticas.", "תעדו הרגל ראשון במסך {today} כדי להתחיל לראות סטטיסטיקה."],
   "Tick a part of the Social Combo in {today} and tap {who} to start tracking who you spend time with.": ["Tick a part of the Social Combo in {today} and tap {who} to start tracking who you spend time with.", "Marca una parte del Combo social en {today} y pulsa {who} para empezar a registrar con quién pasas el tiempo.", "סמנו חלק מהשילוב החברתי במסך {today} ולחצו על {who} כדי להתחיל לתעד עם מי אתם מבלים."],
@@ -4119,8 +4119,8 @@ const interfaceCopies = {
   "Use full view": ["Use full view", "Usar vista completa", "שימוש בתצוגה המלאה"],
   "ERROR": ["ERROR", "ERROR", "שגיאה"],
   "Clear all of today’s data?": ["Clear all of today’s data?", "¿Borrar todos los datos de hoy?", "למחוק את כל הנתונים של היום?"],
-  "✎ DAY NOTE": ["✎ DAY NOTE", "✎ NOTA DEL DÍA", "✎ הערת היום"],
-  "👥 Social Combo": ["👥 Social Combo", "👥 Combo social", "👥 שילוב חברתי"],
+  "✎ DAY NOTE": ["DAY NOTE", "NOTA DEL DÍA", "הערת היום"],
+  "👥 Social Combo": ["Social Combo", "Combo social", "שילוב חברתי"],
   "+ who?": ["+ who?", "+ ¿quién?", "+ עם מי?"],
   "RUNNING": ["RUNNING", "EN CURSO", "בתהליך"],
   "START / END": ["START / END", "INICIO / FIN", "התחלה / סיום"],
@@ -7088,9 +7088,9 @@ function workPhaseCard(key,item){
  const previous=legacy?' · '+interfaceCopy('Previous progress preserved'):'';
  const weekly=workWeeklyCash(key);
  const cash=completed?workMilestoneRules(key)[completed-1].amount:0;
- return `<button type="button" class="sf-core-routine sf-work wg-card" ${phases.length?'':'disabled'} aria-label="${interfaceText('work')}${previous} · ${scoreLabel} · ${progress}. ${esc(action)}" ${ui('click','workPhaseAdvance',key)}><span class="wg-head"><span>💼 ${interfaceText('work')}</span><span class="wg-points"><bdi dir="ltr">${points}/${item.pts}</bdi> ${interfaceCopy('pts')}</span></span><span class="wg-row"><span class="wg-daily"><span>${interfaceText('today')}</span><strong>₪${cash.toLocaleString(interfaceLanguage)}</strong></span>${workGeometry(phases.length,completed)}<span class="wg-weekly"><span>${interfaceText('thisWeek')}</span><strong>≈ ₪${weekly.total.toLocaleString(interfaceLanguage)}</strong></span></span></button>`;
+ return `<button type="button" class="sf-core-routine sf-work wg-card" ${phases.length?'':'disabled'} aria-label="${interfaceText('work')}${previous} · ${scoreLabel} · ${progress}. ${esc(action)}" ${ui('click','workPhaseAdvance',key)}><span class="wg-head"><span>💼 ${interfaceText('work')}</span><span class="wg-points"><bdi dir="ltr">${points}/${item.pts}</bdi></span></span><span class="wg-row"><span class="wg-daily"><span>${interfaceText('today')}</span><strong>₪${cash.toLocaleString(interfaceLanguage)}</strong></span>${workGeometry(phases.length,completed)}<span class="wg-weekly"><span>${interfaceText('thisWeek')}</span><strong>≈ ₪${weekly.total.toLocaleString(interfaceLanguage)}</strong></span></span></button>`;
 }
-function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub"><bdi dir="ltr">${Math.round(item.pts*doneFrac(state))} / ${item.pts}</bdi> ${interfaceCopy('pts')}</div></div></div><div class="sf-core-actions">${socialButton(interfaceCopy(state?'Uncheck':'Complete'),'toggleHabit',[item.id,key],!!state)}</div></section>`;}
+function coreHabitCard(key,item){const state=getChecked(key)[item.id];return `<section class="sf-core-routine sf-core-extra"><div class="sf-work-head"><div class="sf-core-icon">${esc(item.icon)}</div><div class="sf-work-info"><div class="r-lab">${esc(item.label)}</div><div class="r-sub"><bdi dir="ltr">${Math.round(item.pts*doneFrac(state))}/${item.pts}</bdi></div></div></div><div class="sf-core-actions">${socialButton(interfaceCopy(state?'Uncheck':'Complete'),'toggleHabit',[item.id,key],!!state)}</div></section>`;}
 
 function socialGeneralSettings(){const bulkOpen=!!document.getElementById('social-bulk-details')?.open;return `      <div ${uiStyle(`margin-bottom:4px`)}>
         <div class="sec" ${uiStyle(`color:#fbbf24`)}>👥 SOCIAL COMBO — ${subsOn(subsList()).length} ACTIVE${subsOn(subsList()).length<subsList().length?` · ${subsList().length-subsOn(subsList()).length} PAUSED`:""}</div>

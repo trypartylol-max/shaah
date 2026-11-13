@@ -206,3 +206,12 @@ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core
  html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{gap:2px!important;padding-top:6px!important;padding-bottom:6px!important}
  /* Tight Standard: the open Day Note keeps two lines so Today does not scroll. */
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(2lh + 14px)!important;height:calc(2lh + 14px)!important}
+
+/* Social Combo parts use the LVL 2/3 row format: checkbox square, label, "earned / max", same row box. */
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row{display:flex!important;align-items:center!important;gap:13px!important;margin:0 0 3px!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.combo-category-credit{display:flex!important;align-items:center;justify-content:center;flex:0 0 auto!important;width:auto!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:none!important;font:inherit!important;line-height:0!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle{flex:1 1 auto!important;min-width:0;min-height:0!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:inherit!important;text-decoration:none!important;gap:10px!important;display:flex!important;align-items:center!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>span:first-child{flex:1 1 auto;min-width:0;text-align:start;color:inherit!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>span:nth-child(2){flex:none;font-variant-numeric:tabular-nums}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>.combo-category-chevron{font:18px/1 sans-serif!important;flex:0 0 12px!important;color:var(--pro-muted,#8a8aa0)!important;opacity:.7}
+html[data-skin="apple"] body #app #scroll .today .sf-combo-category:has(.combo-as-row){opacity:1}

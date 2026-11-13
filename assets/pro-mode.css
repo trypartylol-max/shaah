@@ -327,3 +327,16 @@ html[data-layout="pro"] .pro-week-comparison{display:block}
 @media(min-width:880px){
  html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit{display:block!important;margin-inline-start:auto!important}
 }
+/* Not editing: Customize sits on the Day Note title line (top-right of the widgets), so it reads as part of the boxes below. */
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets:has(>.pro-today-edit[aria-expanded="false"]){position:relative}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="false"]{position:absolute!important;top:23px!important;right:13px!important;min-height:0!important;height:24px!important;padding:0 11px!important;font-size:12.5px!important;line-height:1!important;transform:translateY(-50%);margin:0!important;z-index:1}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets:has(>.pro-today-edit[aria-expanded="false"])>.pro-today-grid{margin-top:0!important}
+}
+@media(min-width:880px){
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="false"]{top:20px!important}
+}
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="true"]{display:inline-block!important;float:right!important}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-grid{clear:both}
+}

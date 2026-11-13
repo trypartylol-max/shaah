@@ -25,7 +25,8 @@
     const keep = scroll.scrollTop; scroll.scrollTop = 0;
     root.style.removeProperty('--today-fit-gap');
     let chosen = TIERS[TIERS.length - 1], spare = 0;
-    for (const tier of TIERS) { setFit(tier); const r = room(); if (r >= 0) { chosen = tier; spare = r; break; } }
+    // A tier fits only if Today ends above the limit and #scroll itself does not overflow.
+    for (const tier of TIERS) { setFit(tier); const r = room(); if (r >= 0 && scroll.scrollHeight <= scroll.clientHeight) { chosen = tier; spare = r; break; } }
     setFit(chosen);
     // Leftover space: in Pro the Day Note may grow up to three lines of text; the rest
     // spreads evenly between the blocks, keeping a margin at the bottom (Customize etc.).
@@ -44,11 +45,16 @@
       }
       // The rest spreads between rows and under the Core heading; Standard also widens the
       // horizontal gaps by the same amount so boxes keep even spacing (today-fit-20261111.css).
-      const gap = pro ? Math.min(24, Math.floor(left / 4)) : Math.min(20, Math.floor(left / 5));
-      if (gap >= 1) {
+      let gap = pro ? Math.min(24, Math.floor(left / 4)) : Math.min(20, Math.floor(left / 5));
+      // The extra gap must never create scrolling: shrink it until #scroll no longer overflows.
+      const overflows = () => room() < 0 || scroll.scrollHeight > scroll.clientHeight;
+      const overflowBefore = scroll.scrollHeight > scroll.clientHeight;
+      while (gap >= 1) {
         root.style.setProperty('--today-fit-gap', gap + 'px');
-        if (room() < 0) root.style.removeProperty('--today-fit-gap');
+        if (!overflows() || overflowBefore && room() >= 0) break;
+        gap -= 2;
       }
+      if (gap < 1) root.style.removeProperty('--today-fit-gap');
     }
     scroll.scrollTop = keep;
   }

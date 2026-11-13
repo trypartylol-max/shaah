@@ -204,3 +204,5 @@ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-bar{flex:none!important;height:8px!important;min-height:8px!important}
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:2px!important;line-height:1.2!important;flex:none!important}
  html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{gap:2px!important;padding-top:6px!important;padding-bottom:6px!important}
+ /* Tight Standard: the open Day Note keeps two lines so Today does not scroll. */
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(2lh + 14px)!important;height:calc(2lh + 14px)!important}

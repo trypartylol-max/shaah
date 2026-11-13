@@ -62,7 +62,7 @@ html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-sk
   font-family:var(--identity-font);color:var(--skin-copy);
   background:var(--skin-panel);border-color:var(--skin-edge);
 }
-html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card .wg-head>span:first-child {color:var(--identity-accent)}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card .wg-head>span:first-child {color:var(--skin-copy)}
 html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card :is(.wg-daily,.wg-weekly) strong {
   color:var(--skin-copy);font-variant-numeric:tabular-nums;
 }

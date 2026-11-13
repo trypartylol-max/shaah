@@ -3930,6 +3930,9 @@ const interfaceCopies = {
   "days in a row": ["days in a row", "días seguidos", "ימים ברצף"],
   "record": ["record", "récord", "שיא"],
   "Biggest rise": ["Biggest rise", "Mejor subida", "העלייה הגדולה"],
+  "Biggest drop": ["Biggest drop", "Mayor bajada", "הירידה הגדולה"],
+  "Forgotten": ["Forgotten", "Olvidado", "נשכח"],
+  "{count}+ days ago": ["{count}+ days ago", "Hace {count}+ días", "לפני {count}+ ימים"],
   "{count} vs last week": ["{count} vs last week", "{count} vs semana pasada", "{count} לעומת שבוע שעבר"],
   "Close behind · last 7 days": ["Close behind · last 7 days", "Les siguen · últimos 7 días", "ממשיכים · 7 ימים אחרונים"],
   "{count} to tie record": ["{count} to tie record", "{count} para igualar el récord", "עוד {count} לשיא"],
@@ -6061,7 +6064,7 @@ function renderWeekday(){
   const con=w.filter(x=>x.n);
   const mejor=con.reduce((m,x)=>!m||x.avg>m.avg?x:m,null);
   const peor=con.reduce((m,x)=>!m||x.avg<m.avg?x:m,null);
-  return`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🗓️</span>${interfaceText('allTimeWeekday')}</div><div class="card">
+  return`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🗓️</span><span>${interfaceText('allTimeWeekday')}</span></div><div class="card">
     <div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:118px`)}>
       ${w.map(x=>{const g=x.n?GRADE(x.avg,100):null, h=x.n?Math.max(7,Math.round(x.avg/100*82)):3;
       return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;min-width:0`)}>
@@ -6169,42 +6172,74 @@ function renderStats(){
         <div class="stats-metric-foot"><span class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</span>${m.dsub?`<span class="stats-metric-sub stats-metric-dsub" ${uiStyle(`color:${m.col}`)}>${esc(m.dsub)}</span>`:""}${m.note?`<span class="stats-metric-note">${esc(m.note)}</span>`:""}</div>
       </div>`).join("")}
     </div>
-    ${proWeekComparison()}
-    <section class="stats-consistency" aria-label="${interfaceCopy("Consistency by weekday")}">${renderWeekday()}</section>
-    <details class="stats-details"><summary><span class="sec-ico" aria-hidden="true">🔍</span>${interfaceText('statsDetails')} <span>${interfaceText('habitsGradesTrends')}</span></summary>
-    <div class="stats-detail-content">
-    <div class="stats-detail-habits">${metrics.slice(1,3).map((m,i)=>`<div class="card stats-habit-card"><div class="stats-habit-icon" ${uiStyle(`background:${m.col}14;border-color:${m.col}33`)}>${esc(m.icon)}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">${i?'⚠️':'✅'}</span>${esc(m.label)}</div><strong ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div></div>`).join("")}</div>
+    <div class="stats-detail-habits">${metrics.slice(1,3).map((m,i)=>`<div class="card stats-habit-card"><div class="stats-habit-icon" ${uiStyle(`background:${m.col}14;border-color:${m.col}33`)}>${esc(m.icon)}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">${i?'⚠️':'✅'}</span><span>${esc(m.label)}</span></div><strong ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div></div>`).join("")}${statsRisingCard(review)}${statsDroppingCard(review)}${statsForgottenCard(review)}</div>
     ${statsHabitGrid(review)}
-    ${total>0?`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🎓</span>${interfaceText('gradeDistribution')}</div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div data-stats-bar="grade-${l}" data-stats-value="${pct}" ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div>`:""}
-    ${total>=2?`<div><div class="sec"><span class="sec-ico" aria-hidden="true">📈</span>${interfaceText('fourWeekTrend')}</div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div data-stats-bar="week-${wi}" data-stats-value="${bh}" ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
-    </div></details>
+    ${proWeekComparison()}
+    ${total>=2?`<div><div class="sec"><span class="sec-ico" aria-hidden="true">📈</span><span>${interfaceText('fourWeekTrend')}</span></div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div data-stats-bar="week-${wi}" data-stats-value="${bh}" ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
+    <section class="stats-consistency" aria-label="${interfaceCopy("Consistency by weekday")}">${renderWeekday()}</section>
+    ${total>0?`<details class="stats-details"><summary><span class="sec-ico" aria-hidden="true">🎓</span><span>${interfaceText('gradeDistribution')}</span></summary><div class="stats-detail-content"><div><div class="card">${[["S+",100],["S",88],["A",78],["B",65],["C",50],["D",30],["F",0]].map(([l,t])=>{const count=allDays.filter(([,d])=>GRADE(d.score,d.max).l===l).length,pct=total?(count/total)*100:0,gc=GRADE(t,100);return`<div ${uiStyle(`display:flex;align-items:center;gap:12px;margin-bottom:11px`)}><div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${count>0?gc.c:"#1e1e2e"};width:14px;text-align:center`)}>${l}</div><div ${uiStyle(`flex:1;height:5px;border-radius:99px;background:#0f0f1e;overflow:hidden`)}><div data-stats-bar="grade-${l}" data-stats-value="${pct}" ${uiStyle(`height:100%;width:${pct}%;background:${gc.c};border-radius:99px`)}></div></div><div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;color:${count>0?gc.c:"#1e1e2e"};width:22px;text-align:right`)}>${count}</div><div ${uiStyle(`font-size:14.5px;color:#8888a4;width:32px;text-align:right`)}>${pct>0?Math.round(pct)+"%":""}</div></div>`;}).join("")}</div></div></div></details>`:""}
     ${socialOwnTab()?"":renderWhoToSee()}
   </div>`;
 }
 
 // Every other habit of the week, same style as Most consistent / Needs work, with one dot per day.
-function statsHabitGrid(review){
-  if(!review||!review.tally||review.tally.length<3)return"";
+// Habit picks for the week: four "close behind" boxes and the biggest riser vs the previous 7 days.
+function statsHabitPicks(review){
+  if(!review||!review.tally||review.tally.length<3)return{all:[],rest:[],rising:null};
   const all=review.tally.filter(t=>t.id!==review.best.id&&t.id!==review.worst.id);
   // Only a few: the next two strongest and the next two weakest.
   const rest=all.length<=4?all:[...all.slice(0,2),...all.slice(-2)];
-  // Fifth box: the habit that improved most vs the previous 7 days (not already shown); else the next most consistent.
   const prevDays=getDays(14).slice(0,7),shown=new Set([review.best.id,review.worst.id,...rest.map(t=>t.id)]);
   const prevDone=id=>prevDays.reduce((n,x)=>n+(x.data?doneFrac((getChecked(x.key)||{})[id]):0),0);
   const rising=review.tally.filter(t=>!shown.has(t.id)).map(t=>({...t,delta:t.done-prevDone(t.id)})).filter(t=>t.delta>0).sort((a,b)=>b.delta-a.delta)[0]
     ||(all.length>4?{...all[2],delta:null}:null);
+  // Mirror of rising: the habit that fell most vs the previous 7 days, not already shown anywhere in the row.
+  const taken=new Set([...shown,rising&&rising.id]);
+  const dropping=review.tally.filter(t=>!taken.has(t.id)).map(t=>({...t,delta:t.done-prevDone(t.id)})).filter(t=>t.delta<0).sort((a,b)=>a.delta-b.delta)[0]||null;
+  // Forgotten: the active habit with the longest gap since it was last done (≥2 days). It may repeat Needs work:
+  // that card counts the week, this one counts days since the last time.
+  const inRow=new Set([review.best.id]);
+  const tk=todayKey(),now=cfgForDate(tk),LOOK=60;
+  const gap=id=>{for(let i=1;i<=LOOK;i++){const k=keyMinus(tk,i);if(getDayRecord(k)&&doneFrac((getChecked(k)||{})[id])>0)return i;}return LOOK+1;};
+  const forgotten=[...now.L1,...now.L2,...now.L3].filter(it=>it.pts>0&&!inRow.has(it.id)&&!doneFrac((getChecked(tk)||{})[it.id]))
+    .map(it=>({...it,days:gap(it.id)})).filter(it=>it.days>=2).sort((a,b)=>b.days-a.days)[0]||null;
+  return{all,rest,rising,dropping,forgotten};
+}
+// Fourth card: biggest drop vs last week (hidden when nothing fell).
+function statsDroppingCard(review){
+  const {dropping}=statsHabitPicks(review);
+  if(!dropping)return"";
+  const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
+  return`<div class="card stats-habit-card stats-habit-drop"><div class="stats-habit-icon">${esc(dropping.icon||"·")}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">📉</span><span>${interfaceCopy("Biggest drop")}</span></div><strong>${fmt(dropping.done)}/${dropping.eligible}</strong><div>${esc(dropping.label)} · ${interfaceCopy("{count} vs last week").replace('{count}','−'+fmt(-dropping.delta))}</div></div></div>`;
+}
+// Fifth card: the habit you haven't done for the longest (hidden when nothing is ≥2 days old).
+function statsForgottenCard(review){
+  const {forgotten}=statsHabitPicks(review);
+  if(!forgotten)return"";
+  const when=forgotten.days>60?interfaceCopy("{count}+ days ago").replace('{count}',60):interfaceCopy("{count} days ago").replace('{count}',forgotten.days);
+  return`<div class="card stats-habit-card stats-habit-forgot"><div class="stats-habit-icon">${esc(forgotten.icon||"·")}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">⏳</span><span>${interfaceCopy("Forgotten")}</span></div><strong>${esc(when)}</strong><div>${esc(forgotten.label)}</div></div></div>`;
+}
+// Third card next to Most consistent / Needs work.
+function statsRisingCard(review){
+  const {rising}=statsHabitPicks(review);
+  if(!rising)return"";
+  const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
+  const sub=rising.delta!=null?`${esc(rising.label)} · ${interfaceCopy("{count} vs last week").replace('{count}','+'+fmt(rising.delta))}`:esc(rising.label);
+  return`<div class="card stats-habit-card stats-habit-rise"><div class="stats-habit-icon">${esc(rising.icon||"·")}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">📈</span><span>${interfaceCopy("Biggest rise")}</span></div><strong>${fmt(rising.done)}/${rising.eligible}</strong><div>${sub}</div></div></div>`;
+}
+function statsHabitGrid(review){
+  if(!review||!review.tally||review.tally.length<3)return"";
+  const {rest}=statsHabitPicks(review);
   const col=r=>r>=70?"#4ade80":r>=40?"#f59e0b":"#ef4444";
   const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
-  return`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🧩</span>${interfaceCopy("Close behind · last 7 days")}</div>
+  return`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🧩</span><span>${interfaceCopy("Close behind · last 7 days")}</span></div>
   <div class="stats-habit-grid">${rest.map(t=>{const c=col(t.rate);
     const dots=review.cur.map(x=>{const cfg=cfgForDate(x.key),on=[...cfg.L1,...cfg.L2,...cfg.L3].some(it=>it.id===t.id&&it.pts>0);
       const f=on?doneFrac((getChecked(x.key)||{})[t.id]):null;
       return`<i ${uiStyle(`background:${f==null?'transparent':f>=1?c:f>0?c+'66':'rgba(255,255,255,.08)'};border:1px ${f==null?'dashed rgba(255,255,255,.14)':'solid transparent'}`)}></i>`;}).join("");
     return`<div class="card stats-habit-card stats-habit-mini"><div class="stats-habit-icon" ${uiStyle(`background:${c}14;border-color:${c}33`)}>${esc(t.icon||"·")}</div>
       <div class="stats-habit-body"><div class="stats-habit-name">${esc(t.label)}</div>
-      <div class="stats-habit-row"><strong ${uiStyle(`color:${c}`)}>${fmt(t.done)}/${t.eligible}</strong><span class="stats-habit-dots">${dots}</span></div></div></div>`;}).join("")}${rising&&rising.delta!=null?`<div class="card stats-habit-card stats-habit-mini stats-habit-rise"><div class="stats-habit-icon">${esc(rising.icon||"·")}</div>
-      <div class="stats-habit-body"><div class="stats-habit-name"><span class="sec-ico" aria-hidden="true">📈</span>${interfaceCopy("Biggest rise")} · ${esc(rising.label)}</div>
-      <div class="stats-habit-row"><strong>${fmt(rising.done)}/${rising.eligible}</strong><span class="stats-habit-delta">${interfaceCopy("{count} vs last week").replace('{count}','+'+fmt(rising.delta))}</span></div></div></div>`:rising?`<div class="card stats-habit-card stats-habit-mini"><div class="stats-habit-icon" ${uiStyle(`background:${col(rising.rate)}14;border-color:${col(rising.rate)}33`)}>${esc(rising.icon||"·")}</div><div class="stats-habit-body"><div class="stats-habit-name">${esc(rising.label)}</div><div class="stats-habit-row"><strong ${uiStyle(`color:${col(rising.rate)}`)}>${fmt(rising.done)}/${rising.eligible}</strong></div></div></div>`:""}</div></div>`;
+      <div class="stats-habit-row"><strong ${uiStyle(`color:${c}`)}>${fmt(t.done)}/${t.eligible}</strong><span class="stats-habit-dots">${dots}</span></div></div></div>`;}).join("")}</div></div>`;
 }
 
 // WHO TO SEE — sorted by how far past each person's own target you are.

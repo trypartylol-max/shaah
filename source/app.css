@@ -3113,3 +3113,23 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
 .settings-routine-summary { margin-inline-start: auto; }
 
 .today .sf-core-total { direction:ltr; unicode-bidi:isolate; }
+
+/* Desktop: Core Routines heading reads as a section title and Collapse/Expand as a real button (Standard + Pro). */
+@media(min-width:880px){
+  html[data-skin] #app #scroll .today .today-routines-label{font-size:18px;font-weight:600;color:rgba(var(--skin-rgb-eeeaf8,238,234,248),1);}
+  html[data-skin] #app #scroll .today .today-routines-label .sf-core-total{font-size:14px;font-weight:500;}
+  html[data-skin] #app #scroll .today .today-sections-toggle{min-height:30px;padding:0 14px;gap:7px;border:1px solid rgba(var(--skin-rgb-a78bfa,167,139,250),.45);border-radius:999px;background:rgba(var(--skin-rgb-a78bfa,167,139,250),.08);color:rgba(var(--skin-rgb-eeeaf8,238,234,248),1);font-size:14px;font-weight:500;letter-spacing:.02em;transition:background .15s,border-color .15s;}
+  html[data-skin] #app #scroll .today .today-sections-toggle:hover{background:rgba(var(--skin-rgb-a78bfa,167,139,250),.18);border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.8);}
+  html[data-skin] #app #scroll .today .today-sections-toggle:active{transform:scale(.97);}
+}
+/* Social Combo score matches the LVL headings' score (size, weight, colour). */
+@media(min-width:880px){
+  html[data-skin] #app #scroll .today .sf-combo-heading>span:last-child{font-size:13px!important;font-weight:400!important;color:rgba(var(--skin-rgb-ececf2,236,236,242),1)!important;}
+}
+/* Standard desktop Today: text that was white uses the level-title colour (LVL / Social Combo headings). Pro titles are already white. */
+@media(min-width:880px){
+  html:not([data-layout="pro"]) #app #scroll .today:not(.history-day-editor) :is(.today-routines-label,.today-sections-toggle,.wg-points,.wg-daily,.wg-weekly,.cr-routine-name,.sf-routine-total,.r-sub,.lvl-n,.sf-combo-heading>span:last-child,.sf-category-toggle,.sf-category-mark,.combo-category-chevron,.t-daylog-meta,.row,.row>*,.row>*>span:not([class]),.wg-daily strong,.wg-weekly strong){color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important;}
+}
+@media(min-width:880px){
+  html:not([data-layout="pro"]) #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important;}
+}

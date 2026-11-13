@@ -313,3 +313,12 @@ html[data-layout="pro"] .pro-week-comparison{display:block}
 @media(min-width:880px){
  html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-box-collapsed>.today-box-disclosure{color:var(--pro-copy)!important}
 }
+
+/* Pro desktop: Core Routines heading matches Standard; Collapse/Expand as a pill button. */
+@media(min-width:880px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout>.sec{min-height:30px!important;margin:0 0 2px!important;font-size:16px!important;color:var(--pro-copy)!important;letter-spacing:.06em!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-routines-label{font-size:18px!important;font-weight:600!important;color:var(--pro-copy)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-routines-label .sf-core-total{font-size:14px!important;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-sections-toggle{font-size:14px!important;color:var(--pro-copy)!important;border-color:color-mix(in srgb,var(--pro-accent) 45%,transparent)!important;background:color-mix(in srgb,var(--pro-accent) 8%,transparent)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-sections-toggle:hover{background:color-mix(in srgb,var(--pro-accent) 18%,transparent)!important;border-color:var(--pro-accent)!important}
+}

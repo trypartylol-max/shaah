@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://script.google.com https://script.googleusercontent.com https://llpyxktcfubhmthqujpa.supabase.co; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0a0b0d">
@@ -74,6 +74,7 @@
     <label class="sr" for="aCom">Dónde o qué</label><input id="aCom" placeholder="Dónde / qué   ·   G para escribir aquí" required>
     <button id="aBtn" aria-label="Guardar gasto"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
   </form>
+  <div class="quick" id="quick" hidden></div>
 
   <section class="lower">
     <div class="col">
@@ -81,6 +82,7 @@
       <details class="card cmp" id="cmpCard" hidden><summary><span class="ch">Este mes vs <span id="prevName">mes pasado</span></span><span class="cs pv" id="cmpS"></span></summary><div id="cmp"></div></details>
     </div>
     <div class="col">
+      <a class="card shaah" id="shaahCard" href="https://trypartylol-max.github.io/shaah/" target="_blank" rel="noopener" hidden><div class="sg" id="shGrade">–</div><div class="si"><div class="st">SHAAH · hoy</div><div class="sv" id="shToday"></div><div class="ss" id="shStreak"></div></div><div class="sbars" id="shBars" aria-hidden="true"></div></a>
       <div class="card" id="agCard"><h2>Próximos días</h2><div id="agenda" class="muted">cargando…</div></div>
       <div class="card" id="vouCard" hidden><h2 class="h2row">Vouchers<span class="vtot pv" id="vouTot"></span></h2><div id="vou"></div><button type="button" class="more" id="vouMore"></button></div>
     </div>
@@ -122,14 +124,16 @@
 <div class="setup" id="setup" hidden>
   <form class="modal-box" id="setupForm">
     <h2>Conectar el escritorio</h2>
-    <p class="muted">Pega tu clave. Se guarda solo en este dispositivo.</p>
-    <label class="sr" for="setupKey">Clave</label><input id="setupKey" type="password" autocomplete="off" required placeholder="Clave">
+    <button type="button" class="btn gbtn" id="googleBtn">Entrar con Google</button>
+    <p class="muted">o pega tu clave (se guarda solo en este dispositivo):</p>
+    <label class="sr" for="setupKey">Clave</label><input id="setupKey" type="password" autocomplete="off" placeholder="Clave">
     <div class="row"><span class="muted" id="setupMsg"></span><button class="btn pri">Conectar</button></div>
   </form>
 </div>
 
 <div class="toast" id="toast" role="status" hidden></div>
 
+<script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="./app.js"></script>
 </body>
 </html>

@@ -29,15 +29,30 @@ let D = null, AG = [];
 let custom = get(LS.apps, []);
 
 /* ---------- red ---------- */
-async function apiGet(force) {
-  const r = await fetch(API + '?api=all' + (force ? '&force=1' : '') + '&key=' + encodeURIComponent(KEY), { cache: 'no-store' });
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || 'error');
-  return j;
+/* Sesión: la de Google de SHAAH (mismo sitio) o, si no hay, la clave del dispositivo. */
+const SB_URL = 'https://llpyxktcfubhmthqujpa.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscHl4a3RjZnViaG10aHF1anBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTQyMzEsImV4cCI6MjA5NTM5MDIzMX0.4dutcaJzjhuR9IQRlpBetGgLalaSZCiEDdl3oSI_f2A';
+let sb = null;
+try { if (window.supabase) sb = window.supabase.createClient(SB_URL, SB_ANON, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce', storage: window.localStorage } }); } catch (e) {}
+async function session() {
+  if (!sb) return null;
+  try { const r = await sb.auth.getSession(); return (r && r.data && r.data.session) || null; } catch (e) { return null; }
+}
+async function cred() {
+  if (KEY) return { key: KEY };
+  const s = await session();
+  return s ? { jwt: s.access_token } : null;
 }
 async function apiPost(body) {
-  const r = await fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({ tipo: 'esc', key: KEY }, body)) });
+  const c = await cred();
+  if (!c) throw new Error('clave');
+  const r = await fetch(API, { method: 'POST', body: JSON.stringify(Object.assign({ tipo: 'esc' }, c, body)) });
   return r.json();
+}
+async function apiGet(force) {
+  const j = await apiPost({ op: 'all', force: force ? 1 : 0 });
+  if (!j.ok) throw new Error(j.error || 'error');
+  return j;
 }
 
 /* ---------- animación de cifras ---------- */
@@ -99,6 +114,57 @@ function render(d) {
   renderMetas(d.metas || []);
   renderCmp(d, C, tn, tf, df);
   renderVouchers(d.vouchers || []);
+  renderQuick(d);
+}
+
+/* ---------- gastos rápidos ---------- */
+let armed = null;
+function renderQuick(d) {
+  const names = {}; (d.cats || []).forEach(c => { names[c.code] = c.name; });
+  const Q = (d.quick || []).filter(q => q.cat !== 'fij').slice(0, 6);
+  $('quick').hidden = !Q.length;
+  $('quick').innerHTML = Q.map((q, i) => '<button type="button" class="qc" data-i="' + i + '" title="' + esc((names[q.cat] || q.cat) + ' · usado ' + q.n + ' veces') + '"><span>' + esc(cap(q.com)) + '</span><b class="pv">' + money(q.monto) + '</b></button>').join('');
+  $('quick')._q = Q;
+}
+$('quick').addEventListener('click', async ev => {
+  const b = ev.target.closest('.qc'); if (!b) return;
+  const q = $('quick')._q[+b.dataset.i];
+  if (armed !== b) {
+    if (armed) armed.classList.remove('armed');
+    armed = b; b.classList.add('armed'); b.querySelector('span').textContent = '¿Guardar ' + cap(q.com) + '? ✓';
+    clearTimeout(armed._t); b._t = setTimeout(() => { if (armed === b) { armed = null; b.classList.remove('armed'); b.querySelector('span').textContent = cap(q.com); } }, 3500);
+    return;
+  }
+  clearTimeout(b._t); armed = null; b.disabled = true;
+  await addGasto({ monto: q.monto, categoria: q.cat, comercio: q.com });
+  b.disabled = false; b.classList.remove('armed'); b.querySelector('span').textContent = cap(q.com);
+});
+
+/* ---------- SHAAH: nota de hoy y racha ---------- */
+const ymd = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+const gradeColor = g => /^S/.test(g) ? 'var(--gold)' : g === 'A' ? 'var(--in)' : g === 'B' ? '#5fb3c7' : g === 'C' ? '#d9a54a' : '#e0796b';
+async function loadShaah() {
+  const s = await session();
+  if (!s) { $('shaahCard').hidden = true; return; }
+  try {
+    const t = new Date(), from = new Date(t.getFullYear(), t.getMonth(), t.getDate() - 60);
+    const { data, error } = await sb.from('day_logs').select('date,score:data->score,grade:data->>grade,pct:data->pct,max:data->max').gte('date', ymd(from)).lte('date', ymd(t)).order('date', { ascending: false });
+    if (error) throw error;
+    const H = {}; (data || []).forEach(r => { H[r.date] = r; });
+    const ok = r => r && r.max > 0 && r.score >= r.max * 0.3;
+    let streak = 0;
+    for (let i = 0; i < 60; i++) { const r = H[ymd(new Date(t.getFullYear(), t.getMonth(), t.getDate() - i))]; if (ok(r)) streak++; else if (i > 0) break; }
+    const today = H[ymd(t)];
+    const g = today && today.grade ? today.grade : '–';
+    $('shaahCard').style.setProperty('--g', today ? gradeColor(g) : 'var(--dim)');
+    $('shGrade').textContent = g;
+    $('shToday').textContent = today ? (today.pct || 0) + '% · ' + Math.round(today.score || 0) + ' pts' : 'Sin marcar todavía';
+    $('shStreak').innerHTML = streak ? 'racha ' + B(streak + (streak === 1 ? ' día' : ' días')) : 'sin racha';
+    let bars = '';
+    for (let i = 13; i >= 0; i--) { const r = H[ymd(new Date(t.getFullYear(), t.getMonth(), t.getDate() - i))]; const pc = r && r.max ? Math.min(100, r.score / r.max * 100) : 0; bars += '<i class="' + (ok(r) ? 'ok' : '') + '" style="height:' + Math.max(7, pc) + '%"></i>'; }
+    $('shBars').innerHTML = bars;
+    $('shaahCard').hidden = false;
+  } catch (e) { /* sin datos de SHAAH: se queda oculto */ }
 }
 
 function renderMetas(M) {
@@ -177,7 +243,8 @@ function setStatus(ok, at) {
 }
 let loading = false;
 async function load(force) {
-  if (!KEY) { showSetup(); return; }
+  if (!(await cred())) { showSetup(); return; }
+  loadShaah();
   if (loading) return;
   loading = true;
   try {
@@ -186,7 +253,7 @@ async function load(force) {
     render(j.data); renderAgenda(j.agenda || []);
     setStatus(true);
   } catch (e) {
-    if (String(e.message) === 'clave') { KEY = ''; set(LS.key, ''); showSetup('La clave no es válida.'); }
+    if (String(e.message) === 'clave') { const had = !!KEY; KEY = ''; set(LS.key, ''); showSetup(had ? 'La clave no es válida.' : 'Inicia sesión otra vez.'); }
     else { const c = get(LS.cache, null); setStatus(false, c && c.at); }
   } finally { loading = false; }
 }
@@ -216,7 +283,7 @@ async function addGasto(g) {
 }
 async function flushQueue() {
   const q = get(LS.queue, []);
-  if (!q.length || !KEY) return;
+  if (!q.length || !(await cred())) return;
   const rest = [];
   for (const g of q) { try { await sendGasto(g); } catch (e) { if (!e.server) rest.push(g); } }
   set(LS.queue, rest);
@@ -374,10 +441,16 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------- configuración inicial ---------- */
-function showSetup(msg) { $('setup').hidden = false; $('setupMsg').textContent = msg || ''; $('setupKey').focus(); }
+function showSetup(msg) { $('setup').hidden = false; $('setupMsg').textContent = msg || ''; }
+$('googleBtn').onclick = async () => {
+  if (!sb) { $('setupMsg').textContent = 'No pude cargar el login.'; return; }
+  $('setupMsg').textContent = 'Abriendo Google…';
+  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+  if (error) $('setupMsg').textContent = 'Error: ' + error.message;
+};
 $('setupForm').onsubmit = async e => {
   e.preventDefault();
-  KEY = $('setupKey').value.trim(); set(LS.key, KEY);
+  KEY = $('setupKey').value.trim(); if (!KEY) return; set(LS.key, KEY);
   $('setupMsg').textContent = 'Conectando…';
   try { const j = await apiGet(false); set(LS.cache, { data: j.data, agenda: j.agenda || [], at: Date.now() }); render(j.data); renderAgenda(j.agenda || []); setStatus(true); $('setup').hidden = true; $('setupKey').value = ''; flushQueue(); }
   catch (err) { $('setupMsg').textContent = String(err.message) === 'clave' ? 'Clave incorrecta.' : 'No pude conectar.'; }
@@ -387,7 +460,7 @@ $('setupForm').onsubmit = async e => {
 renderApps();
 const cached = get(LS.cache, null);
 if (cached && cached.data) { render(cached.data); renderAgenda(cached.agenda); setStatus(false, cached.at); $('status').textContent = 'actualizando…'; }
-if (!KEY) showSetup(); else { load(false).then(flushQueue); }
+load(false).then(flushQueue);
 setInterval(() => load(false), 10 * 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false); });
 window.addEventListener('online', () => { flushQueue(); load(false); });

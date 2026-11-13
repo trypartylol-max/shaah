@@ -3126,3 +3126,10 @@ html[data-skin] #app #scroll div.today div.today-disclosure-box.today-box-collap
 @media(min-width:880px){
   html[data-skin] #app #scroll .today .sf-combo-heading>span:last-child{font-size:13px!important;font-weight:400!important;color:rgba(var(--skin-rgb-ececf2,236,236,242),1)!important;}
 }
+/* Standard desktop Today: text that was white uses the level-title colour (LVL / Social Combo headings). Pro titles are already white. */
+@media(min-width:880px){
+  html:not([data-layout="pro"]) #app #scroll .today:not(.history-day-editor) :is(.today-routines-label,.today-sections-toggle,.wg-points,.wg-daily,.wg-weekly,.cr-routine-name,.sf-routine-total,.r-sub,.lvl-n,.sf-combo-heading>span:last-child,.sf-category-toggle,.sf-category-mark,.combo-category-chevron,.t-daylog-meta,.row,.row>*,.row>*>span:not([class]),.wg-daily strong,.wg-weekly strong){color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important;}
+}
+@media(min-width:880px){
+  html:not([data-layout="pro"]) #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important;}
+}

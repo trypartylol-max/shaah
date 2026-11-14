@@ -6238,7 +6238,7 @@ function statsHabitGrid(review){
   const {rest}=statsHabitPicks(review);
   const col=r=>r>=70?"#4ade80":r>=40?"#f59e0b":"#ef4444";
   const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
-  return`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🧩</span><span>${interfaceCopy("Close behind · last 7 days")}</span></div>
+  return`<div>
   <div class="stats-habit-grid">${rest.map(t=>{const c=col(t.rate);
     const dots=review.cur.map(x=>{const cfg=cfgForDate(x.key),on=[...cfg.L1,...cfg.L2,...cfg.L3].some(it=>it.id===t.id&&it.pts>0);
       const f=on?doneFrac((getChecked(x.key)||{})[t.id]):null;

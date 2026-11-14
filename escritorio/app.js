@@ -87,7 +87,7 @@ function render(d) {
   $('paceMk').style.left = (m * 100) + '%';
   $('heroSub').innerHTML = 'quedan ' + B(dim - day) + ' días';
   $('futBox').hidden = !fut;
-  if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--out)' : ''; $('futAmt').textContent = money(fut) + ' agendados'; }
+  if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--out)' : ''; $('futAmt').innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>−' + money(fut) + ' agendados'; }
 
   countTo($('earn'), earned);
   const base = Math.max(0, earned - week), tot = Math.max(1, base + week);

@@ -266,10 +266,12 @@ body.priv .pv.rv{filter:none}
 .rdel.sure{background:var(--out);color:#fff}
 html{background-color:#0a0b0d}
 /* budget + con futuros lado a lado */
-.hvrow{display:flex;align-items:flex-end;gap:22px;min-width:0}
+.hvrow{display:flex;align-items:center;gap:24px;min-width:0}
 .hv{font-size:clamp(40px,3.2vw,58px)}
-.hvf{display:flex;flex-direction:column;gap:3px;padding-left:20px;border-left:1px solid rgba(255,255,255,.1);min-width:0}
-.hvf small{font-size:12px;color:#a9b8b0;white-space:nowrap}
-.fv{font-size:clamp(26px,2vw,38px);font-weight:300;letter-spacing:-.04em;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;color:#d3e6dc}
-.fv .cur{font-size:.55em}
-@media(max-width:560px){.hv{font-size:44px}.fv{font-size:26px}.hvrow{gap:14px}.hvf{padding-left:14px}}
+.hvf{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:4px 0 4px 22px;border-left:1px solid rgba(255,255,255,.1);min-width:0}
+.hvf .fl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8fa79b;white-space:nowrap}
+.fv{font-size:clamp(28px,2.2vw,40px);font-weight:400;letter-spacing:-.035em;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;color:#bfe3cf}
+.fv .cur{font-size:.5em}
+.fchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#e2c27a;background:rgba(212,168,75,.12);border:1px solid rgba(212,168,75,.22);border-radius:999px;padding:3px 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fchip svg{opacity:.85}
+@media(max-width:560px){.hv{font-size:44px}.fv{font-size:26px}.hvrow{gap:14px}.hvf{padding-left:14px}.fchip{font-size:11px;padding:2px 7px}}

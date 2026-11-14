@@ -121,7 +121,7 @@ function render(d) {
 
 /* ---------- categorías en alerta (≥90 % del budget) ---------- */
 function catAlerts(d) {
-  return (d.catb || []).filter(c => c.budget > 0 && c.spent / c.budget >= 0.9)
+  return (d.catb || []).filter(c => c.budget > 0 && c.spent / c.budget >= 0.9 && Math.round(c.spent) !== Math.round(c.budget))
     .map(c => Object.assign({}, c, { over: c.spent - c.budget, p: c.spent / c.budget }))
     .sort((a, b) => (b.over > 0) - (a.over > 0) || b.over - a.over || b.p - a.p);
 }

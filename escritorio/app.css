@@ -275,3 +275,9 @@ html{background-color:#0a0b0d}
 .fchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#e2c27a;background:rgba(212,168,75,.12);border:1px solid rgba(212,168,75,.22);border-radius:999px;padding:3px 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .fchip svg{opacity:.85}
 @media(max-width:560px){.hv{font-size:44px}.fv{font-size:26px}.hvrow{gap:14px}.hvf{padding-left:14px}.fchip{font-size:11px;padding:2px 7px}}
+/* cápsulas % usado + días, y box del budget centrado */
+.k-hero .pills{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.k-hero .pill2{background:rgba(255,255,255,.06);color:#c9d4ce}
+.k-hero{justify-content:center;gap:18px}
+.k-hero .k-top{align-items:flex-start}
+.k-hero .hvrow{margin-top:-18px}

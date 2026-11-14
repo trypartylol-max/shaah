@@ -85,7 +85,7 @@ function render(d) {
   $('leftBar').style.width = Math.min(100, p * 100) + '%';
   $('leftBar').style.background = p >= 1 ? 'var(--out)' : p > m + .05 ? 'var(--gold)' : 'var(--in)';
   $('paceMk').style.left = (m * 100) + '%';
-  $('heroSub').innerHTML = 'quedan ' + B(dim - day) + ' días';
+  $('daysPill').textContent = (dim - day) + (dim - day === 1 ? ' día' : ' días');
   $('futBox').hidden = !fut;
   if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--out)' : ''; $('futAmt').innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>−' + money(fut) + ' agendados'; }
 

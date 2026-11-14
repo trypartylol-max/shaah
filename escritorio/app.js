@@ -85,7 +85,9 @@ function render(d) {
   $('leftBar').style.width = Math.min(100, p * 100) + '%';
   $('leftBar').style.background = p >= 1 ? 'var(--out)' : p > m + .05 ? 'var(--gold)' : 'var(--in)';
   $('paceMk').style.left = (m * 100) + '%';
-  $('heroSub').innerHTML = 'quedan ' + B(dim - day) + ' días' + (fut ? ' · con futuros ' + B(money(left - fut)) : '');
+  $('heroSub').innerHTML = 'quedan ' + B(dim - day) + ' días';
+  $('futBox').hidden = !fut;
+  if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--out)' : ''; $('futAmt').textContent = money(fut) + ' agendados'; }
 
   countTo($('earn'), earned);
   const base = Math.max(0, earned - week), tot = Math.max(1, base + week);

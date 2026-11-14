@@ -265,3 +265,11 @@ body.priv .pv.rv{filter:none}
 .rdel:hover{color:var(--ink)}
 .rdel.sure{background:var(--out);color:#fff}
 html{background-color:#0a0b0d}
+/* budget + con futuros lado a lado */
+.hvrow{display:flex;align-items:flex-end;gap:22px;min-width:0}
+.hv{font-size:clamp(40px,3.2vw,58px)}
+.hvf{display:flex;flex-direction:column;gap:3px;padding-left:20px;border-left:1px solid rgba(255,255,255,.1);min-width:0}
+.hvf small{font-size:12px;color:#a9b8b0;white-space:nowrap}
+.fv{font-size:clamp(26px,2vw,38px);font-weight:300;letter-spacing:-.04em;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;color:#d3e6dc}
+.fv .cur{font-size:.55em}
+@media(max-width:560px){.hv{font-size:44px}.fv{font-size:26px}.hvrow{gap:14px}.hvf{padding-left:14px}}

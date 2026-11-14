@@ -4814,6 +4814,9 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
+// Editar dia (History) pliega aparte: siempre abre con los tres niveles visibles
+// y no toca la preferencia de Today.
+let editLvlOpen={1:true,2:true,3:true};
 let secOpen={};   // Settings sections start collapsed every time Settings opens
 function loadSec(){secOpen={};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);render();document.getElementById('settings-toggle-'+k)?.focus({preventScroll:true});}
@@ -4832,7 +4835,7 @@ function loadLvl(){
   if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
 }
 function toggleLvl(n){
-  if(editDayKey)return;                       // History no pliega
+  if(editDayKey){editLvlOpen[n]=!editLvlOpen[n];haptic(9);render();return;}
   if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];syncTodaySections();return;}
   lvlOpen[n]=!lvlOpen[n];haptic(9);
   set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
@@ -5483,7 +5486,8 @@ function prepareTodayBoxes(fragment){
       box.dataset.todayBox=id;
       // Use the same typed action descriptor as every other application control.
       const template=document.createElement('template');
-      template.innerHTML=`<button type="button" class="today-box-disclosure" ${ui('click','toggleTodayBox',id)}><span>${label}</span><b aria-hidden="true">▾</b></button>`;
+      const score=id==='social'?box.querySelector('.sf-combo-heading>span:last-child')?.textContent||'':'';
+      template.innerHTML=`<button type="button" class="today-box-disclosure" ${ui('click','toggleTodayBox',id)}><span>${label}</span>${score?`<i class="today-box-score lvl-n">${esc(score)}</i>`:''}<b aria-hidden="true">▾</b></button>`;
       box.prepend(template.content.firstElementChild);
     });
     applyTodayBoxState(root);
@@ -5636,7 +5640,7 @@ function proTodayHTML(key,config){
   </section>`;
 }
 function renderToday(key,nested=false){
-  const lvlShown=nested?{1:true,2:true,3:true}:lvlOpen;   // History no pliega
+  const lvlShown=nested?editLvlOpen:lvlOpen;
   if(!nested&&key===todayKey()&&(starterSimple()||calcScore(key).max===0))return renderStarterToday(key);
   const _hr=new Date().getHours();
   const greetShort=interfaceText(_hr<12?'morning':_hr<18?'afternoon':'evening');
@@ -6524,7 +6528,7 @@ function resetDay(key){
   // offline protocol, so reload/reconnect cannot replay the earlier day snapshot.
   dayLogSaveLocal(key);persistDay(key);renderDayChange(key);
 }
-function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
+function openEditDay(key){editDayKey=key;editLvlOpen={1:true,2:true,3:true};socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
 // ═══ Routine engine — independent, concurrent sessions ═══════
@@ -6933,6 +6937,12 @@ function socialRecord(id,key){
 function socialCategoryToggle(id,key){
  const before={...getChecked(key)};
  const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);
+ // Una sola persona en la categoria = se marca sola al acreditarla; al quitarla se sueltan sus personas.
+ const mine=peopleList().filter(p=>!p.inactive&&socialCategory(p)===id);
+ let ppl=getPeople(key);
+ if(soc[id]){if(mine.length===1&&!ppl.includes(mine[0].id))ppl=ppl.concat(mine[0].id);}
+ else ppl=ppl.filter(pid=>!peopleList().some(p=>p.id===pid&&socialCategory(p)===id));
+ setPeople(key,ppl);
  const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
  dayLogSyncChangedCompletions(key,before);persistDay(key);renderDayChange(key);
 }

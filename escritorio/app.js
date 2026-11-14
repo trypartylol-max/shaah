@@ -296,10 +296,83 @@ async function load(force) {
 }
 
 /* ---------- gastos (con cola sin conexión) ---------- */
-function toast(msg) {
+function toast(msg, act, fn) {
   const t = $('toast'); t.textContent = msg; t.hidden = false;
-  clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, 3200);
+  if (act) { const b = document.createElement('button'); b.type = 'button'; b.className = 'tact'; b.textContent = act; b.onclick = () => { t.hidden = true; fn(); }; t.appendChild(b); }
+  clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, act ? 7000 : 3200);
 }
+
+/* ---------- agregar evento (texto libre, con vista previa) ---------- */
+const EV_HIST = 'esc-ev-hist';
+const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const fmtDay = d => { const t0 = new Date(); t0.setHours(0, 0, 0, 0); const n = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - t0) / 864e5); return n === 0 ? 'Hoy' : n === 1 ? 'Mañana' : cap(d.toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' }).replace(/\./g, '')); };
+const fmtHM = d => d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+function evWhen(r) {
+  if (r.all) { const days = Math.round((r.end - r.start) / 864e5); return fmtDay(r.start) + ' · todo el día' + (days > 1 ? ' (' + days + ' días)' : ''); }
+  return fmtDay(r.start) + ' · ' + fmtHM(r.start) + '–' + fmtHM(r.end);
+}
+function evChipsBuild() {
+  const t0 = new Date(), out = [];
+  out.push({ g: 'date', t: 'hoy', l: 'Hoy' }, { g: 'date', t: 'mañana', l: 'Mañana' });
+  for (let i = 2; i <= 4; i++) { const d = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + i); out.push({ g: 'date', t: DIAS[d.getDay()], l: cap(DIAS[d.getDay()].slice(0, 3)) }); }
+  ['9:00', '13:00', '18:00', '20:00', '21:30'].forEach(h => out.push({ g: 'time', t: h, l: h }));
+  out.push({ g: 'dur', t: 'por 30 min', l: '30 min' }, { g: 'dur', t: 'por 2 horas', l: '2 h' }, { g: 'all', t: 'todo el día', l: 'Todo el día' });
+  $('evChips').innerHTML = out.map((c, i) => (i && out[i - 1].g !== c.g ? '<i class="sep"></i>' : '') + '<button type="button" class="evc" data-g="' + c.g + '" data-t="' + esc(c.t) + '">' + esc(c.l) + '</button>').join('');
+}
+function evRender() {
+  const q = $('evIn').value, r = EscEvento.parse(q);
+  const ok = !!r.title;
+  $('evOk').disabled = !ok;
+  $('evPrev').innerHTML = q.trim() ? '<span class="evw">' + esc(evWhen(r)) + '</span><b>' + (ok ? esc(r.title) : '<span class="muted">¿qué es?</span>') + '</b>' : '<span class="muted">Escribe como hablas: "cena con Lior viernes 21", "vuelo 3/12 todo el día".</span>';
+  document.querySelectorAll('.evc').forEach(c => {
+    const g = c.dataset.g, x = EscEvento.parse('x ' + c.dataset.t);
+    let on = false;
+    if (g === 'date') on = r.hasDate && x.start.toDateString() === r.start.toDateString();
+    if (g === 'time') on = r.hasTime && x.start.getHours() === r.start.getHours() && x.start.getMinutes() === r.start.getMinutes();
+    if (g === 'dur') on = !r.all && r.dur === x.dur;
+    if (g === 'all') on = r.all && r.hasDate;
+    c.classList.toggle('on', on);
+  });
+}
+function evOpen() {
+  $('evForm').hidden = false; evChipsBuild();
+  const hist = get(EV_HIST, []), titles = Array.from(new Set(hist.concat(AG.map(e => e.t)))).slice(0, 40);
+  $('evList').innerHTML = titles.map(t => '<option value="' + esc(t) + '">').join('');
+  evRender(); $('evIn').focus();
+}
+function evClose() { $('evForm').hidden = true; $('evIn').value = ''; }
+$('evAdd').onclick = () => { $('evForm').hidden ? evOpen() : evClose(); };
+$('evX').onclick = evClose;
+$('evIn').addEventListener('input', evRender);
+$('evChips').addEventListener('click', ev => {
+  const c = ev.target.closest('.evc'); if (!c) return;
+  const g = c.dataset.g, strip = g === 'date' ? ['date'] : g === 'time' ? ['time', 'all'] : g === 'dur' ? ['dur', 'all'] : ['time', 'dur', 'all'];
+  const base = EscEvento.strip($('evIn').value, strip);
+  $('evIn').value = c.classList.contains('on') ? base : (base + ' ' + c.dataset.t).trim();
+  evRender(); $('evIn').focus();
+});
+async function addEvento(text) {
+  const r = EscEvento.parse(text);
+  if (!r.title) { toast('Falta qué es el evento'); return false; }
+  try {
+    const j = await apiPost({ op: 'evento', t: r.title, s: r.start.getTime(), e: r.end.getTime(), all: r.all });
+    if (!j.ok) throw new Error(j.error);
+    renderAgenda(j.agenda || []);
+    const c = get(LS.cache, null); if (c) { c.agenda = j.agenda || []; set(LS.cache, c); }
+    set(EV_HIST, [r.title].concat(get(EV_HIST, []).filter(t => t !== r.title)).slice(0, 30));
+    toast('✓ ' + r.title + ' · ' + evWhen(r), 'Deshacer', async () => {
+      try { const k = await apiPost({ op: 'evento_borrar', id: j.id }); if (k.ok) { renderAgenda(k.agenda || []); toast('Evento borrado'); } } catch (e) { toast('No pude borrarlo'); }
+    });
+    return true;
+  } catch (e) { toast('Error: ' + (e.message || 'sin conexión')); return false; }
+}
+$('evForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  $('evOk').disabled = true; $('evOk').textContent = 'Guardando…';
+  const ok = await addEvento($('evIn').value);
+  $('evOk').textContent = 'Agendar'; $('evOk').disabled = false;
+  if (ok) evClose();
+});
 async function sendGasto(g) {
   const r = await apiPost({ op: 'gasto', monto: g.monto, categoria: g.categoria, comercio: g.comercio });
   if (!r || !r.ok) throw Object.assign(new Error((r && r.error) || 'error'), { server: true });
@@ -436,7 +509,11 @@ function parseGasto(q) {
 let palItems = [], palSel = 0;
 function palBuild() {
   const q = $('palIn').value, nq = norm(q), items = [];
-  const g = parseGasto(q);
+  const evPref = /^\s*(\+|ev |evento )/i.test(q);
+  const evq = q.replace(/^\s*(\+|ev |evento )/i, '');
+  const er = q.trim() ? EscEvento.parse(evq) : null;
+  if (er && er.title && (er.hasDate || er.hasTime || evPref)) items.push({ t: 'Agendar: ' + er.title, s: evWhen(er), run: () => addEvento(evq) });
+  const g = evPref ? null : parseGasto(q);
   if (g && g.monto) items.push({ t: 'Registrar ' + money(g.monto) + (g.com ? ' · ' + g.com : ''), s: g.cat ? g.cat.name : 'sin categoría', run: () => { if (!g.com) { toast('Falta dónde / qué'); return; } addGasto({ monto: g.monto, categoria: g.cat ? g.cat.code : '', comercio: g.com }); } });
   const cmds = [
     { t: 'Modo privado', s: 'P', run: () => setPriv(!document.body.classList.contains('priv')) },
@@ -466,7 +543,7 @@ $('pal').addEventListener('click', e => { if (e.target === $('pal')) palClose();
 /* ---------- atajos de teclado ---------- */
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('pal').hidden ? palOpen() : palClose(); return; }
-  if (e.key === 'Escape') { palClose(); closeDrawer(); setFocus(false); $('appModal').hidden = true; return; }
+  if (e.key === 'Escape') { evClose(); palClose(); closeDrawer(); setFocus(false); $('appModal').hidden = true; return; }
   const tag = (e.target.tagName || '').toLowerCase();
   if (tag === 'input' || tag === 'select' || tag === 'textarea' || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.toLowerCase();
@@ -474,6 +551,7 @@ document.addEventListener('keydown', e => {
   else if (k === 'p') setPriv(!document.body.classList.contains('priv'));
   else if (k === 'f') setFocus($('focus').hidden);
   else if (k === 'r') load(true);
+  else if (k === 'e') { e.preventDefault(); evOpen(); }
   else if (/^[1-9]$/.test(k)) { const a = allApps()[+k - 1]; if (a) window.open(a.u, '_blank', 'noopener'); }
 });
 

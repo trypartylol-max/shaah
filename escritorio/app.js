@@ -200,17 +200,54 @@ function vState(x, today) {
   }
   return { cls: '', txt: 'vence ' + x.vence };
 }
+let VL = [];
 function renderVouchers(V) {
   $('vouCard').hidden = !V.length;
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  const L = V.map(x => Object.assign({}, x, vState(x, today))).sort((a, b) => ((a.cls === ' gone') - (b.cls === ' gone')) || (b.amount - a.amount));
-  $('vouTot').textContent = money(L.filter(x => x.cls !== ' gone').reduce((s, x) => s + (x.amount || 0), 0));
-  $('vou').innerHTML = L.map(x => {
+  VL = V.map(x => Object.assign({}, x, vState(x, today))).sort((a, b) => ((a.cls === ' gone') - (b.cls === ' gone')) || (b.amount - a.amount));
+  const live = VL.filter(x => x.cls !== ' gone');
+  $('vouTot').textContent = money(live.reduce((s, x) => s + (x.amount || 0), 0));
+  const G = {}; live.forEach(x => { const g = cap(x.group || 'otros'); G[g] = (G[g] || 0) + (x.amount || 0); });
+  const gs = Object.keys(G).sort((a, b) => G[b] - G[a]);
+  $('vouGroups').innerHTML = gs.length > 1 ? gs.map(g => '<span><small>' + esc(g) + '</small><b class="pv">' + money(G[g]) + '</b></span>').join('') : '';
+  $('vou').innerHTML = VL.map((x, i) => {
     const nm = cap(([x.name, x.what].filter(Boolean).join(' · ') || x.group || 'Voucher').trim());
-    return '<div class="vc' + x.cls + '"><span class="av">' + esc(nm[0] || '?') + '</span><span class="n">' + esc(nm) + '</span><span class="a pv">' + money(x.amount) + '</span><span class="v">' + esc(x.txt || x.group || '') + '</span></div>';
+    return '<div class="vc' + x.cls + '" data-i="' + i + '" tabindex="0" role="button" aria-label="Usar ' + esc(nm) + '"><span class="av">' + esc(nm[0] || '?') + '</span><span class="n">' + esc(nm) + '</span><span class="a pv">' + money(x.amount) + '</span><span class="v">' + esc(x.txt || x.group || '') + '</span></div>';
   }).join('');
   vouMore();
 }
+function vouClose() { document.querySelectorAll('.vc .use').forEach(u => u.remove()); document.querySelectorAll('.vc.open').forEach(v => v.classList.remove('open')); }
+async function vouUse(vc, monto) {
+  const x = VL[+vc.dataset.i], u = vc.querySelector('.use');
+  monto = parseFloat(String(monto).replace(',', '.'));
+  if (!x || !x.row || !(monto > 0)) return;
+  u.innerHTML = '<span class="muted">Guardando…</span>';
+  try {
+    const r = await apiPost({ op: 'voucher', row: x.row, nombre: x.name, que: x.what, monto });
+    if (!r.ok) throw new Error(r.error);
+    render(r.data);
+    toast('✓ ' + money(monto) + ' usados · quedan ' + money(Math.max(0, x.amount - monto)));
+  } catch (e) { u.innerHTML = '<span class="muted">Error: ' + esc(e.message || 'sin conexión') + '</span>'; }
+}
+$('vou').addEventListener('click', ev => {
+  const vc = ev.target.closest('.vc'); if (!vc) return;
+  const x = VL[+vc.dataset.i];
+  if (ev.target.closest('.use')) {
+    const b = ev.target.closest('button'); if (!b) return;
+    if (b.dataset.a === 'x') { vouClose(); return; }
+    if (b.dataset.a === 'all') { vouUse(vc, x.amount); return; }
+    vouUse(vc, vc.querySelector('.use input').value); return;
+  }
+  if (vc.classList.contains('open') || vc.classList.contains('gone') || !x.row) { vouClose(); return; }
+  vouClose(); vc.classList.add('open');
+  vc.insertAdjacentHTML('beforeend', '<div class="use"><input type="number" inputmode="decimal" step="any" min="0" placeholder="₪ cuánto usaste" aria-label="Monto usado"><button type="button" class="ok" data-a="use">Usar</button><button type="button" data-a="all">Todo</button><button type="button" class="x" data-a="x" aria-label="Cancelar">✕</button></div>');
+  vc.querySelector('.use input').focus();
+});
+$('vou').addEventListener('keydown', ev => {
+  const vc = ev.target.closest('.vc'); if (!vc) return;
+  if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') { ev.preventDefault(); vouUse(vc, ev.target.value); }
+  else if (ev.key === 'Enter' && ev.target === vc) { ev.preventDefault(); vc.click(); }
+});
 function vouMore() {
   const n = $('vou').children.length;
   $('vouMore').hidden = n <= 4;

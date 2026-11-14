@@ -4814,6 +4814,9 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
+// Editar dia (History) pliega aparte: siempre abre con los tres niveles visibles
+// y no toca la preferencia de Today.
+let editLvlOpen={1:true,2:true,3:true};
 let secOpen={};   // Settings sections start collapsed every time Settings opens
 function loadSec(){secOpen={};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);render();document.getElementById('settings-toggle-'+k)?.focus({preventScroll:true});}
@@ -4832,6 +4835,7 @@ function loadLvl(){
   if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
 }
 function toggleLvl(n){
+  if(editDayKey){editLvlOpen[n]=!editLvlOpen[n];haptic(9);render();return;}
   if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];syncTodaySections();return;}
   lvlOpen[n]=!lvlOpen[n];haptic(9);
   set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
@@ -5635,6 +5639,7 @@ function proTodayHTML(key,config){
   </section>`;
 }
 function renderToday(key,nested=false){
+  const lvlShown=nested?editLvlOpen:lvlOpen;
   if(!nested&&key===todayKey()&&(starterSimple()||calcScore(key).max===0))return renderStarterToday(key);
   const _hr=new Date().getHours();
   const greetShort=interfaceText(_hr<12?'morning':_hr<18?'afternoon':'evening');
@@ -5727,8 +5732,8 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
     </div>`}
 
     ${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[1]?"":" cl"}">▾</span>${interfaceCopy(core?'CORE HABITS':'⬛ LVL 1 — CORE')}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
-      <div class="lvl-b${lvlOpen[1]?"":" cl"}">
+      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[1]?"":" cl"}">▾</span>${interfaceCopy(core?'CORE HABITS':'⬛ LVL 1 — CORE')}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
+      <div class="lvl-b${lvlShown[1]?"":" cl"}">
       ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
         const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
         return`
@@ -5746,8 +5751,8 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       </div>
     </div>`}
     <div class="t-lvl t-lvl2" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[2]}" ${ui('click','toggleLvl' ,2)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[2]?"":" cl"}">▾</span>${interfaceCopy("▪ LVL 2 — HABITS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l2}/${dM2}</span></span></button>${allBtn(2,C.L2)}</div>
-      <div class="lvl-b${lvlOpen[2]?"":" cl"}">
+      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[2]}" ${ui('click','toggleLvl' ,2)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[2]?"":" cl"}">▾</span>${interfaceCopy("▪ LVL 2 — HABITS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l2}/${dM2}</span></span></button>${allBtn(2,C.L2)}</div>
+      <div class="lvl-b${lvlShown[2]?"":" cl"}">
       ${C.L2.map(item=>{
         const st=ch[item.id],half=halfCreditItem(item.id),light=half&&st===0.5;
         return`
@@ -5761,8 +5766,8 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       </div>
     </div>
     <div class="t-lvl t-lvl3" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlOpen[3]}" ${ui('click','toggleLvl' ,3)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlOpen[3]?"":" cl"}">▾</span>${interfaceCopy("· LVL 3 — BONUS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${core?bonusSummary(key).earned:l3}/${core?bonusSummary(key).max:dM3}</span></span></button>${allBtn(3,core?C.L3.filter(i=>!i.combo):C.L3)}</div>
-      <div class="lvl-b${lvlOpen[3]?"":" cl"}">
+      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[3]}" ${ui('click','toggleLvl' ,3)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[3]?"":" cl"}">▾</span>${interfaceCopy("· LVL 3 — BONUS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${core?bonusSummary(key).earned:l3}/${core?bonusSummary(key).max:dM3}</span></span></button>${allBtn(3,core?C.L3.filter(i=>!i.combo):C.L3)}</div>
+      <div class="lvl-b${lvlShown[3]?"":" cl"}">
       ${core?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>{
         const st=ch[item.id];
@@ -6522,7 +6527,7 @@ function resetDay(key){
   // offline protocol, so reload/reconnect cannot replay the earlier day snapshot.
   dayLogSaveLocal(key);persistDay(key);renderDayChange(key);
 }
-function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
+function openEditDay(key){editDayKey=key;editLvlOpen={1:true,2:true,3:true};socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
 // ═══ Routine engine — independent, concurrent sessions ═══════

@@ -4814,9 +4814,6 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
-// Editar dia (History) pliega aparte: siempre abre con los tres niveles visibles
-// y no toca la preferencia de Today.
-let editLvlOpen={1:true,2:true,3:true};
 let secOpen={};   // Settings sections start collapsed every time Settings opens
 function loadSec(){secOpen={};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);render();document.getElementById('settings-toggle-'+k)?.focus({preventScroll:true});}
@@ -4835,7 +4832,7 @@ function loadLvl(){
   if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
 }
 function toggleLvl(n){
-  if(editDayKey){editLvlOpen[n]=!editLvlOpen[n];haptic(9);render();return;}
+  if(editDayKey)return;                       // History no pliega
   if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];syncTodaySections();return;}
   lvlOpen[n]=!lvlOpen[n];haptic(9);
   set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
@@ -5639,7 +5636,7 @@ function proTodayHTML(key,config){
   </section>`;
 }
 function renderToday(key,nested=false){
-  const lvlShown=nested?editLvlOpen:lvlOpen;
+  const lvlShown=nested?{1:true,2:true,3:true}:lvlOpen;   // History no pliega
   if(!nested&&key===todayKey()&&(starterSimple()||calcScore(key).max===0))return renderStarterToday(key);
   const _hr=new Date().getHours();
   const greetShort=interfaceText(_hr<12?'morning':_hr<18?'afternoon':'evening');
@@ -6527,7 +6524,7 @@ function resetDay(key){
   // offline protocol, so reload/reconnect cannot replay the earlier day snapshot.
   dayLogSaveLocal(key);persistDay(key);renderDayChange(key);
 }
-function openEditDay(key){editDayKey=key;editLvlOpen={1:true,2:true,3:true};socialExpanded=false;render();}
+function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
 // ═══ Routine engine — independent, concurrent sessions ═══════

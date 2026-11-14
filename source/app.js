@@ -5486,7 +5486,8 @@ function prepareTodayBoxes(fragment){
       box.dataset.todayBox=id;
       // Use the same typed action descriptor as every other application control.
       const template=document.createElement('template');
-      template.innerHTML=`<button type="button" class="today-box-disclosure" ${ui('click','toggleTodayBox',id)}><span>${label}</span><b aria-hidden="true">▾</b></button>`;
+      const score=id==='social'?box.querySelector('.sf-combo-heading>span:last-child')?.textContent||'':'';
+      template.innerHTML=`<button type="button" class="today-box-disclosure" ${ui('click','toggleTodayBox',id)}><span>${label}</span>${score?`<i class="today-box-score lvl-n">${esc(score)}</i>`:''}<b aria-hidden="true">▾</b></button>`;
       box.prepend(template.content.firstElementChild);
     });
     applyTodayBoxState(root);
@@ -6936,6 +6937,12 @@ function socialRecord(id,key){
 function socialCategoryToggle(id,key){
  const before={...getChecked(key)};
  const soc={...getSocial(key)};soc[id]=!soc[id];setSocial(key,soc);
+ // Una sola persona en la categoria = se marca sola al acreditarla; al quitarla se sueltan sus personas.
+ const mine=peopleList().filter(p=>!p.inactive&&socialCategory(p)===id);
+ let ppl=getPeople(key);
+ if(soc[id]){if(mine.length===1&&!ppl.includes(mine[0].id))ppl=ppl.concat(mine[0].id);}
+ else ppl=ppl.filter(pid=>!peopleList().some(p=>p.id===pid&&socialCategory(p)===id));
+ setPeople(key,ppl);
  const ch={...getChecked(key)};ch.social=Object.values(soc).some(Boolean);setChecked(key,ch);
  dayLogSyncChangedCompletions(key,before);persistDay(key);renderDayChange(key);
 }

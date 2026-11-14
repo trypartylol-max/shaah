@@ -617,6 +617,10 @@ renderApps();
 const cached = get(LS.cache, null);
 if (cached && cached.data) { render(cached.data); renderAgenda(cached.agenda); setStatus(false, cached.at); $('status').textContent = 'actualizando…'; }
 load(false).then(flushQueue);
+function hashAction() {
+  if (location.hash === '#gasto') { setTimeout(() => { $('aMonto').scrollIntoView({ block: 'center' }); $('aMonto').focus(); }, 300); history.replaceState(null, '', location.pathname); }
+}
+hashAction(); window.addEventListener('hashchange', hashAction);
 setInterval(() => load(false), 10 * 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(false); });
 window.addEventListener('online', () => { flushQueue(); load(false); });

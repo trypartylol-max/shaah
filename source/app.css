@@ -3229,3 +3229,121 @@ html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-met
 @media(hover:hover){.history-week-card[role="button"]:hover{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.45)!important}}
 .history-week-card[role="button"]:active{transform:scale(.995)}
 .history-week-card[role="button"]:focus-visible{outline:2px solid rgba(var(--skin-rgb-a78bfa,167,139,250),.8);outline-offset:2px}
+
+/* History · 7 days on desktop: week summary + seven day columns (oldest → today). */
+.history-week-grid{display:flex;flex-direction:column;gap:14px}
+.history-week-grid .hw-title{margin-bottom:0}
+.hw-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.hw-stat{border:1px solid var(--pro-edge,#1e1e2e);border-radius:14px;padding:14px 18px;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),.6)}
+.hw-stat-label{font-size:11px;letter-spacing:.12em;color:#7e7e97}
+.hw-stat-value{font-family:'Bebas Neue';font-size:34px;line-height:1.1;color:#e2e2e2;margin-top:4px}
+.hw-stat-value i,.hw-score i,.hw-bar-top i{font-style:normal;opacity:.5;font-size:.6em}
+.hw-stat-sub{font-size:12.5px;color:#8a8aa0}
+.hw-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:stretch}
+.hw-day{display:flex;flex-direction:column;gap:12px;padding:14px!important;margin:0!important;min-height:300px;cursor:pointer;transition:border-color .15s,transform .1s}
+.hw-day.hw-today{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.55)!important;background:rgba(var(--skin-rgb-a78bfa,167,139,250),.05)}
+.hw-day.empty{opacity:.55}
+@media(hover:hover){.hw-day:hover{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.6)!important;opacity:1}}
+.hw-day:active{transform:scale(.99)}
+.hw-day:focus-visible{outline:2px solid rgba(var(--skin-rgb-a78bfa,167,139,250),.8);outline-offset:2px}
+.hw-head{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.hw-wd{font-family:'Bebas Neue';font-size:20px;letter-spacing:.08em;color:#e2e2e2}
+.hw-dm{font-size:11.5px;letter-spacing:.08em;color:#8a8aa0;white-space:nowrap}
+.hw-day.hw-today .hw-dm{color:rgba(var(--skin-rgb-bba5fa,187,165,250),1)}
+.hw-score{display:flex;align-items:center;justify-content:space-between}
+.hw-ring{position:relative;width:64px;height:64px}
+.hw-ring>span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:20px}
+.hw-grade{font-family:'Bebas Neue';font-size:40px;line-height:1}
+.hw-bars{display:flex;flex-direction:column;gap:9px}
+.hw-bar-top{display:flex;justify-content:space-between;font-size:11.5px;letter-spacing:.06em;color:#8a8aa0;margin-bottom:4px}
+.hw-track{height:4px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.hw-fill{height:100%;border-radius:3px}
+.hw-empty{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:#6a6a80;letter-spacing:.06em}
+.hw-note{margin-top:auto;font-size:12.5px;line-height:1.4;color:#a2a2b6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;border-top:1px solid var(--pro-edge,#1e1e2e);padding-top:9px}
+
+/* History · 7 days, preview switch A | B */
+.hw-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hw-variant{display:inline-flex;border:1px solid var(--pro-edge,#1e1e2e);border-radius:10px;overflow:hidden}
+.hw-variant button{background:none;border:0;color:#8a8aa0;padding:7px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+@media(hover:hover){.hw-variant button:not(.on):hover{color:#d0d0da}}
+.hw-variant button.on{background:rgba(var(--skin-rgb-a78bfa,167,139,250),.18);color:#e2e2e2}
+/* B: habits x days matrix filling the screen height */
+.hm{display:grid;grid-template-columns:minmax(170px,230px) repeat(7,minmax(0,1fr));column-gap:8px;row-gap:4px;min-height:420px}
+.hm-corner{grid-column:1}
+.hm-day{grid-column:auto;display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--pro-edge,#1e1e2e);border-radius:12px;cursor:pointer;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),.6);transition:border-color .15s}
+.hm-day.hw-today{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.55);background:rgba(var(--skin-rgb-a78bfa,167,139,250),.06)}
+.hm-day.empty{opacity:.55}
+@media(hover:hover){.hm-day:hover{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.6);opacity:1}}
+.hm-day:focus-visible{outline:2px solid rgba(var(--skin-rgb-a78bfa,167,139,250),.8);outline-offset:2px}
+.hm-day-top{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.hm-day-score{display:flex;align-items:baseline;justify-content:space-between;font-family:'Bebas Neue';font-size:26px;line-height:1}
+.hm-day-score i{font-style:normal;font-size:.55em;opacity:.6}
+.hm-day-score b{font-weight:400;font-size:30px}
+.hm-day-score.dim{color:#4a4a5e}
+.hm-group{grid-column:1/-1;align-self:end;font-size:11px;letter-spacing:.14em;font-weight:600;padding:6px 2px 0;border-bottom:1px solid var(--pro-edge,#1e1e2e)}
+.hm-label{grid-column:1;display:flex;align-items:center;font-size:14px;color:#c0c0cd;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline-start:2px}
+.hm-cell{display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(255,255,255,.025);cursor:pointer;font-size:13px;color:#8a8aa0;min-height:0}
+.hm-cell i{font-style:normal;opacity:.55}
+.hm-cell.on{background:rgba(var(--skin-rgb-a78bfa,167,139,250),.08);color:#e2e2e2}
+.hm-cell.off{background:transparent;cursor:default}
+.hm-cell b{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;font-size:13px;color:#0b0b14;font-weight:800}
+.hm-cell b.no{width:20px;height:20px;border:1.5px solid #2a2a3c;background:transparent}
+.hm-cell b.half{width:auto;padding:0 6px;background:transparent;border:1.5px solid;font-size:11px;font-weight:700}
+@media(hover:hover){.hm-cell:not(.off):hover{outline:1px solid rgba(var(--skin-rgb-a78bfa,167,139,250),.45)}}
+.hm-note-label{align-items:flex-start;padding-top:8px;font-size:11px;letter-spacing:.14em;font-weight:600;color:#8a8aa0}
+.hm-note{border:1px solid var(--pro-edge,#1e1e2e);border-radius:10px;padding:8px 10px;font-size:12.5px;line-height:1.4;color:#a2a2b6;overflow:hidden;cursor:pointer;min-height:0;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical}
+.hw-summary.hw-compact{display:flex;flex:1;justify-content:center;gap:10px}
+.hw-compact .hw-stat{display:flex;align-items:baseline;gap:8px;padding:6px 12px;border-radius:10px}
+.hw-compact .hw-stat-label{font-size:10.5px}
+.hw-compact .hw-stat-value{font-size:22px;margin:0}
+.hw-compact .hw-stat-sub{font-size:11.5px}
+.hw-b{gap:10px}
+.hw-b .hm-day{padding:8px 10px;gap:4px}
+.hw-b .hm-day-score{font-size:22px}.hw-b .hm-day-score b{font-size:24px}
+.hw-b .hm{min-height:0}
+
+/* Cards view: Day Note row under the cards, one box per day, down to the screen edge. */
+.hw-notes-title{margin:4px 0 -4px!important}
+.hw-notes{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;min-height:110px}
+.hw-noteb{border:1px solid var(--pro-edge,#1e1e2e);border-radius:14px;padding:12px 14px;font-size:13.5px;line-height:1.45;color:#c0c0cd;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),.6);overflow-y:auto;white-space:pre-wrap;cursor:pointer;transition:border-color .15s}
+.hw-noteb.empty{color:#4a4a5e;display:flex;align-items:center;justify-content:center}
+.hw-noteb.hw-today{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.45)}
+@media(hover:hover){.hw-noteb:hover{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.6)}}
+
+/* List view on desktop: one compact row per day (date | Core · Habits · Bonus | score)
+   so the seven days fit on one screen. Mobile keeps the stacked card. */
+.history-week-list.hw-wide{gap:8px!important}
+.history-week-list.hw-wide .history-week-card{display:grid!important;grid-template-columns:minmax(200px,260px) minmax(0,1fr) 120px;align-items:center;column-gap:32px;padding:8px 22px!important;margin:0!important;min-height:56px;box-sizing:border-box}
+.history-week-list.hw-wide .history-week-card>div:first-child{display:contents!important}
+.history-week-list.hw-wide .history-week-card>div:first-child>div:first-child{grid-column:1;grid-row:1}
+.history-week-list.hw-wide .history-week-card>div:first-child>div:last-child{grid-column:3;grid-row:1;justify-self:end}
+.history-week-list.hw-wide .history-week-card>div:nth-child(2){grid-column:2;grid-row:1;gap:28px!important}
+.history-week-list.hw-wide .history-week-card .h-day{font-size:14px!important}
+.history-week-list.hw-wide .history-week-card .h-today{font-size:12px!important;margin-top:1px!important}
+.history-week-list.hw-wide .history-week-card .h-lvl{font-size:12.5px!important;margin-bottom:6px!important}
+.history-week-list.hw-wide .history-week-card .h-grade{font-size:28px!important}
+
+/* List view below 1200px (mobile included): same compact idea — date and score on one
+   line, the three bars right under it, tight padding — so the 7 days fit one screen. */
+@media(max-width:1199px){
+ .history-week-list.hw-compact{gap:6px!important}
+ .history-week-list.hw-compact>.sec{margin-bottom:0!important}
+ .history-week-list.hw-compact .history-week-card{padding:8px 14px!important;margin:0!important}
+ .history-week-list.hw-compact .history-week-card>div:first-child{margin-bottom:6px!important}
+ .history-week-list.hw-compact .history-week-card:not(:has(.h-lvl))>div:first-child{margin-bottom:0!important}
+ .history-week-list.hw-compact .history-week-card .h-day{font-size:13px!important}
+ .history-week-list.hw-compact .history-week-card .h-today{font-size:11px!important;margin-top:0!important}
+ .history-week-list.hw-compact .history-week-card .h-lvl{font-size:11.5px!important;margin-bottom:3px!important}
+ .history-week-list.hw-compact .history-week-card>div:first-child>div:last-child>div:first-child{zoom:.78}
+ .history-week-list.hw-compact .history-week-card .h-grade{font-size:24px!important}
+}
+
+/* Year: on wider screens each month is one row of 31 equal columns that fills the card
+   (day N always sits in column N). Narrow screens keep the wrapping squares. */
+.hy-pad{display:none}
+@media(min-width:880px){
+ .hy-days{display:grid!important;grid-template-columns:repeat(31,minmax(0,1fr));gap:5px!important}
+ .hy-pad{display:block}
+ .hy-day{width:auto!important;height:34px!important;border-radius:7px!important}
+ .hy-day>span:first-child{font-size:17px!important}
+}

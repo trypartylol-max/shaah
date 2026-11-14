@@ -2614,7 +2614,8 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 /* History shares the renderer, but needs its own content-sized grid tracks. */
 #scroll .today.history-day-editor>.t-lvl,
 #scroll .today.history-day-editor>.t-note{transform:none!important;min-width:0!important;align-self:start!important}
-@media(min-width:880px){
+/* History, 880-1199px: stacked grid (score, three levels, Social + Note). */
+@media(min-width:880px) and (max-width:1199px){
  #scroll .today.history-day-editor{align-content:start!important;align-items:start!important}
  #scroll .today.history-day-editor>.t-score-hero{grid-row:1!important;grid-column:1/-1!important}
  #scroll .today.history-day-editor>.t-lvl1{grid-row:2!important;grid-column:1/span 4!important}
@@ -2625,6 +2626,27 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
  #scroll .today.history-day-editor>.t-daylog{grid-row:4!important;grid-column:1/-1!important}
  #scroll .today.history-day-editor>.t-reset{grid-row:5!important;grid-column:1/-1!important}
 }
+/* Edit day (History) = one screen on desktop (>=1200px; narrower keeps the stacked grid above).
+   Score on top; below, three columns that each stack to their own height:
+   Core + Bonus | Habits | Social, and the Day Note across the full width at the bottom
+   (placed by layoutEditDay() on 4px rows).
+   The screen bottom is only a ceiling. The dock / Pro sidebar stay visible. */
+@media(min-width:1200px){
+ #scroll:has(>.edit-day-screen),#scroll .edit-day-screen{height:100%;min-height:0!important;overflow:hidden}
+ #scroll .today.history-day-editor{flex:1;min-height:0;box-sizing:border-box;padding:14px 24px 4px!important;gap:0 16px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-rows:4px!important;align-content:start!important;align-items:start!important;margin:0 auto!important;max-width:1500px!important;width:100%!important}
+ #scroll .today.history-day-editor>*{margin:0!important;max-width:none!important;align-self:start!important;min-height:0;max-height:calc(100% - 14px);overflow-y:auto;overscroll-behavior:contain}
+ #scroll .today.history-day-editor>.t-score-hero{overflow:visible;padding:0!important;min-height:0!important;grid-template-columns:auto minmax(0,1fr)!important;justify-content:stretch!important;align-items:center!important;column-gap:20px!important}
+ #scroll .today.history-day-editor>.t-score-hero .t-ring{zoom:.6!important;justify-self:start!important}
+ #scroll .today.history-day-editor>.t-score-hero .t-levelstatus{padding-top:14px!important;padding-bottom:14px!important}
+ #scroll .today.history-day-editor .lvl-b>.row,#scroll .today.history-day-editor .combo-category-row{min-height:40px!important;padding-top:6px!important;padding-bottom:6px!important}
+ #scroll .today.history-day-editor>.t-note{display:flex!important;flex-direction:column;height:calc(100% - 14px)!important;max-height:none!important;overflow:hidden!important;box-sizing:border-box}
+ #scroll .today.history-day-editor>.t-note>.notecard{flex:1;min-height:0;display:flex}
+ #scroll .today.history-day-editor>.t-note textarea{flex:1;height:auto!important;min-height:64px!important;resize:none}
+ #scroll .today.history-day-editor>.t-daylog,#scroll .today.history-day-editor>.t-reset{display:none!important}
+}
+/* History never collapses: levels are always open and the header is not a toggle. */
+#scroll .today.history-day-editor .lvl-ar{display:none!important}
+#scroll .today.history-day-editor .lvl-toggle{cursor:default!important;pointer-events:none}
 .sf-work-reference .sf-core-actions{align-items:center;justify-content:space-between;gap:10px}.sf-work-weekly{display:flex;flex-direction:column;gap:3px;text-align:right;margin-left:auto;min-width:0}.sf-work-weekly>span{font-size:9px;letter-spacing:.07em;color:var(--skin-muted)}.sf-work-weekly>strong{font-size:18px;line-height:1.2;font-weight:500;color:var(--today-accent,var(--skin-copy));font-variant-numeric:tabular-nums}
 
 /* OG: Core Routines is a plain heading above independently framed cards. */
@@ -3201,3 +3223,9 @@ html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-met
 .stats-page .stats-habit-forgot{border-color:#94a3b855!important;background:#94a3b80d!important}
 .stats-page .stats-habit-forgot .stats-habit-icon{background:#94a3b81f;border-color:#94a3b855;filter:grayscale(.6)}
 .stats-page .stats-habit-forgot strong{color:#cbd5e1}
+
+/* History week: the whole day card opens the day. */
+.history-week-card[role="button"]{transition:border-color .15s,background-color .15s,transform .1s}
+@media(hover:hover){.history-week-card[role="button"]:hover{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),.45)!important}}
+.history-week-card[role="button"]:active{transform:scale(.995)}
+.history-week-card[role="button"]:focus-visible{outline:2px solid rgba(var(--skin-rgb-a78bfa,167,139,250),.8);outline-offset:2px}

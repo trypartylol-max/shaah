@@ -4814,9 +4814,6 @@ function bar(pct,col,glow,h=6){
 
 let settingsOpen=false;
 let lvlOpen={1:true,2:true,3:true};
-// Editar dia (History) pliega aparte: siempre abre con los tres niveles visibles
-// y no toca la preferencia de Today.
-let editLvlOpen={1:true,2:true,3:true};
 let secOpen={};   // Settings sections start collapsed every time Settings opens
 function loadSec(){secOpen={};}
 function toggleSec(k){secOpen[k]=!secOpen[k];haptic(9);render();document.getElementById('settings-toggle-'+k)?.focus({preventScroll:true});}
@@ -4835,7 +4832,7 @@ function loadLvl(){
   if(v&&typeof v==='object')lvlOpen={1:v[1]!==false,2:v[2]!==false,3:v[3]!==false};
 }
 function toggleLvl(n){
-  if(editDayKey){editLvlOpen[n]=!editLvlOpen[n];haptic(9);render();return;}
+  if(editDayKey)return;                       // History no pliega
   if(todaySectionsSession){lvlOpen[n]=!lvlOpen[n];syncTodaySections();return;}
   lvlOpen[n]=!lvlOpen[n];haptic(9);
   set(lvlKey(),lvlOpen);                    // instantaneo y sobrevive sin red
@@ -5342,10 +5339,11 @@ function render(){
   if(_starterGate!=='ready'||_starterEditor){uiHTML(el,_starterEditor?starterChoicesHTML():starterGateHTML());nav.style.display='none';tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
   if(settingsOpen){uiHTML(el,renderSettings());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
-  if(editDayKey){uiHTML(el,renderEditDay());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   nav.style.display="flex";
   const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
   if(sbtn)sbtn.hidden=!socialOwnTab();
+  // Editar dia es parte de History: el dock / panel lateral sigue a la vista.
+  if(editDayKey){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));uiHTML(el,renderEditDay());layoutEditDay();tuckNav(false);renderTour();renderResume();return;}
   // Placement hides the navigation tab, but explicit Social shortcuts still open it.
   const bar=topbarHTML();   // scrolls away with the content
   document.querySelectorAll(".nav-btn").forEach(b=>{
@@ -5640,7 +5638,7 @@ function proTodayHTML(key,config){
   </section>`;
 }
 function renderToday(key,nested=false){
-  const lvlShown=nested?editLvlOpen:lvlOpen;
+  const lvlShown=nested?{1:true,2:true,3:true}:lvlOpen;   // History no pliega
   if(!nested&&key===todayKey()&&(starterSimple()||calcScore(key).max===0))return renderStarterToday(key);
   const _hr=new Date().getHours();
   const greetShort=interfaceText(_hr<12?'morning':_hr<18?'afternoon':'evening');
@@ -6289,14 +6287,14 @@ function renderHistWeek(){
   return`<div class="history-week-list" ${uiStyle(`display:flex;flex-direction:column;gap:8px`)}><div class="sec" ${uiStyle(`margin-bottom:0`)}>${interfaceText('lastWeek')}</div>
     ${days.map(({key,date,data})=>{
       const g=data?GRADE(data.score,data.max):null,isT=key===tk,tgr=GRADE(calcScore(tk).score);
-      return`<div class="card history-week-card" ${uiStyle(`border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}`)}>
+      return`<div class="card history-week-card" role="button" tabindex="0" aria-label="${esc(interfaceCopy("Open {date}").replace('{date}',()=>key))}" ${ui('click','openEditDay' ,key)} ${ui('keydown','activate')} ${uiStyle(`cursor:pointer;border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}`)}>
         <div ${uiStyle(`display:flex;align-items:center;justify-content:space-between;margin-bottom:${data?14:0}px`)}>
           <div>
             <div class="h-day" ${uiStyle(`font-size:15px;color:${isT?"#e2e2e2":"#8a8aa0"};letter-spacing:0.06em`)}>${date.toLocaleDateString(interfaceLanguage,{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
             ${isT?`<div class="h-today" ${uiStyle(`font-size:14px;color:${tgr.c};letter-spacing:0.1em;margin-top:2px`)}>${interfaceText('today')}</div>`:""}
           </div>
           <div ${uiStyle(`display:flex;align-items:center;gap:10px`)}>
-            ${data?`<div ${uiStyle(`position:relative;width:42px;height:42px`)}>${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div ${uiStyle(`position:absolute;inset:0;display:flex;align-items:center;justify-content:center`)}><span class="h-num" ${uiStyle(`font-family:'Bebas Neue';font-size:16.5px;color:${g.c}`)}>${data.score}</span></div></div><div class="h-grade" ${uiStyle(`font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1`)}>${esc(g.l)}</div><button class="h-edit" ${ui('click','openEditDay' ,key)} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#a2a2b6;font-family:inherit;font-size:14.5px;padding:5px 10px;border-radius:7px;cursor:pointer`)}>${interfaceText('edit')}</button>`:`<button ${ui('click','openEditDay' ,key)} ${uiStyle(`background:#161626;border:1px solid #1e1e2e;color:#c0c0cd;font-family:inherit;font-size:14.5px;padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500`)}>${interfaceText('addLog')}</button>`}
+            ${data?`<div ${uiStyle(`position:relative;width:42px;height:42px`)}>${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div ${uiStyle(`position:absolute;inset:0;display:flex;align-items:center;justify-content:center`)}><span class="h-num" ${uiStyle(`font-family:'Bebas Neue';font-size:16.5px;color:${g.c}`)}>${data.score}</span></div></div><div class="h-grade" ${uiStyle(`font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1`)}>${esc(g.l)}</div>`:``}
           </div>
         </div>
         ${data?`<div ${uiStyle(`display:flex;gap:8px`)}>${[[interfaceCopy("CORE"),data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],[interfaceText("habits"),data.l2,data.l2max||LVL2_MAX,"#a78bfa"],[interfaceCopy("BONUS"),data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div ${uiStyle(`flex:1`)}><div class="h-lvl" ${uiStyle(`display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px`)}><span>${lb}</span><span ${uiStyle(`color:${v>0?c+"aa":"#252535"}`)}>${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
@@ -6425,7 +6423,7 @@ function renderRoutine(){
     <section class="cr-sequence" aria-label="${interfaceCopy("Session steps")}"><ol>${s.q.map((idx,i)=>`<li ${i===0?'aria-current="step"':''}><span>${esc(rt.steps[idx].icon)} ${esc(rt.steps[idx].label)}</span><span>${rt.steps[idx].dur}m</span></li>`).join('')}${Object.keys(s.done).map(idx=>`<li class="cr-step-done"><span>✓ ${esc(rt.steps[idx]?.label)}</span></li>`).join('')}</ol></section></div>`;
 }
 
-function setTab(t){const measurement=window.SHAAHPerformance?.start('tab_'+t);resetDayRequest=null;currentTab=t;_lastY=0;tuckNav(false);render();window.SHAAHPerformance?.finish(measurement,'ok',true);}
+function setTab(t){const measurement=window.SHAAHPerformance?.start('tab_'+t);editDayKey=null;resetDayRequest=null;currentTab=t;_lastY=0;tuckNav(false);render();window.SHAAHPerformance?.finish(measurement,'ok',true);}
 function setHistTab(t){histTab=t;if(t==="month"&&!histMonth)histMonth=todayKey().slice(0,7);render();}
 function monthShift(ym,d){let[y,m]=ym.split('-').map(Number);m+=d;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return`${y}-${String(m).padStart(2,'0')}`;}
 function histMonthShift(d){
@@ -6528,7 +6526,49 @@ function resetDay(key){
   // offline protocol, so reload/reconnect cannot replay the earlier day snapshot.
   dayLogSaveLocal(key);persistDay(key);renderDayChange(key);
 }
-function openEditDay(key){editDayKey=key;editLvlOpen={1:true,2:true,3:true};socialExpanded=false;render();}
+// Editar dia en escritorio: tres columnas que se apilan cada una a su altura
+// (Core+Bonus | Habits | Social), sin huecos entre cajas, y la nota abajo a todo el ancho. La rejilla usa filas
+// de 4 px; cada caja ocupa las que mide. El borde de la pantalla es solo tope:
+// la caja que lo pasaria hace scroll por dentro.
+let _edRO=null;
+function layoutEditDay(){
+  const root=document.querySelector('#scroll .today.history-day-editor');
+  if(_edRO){_edRO.disconnect();_edRO=null;}
+  if(!root)return;
+  const kids=[...root.children];
+  if(typeof matchMedia!=='function'||!matchMedia('(min-width:1200px)').matches){kids.forEach(e=>{e.style.removeProperty('grid-row');e.style.removeProperty('grid-column');});return;}
+  const U=4,GAP=14,q=c=>root.querySelector(':scope>'+c);
+  const social=q('.t-social-independent');
+  const cols=social?[[q('.t-lvl1'),q('.t-lvl3')],[q('.t-lvl2')],[social]]
+                   :[[q('.t-lvl1')],[q('.t-lvl2')],[q('.t-lvl3')]];
+  // El dock del modo normal flota sobre #scroll: el tope es su borde superior.
+  // En pantallas grandes la app lleva `zoom`: getBoundingClientRect() mide en px de
+  // pantalla y la rejilla en px CSS. Z convierte uno en otro.
+  const cs=getComputedStyle(root),rr=root.getBoundingClientRect(),nav=document.getElementById('nav'),Z=(root.offsetHeight&&rr.height/root.offsetHeight)||1;
+  let bottom=rr.bottom-parseFloat(cs.paddingBottom)*Z;
+  if(nav&&getComputedStyle(nav).display!=='none'){const nr=nav.getBoundingClientRect();if(nr.width>nr.height&&nr.top<bottom)bottom=nr.top-8*Z;}
+  const rows=Math.floor(((bottom-rr.top)/Z-parseFloat(cs.paddingTop))/U);
+  const span=e=>Math.ceil((Math.max(e.scrollHeight,e.classList.contains('t-note')?128:0)+2+GAP)/U);
+  // Las reglas de Today fijan grid-row con !important: solo un inline !important les gana.
+  const place=(e,r,c)=>{e.style.setProperty('grid-row',r,'important');e.style.setProperty('grid-column',c,'important');};
+  const hero=q('.t-score-hero');let top=1;
+  // El anillo trae margen/halo: el marcador mide lo que ocupan sus piezas visibles.
+  const heroH=h=>{const t=h.getBoundingClientRect().top;let b=0;h.querySelectorAll('.t-ring,.t-levelstatus').forEach(c=>{const r=c.getBoundingClientRect();if(r.height)b=Math.max(b,r.bottom-t);});return b?b/Z:h.scrollHeight;};
+  if(hero){const n=Math.ceil((heroH(hero)+GAP)/U);place(hero,`1 / span ${n}`,'1 / -1');top=n+1;}
+  let end=top;
+  const note=q('.t-note'),noteMin=note?Math.ceil((128+GAP)/U):0,limit=rows-noteMin;   // la nota siempre cabe
+  cols.forEach((list,i)=>{let at=top;list.filter(Boolean).forEach(e=>{
+    let n=span(e);if(at+n-1>limit)n=Math.max(limit-at+1,12);
+    place(e,`${at} / span ${n}`,String(i+1));at+=n;});end=Math.max(end,at);});
+  // Day Note: toda la franja inferior, a todo el ancho, hasta el borde de la pantalla.
+  if(note)place(note,`${end} / span ${Math.max(rows-end+1,noteMin)}`,'1 / -1');
+  if(typeof ResizeObserver==='function'){
+    let raf=0;_edRO=new ResizeObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if(document.contains(root))layoutEditDay();});});
+    kids.filter(e=>!e.classList.contains('t-note')).forEach(e=>{const inner=e.firstElementChild;if(inner)_edRO.observe(inner);});
+  }
+}
+if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',()=>{if(editDayKey)layoutEditDay();});
+function openEditDay(key){editDayKey=key;socialExpanded=false;render();}
 function closeEditDay(){editDayKey=null;socialExpanded=false;render();}
 
 // ═══ Routine engine — independent, concurrent sessions ═══════

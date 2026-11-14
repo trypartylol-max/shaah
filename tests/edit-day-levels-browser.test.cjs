@@ -16,11 +16,11 @@ for(const [w,h] of [[1280,720],[2560,1440]])test(`Edit day: one screen, levels a
 test('History week: clicking anywhere on a day card opens that day',async t=>{
   const page=await openApp(t,undefined,{width:1440,height:900});
   await page.evaluate(()=>{setTab('history');setHistTab('week');});
-  const card=page.locator('.history-week-card').nth(1);
+  const card=page.locator('.hw-row').nth(1);
   const box=await card.boundingBox();
   await page.mouse.click(box.x+box.width*0.3,box.y+box.height-12);
   assert.ok(await page.evaluate(()=>!!editDayKey),'edit day opened');
   await page.evaluate(()=>{closeEditDay();});
-  await page.locator('.history-week-card').nth(1).focus();await page.keyboard.press('Enter');
+  await page.locator('.hw-row').nth(1).focus();await page.keyboard.press('Enter');
   assert.ok(await page.evaluate(()=>!!editDayKey),'keyboard opens too');
 });

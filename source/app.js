@@ -3686,6 +3686,16 @@ function skinInterfaceLabel(skin) {
   return skin?.id==='minimal'?interfaceCopy('Low stimulation'):skin?.label||'Original';
 }
 const interfaceCopies = {
+  'WEEK AVG': ['WEEK AVG', 'MEDIA SEMANAL', 'ממוצע שבועי'],
+  'days logged': ['days logged', 'días registrados', 'ימים מתועדים'],
+  'No days logged': ['No days logged', 'Ningún día registrado', 'אין ימים מתועדים'],
+  'VS LAST WEEK': ['VS LAST WEEK', 'VS SEMANA PASADA', 'מול שבוע שעבר'],
+  'was': ['was', 'era', 'היה'],
+  'BEST DAY': ['BEST DAY', 'MEJOR DÍA', 'היום הטוב'],
+  'STREAK': ['STREAK', 'RACHA', 'רצף'],
+  'day': ['day', 'día', 'יום'],
+  'days': ['days', 'días', 'ימים'],
+  'Not logged': ['Not logged', 'Sin registrar', 'לא תועד'],
   "LOG": ["LOG", "REGISTRAR", "רישום פעילות"],
   "pts": ["pts", "pts", "נק׳"],
   "Location group name (e.g. Israel)": ["Location group name (e.g. Israel)", "Nombre del grupo de ubicación (p. ej., Israel)", "שם קבוצת מיקום (למשל, ישראל)"],
@@ -6283,24 +6293,43 @@ function renderHistory(){
 }
 
 function renderHistWeek(){
-  const days=getDays(7).reverse(),tk=todayKey();
-  return`<div class="history-week-list" ${uiStyle(`display:flex;flex-direction:column;gap:8px`)}><div class="sec" ${uiStyle(`margin-bottom:0`)}>${interfaceText('lastWeek')}</div>
-    ${days.map(({key,date,data})=>{
-      const g=data?GRADE(data.score,data.max):null,isT=key===tk,tgr=GRADE(calcScore(tk).score);
-      return`<div class="card history-week-card" role="button" tabindex="0" aria-label="${esc(interfaceCopy("Open {date}").replace('{date}',()=>key))}" ${ui('click','openEditDay' ,key)} ${ui('keydown','activate')} ${uiStyle(`cursor:pointer;border:1px solid ${isT?tgr.c+"25":"#111120"};${isT?`background:${tgr.bg}`:""}`)}>
-        <div ${uiStyle(`display:flex;align-items:center;justify-content:space-between;margin-bottom:${data?14:0}px`)}>
-          <div>
-            <div class="h-day" ${uiStyle(`font-size:15px;color:${isT?"#e2e2e2":"#8a8aa0"};letter-spacing:0.06em`)}>${date.toLocaleDateString(interfaceLanguage,{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
-            ${isT?`<div class="h-today" ${uiStyle(`font-size:14px;color:${tgr.c};letter-spacing:0.1em;margin-top:2px`)}>${interfaceText('today')}</div>`:""}
-          </div>
-          <div ${uiStyle(`display:flex;align-items:center;gap:10px`)}>
-            ${data?`<div ${uiStyle(`position:relative;width:42px;height:42px`)}>${ring(data.score,data.max||MAX,42,3,g.c,g.g)}<div ${uiStyle(`position:absolute;inset:0;display:flex;align-items:center;justify-content:center`)}><span class="h-num" ${uiStyle(`font-family:'Bebas Neue';font-size:16.5px;color:${g.c}`)}>${data.score}</span></div></div><div class="h-grade" ${uiStyle(`font-family:'Bebas Neue';font-size:32px;color:${g.c};text-shadow:0 0 14px ${g.g};line-height:1`)}>${esc(g.l)}</div>`:``}
-          </div>
-        </div>
-        ${data?`<div ${uiStyle(`display:flex;gap:8px`)}>${[[interfaceCopy("CORE"),data.l1,data.l1max||LVL1_MAX,"#e2e2e2"],[interfaceText("habits"),data.l2,data.l2max||LVL2_MAX,"#a78bfa"],[interfaceCopy("BONUS"),data.l3,data.l3max||LVL3_MAX,"#fbbf24"]].map(([lb,v,mx,c])=>`<div ${uiStyle(`flex:1`)}><div class="h-lvl" ${uiStyle(`display:flex;justify-content:space-between;font-size:14px;color:#9090aa;margin-bottom:5px`)}><span>${lb}</span><span ${uiStyle(`color:${v>0?c+"aa":"#252535"}`)}>${v}</span></div>${bar((v/mx)*100,c,c+"44",4)}</div>`).join("")}</div>`:""}
-      </div>`;
-    }).join("")}
+  // Semana en una pantalla: resumen arriba y una fila por dia (hoy primero) con
+  // nota, %, reparto Core/Habits/Bonus y que habitos se hicieron y cuales no.
+  // El % que se muestra es el mismo que el anillo del dia (data.score).
+  const two=getDays(14),days=two.slice(7).reverse(),tk=todayKey(),logged=days.filter(d=>d.data),prevL=two.slice(0,7).filter(d=>d.data);
+  const mean=l=>l.length?Math.round(l.reduce((a,d)=>a+d.data.score,0)/l.length):0;
+  const avg=mean(logged),trend=logged.length&&prevL.length?{prev:mean(prevL),diff:avg-mean(prevL)}:null;
+  const best=logged.reduce((b,d)=>!b||d.data.score>b.data.score?d:b,null),streak=getStreak();
+  const wd=k=>new Date(k+'T12:00:00').toLocaleDateString(interfaceLanguage,{weekday:'short'}).toUpperCase();
+  const stat=(label,value,sub,color)=>`<div class="hw-stat"><div class="hw-stat-l">${label}</div><div class="hw-stat-v" ${uiStyle(`color:${color||'#e2e2e2'}`)}>${value}</div>${sub?`<div class="hw-stat-s">${sub}</div>`:''}</div>`;
+  const ag=GRADE(avg);
+  const summary=`<div class="hw-summary card">
+    ${stat(interfaceCopy('WEEK AVG'),`${avg}%`,logged.length?`${logged.length}/7 ${interfaceCopy('days logged')}`:interfaceCopy('No days logged'),ag.c)}
+    ${stat(interfaceCopy('VS LAST WEEK'),trend?`${trend.diff>0?'+':''}${trend.diff}%`:'—',trend?`${interfaceCopy('was')} ${trend.prev}%`:'',trend?(trend.diff>0?'#4ade80':trend.diff<0?'#f87171':'#a2a2b6'):'#6e6e85')}
+    ${stat(interfaceCopy('BEST DAY'),best?esc(GRADE(best.data.score,best.data.max).l):'—',best?`${wd(best.key)} · ${best.data.score}%`:'',best?GRADE(best.data.score,best.data.max).c:'#6e6e85')}
+    ${stat(interfaceCopy('STREAK'),String(streak),interfaceCopy(streak===1?'day':'days'),streak?'#fbbf24':'#6e6e85')}
   </div>`;
+  const rows=days.map(({key,date,data})=>{
+    const isT=key===tk,label=date.toLocaleDateString(interfaceLanguage,{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+    const open=`role="button" tabindex="0" aria-label="${esc(interfaceCopy("Open {date}").replace('{date}',()=>key))}" ${ui('click','openEditDay' ,key)} ${ui('keydown','activate')}`;
+    const when=`<div class="hw-when"><span class="h-day">${label}</span>${isT?`<span class="hw-today">${interfaceText('today')}</span>`:''}</div>`;
+    if(!data)return`<div class="hw-row hw-empty${isT?' is-today':''}" ${open}>${when}<span class="hw-none">${interfaceCopy('Not logged')}</span><span class="hw-go" aria-hidden="true">›</span></div>`;
+    const g=GRADE(data.score,data.max),C=cfgForDate(key),ch=getChecked(key);
+    const items=[...C.L1,...C.L2,...C.L3];
+    const icons=items.map(it=>{const f=doneFrac(ch[it.id]);return`<span class="hw-ic${f>=1?' on':f>0?' half':''}" title="${esc(it.label)}">${esc(it.icon)}</span>`;}).join('');
+    const mx=Math.max(1,(data.l1max||0)+(data.l2max||0)+(data.l3max||0));
+    const seg=(v,c)=>v>0?`<i ${uiStyle(`width:${(v/mx*100).toFixed(1)}%;background:${c}`)}></i>`:'';
+    return`<div class="hw-row${isT?' is-today':''}" ${open} ${uiStyle(isT?`border-color:${g.c}40`:'')}>
+      ${when}
+      <div class="hw-grade" ${uiStyle(`color:${g.c};text-shadow:0 0 12px ${g.g}`)}>${esc(g.l)}</div>
+      <div class="hw-pct" ${uiStyle(`color:${g.c}`)}>${data.score}%</div>
+      <div class="hw-mix"><div class="hw-bar">${seg(data.l1,'#e2e2e2')}${seg(data.l2,'#a78bfa')}${seg(data.l3,'#fbbf24')}</div>
+        <div class="hw-legend"><span>${interfaceCopy('CORE')} ${data.l1}</span><span>${interfaceText('habits')} ${data.l2}</span><span>${interfaceCopy('BONUS')} ${data.l3}</span></div></div>
+      <div class="hw-icons">${icons}</div>
+      <span class="hw-go" aria-hidden="true">›</span>
+    </div>`;
+  }).join('');
+  return`<div class="history-week-list hw2"><div class="sec" ${uiStyle(`margin-bottom:0`)}>${interfaceText('lastWeek')}</div>${summary}<div class="hw-rows">${rows}</div></div>`;
 }
 
 function renderHistMonth(){

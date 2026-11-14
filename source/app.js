@@ -6178,7 +6178,7 @@ function renderStats(){
         <div class="stats-metric-foot"><span class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</span>${m.dsub?`<span class="stats-metric-sub stats-metric-dsub" ${uiStyle(`color:${m.col}`)}>${esc(m.dsub)}</span>`:""}${m.note?`<span class="stats-metric-note">${esc(m.note)}</span>`:""}</div>
       </div>`).join("")}
     </div>
-    <div class="stats-detail-habits">${metrics.slice(1,3).map((m,i)=>`<div class="card stats-habit-card"><div class="stats-habit-icon" ${uiStyle(`background:${m.col}14;border-color:${m.col}33`)}>${esc(m.icon)}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">${i?'⚠️':'✅'}</span><span>${esc(m.label)}</span></div><strong ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div></div>`).join("")}${statsRisingCard(review)}${statsDroppingCard(review)}${statsForgottenCard(review)}</div>
+    <div class="stats-detail-habits">${(c=>c(metrics[1],0)+statsRisingCard(review)+c(metrics[2],1)+statsDroppingCard(review)+statsForgottenCard(review))((m,i)=>`<div class="card stats-habit-card"><div class="stats-habit-icon" ${uiStyle(`background:${m.col}14;border-color:${m.col}33`)}>${esc(m.icon)}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">${i?'⚠️':'✅'}</span><span>${esc(m.label)}</span></div><strong ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div></div>`)}</div>
     ${statsHabitGrid(review)}
     ${proWeekComparison()}
     ${total>=2?`<div><div class="sec"><span class="sec-ico" aria-hidden="true">📈</span><span>${interfaceText('fourWeekTrend')}</span></div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div data-stats-bar="week-${wi}" data-stats-value="${bh}" ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
@@ -6238,7 +6238,7 @@ function statsHabitGrid(review){
   const {rest}=statsHabitPicks(review);
   const col=r=>r>=70?"#4ade80":r>=40?"#f59e0b":"#ef4444";
   const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
-  return`<div><div class="sec"><span class="sec-ico" aria-hidden="true">🧩</span><span>${interfaceCopy("Close behind · last 7 days")}</span></div>
+  return`<div>
   <div class="stats-habit-grid">${rest.map(t=>{const c=col(t.rate);
     const dots=review.cur.map(x=>{const cfg=cfgForDate(x.key),on=[...cfg.L1,...cfg.L2,...cfg.L3].some(it=>it.id===t.id&&it.pts>0);
       const f=on?doneFrac((getChecked(x.key)||{})[t.id]):null;

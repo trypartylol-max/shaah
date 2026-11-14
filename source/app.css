@@ -2614,10 +2614,7 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
 /* History shares the renderer, but needs its own content-sized grid tracks. */
 #scroll .today.history-day-editor>.t-lvl,
 #scroll .today.history-day-editor>.t-note{transform:none!important;min-width:0!important;align-self:start!important}
-/* Edit day (History) = one screen on desktop (>=1200px; narrower keeps the stacked grid above): nothing collapses, nothing scrolls.
-   Row 1: score + note. Row 2: the three levels and Social side by side; if a day
-   has more rows than fit, only that box scrolls inside itself. */
-@media(min-width:880px) and (max-width:1199px){
+@media(min-width:880px){
  #scroll .today.history-day-editor{align-content:start!important;align-items:start!important}
  #scroll .today.history-day-editor>.t-score-hero{grid-row:1!important;grid-column:1/-1!important}
  #scroll .today.history-day-editor>.t-lvl1{grid-row:2!important;grid-column:1/span 4!important}
@@ -2628,24 +2625,6 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
  #scroll .today.history-day-editor>.t-daylog{grid-row:4!important;grid-column:1/-1!important}
  #scroll .today.history-day-editor>.t-reset{grid-row:5!important;grid-column:1/-1!important}
 }
-@media(min-width:1200px){
- #scroll:has(>.edit-day-screen),#scroll .edit-day-screen{height:100%;min-height:0!important;overflow:hidden}
- #scroll .today.history-day-editor{flex:1;min-height:0;box-sizing:border-box;padding:12px 20px 16px!important;gap:12px!important;align-content:stretch!important;align-items:stretch!important;grid-template-rows:auto minmax(0,1fr)!important;margin:0!important;max-width:none!important;width:100%!important}
- #scroll .today.history-day-editor>.t-score-hero{grid-row:1!important;grid-column:1/span 8!important;align-self:stretch!important;margin:0!important;padding:0!important;min-height:0!important}
- #scroll .today.history-day-editor>.t-score-hero{grid-template-columns:auto minmax(0,1fr) auto!important;justify-content:stretch!important;align-items:center!important;column-gap:20px!important}
- #scroll .today.history-day-editor>.t-score-hero .t-ring{zoom:.7!important;justify-self:start!important}
- #scroll .today.history-day-editor>.t-note{grid-row:1!important;grid-column:9/span 4!important;align-self:stretch!important;margin:0!important}
- #scroll .today.history-day-editor>:is(.t-lvl1,.t-lvl2,.t-lvl3,.t-social-independent){grid-row:2!important;align-self:stretch!important;height:auto!important;max-height:100%;overflow-y:auto;overscroll-behavior:contain;margin:0!important;max-width:none!important}
- #scroll .today.history-day-editor>.t-lvl1{grid-column:1/span 3!important}
- #scroll .today.history-day-editor>.t-lvl2{grid-column:4/span 3!important}
- #scroll .today.history-day-editor>.t-lvl3{grid-column:7/span 3!important}
- #scroll .today.history-day-editor>.t-social-independent{grid-column:10/span 3!important}
- #scroll .today.history-day-editor>.t-lvl3:last-of-type:not(:has(~.t-social-independent)){grid-column:7/span 6!important}
- #scroll .today.history-day-editor>.t-daylog,#scroll .today.history-day-editor>.t-reset{display:none!important}
-}
-/* History never collapses: levels are always open and the header is not a toggle. */
-#scroll .today.history-day-editor .lvl-ar{display:none!important}
-#scroll .today.history-day-editor .lvl-toggle{cursor:default!important;pointer-events:none}
 .sf-work-reference .sf-core-actions{align-items:center;justify-content:space-between;gap:10px}.sf-work-weekly{display:flex;flex-direction:column;gap:3px;text-align:right;margin-left:auto;min-width:0}.sf-work-weekly>span{font-size:9px;letter-spacing:.07em;color:var(--skin-muted)}.sf-work-weekly>strong{font-size:18px;line-height:1.2;font-weight:500;color:var(--today-accent,var(--skin-copy));font-variant-numeric:tabular-nums}
 
 /* OG: Core Routines is a plain heading above independently framed cards. */

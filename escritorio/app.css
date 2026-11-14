@@ -249,3 +249,19 @@ body.priv .pv.rv{filter:none}
 .evok:disabled{opacity:.45;cursor:default}
 .tact{margin-left:14px;border:0;background:none;color:var(--in);font:inherit;font-weight:700;cursor:pointer;padding:0}
 .evf input::-webkit-calendar-picker-indicator{display:none!important}
+/* alertas de categoría */
+.alerts{display:flex;flex-wrap:wrap;gap:8px;margin:-2px 0 12px}
+.al{display:inline-flex;align-items:baseline;gap:8px;border:1px solid rgba(212,168,75,.35);background:rgba(212,168,75,.08);color:#e6c47a;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.al b{font-weight:600;font-variant-numeric:tabular-nums}
+.al.over{border-color:rgba(224,104,90,.4);background:rgba(224,104,90,.09);color:#ef9184}
+.al:hover{filter:brightness(1.15)}
+/* últimos gastos en el panel */
+.drawer .dh{font-size:13px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin:22px 0 6px}
+.rec .rc{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.rec .rc small{display:block;color:var(--dim);font-size:12px}
+.rec .rc b{font-weight:500;font-variant-numeric:tabular-nums}
+.rec .rc.fut{opacity:.6}
+.rdel{border:0;background:var(--card2);color:var(--dim);border-radius:8px;height:30px;min-width:30px;padding:0 8px;font:inherit;font-size:12px;cursor:pointer}
+.rdel:hover{color:var(--ink)}
+.rdel.sure{background:var(--out);color:#fff}
+html{background-color:#0a0b0d}

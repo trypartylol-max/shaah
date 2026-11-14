@@ -115,6 +115,31 @@ function render(d) {
   renderCmp(d, C, tn, tf, df);
   renderVouchers(d.vouchers || []);
   renderQuick(d);
+  renderAlerts(d);
+  if (!$('drawer').hidden && $('drawer').dataset.kind) openDrawer($('drawer').dataset.kind);
+}
+
+/* ---------- categorías en alerta (≥90 % del budget) ---------- */
+function catAlerts(d) {
+  return (d.catb || []).filter(c => c.budget > 0 && c.spent / c.budget >= 0.9)
+    .map(c => Object.assign({}, c, { over: c.spent - c.budget, p: c.spent / c.budget }))
+    .sort((a, b) => (b.over > 0) - (a.over > 0) || b.over - a.over || b.p - a.p);
+}
+function renderAlerts(d) {
+  const A = catAlerts(d);
+  $('alerts').hidden = !A.length;
+  $('alerts').innerHTML = A.map(c => '<button type="button" class="al' + (c.over > 0 ? ' over' : '') + '" title="' + esc(money(c.spent) + ' de ' + money(c.budget)) + '"><span>' + esc(c.name) + '</span><b class="pv">' + (c.over > 0 ? '+' + money(c.over) : Math.round(c.p * 100) + '%') + '</b></button>').join('');
+}
+$('alerts').addEventListener('click', ev => { if (ev.target.closest('.al')) openDrawer('spent'); });
+
+/* ---------- borrar gastos recientes ---------- */
+async function borrarGasto(x) {
+  try {
+    const r = await apiPost({ op: 'gasto_borrar', row: x.row, monto: x.monto, comercio: x.com });
+    if (!r.ok) throw new Error(r.error);
+    render(r.data); toast('Borrado: ' + money(x.monto) + ' · ' + x.com);
+    return true;
+  } catch (e) { toast('No pude borrarlo: ' + (e.message || 'sin conexión')); return false; }
 }
 
 /* ---------- gastos rápidos ---------- */
@@ -381,7 +406,7 @@ async function sendGasto(g) {
 async function addGasto(g) {
   try {
     const r = await sendGasto(g);
-    toast('✓ ' + money(g.monto) + ' guardado en ' + (r.pestana || 'Plata26'));
+    toast('✓ ' + money(g.monto) + ' · ' + g.comercio + ' guardado en ' + (r.pestana || 'Plata26'), r.fila ? 'Deshacer' : null, () => borrarGasto({ row: r.fila, monto: Number(g.monto), com: g.comercio }));
     load(true);
     return true;
   } catch (e) {
@@ -439,14 +464,30 @@ function openDrawer(kind) {
   if (kind === 'budget') h = '<h2>Budget de ' + esc(d.month) + '</h2><div class="big pv">' + moneyH(budget - spent) + '</div>' + row('Budget', money(budget)) + row('Gastado', money(spent)) + row('Futuros', money(fut), 'marcados con # o ?') + row('Con futuros te queda', money(budget - spent - fut)) + '<div class="row2"><span>Ver todo en Caja</span><span><a href="' + PRIV + '?p=caja" target="_blank" rel="noopener" style="color:var(--in)">abrir ↗</a></span></div>';
   if (kind === 'earn') h = '<h2>Ganado en ' + esc(d.month) + '</h2><div class="big pos pv">' + moneyH(earned) + '</div>' + row('Base del mes', money(earned - week)) + row('Esta semana (SHAAH)', money(week), 'se suma sola cada hora');
   if (kind === 'spent') {
-    const C = (d.cmp || []).filter(x => x.now > 0).sort((a, b) => b.now - a.now), mx = C.length ? C[0].now : 1;
-    h = '<h2>Gastado en ' + esc(d.month) + '</h2><div class="big neg pv">' + moneyH(spent) + '</div>' + C.map(x => '<div class="row2"><span>' + esc(x.name) + '<small>' + esc(d.prevMonth || '') + ' ' + money(x.prevFull || 0) + '</small></span><span class="pv">' + money(x.now) + '</span></div><div class="bar" style="margin:-4px 0 6px"><i style="width:' + (x.now / mx * 100) + '%;background:var(--out)"></i></div>').join('');
+    const names = {}; (d.cats || []).forEach(c => { names[c.code] = c.name; });
+    const prev = {}; (d.cmp || []).forEach(x => { prev[x.name] = x.prevFull || 0; });
+    const R = d.recent || [];
+    const B = (d.catb || []).filter(c => c.spent > 0 || c.budget > 0).sort((a, b) => (b.spent / (b.budget || 1)) - (a.spent / (a.budget || 1)));
+    h = '<h2>Gastado en ' + esc(d.month) + '</h2><div class="big neg pv">' + moneyH(spent) + '</div>' +
+      (R.length ? '<h3 class="dh">Últimos gastos</h3><div class="rec">' + R.map((x, i) => '<div class="rc' + (x.fut ? ' fut' : '') + '"><span>' + esc(cap(x.com)) + '<small>' + esc(names[x.cat] || x.cat || 'sin categoría') + (x.fut ? ' · futuro' : '') + '</small></span><b class="pv">' + money(x.monto) + '</b><button type="button" class="rdel" data-i="' + i + '" aria-label="Borrar ' + esc(x.com) + '">✕</button></div>').join('') + '</div>' : '') +
+      '<h3 class="dh">Por categoría</h3>' + B.map(c => {
+        const p = c.budget ? c.spent / c.budget : (c.spent ? 2 : 0), col = p > 1 ? 'var(--out)' : p >= .9 ? 'var(--gold)' : 'var(--in)';
+        return '<div class="row2"><span>' + esc(c.name) + '<small>' + (c.budget ? 'budget ' + money(c.budget) : 'sin budget') + (prev[c.name] !== undefined ? ' · ' + esc(d.prevMonth || '') + ' ' + money(prev[c.name]) : '') + '</small></span><span class="pv" style="color:' + (p > 1 ? 'var(--out)' : '') + '">' + money(c.spent) + '</span></div><div class="bar" style="margin:-4px 0 6px"><i style="width:' + Math.min(100, p * 100) + '%;background:' + col + '"></i></div>';
+      }).join('');
+    $('drawerBody')._recent = R;
   }
   if (kind === 'bal') h = '<h2>Balance</h2><div class="big pv" style="color:' + (earned - spent < 0 ? 'var(--out)' : 'var(--in)') + '">' + moneyH(earned - spent) + '</div>' + row('Ganado', money(earned)) + row('Gastado', money(spent)) + row('Futuros', money(fut)) + row('Con futuros', money(earned - spent - fut));
-  $('drawerBody').innerHTML = h;
+  $('drawerBody').innerHTML = h; $('drawer').dataset.kind = kind;
   $('drawer').hidden = false; $('scrim').hidden = false;
 }
-function closeDrawer() { $('drawer').hidden = true; $('scrim').hidden = true; }
+function closeDrawer() { $('drawer').hidden = true; $('scrim').hidden = true; $('drawer').dataset.kind = ''; }
+$('drawerBody').addEventListener('click', async ev => {
+  const b = ev.target.closest('.rdel'); if (!b) return;
+  const x = ($('drawerBody')._recent || [])[+b.dataset.i]; if (!x) return;
+  if (!b.classList.contains('sure')) { b.classList.add('sure'); b.textContent = '¿Borrar?'; setTimeout(() => { if (b.isConnected) { b.classList.remove('sure'); b.textContent = '✕'; } }, 3500); return; }
+  b.disabled = true; b.textContent = '…';
+  await borrarGasto(x);
+});
 document.querySelectorAll('[data-detail]').forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.detail)));
 $('drawerX').onclick = closeDrawer; $('scrim').onclick = closeDrawer;
 

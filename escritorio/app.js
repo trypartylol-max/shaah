@@ -81,30 +81,44 @@ function render(d) {
   const left = budget - spent, p = budget ? spent / budget : 0, m = day / dim;
 
   countTo($('left'), left);
-  $('left').style.color = left < 0 ? 'var(--out)' : '';
+  $('left').style.color = left < 0 ? 'var(--c-spent)' : '';
+  const paceAmt = budget * m, ahead = spent > paceAmt * 1.05;
   $('pct').textContent = Math.round(p * 100) + '% usado';
-  $('leftBar').style.width = Math.min(100, p * 100) + '%';
-  $('leftBar').style.background = p >= 1 ? 'var(--out)' : p > m + .05 ? 'var(--gold)' : 'var(--in)';
-  $('paceMk').style.left = (m * 100) + '%';
+  $('pct').className = 'pill pv ' + (p >= 1 ? 'bad' : ahead ? 'warn' : 'ok');
   $('daysPill').textContent = (dim - day) + (dim - day === 1 ? ' día' : ' días');
   $('futBox').hidden = !fut;
-  if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--out)' : ''; $('futAmt').innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>−' + money(fut) + ' agendados'; }
+  if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--c-spent)' : ''; $('futAmt').innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>−' + money(fut) + ' agendados'; }
+
+  // barra única: gastado + futuros + exceso, con marcas de budget, ganado y ritmo
+  const S = Math.max(budget, earned, spent + fut, 1), pc = v => Math.max(0, Math.min(100, v / S * 100));
+  const inB = Math.min(spent, budget);
+  $('mbSpent').style.width = pc(inB) + '%';
+  $('mbOver').style.left = pc(budget) + '%'; $('mbOver').style.width = pc(Math.max(0, spent - budget)) + '%';
+  $('mbFut').style.left = pc(spent) + '%'; $('mbFut').style.width = pc(fut) + '%';
+  $('mbFut').classList.toggle('past', spent + fut > budget);
+  $('mbBudget').style.left = pc(budget) + '%'; $('mbBudget').hidden = S <= budget * 1.001;
+  $('mbBudget').title = 'Budget ' + money(budget);
+  $('mbEarn').style.left = pc(earned) + '%'; $('mbEarn').title = 'Ganado ' + money(earned);
+  $('mbPace').style.left = pc(paceAmt) + '%'; $('mbPace').title = 'A esta altura del mes: ' + money(paceAmt);
+  $('mbTrack').classList.toggle('over', spent > budget);
+  $('mbMax').textContent = S > budget * 1.001 ? 'budget ' + money(budget) + ' · ' + money(S) : 'budget ' + money(budget);
+  $('lgFut').hidden = !fut;
+  // evita que las etiquetas de ganado y ritmo se pisen
+  const gap = Math.abs(pc(earned) - pc(paceAmt));
+  $('mbEarn').classList.toggle('low', gap < 14);
 
   countTo($('earn'), earned);
-  const base = Math.max(0, earned - week), tot = Math.max(1, base + week);
-  $('splitA').style.width = (base / tot * 100) + '%'; $('splitB').style.width = (week / tot * 100) + '%';
-  $('earnSub').innerHTML = 'base ' + B(money(base)) + (week ? ' · ' + B('+' + money(week)) + ' semana' : '');
+  const base = Math.max(0, earned - week);
+  $('earnSub').innerHTML = week ? B('+' + money(week)) + ' esta semana' : 'base ' + B(money(base));
 
   countTo($('spent'), spent);
-  $('spentBar').style.width = Math.min(100, p * 100) + '%';
   const C = d.cmp || [], tn = C.reduce((s, x) => s + x.now, 0), tf = C.reduce((s, x) => s + (x.prevFull || 0), 0), df = Math.round(tn - tf);
   $('spentSub').innerHTML = 'de ' + B(money(budget)) + (C.length ? ' · ' + B((df > 0 ? '+' : '−') + money(Math.abs(df))) + ' vs ' + esc(d.prevMonth || 'mes pasado') : '');
 
-  const bal = earned - spent, r = earned / Math.max(1, spent);
+  const bal = earned - spent;
   countTo($('bal'), bal);
-  $('bal').style.color = bal < 0 ? 'var(--out)' : 'var(--in)';
-  $('ratioBar').style.width = Math.min(100, r * 100) + '%';
-  $('balSub').innerHTML = B(Math.round(Math.min(r, 9.99) * 100) + '%') + ' cubierto' + (fut ? ' · con futuros ' + B(money(bal - fut)) : '');
+  $('bal').style.color = bal < 0 ? 'var(--c-spent)' : 'var(--c-earn)';
+  $('balSub').innerHTML = fut ? 'con futuros ' + B(money(bal - fut)) : (bal >= 0 ? 'ganaste más de lo que gastaste' : 'gastaste más de lo que ganaste');
 
   // foco
   if (!$('focus').hidden) buildFocus(true);

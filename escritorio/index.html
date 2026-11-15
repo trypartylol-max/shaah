@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap">
-<link rel="stylesheet" href="./app.css?v=b04ccf49">
+<link rel="stylesheet" href="./app.css?v=164ba12f">
 </head>
 <body>
 
@@ -45,21 +45,15 @@
     <button type="button" class="mo-main" data-detail="budget">
       <span class="k-top"><span class="lbl"><i class="dot"></i>Te queda del budget</span><span class="pills"><span class="pill pv" id="pct">—</span><span class="pill pill2" id="daysPill"></span></span></span>
       <span class="hvrow"><span class="hv pv" id="left">—</span><span class="hvf" id="futBox"><span class="fl">Con futuros</span><span class="fv pv" id="leftFut">—</span><span class="fchip pv" id="futAmt"></span></span></span>
+          <span class="mo-bal" data-detail="bal"><span>Balance del mes</span><b class="pv" id="bal">—</b><small class="pv" id="balSub"></small></span>
     </button>
     <div class="mo-bar">
+      <div class="ann ann-top" id="annTop"></div>
       <div class="mb-track" id="mbTrack" role="img" aria-label="Gastado, futuros y ganado frente al budget">
         <span class="mb-spent" id="mbSpent"></span><span class="mb-fut" id="mbFut"></span><span class="mb-over" id="mbOver"></span>
-        <span class="mb-budget" id="mbBudget"></span>
-        <span class="mb-pace" id="mbPace"><em>ritmo de hoy</em></span>
-        <span class="mb-earn" id="mbEarn"><em>ganado</em></span>
+        <span class="mb-pace" id="mbPace"></span><span class="mb-earn" id="mbEarn"></span><span class="mb-end" id="mbEnd"></span>
       </div>
-      <div class="mb-axis"><span>₪0</span><span class="pv" id="mbMax"></span></div>
-      <div class="mb-legend"><span><i class="lg-spent"></i>Gastado</span><span id="lgFut"><i class="lg-fut"></i>Futuros agendados</span><span><i class="lg-earn"></i>Ganado</span><span><i class="lg-pace"></i>Ritmo del mes</span></div>
-    </div>
-    <div class="mo-stats">
-      <button type="button" class="st st-earn" data-detail="earn"><span class="lbl"><i class="dot"></i>Ganado</span><span class="sv pv" id="earn">—</span><span class="sub pv" id="earnSub"></span></button>
-      <button type="button" class="st st-spent" data-detail="spent"><span class="lbl"><i class="dot"></i>Gastado</span><span class="sv pv" id="spent">—</span><span class="sub pv" id="spentSub"></span></button>
-      <button type="button" class="st st-bal" data-detail="bal"><span class="lbl"><i class="dot"></i>Balance</span><span class="sv pv" id="bal">—</span><span class="sub pv" id="balSub"></span></button>
+      <div class="ann ann-bot" id="annBot"></div>
     </div>
   </section>
 
@@ -138,6 +132,6 @@
 
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="./evento.js?v=9c348668"></script>
-<script src="./app.js?v=f0ac33df"></script>
+<script src="./app.js?v=78333ca3"></script>
 </body>
 </html>

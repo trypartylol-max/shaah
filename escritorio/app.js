@@ -89,36 +89,37 @@ function render(d) {
   $('futBox').hidden = !fut;
   if (fut) { countTo($('leftFut'), left - fut); $('leftFut').style.color = left - fut < 0 ? 'var(--c-spent)' : ''; $('futAmt').innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>−' + money(fut) + ' agendados'; }
 
-  // barra única: gastado + futuros + exceso, con marcas de budget, ganado y ritmo
+  // barra única anotada: cada nombre y cantidad aparece una vez, junto a su parte de la barra
   const S = Math.max(budget, earned, spent + fut, 1), pc = v => Math.max(0, Math.min(100, v / S * 100));
-  const inB = Math.min(spent, budget);
-  $('mbSpent').style.width = pc(inB) + '%';
+  $('mbSpent').style.width = pc(Math.min(spent, budget)) + '%';
   $('mbOver').style.left = pc(budget) + '%'; $('mbOver').style.width = pc(Math.max(0, spent - budget)) + '%';
   $('mbFut').style.left = pc(spent) + '%'; $('mbFut').style.width = pc(fut) + '%';
   $('mbFut').classList.toggle('past', spent + fut > budget);
-  $('mbBudget').style.left = pc(budget) + '%'; $('mbBudget').hidden = S <= budget * 1.001;
-  $('mbBudget').title = 'Budget ' + money(budget);
-  $('mbEarn').style.left = pc(earned) + '%'; $('mbEarn').title = 'Ganado ' + money(earned);
-  $('mbPace').style.left = pc(paceAmt) + '%'; $('mbPace').title = 'A esta altura del mes: ' + money(paceAmt);
+  $('mbEarn').style.left = pc(earned) + '%';
+  $('mbPace').style.left = pc(paceAmt) + '%';
+  $('mbEnd').style.left = pc(budget) + '%'; $('mbEnd').hidden = S <= budget * 1.001;
   $('mbTrack').classList.toggle('over', spent > budget);
-  $('mbMax').textContent = S > budget * 1.001 ? 'budget ' + money(budget) + ' · ' + money(S) : 'budget ' + money(budget);
-  $('lgFut').hidden = !fut;
-  // evita que las etiquetas de ganado y ritmo se pisen
-  const gap = Math.abs(pc(earned) - pc(paceAmt));
-  $('mbEarn').classList.toggle('low', gap < 14);
-
-  countTo($('earn'), earned);
-  const base = Math.max(0, earned - week);
-  $('earnSub').innerHTML = week ? B('+' + money(week)) + ' esta semana' : 'base ' + B(money(base));
-
-  countTo($('spent'), spent);
-  const C = d.cmp || [], tn = C.reduce((s, x) => s + x.now, 0), tf = C.reduce((s, x) => s + (x.prevFull || 0), 0), df = Math.round(tn - tf);
-  $('spentSub').innerHTML = 'de ' + B(money(budget)) + (C.length ? ' · ' + B((df > 0 ? '+' : '−') + money(Math.abs(df))) + ' vs ' + esc(d.prevMonth || 'mes pasado') : '');
+  const free = Math.max(0, budget - spent - fut);
+  ANN = {
+    top: [
+      { x: pc(earned), k: 'earn', n: 'Ganado', v: earned, sub: week ? '+' + money(week) + ' semana' : '', d: 'earn' },
+      { x: pc(paceAmt), k: 'pace', n: 'Ritmo hoy', v: paceAmt, d: 'budget' }
+    ],
+    bot: [
+      { x: pc(Math.min(spent, budget)), k: 'spent', n: 'Gastado', v: spent, d: 'spent', align: spent > budget ? 'c' : 'r' },
+      fut ? { x: pc(spent + fut / 2), k: 'fut', n: 'Futuros', v: fut, d: 'budget' } : null,
+      spent > budget ? { x: pc(budget + (spent - budget) / 2), k: 'over', n: 'Exceso', v: spent - budget, d: 'spent' } : null,
+      free > 0 ? { x: pc(spent + fut + free / 2), k: 'free', n: 'Libre', v: free, d: 'budget' } : null,
+      { x: pc(budget), k: 'budget', n: 'Budget', v: budget, d: 'budget', align: 'r' }
+    ].filter(Boolean)
+  };
+  layoutAnn();
 
   const bal = earned - spent;
   countTo($('bal'), bal);
   $('bal').style.color = bal < 0 ? 'var(--c-spent)' : 'var(--c-earn)';
-  $('balSub').innerHTML = fut ? 'con futuros ' + B(money(bal - fut)) : (bal >= 0 ? 'ganaste más de lo que gastaste' : 'gastaste más de lo que ganaste');
+  $('balSub').textContent = fut ? 'con futuros ' + money(bal - fut) : '';
+  const C = d.cmp || [], tn = C.reduce((s, x) => s + x.now, 0), tf = C.reduce((s, x) => s + (x.prevFull || 0), 0), df = Math.round(tn - tf);
 
   // foco
   if (!$('focus').hidden) buildFocus(true);
@@ -134,6 +135,39 @@ function render(d) {
   renderAlerts(d);
   if (!$('drawer').hidden && $('drawer').dataset.kind) openDrawer($('drawer').dataset.kind);
 }
+
+/* ---------- etiquetas de la barra: colocadas junto a su parte, sin pisarse ---------- */
+let ANN = null;
+function layoutAnn() {
+  if (!ANN) return;
+  [['annTop', ANN.top, true], ['annBot', ANN.bot, false]].forEach(([id, items, up]) => {
+    const box = $(id), W = box.clientWidth || 1;
+    box.innerHTML = items.map(a => '<button type="button" class="an an-' + a.k + '" data-detail="' + a.d + '"><small>' + esc(a.n) + '</small><b class="pv">' + money(a.v) + '</b>' + (a.sub ? '<em class="pv">' + esc(a.sub) + '</em>' : '') + '</button><i class="tk tk-' + a.k + '"></i>').join('');
+    const els = [...box.querySelectorAll('.an')], tks = [...box.querySelectorAll('.tk')];
+    const ROW = 46, rows = [[], []];
+    const order = items.map((a, i) => i).sort((p, q) => items[p].x - items[q].x);
+    let maxRow = 0;
+    order.forEach(i => {
+      const a = items[i], el = els[i], w = el.offsetWidth, x = a.x / 100 * W;
+      let l = a.align === 'r' ? x - w : x - w / 2;
+      l = Math.max(0, Math.min(W - w, l));
+      let r = 0;
+      const clash = row => row.some(s => l < s.r + 10 && l + w > s.l - 10);
+      if (clash(rows[0])) { r = 1; if (clash(rows[1])) { const last = Math.max(...rows[1].map(s => s.r), 0); l = Math.min(W - w, last + 10); } }
+      rows[r].push({ l, r: l + w });
+      maxRow = Math.max(maxRow, r);
+      el.style.left = l + 'px';
+      el.style[up ? 'bottom' : 'top'] = (r * ROW + 12) + 'px';
+      const tk = tks[i];
+      tk.style.left = x + 'px';
+      tk.style.height = (r * ROW + 12) + 'px';
+      tk.style[up ? 'bottom' : 'top'] = '0px';
+    });
+    box.style.height = ((maxRow + 1) * ROW + 12) + 'px';
+  });
+  document.querySelectorAll('.ann [data-detail]').forEach(b => b.onclick = () => openDrawer(b.dataset.detail));
+}
+let annT; window.addEventListener('resize', () => { clearTimeout(annT); annT = setTimeout(layoutAnn, 80); });
 
 /* ---------- categorías en alerta (≥90 % del budget) ---------- */
 function catAlerts(d) {
@@ -523,6 +557,7 @@ $('drawerBody').addEventListener('click', async ev => {
   await borrarGasto(x);
 });
 document.querySelectorAll('[data-detail]').forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.detail)));
+document.querySelector('.mo-bal').addEventListener('click', e => e.stopPropagation());
 $('drawerX').onclick = closeDrawer; $('scrim').onclick = closeDrawer;
 
 /* ---------- modos ---------- */

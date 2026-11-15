@@ -259,11 +259,24 @@ function metaBar(m) {
   return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' + zone +
     (m.hasMile ? '<span class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + mp + '%" title="Milestone ' + esc(money(m.mile)) + '"></span>' : '') + '</div>';
 }
-function renderMetas(M) {
-  $('metasCard').hidden = !M.length;
+/* Metas ocultas (por dispositivo) */
+const HID = 'esc-metas-ocultas';
+let showHidden = false;
+const hiddenMetas = () => get(HID, []);
+function setMetaHidden(name, on) {
+  const h = hiddenMetas().filter(n => n !== name); if (on) h.push(name);
+  set(HID, h); if (D) renderMetas(D.metas || []);
+}
+function renderMetas(all) {
+  const H = hiddenMetas(), vis = all.filter(x => !H.includes(x.name)), hid = all.filter(x => H.includes(x.name));
+  const M = showHidden ? vis.concat(hid) : vis;
+  $('metasCard').hidden = !all.length;
+  $('metasHidBtn').hidden = !hid.length;
+  $('metasHidBtn').textContent = showHidden ? 'Ocultar las ocultas' : hid.length + (hid.length === 1 ? ' oculta · mostrar' : ' ocultas · mostrar');
   $('metas').innerHTML = M.map(x => {
-    const m = metaInfo(x);
-    return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + '" data-meta="' + esc(x.name) + '">' +
+    const m = metaInfo(x), isHid = H.includes(x.name);
+    return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + (isHid ? ' hid' : '') + '" data-meta="' + esc(x.name) + '">' +
+      '<button type="button" class="mc-eye" data-act="' + (isHid ? 'show' : 'hide') + '" title="' + (isHid ? 'Mostrar en el panel' : 'Ocultar del panel') + '" aria-label="' + (isHid ? 'Mostrar ' : 'Ocultar ') + esc(x.name) + '">' + (isHid ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>' : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>') + '</button>' +
       '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
       metaBar(m) +
       '<div class="s pv"><span>' + money(m.saved) + ' de ' + money(m.total) + '</span><span>' + (m.done ? '✓ lista' : 'faltan ' + money(m.falta)) + '</span></div>' +
@@ -503,8 +516,16 @@ $('addForm').addEventListener('submit', async ev => {
 });
 
 /* ---------- aportar a metas ---------- */
+$('metasHidBtn').onclick = () => { showHidden = !showHidden; if (D) renderMetas(D.metas || []); };
 $('metas').addEventListener('click', async ev => {
   const mc = ev.target.closest('.mc'); if (!mc) return;
+  const eye = ev.target.closest('.mc-eye');
+  if (eye) {
+    const name = mc.dataset.meta;
+    if (eye.dataset.act === 'hide') { setMetaHidden(name, true); toast('Ocultaste ' + name, 'Deshacer', () => setMetaHidden(name, false)); }
+    else { setMetaHidden(name, false); toast(name + ' vuelve al panel'); }
+    return;
+  }
   const ap = mc.querySelector('.ap'), name = mc.dataset.meta;
   if (ev.target.classList.contains('add')) {
     ap.innerHTML = '<input type="number" inputmode="decimal" step="any" placeholder="₪ cuánto" aria-label="Monto a aportar"><button type="button" class="ok">Sumar</button><button type="button" class="x" aria-label="Cancelar">✕</button>';
@@ -614,7 +635,7 @@ function buildFocus(keep) {
   cards.push(nxt ? card('Próximo', '<div class="f-t">' + esc(nxt.t) + '</div>',
     B(fmtDay(new Date(nxt.s))) + (nxt.all ? ' · todo el día' : ' · ' + fmtHM(new Date(nxt.s)) + ' · ' + relTime(nxt.s)))
     : card('Próximos días', '<div class="f-t">Libre</div>', 'nada en los próximos 5 días'));
-  const M = (d.metas || []).map(x => Object.assign({ x }, metaInfo(x))).filter(m => m.total && !m.done).sort((a, b) => b.pc - a.pc);
+  const M = (d.metas || []).filter(x => !hiddenMetas().includes(x.name)).map(x => Object.assign({ x }, metaInfo(x))).filter(m => m.total && !m.done).sort((a, b) => b.pc - a.pc);
   if (M.length) {
     const m = M[0];
     cards.push(card('Meta más cerca', '<div class="f-t">' + esc(m.x.name) + '</div>', B(money(m.saved)) + ' de ' + B(money(m.total)) + ' · faltan ' + B(money(m.falta)) + ' · ' + B(Math.round(m.pc) + '%'),

@@ -433,3 +433,28 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 .mc.hid{opacity:.45}.mc.hid .mc-eye{opacity:1;color:var(--c-earn)}.mc.hid .pc{opacity:0}
 .mhid{border:0;background:rgba(255,255,255,.05);color:#9aa3ad;border-radius:99px;padding:5px 12px;font:inherit;font-size:12px;cursor:pointer}
 .mhid:hover{color:#eef1f4;background:rgba(255,255,255,.1)}
+
+/* vouchers como tarjetas en grid */
+#vou{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#vou:not(.all) .vc:nth-child(n+5){display:none}
+#vou:not(.all) .vc:nth-child(n+7){display:none}
+#vou:not(.all) .vc:nth-child(5),#vou:not(.all) .vc:nth-child(6){display:flex}
+.vc{display:flex;flex-direction:column;gap:6px;padding:14px 14px 13px;border:0;border-top:0;border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--g) 13%,#16191e) 0%,#16191e 70%);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--g) 18%,transparent);min-width:0;grid-template-columns:none}
+.vc:not(.gone):hover{background:linear-gradient(160deg,color-mix(in srgb,var(--g) 20%,#181b21) 0%,#181b21 75%)}
+.vc .vt{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+.vc .vg{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--g);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vc .vv{font-size:11px;color:#8b939c;white-space:nowrap}
+.vc.soon .vv{color:#f0d595}
+.vc .a{grid-row:auto;font-size:clamp(22px,1.6vw,28px);font-weight:300;letter-spacing:-.03em;line-height:1.05;color:#eef1f4}
+.vc .n{font-size:13px;font-weight:500;color:#c3cad2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vc.gone{opacity:.4}
+.vc.open{grid-column:1/-1}
+.vc .use{margin-top:6px}
+.vgroups small{display:flex;align-items:center;gap:6px}
+.vgroups small i{width:7px;height:7px;border-radius:50%;background:var(--g)}
+.vgroups b{color:color-mix(in srgb,var(--g) 55%,#eef1f4)}
+.vc{text-align:left;align-items:stretch}
+.vc .vt{width:100%}
+.vc .a,.vc .n{align-self:flex-start}
+.shaah .st{display:block;padding:0;border:0;border-radius:0;background:none;font-size:13px;color:var(--dim);cursor:inherit}
+.shaah .st + .st{border:0}

@@ -315,10 +315,15 @@ function renderVouchers(V) {
   $('vouTot').textContent = money(live.reduce((s, x) => s + (x.amount || 0), 0));
   const G = {}; live.forEach(x => { const g = cap(x.group || 'otros'); G[g] = (G[g] || 0) + (x.amount || 0); });
   const gs = Object.keys(G).sort((a, b) => G[b] - G[a]);
-  $('vouGroups').innerHTML = gs.length > 1 ? gs.map(g => '<span><small>' + esc(g) + '</small><b class="pv">' + money(G[g]) + '</b></span>').join('') : '';
+  const GC = ['#5dd3a2', '#e0b04f', '#a993f2', '#ee7a68', '#6bb6ee', '#e88fc0'];
+  const gcol = {}; gs.forEach((g, k) => { gcol[g] = GC[k % GC.length]; });
+  $('vouGroups').innerHTML = gs.length > 1 ? gs.map(g => '<span style="--g:' + gcol[g] + '"><small><i></i>' + esc(g) + '</small><b class="pv">' + money(G[g]) + '</b></span>').join('') : '';
   $('vou').innerHTML = VL.map((x, i) => {
-    const nm = cap(([x.name, x.what].filter(Boolean).join(' · ') || x.group || 'Voucher').trim());
-    return '<div class="vc' + x.cls + '" data-i="' + i + '" tabindex="0" role="button" aria-label="Usar ' + esc(nm) + '"><span class="av">' + esc(nm[0] || '?') + '</span><span class="n">' + esc(nm) + '</span><span class="a pv">' + money(x.amount) + '</span><span class="v">' + esc(x.txt || x.group || '') + '</span></div>';
+    const g = cap(x.group || 'otros'), nm = cap(([x.name, x.what].filter(Boolean).join(' · ') || x.group || 'Voucher').trim());
+    const title = cap(x.what && x.name && x.name !== x.group ? x.what : (x.what || x.name || g)), sub = x.name && x.what && x.name !== x.group ? cap(x.name) : g;
+    return '<div class="vc' + x.cls + '" data-i="' + i + '" tabindex="0" role="button" aria-label="Usar ' + esc(nm) + '" style="--g:' + (gcol[g] || '#9aa3ad') + '">' +
+      '<span class="vt"><span class="vg">' + esc(sub) + '</span>' + (x.txt ? '<span class="vv">' + esc(x.txt) + '</span>' : '') + '</span>' +
+      '<span class="a pv">' + money(x.amount) + '</span><span class="n">' + esc(title) + '</span></div>';
   }).join('');
   vouMore();
 }
@@ -356,8 +361,8 @@ $('vou').addEventListener('keydown', ev => {
 });
 function vouMore() {
   const n = $('vou').children.length;
-  $('vouMore').hidden = n <= 4;
-  $('vouMore').textContent = $('vou').classList.contains('all') ? 'Ver menos' : '+ ' + (n - 4) + ' más';
+  $('vouMore').hidden = n <= 6;
+  $('vouMore').textContent = $('vou').classList.contains('all') ? 'Ver menos' : '+ ' + (n - 6) + ' más';
 }
 
 function renderAgenda(list) {

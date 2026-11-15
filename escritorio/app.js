@@ -204,13 +204,20 @@ function metaInfo(x) {
   const toMile = x.left != null && x.left !== '' ? Math.max(0, x.left) : Math.max(0, mile - saved);
   return { saved, mile, total, pc, hasMile, toMile, mileHit: hasMile && saved >= mile, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
 }
+function metaBar(m) {
+  const mp = m.hasMile ? m.mile / m.total * 100 : 0;
+  const fill = m.pc > 0 ? Math.max(m.pc, 2.5) : 0;
+  const zone = m.hasMile && !m.mileHit ? '<span class="z" style="left:' + fill + '%;width:' + Math.max(0, mp - fill) + '%"></span>' : '';
+  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' + zone +
+    (m.hasMile ? '<span class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + mp + '%" title="Milestone ' + esc(money(m.mile)) + '"></span>' : '') + '</div>';
+}
 function renderMetas(M) {
   $('metasCard').hidden = !M.length;
   $('metas').innerHTML = M.map(x => {
     const m = metaInfo(x);
     return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + '" data-meta="' + esc(x.name) + '">' +
       '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
-      '<div class="tr"><i style="width:' + m.pc + '%"></i>' + (m.hasMile ? '<b class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + (m.mile / m.total * 100) + '%" title="Milestone ' + esc(money(m.mile)) + '"></b>' : '') + '</div>' +
+      metaBar(m) +
       '<div class="s pv"><span>' + money(m.saved) + ' de ' + money(m.total) + '</span><span>' + (m.done ? '✓ lista' : 'faltan ' + money(m.falta)) + '</span></div>' +
       (m.hasMile ? '<div class="s2 pv">' + (m.mileHit ? '✓ milestone ' + money(m.mile) + ' alcanzado' : 'Milestone ' + money(m.mile) + ' · poner ' + money(m.toMile)) + '</div>' : '') +
       '<div class="ap"><button type="button" class="add">+ aportar</button></div></div>';

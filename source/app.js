@@ -1528,7 +1528,7 @@ function routineViews(input){
   }
   return out; // Do not rewrite stored metadata or renumber historical steps.
 }
-const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"🤝"},{id:"friends",label:"Friends",icon:"👫"}];
+const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"👋"},{id:"friends",label:"Friends",icon:"👫"}];
 // The combo divides its points by how many sub-items exist, so the list has to
 // ride the config timeline too — otherwise adding one would turn every past
 // "3 of 3" day into "3 of 4" and quietly dock the score.
@@ -1688,11 +1688,21 @@ function addJunkFoodOnce(){
   applyCfg(); saveCfg();
   return true;
 }
+// subIconV 1 = iconos de grupo con sentido: Strangers 🤝→👋, Family 👪→🏠.
+// Solo cambia el icono si sigue siendo el de fábrica; uno editado a mano se respeta.
+function socialIconsOnce(){
+  if(CFG.subIconV>=1)return false;
+  const swap={strangers:{'🤝':'👋'},family:{'\u{1F46A}':'\u{1F3E0}'}};
+  const fix=l=>{for(const x of (Array.isArray(l)?l:[])){const t=x&&swap[x.id]&&swap[x.id][x.icon];if(t)x.icon=t;}};
+  fix(CFG.subs);for(const e of (Array.isArray(CFG.log)?CFG.log:[]))fix(e&&e.subs);
+  CFG.subIconV=1;saveCfg();
+  return true;
+}
 // subsV 2 = Family colocada desde FAMILY_FROM. Los que ya tenían subsV 1 (Family desde el
 // día del update) pasan por aquí otra vez y se les corrige la fecha de entrada.
 function addFamilyOnce(){
   if(CFG.subsV>=2)return false;
-  ensureSubFrom({id:"family",label:"Family",icon:"\u{1F46A}",p:6},FAMILY_FROM);
+  ensureSubFrom({id:"family",label:"Family",icon:"\u{1F3E0}",p:6},FAMILY_FROM);
   CFG.subsV=2;
   saveCfg();
   return true;
@@ -2967,13 +2977,14 @@ function rowToState(row){
         catch(e){incoming=cfgCopy(_cfgDraft);_cfgConflict=true;}
       }
       const prevLog=Array.isArray(CFG.log)?CFG.log:(local&&Array.isArray(local.log)?local.log:[]);
-      const prevV={subsV:CFG.subsV,junkV:CFG.junkV};
+      const prevV={subsV:CFG.subsV,junkV:CFG.junkV,subIconV:CFG.subIconV};
       CFG=Object.assign(JSON.parse(JSON.stringify(DEFAULT_CFG)),incoming);
       // La línea de tiempo es historia, no estado: una config entrante sin `log`
       // (dispositivo con versión vieja, o restauración) no puede borrar el pasado.
       if((!Array.isArray(CFG.log)||CFG.log.length<prevLog.length)&&prevLog.length)CFG.log=prevLog;
       if(CFG.subsV==null&&prevV.subsV!=null)CFG.subsV=prevV.subsV;
       if(CFG.junkV==null&&prevV.junkV!=null)CFG.junkV=prevV.junkV;
+      if(CFG.subIconV==null&&prevV.subIconV!=null)CFG.subIconV=prevV.subIconV;
       // Rescate: personas que este dispositivo tiene guardadas y el servidor ya no.
       // Cubre el borrado del 13/09 sin pedirle nada al usuario.
       if(local&&Array.isArray(local.people)&&local.people.length){
@@ -3062,7 +3073,7 @@ async function loadAccountRows(owner,epoch){
     // Historical modes come from the dated configuration timeline.
     // Do not rewrite completed days to Vacation on every load.
     widenBaseline();
-    addFamilyOnce();addJunkFoodOnce();rebalanceOnce();
+    addFamilyOnce();socialIconsOnce();addJunkFoodOnce();rebalanceOnce();
     // Restoring the live preference is separate from the manual historical repair.
     restoreLiveTravelMode();
     // Repair malformed legacy dates before the automatic return check.
@@ -7099,7 +7110,7 @@ function socialDenseContact(p,key){
  const timing=socialTimePill(p);
  const timingTextColor={'#4ade80':'#a7f3c1','#f59e0b':'#ffe0a3','#ef4444':'#ffb7b7','#8888a4':'#c8c8dc'}[timing.color];
  const when=interfaceCopy(p.days==null?'No encounters':p.days===0?'Today':p.days===1?'Yesterday':'{count} days ago').replace('{count}',p.days);
- return `<div class="sd-contact${on?' sd-done':''}"><button class="sd-person" aria-pressed="${on}" aria-label="${esc(interfaceCopy(on?'Undo encounter with {name}':'Log encounter with {name}').replace('{name}',()=>p.name))}" ${ui('click','socialRecord',p.id,key)}><span class="sd-icon" title="${esc(category)}">${on?'✓':esc(socialCategory(p)==='family'?'♧':sub?.icon||'◉')}</span><span class="sd-identity"><span class="w-name">${esc(p.name)}</span><span class="w-when">${when} <span class="sd-category">· ${esc(category)}</span></span></span><span class="sd-time-pill" aria-label="${esc(timing.description)}" ${uiStyle('color:'+timing.color)}><span class="sd-pill-fill" aria-hidden="true" ${uiStyle('width:'+timing.fill+'%;background:'+timing.color)}></span><span class="sd-pill-label" ${uiStyle("color:"+timingTextColor)}>${timing.label}</span></span></button><button class="sd-edit" aria-label="${esc(interfaceCopy('Edit {name}').replace('{name}',()=>p.name))}" title="${interfaceCopy('Edit person')}" ${ui('click','socialEdit',p.id)}>✎</button></div>`;
+ return `<div class="sd-contact${on?' sd-done':''}"><button class="sd-person" aria-pressed="${on}" aria-label="${esc(interfaceCopy(on?'Undo encounter with {name}':'Log encounter with {name}').replace('{name}',()=>p.name))}" ${ui('click','socialRecord',p.id,key)}><span class="sd-icon" title="${esc(category)}">${on?'✓':esc(sub?.icon||(socialCategory(p)==='family'?'🏠':'◍'))}</span><span class="sd-identity"><span class="w-name">${esc(p.name)}</span><span class="w-when">${when} <span class="sd-category">· ${esc(category)}</span></span></span><span class="sd-time-pill" aria-label="${esc(timing.description)}" ${uiStyle('color:'+timing.color)}><span class="sd-pill-fill" aria-hidden="true" ${uiStyle('width:'+timing.fill+'%;background:'+timing.color)}></span><span class="sd-pill-label" ${uiStyle("color:"+timingTextColor)}>${timing.label}</span></span></button><button class="sd-edit" aria-label="${esc(interfaceCopy('Edit {name}').replace('{name}',()=>p.name))}" title="${interfaceCopy('Edit person')}" ${ui('click','socialEdit',p.id)}>✎</button></div>`;
 }
 
 function socialCategories(){return subsOn(subsList());}

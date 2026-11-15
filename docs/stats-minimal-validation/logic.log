@@ -473,14 +473,14 @@ ok 79 - no proposal for unrelated or incomplete identity {"id":"owner"}
   duration_ms: 1.541417
   type: 'test'
   ...
-# Subtest: no proposal for unrelated or incomplete identity {"id":"owner","email":"trypartylol@gmail.com.evil"}
-ok 80 - no proposal for unrelated or incomplete identity {"id":"owner","email":"trypartylol@gmail.com.evil"}
+# Subtest: no proposal for unrelated or incomplete identity {"id":"owner","email":"<owner-email>.evil"}
+ok 80 - no proposal for unrelated or incomplete identity {"id":"owner","email":"<owner-email>.evil"}
   ---
   duration_ms: 1.134417
   type: 'test'
   ...
-# Subtest: no proposal for unrelated or incomplete identity {"email":"trypartylol@gmail.com"}
-ok 81 - no proposal for unrelated or incomplete identity {"email":"trypartylol@gmail.com"}
+# Subtest: no proposal for unrelated or incomplete identity {"email":"<owner-email>"}
+ok 81 - no proposal for unrelated or incomplete identity {"email":"<owner-email>"}
   ---
   duration_ms: 1.232125
   type: 'test'

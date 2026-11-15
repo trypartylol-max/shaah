@@ -8,7 +8,7 @@ Repositorio: trypartylol-max/shaah. Rama local: `audit/fix-history-and-settings-
 
 ## Correcciones
 
-- La reparación del regreso a Work se limita a la sesión de `trypartylol@gmail.com` y conserva las eras posteriores y las elecciones recientes del modo actual, incluidas las guardadas sin conexión. Una fecha generada al restaurar una caché antigua no cuenta como una elección reciente del usuario.
+- La reparación del regreso a Work se limita a la sesión de `<owner-email>` y conserva las eras posteriores y las elecciones recientes del modo actual, incluidas las guardadas sin conexión. Una fecha generada al restaurar una caché antigua no cuenta como una elección reciente del usuario.
 - La reparación conserva `auto` y `resumeOn`. `checkTravelAuto` sigue desactivado: conservar un antiguo `auto=true` no activa cambios automáticos.
 - Settings puede pausar y reactivar hábitos, guardar el cambio y recargar sin crear completados ni invocar el hook inexistente.
 - El panel de asignación por grupos permanece abierto al seleccionar contactos, buscar y aplicar cambios. Su estado es de interfaz y se reinicia al cambiar de cuenta.
@@ -44,7 +44,7 @@ Las seis firmas SHA-384 del HTML, los nombres derivados del contenido, la iguald
 
 ## Alcance confirmado y publicación
 
-1. **Alcance confirmado:** solo `trypartylol@gmail.com`. La reparación exige un usuario de sesión con ID y ese correo; acepta diferencias de mayúsculas y espacios exteriores. No utiliza correos guardados en Settings ni cachés para decidir la cuenta. Para otras identidades devuelve `false` antes de modificar la configuración, la versión o la caché de fechas. El período y el límite `travelV < 10` se conservan.
+1. **Alcance confirmado:** solo `<owner-email>`. La reparación exige un usuario de sesión con ID y ese correo; acepta diferencias de mayúsculas y espacios exteriores. No utiliza correos guardados en Settings ni cachés para decidir la cuenta. Para otras identidades devuelve `false` antes de modificar la configuración, la versión o la caché de fechas. El período y el límite `travelV < 10` se conservan.
 2. Las cuentas que ya tengan `travelV >= 10` no repiten la reparación. Si una versión anterior ya sobrescribió historia, este cambio no reconstruye los datos perdidos automáticamente.
 3. Cualquier push debe coordinarse con la restricción de no desplegar: el PR tiene integración automática de previews de Netlify. No se publicó nada durante esta revisión.
 

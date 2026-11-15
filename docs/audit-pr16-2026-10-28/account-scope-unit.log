@@ -7,8 +7,8 @@
 ✔ return repair does not mutate an unrelated or missing identity null (1.799375ms)
 ✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-other","email":"other@example.invalid"} (1.60775ms)
 ✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-owner"} (1.541125ms)
-✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-owner","email":"trypartylol@gmail.com.evil"} (1.618583ms)
-✔ return repair does not mutate an unrelated or missing identity {"email":"trypartylol@gmail.com"} (1.424167ms)
+✔ return repair does not mutate an unrelated or missing identity {"id":"synthetic-owner","email":"<owner-email>.evil"} (1.618583ms)
+✔ return repair does not mutate an unrelated or missing identity {"email":"<owner-email>"} (1.424167ms)
 ✔ confirmed account comparison accepts letter case and surrounding whitespace only (1.238125ms)
 ℹ tests 12
 ℹ suites 0

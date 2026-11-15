@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap">
-<link rel="stylesheet" href="./app.css?v=164ba12f">
+<link rel="stylesheet" href="./app.css?v=9dc29915">
 </head>
 <body>
 
@@ -41,6 +41,7 @@
     </div>
   </header>
 
+<div class="toprow">
   <section class="money" aria-label="Resumen del mes">
     <button type="button" class="mo-main" data-detail="budget">
       <span class="k-top"><span class="lbl"><i class="dot"></i>Te queda del budget</span><span class="pills"><span class="pill pv" id="pct">—</span><span class="pill pill2" id="daysPill"></span></span></span>
@@ -56,6 +57,15 @@
       <div class="ann ann-bot" id="annBot"></div>
     </div>
   </section>
+  <div class="card" id="agCard"><h2 class="h2row">Próximos días<button type="button" class="evadd" id="evAdd" aria-label="Agregar evento (tecla E)">+ evento</button></h2>
+        <form class="evf" id="evForm" hidden autocomplete="off">
+          <label class="sr" for="evIn">Evento</label><input id="evIn" list="evList" placeholder="Dentista mañana 18:30" autocomplete="off">
+          <datalist id="evList"></datalist>
+          <div class="evprev" id="evPrev"></div>
+          <div class="evchips" id="evChips"></div>
+          <div class="evact"><button type="button" class="evx" id="evX">Cancelar</button><button class="evok" id="evOk">Agendar</button></div>
+        </form><div id="agenda" class="muted">cargando…</div></div>
+</div>
 
   <div class="alerts" id="alerts" hidden></div>
   <form class="addbar" id="addForm" autocomplete="off">
@@ -73,14 +83,6 @@
     </div>
     <div class="col">
       <a class="card shaah" id="shaahCard" href="https://trypartylol-max.github.io/shaah/" target="_blank" rel="noopener" hidden><div class="sg" id="shGrade">–</div><div class="si"><div class="st">SHAAH · hoy</div><div class="sv" id="shToday"></div><div class="ss" id="shStreak"></div></div><div class="sbars" id="shBars" aria-hidden="true"></div></a>
-      <div class="card" id="agCard"><h2 class="h2row">Próximos días<button type="button" class="evadd" id="evAdd" aria-label="Agregar evento (tecla E)">+ evento</button></h2>
-        <form class="evf" id="evForm" hidden autocomplete="off">
-          <label class="sr" for="evIn">Evento</label><input id="evIn" list="evList" placeholder="Dentista mañana 18:30" autocomplete="off">
-          <datalist id="evList"></datalist>
-          <div class="evprev" id="evPrev"></div>
-          <div class="evchips" id="evChips"></div>
-          <div class="evact"><button type="button" class="evx" id="evX">Cancelar</button><button class="evok" id="evOk">Agendar</button></div>
-        </form><div id="agenda" class="muted">cargando…</div></div>
       <div class="card" id="vouCard" hidden><h2 class="h2row">Vouchers<span class="vtot pv" id="vouTot"></span></h2><div class="vgroups" id="vouGroups"></div><div id="vou"></div><button type="button" class="more" id="vouMore"></button></div>
     </div>
   </section>

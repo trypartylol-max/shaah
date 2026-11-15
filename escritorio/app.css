@@ -410,3 +410,16 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
   .mo-bal{grid-area:bal;flex-direction:column;align-items:flex-end;gap:2px;border-top:0;padding:0 0 4px 28px;border-left:1px solid rgba(255,255,255,.06)}
   .mo-bal b{font-size:28px;font-weight:300;letter-spacing:-.03em}
 }
+
+/* fila superior: budget + barra (más compacto) junto a Próximos días */
+.toprow{display:grid;grid-template-columns:minmax(0,2fr) minmax(320px,1fr);gap:14px;align-items:stretch;margin:0 0 14px}
+.toprow .money{margin:0}
+.toprow #agCard{margin:0;display:flex;flex-direction:column}
+.money > *{padding:18px 22px}
+.money .hv{font-size:clamp(36px,2.5vw,52px)}
+.money .fv{font-size:clamp(22px,1.5vw,30px)}
+.mo-main{gap:12px}
+.mo-bar{padding:12px 28px 8px 24px}
+.an b{font-size:clamp(15px,1vw,18px)}
+.mo-bal b{font-size:18px}
+@media(max-width:1100px){.toprow{grid-template-columns:1fr}}

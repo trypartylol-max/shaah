@@ -106,8 +106,7 @@ function render(d) {
   $('balSub').innerHTML = B(Math.round(Math.min(r, 9.99) * 100) + '%') + ' cubierto' + (fut ? ' · con futuros ' + B(money(bal - fut)) : '');
 
   // foco
-  $('fLeft').innerHTML = moneyH(left);
-  $('fSub').innerHTML = B(Math.round(p * 100) + '%') + ' usado · quedan ' + B(dim - day) + ' días';
+  if (!$('focus').hidden) buildFocus(true);
 
   // categorías
   const sel = $('aCat'), cur = sel.value;
@@ -170,6 +169,7 @@ $('quick').addEventListener('click', async ev => {
 /* ---------- SHAAH: nota de hoy y racha ---------- */
 const ymd = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
 const gradeColor = g => /^S/.test(g) ? 'var(--gold)' : g === 'A' ? 'var(--in)' : g === 'B' ? '#5fb3c7' : g === 'C' ? '#d9a54a' : '#e0796b';
+let SH = null;
 async function loadShaah() {
   const s = await session();
   if (!s) { $('shaahCard').hidden = true; return; }
@@ -182,6 +182,7 @@ async function loadShaah() {
     let streak = 0;
     for (let i = 0; i < 60; i++) { const r = H[ymd(new Date(t.getFullYear(), t.getMonth(), t.getDate() - i))]; if (ok(r)) streak++; else if (i > 0) break; }
     const today = H[ymd(t)];
+    SH = { today, streak, grade: today && today.grade ? today.grade : null };
     const g = today && today.grade ? today.grade : '–';
     $('shaahCard').style.setProperty('--g', today ? gradeColor(g) : 'var(--dim)');
     $('shGrade').textContent = g;
@@ -504,14 +505,85 @@ document.addEventListener('click', ev => {
   el.classList.add('rv'); setTimeout(() => el.classList.remove('rv'), 4000);
 }, true);
 function setFocus(on) {
+  if (on) buildFocus(false);
   $('focus').hidden = !on;
   document.documentElement.classList.toggle('noscroll', on);
+  if (on) $('fDeck').scrollLeft = 0;
 }
-// Salir tocando en cualquier parte o deslizando (en iPhone la ✕ puede quedar bajo la barra de estado)
-$('focus').addEventListener('click', ev => { if (!ev.target.closest('.pv.rv')) setFocus(false); });
-let fY = null;
-$('focus').addEventListener('touchstart', ev => { fY = ev.touches[0].clientY; }, { passive: true });
-$('focus').addEventListener('touchmove', ev => { ev.preventDefault(); if (fY !== null && Math.abs(ev.touches[0].clientY - fY) > 60) { fY = null; setFocus(false); } }, { passive: false });
+
+/* ---------- modo foco: una tarjeta por pantalla ---------- */
+const COTIDIANO = ['sup', 'com', 'jag', 'alc', 'gas', 'cas', 'dat', 'soc', 'gen', 'cp'];
+function projClose(d) {
+  const now = new Date(), day = now.getDate(), dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const daily = (d.catb || []).filter(c => COTIDIANO.includes(c.code)).reduce((s, c) => s + (c.spent || 0), 0) / Math.max(1, day);
+  return Math.round((d.spent || 0) + (d.future || 0) + daily * (dim - day));
+}
+function relTime(ms) {
+  const m = Math.round((ms - Date.now()) / 60000);
+  if (m < 60) return m <= 0 ? 'ahora' : 'en ' + m + ' min';
+  const h = Math.round(m / 60); if (h < 24) return 'en ' + h + (h === 1 ? ' hora' : ' horas');
+  const d = Math.round(h / 24); return 'en ' + d + (d === 1 ? ' día' : ' días');
+}
+function buildFocus(keep) {
+  const d = D || {}, cards = [];
+  const now = new Date(), day = now.getDate(), dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const budget = d.budget || 0, spent = d.spent || 0, fut = d.future || 0, left = budget - spent;
+  const card = (lbl, val, sub, extra, cls) => '<section class="fcard' + (cls ? ' ' + cls : '') + '"><div class="f-lbl">' + lbl + '</div>' + val + (sub ? '<div class="f-sub">' + sub + '</div>' : '') + (extra || '') + '</section>';
+  cards.push(card('Te queda del budget', '<div class="f-v pv"' + (left < 0 ? ' style="color:var(--out)"' : '') + '>' + moneyH(left) + '</div>',
+    (fut ? 'con futuros ' + B(money(left - fut)) + ' · ' : '') + B(Math.round(budget ? spent / budget * 100 : 0) + '%') + ' usado · ' + B(dim - day) + ' días'));
+  if (d.catb) {
+    const pr = projClose(d), diff = budget - pr;
+    cards.push(card('A este ritmo cierras en', '<div class="f-v pv" style="color:' + (diff < 0 ? 'var(--out)' : 'var(--in)') + '">' + moneyH(pr) + '</div>',
+      diff >= 0 ? B(money(diff)) + ' por debajo del budget' : B(money(-diff)) + ' por encima del budget', '<div class="f-note">gastado + futuros agendados + ritmo de lo cotidiano</div>'));
+  }
+  const A = catAlerts(d).filter(c => c.over > 0);
+  if (A.length) cards.push(card(A.length === 1 ? 'Categoría pasada de budget' : A.length + ' categorías pasadas de budget', '<div class="f-list">' + A.slice(0, 5).map(c => '<div><span>' + esc(c.name) + '</span><b class="pv">+' + money(c.over) + '</b></div>').join('') + '</div>', ''));
+  if (SH) {
+    const t = SH.today;
+    cards.push(card('SHAAH hoy', '<div class="f-v f-grade" style="color:' + (t ? gradeColor(SH.grade) : 'var(--dim)') + '">' + esc(SH.grade || '–') + '</div>',
+      (t ? B((t.pct || 0) + '%') + ' · ' + Math.round(t.score || 0) + ' pts' : 'Sin marcar todavía') + ' · ' + (SH.streak ? 'racha ' + B(SH.streak + (SH.streak === 1 ? ' día' : ' días')) : 'sin racha')));
+  }
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const nxt = (AG || []).find(e => e.all ? e.e > Date.now() && e.s >= t0.getTime() - 864e5 : e.e > Date.now());
+  cards.push(nxt ? card('Próximo', '<div class="f-t">' + esc(nxt.t) + '</div>',
+    B(fmtDay(new Date(nxt.s))) + (nxt.all ? ' · todo el día' : ' · ' + fmtHM(new Date(nxt.s)) + ' · ' + relTime(nxt.s)))
+    : card('Próximos días', '<div class="f-t">Libre</div>', 'nada en los próximos 5 días'));
+  const M = (d.metas || []).filter(m => m.target && m.saved < m.target).sort((a, b) => b.saved / b.target - a.saved / a.target);
+  if (M.length) {
+    const m = M[0], pc = Math.round(m.saved / m.target * 100);
+    cards.push(card('Meta más cerca', '<div class="f-t">' + esc(m.name) + '</div>', 'faltan ' + B(money(m.target - m.saved)) + ' · ' + B(pc + '%'), '<div class="f-bar"><i style="width:' + pc + '%"></i></div>'));
+  }
+  const V = (VL || []).filter(x => x.cls !== ' gone');
+  if (V.length) {
+    const tot = V.reduce((s, x) => s + (x.amount || 0), 0);
+    const soon = V.filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x.vence)).sort((a, b) => a.vence.localeCompare(b.vence))[0];
+    const big = V.slice().sort((a, b) => b.amount - a.amount)[0];
+    const pick = soon || big, nm = cap(([pick.name, pick.what].filter(Boolean).join(' · ')));
+    cards.push(card('Vouchers', '<div class="f-v pv">' + moneyH(tot) + '</div>', (soon ? 'vence antes: ' : 'el mayor: ') + B(nm + ' ' + money(pick.amount)) + (soon ? ' · ' + esc(soon.txt) : '')));
+  }
+  const idx = keep ? fIdx() : 0;
+  $('fDeck').innerHTML = cards.join('');
+  $('fDots').innerHTML = cards.map((_, i) => '<i data-i="' + i + '"' + (i === idx ? ' class="on"' : '') + '></i>').join('');
+  if (keep) $('fDeck').scrollLeft = idx * $('fDeck').clientWidth;
+}
+function fIdx() { const w = $('fDeck').clientWidth || 1; return Math.round($('fDeck').scrollLeft / w); }
+function fGo(i) { const n = $('fDeck').children.length; i = Math.max(0, Math.min(n - 1, i)); $('fDeck').scrollTo({ left: i * $('fDeck').clientWidth, behavior: 'smooth' }); }
+$('fDeck').addEventListener('scroll', () => { const i = fIdx(); [...$('fDots').children].forEach((d, k) => d.classList.toggle('on', k === i)); }, { passive: true });
+$('fDots').addEventListener('click', ev => { const d = ev.target.closest('[data-i]'); if (d) { ev.stopPropagation(); fGo(+d.dataset.i); } });
+// Salir: tocar (sin deslizar), deslizar en vertical, ✕ o Esc. Deslizar a los lados cambia de tarjeta.
+let fT = null, fMoved = false;
+$('focus').addEventListener('touchstart', ev => { fT = { x: ev.touches[0].clientX, y: ev.touches[0].clientY }; fMoved = false; }, { passive: true });
+$('focus').addEventListener('touchmove', ev => {
+  if (!fT) return;
+  const dx = ev.touches[0].clientX - fT.x, dy = ev.touches[0].clientY - fT.y;
+  if (Math.abs(dx) > 8 || Math.abs(dy) > 8) fMoved = true;
+  if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) { fT = null; setFocus(false); }
+}, { passive: true });
+$('focus').addEventListener('click', ev => {
+  if (ev.target.closest('.pv.rv') || ev.target.closest('#fDots')) return;
+  if (fMoved) { fMoved = false; return; }
+  setFocus(false);
+});
 $('focusBtn').onclick = () => setFocus(true);
 $('focusX').onclick = () => setFocus(false);
 
@@ -594,6 +666,7 @@ $('pal').addEventListener('click', e => { if (e.target === $('pal')) palClose();
 /* ---------- atajos de teclado ---------- */
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('pal').hidden ? palOpen() : palClose(); return; }
+  if (!$('focus').hidden && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); fGo(fIdx() + (e.key === 'ArrowRight' ? 1 : -1)); return; }
   if (e.key === 'Escape') { evClose(); palClose(); closeDrawer(); setFocus(false); $('appModal').hidden = true; return; }
   const tag = (e.target.tagName || '').toLowerCase();
   if (tag === 'input' || tag === 'select' || tag === 'textarea' || e.metaKey || e.ctrlKey || e.altKey) return;

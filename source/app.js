@@ -7245,10 +7245,16 @@ function workPhaseAdvance(key){
  const count=workMilestonesFor(key).length;if(!count)return;
  workPhaseSet(key,completed>=count?0:completed+1);
 }
+// "This week" = the company's pay period: 1–7, 8–15, 16–22, 23–end of month.
+function workPayPeriod(key){
+ const y=+key.slice(0,4),m=+key.slice(5,7),d=+key.slice(8,10),last=new Date(Date.UTC(y,m,0)).getUTCDate();
+ const start=d<=7?1:d<=15?8:d<=22?16:23,end=start===1?7:start===8?15:start===16?22:last;
+ const pad=n=>String(n).padStart(2,'0'),month=key.slice(0,8);
+ return {from:month+pad(start),to:month+pad(end),days:end-start+1};
+}
 function workWeeklyCash(key){
- const weekday=new Date(key+'T12:00:00Z').getUTCDay();
- const from=keyMinus(key,weekday),to=keyMinus(from,-6),today=todayKey();let total=0;
- for(let i=0;i<7;i++){
+ const {from,to,days}=workPayPeriod(key),today=todayKey();let total=0;
+ for(let i=0;i<days;i++){
   const day=keyMinus(from,-i);if(day>today||cfgForDate(day).inVacation)continue;
   const fraction=doneFrac(getChecked(day).work),phases=workMilestonesFor(day);
   let amount=0;phases.forEach((p,n)=>{if(fraction+1e-9>=p[2])amount=workMilestoneRules(day)[n].amount;});

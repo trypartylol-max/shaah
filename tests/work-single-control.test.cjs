@@ -31,13 +31,15 @@ test('custom Work milestones apply from tomorrow, preserve past scores and retai
  const other=app();assert.equal(other.read("workMilestonesFor('2026-10-16')[2][1]"),25);
  a.run("CFG.travel.mode='vacation';persistTravelMode('vacation');workPhaseAdvance('2026-10-17')");assert.equal(a.read("getChecked('2026-10-16').work||false"),false);
 });
-test('weekly cash uses Sunday–Saturday, one highest milestone per day and dated amounts',()=>{
- const a=app();a.run("_state={};setHabitState('work','2026-10-10',true);setHabitState('work','2026-10-11',true);setHabitState('work','2026-10-12',.4);setHabitState('work','2026-10-15',.8);setHabitState('work','2026-10-17',true)");
- assert.equal(a.read("workWeeklyCash('2026-10-16').from"),'2026-10-11');
- assert.equal(a.read("workWeeklyCash('2026-10-16').to"),'2026-10-17');
- assert.equal(a.read("workWeeklyCash('2026-10-16').total"),1850);
- a.run("workMilestonesApply([{amount:500,points:7},{amount:900,points:8},{amount:1200,points:15}]);workPhaseAdvance('2026-10-16')");
- assert.equal(a.read("workWeeklyCash('2026-10-16').total"),2250);
- a.run("CFG.travel.mode='vacation';persistTravelMode('vacation')");assert.equal(a.read("workWeeklyCash('2026-10-16').total"),1850);
- assert.equal(app().read("workWeeklyCash('2026-10-16').total"),800);
+test('weekly cash follows the pay periods 1–7, 8–15, 16–22 and 23–end of month',()=>{
+ const a=app();a.run("_state={};setHabitState('work','2026-10-08',true);setHabitState('work','2026-10-11',true);setHabitState('work','2026-10-12',.4);setHabitState('work','2026-10-15',.8);setHabitState('work','2026-10-16',true)");
+ assert.equal(a.read("workWeeklyCash('2026-10-12').from"),'2026-10-08');
+ assert.equal(a.read("workWeeklyCash('2026-10-12').to"),'2026-10-15');
+ assert.equal(a.read("workWeeklyCash('2026-10-12').total"),2650);
+ assert.equal(a.read("workWeeklyCash('2026-10-16').from"),'2026-10-16');
+ assert.equal(a.read("workWeeklyCash('2026-10-16').to"),'2026-10-22');
+ assert.equal(a.read("workWeeklyCash('2026-10-16').total"),800);
+ for(const [key,from,to] of [['2026-10-01','2026-10-01','2026-10-07'],['2026-10-23','2026-10-23','2026-10-31'],['2026-11-30','2026-11-23','2026-11-30'],['2027-02-24','2027-02-23','2027-02-28'],['2028-02-29','2028-02-23','2028-02-29']]){
+  assert.equal(a.read(`workWeeklyCash('${key}').from`),from);assert.equal(a.read(`workWeeklyCash('${key}').to`),to);
+ }
 });

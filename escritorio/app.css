@@ -302,3 +302,9 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 .fdots{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 52px);display:flex;justify-content:center;gap:8px;z-index:1}
 .fdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.22);cursor:pointer;transition:background .2s,transform .2s}
 .fdots i.on{background:#e6f2ec;transform:scale(1.25)}
+/* metas: meta total + marca del próximo hito */
+.mc .tr{position:relative;overflow:visible}
+.mc .tr .ms{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:2px;background:#e9ecf1;opacity:.75}
+.mc .tr .ms.hit{background:#e3b85b;opacity:.5}
+.mc .s2{font-size:12px;color:#b9a06a}
+.mc .s{flex-wrap:wrap;gap:2px 10px}.mc .s span{white-space:nowrap}

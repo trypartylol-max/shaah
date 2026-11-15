@@ -195,14 +195,23 @@ async function loadShaah() {
   } catch (e) { /* sin datos de SHAAH: se queda oculto */ }
 }
 
+/* Metas: ahorrado (B), próximo hito (C), meta total (E), falta (F) — tal cual la hoja */
+function metaInfo(x) {
+  const saved = x.saved || 0, mile = x.target || 0, total = x.final > 0 ? x.final : mile;
+  const falta = x.left != null && x.left !== '' ? Math.max(0, x.left) : Math.max(0, total - saved);
+  const pc = total ? Math.min(100, saved / total * 100) : 0;
+  const hasMile = mile > 0 && total > 0 && mile < total;
+  return { saved, mile, total, falta, pc, hasMile, mileHit: hasMile && saved >= mile, done: total > 0 && saved >= total };
+}
 function renderMetas(M) {
   $('metasCard').hidden = !M.length;
   $('metas').innerHTML = M.map(x => {
-    const pc = x.target ? Math.min(100, x.saved / x.target * 100) : 0, done = pc >= 100, falta = Math.max(0, (x.target || 0) - (x.saved || 0));
-    return '<div class="mc' + (done ? ' done' : '') + (pc <= 0 ? ' zero' : '') + '" data-meta="' + esc(x.name) + '">' +
-      '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(pc) + '%</span></div>' +
-      '<div class="tr"><i style="width:' + pc + '%"></i></div>' +
-      '<div class="s pv"><span>' + money(x.saved) + ' de ' + money(x.target) + '</span><span>' + (done ? '✓ lista' : 'faltan ' + money(falta)) + '</span></div>' +
+    const m = metaInfo(x);
+    return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + '" data-meta="' + esc(x.name) + '">' +
+      '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
+      '<div class="tr"><i style="width:' + m.pc + '%"></i>' + (m.hasMile ? '<b class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + (m.mile / m.total * 100) + '%" title="Próximo hito"></b>' : '') + '</div>' +
+      '<div class="s pv"><span>' + money(m.saved) + ' de ' + money(m.total) + '</span><span>' + (m.done ? '✓ lista' : 'faltan ' + money(m.falta)) + '</span></div>' +
+      (m.hasMile ? '<div class="s2 pv">' + (m.mileHit ? '✓ hito ' + money(m.mile) + ' alcanzado' : 'Próximo hito ' + money(m.mile) + ' · faltan ' + money(m.mile - m.saved)) + '</div>' : '') +
       '<div class="ap"><button type="button" class="add">+ aportar</button></div></div>';
   }).join('');
 }
@@ -548,10 +557,11 @@ function buildFocus(keep) {
   cards.push(nxt ? card('Próximo', '<div class="f-t">' + esc(nxt.t) + '</div>',
     B(fmtDay(new Date(nxt.s))) + (nxt.all ? ' · todo el día' : ' · ' + fmtHM(new Date(nxt.s)) + ' · ' + relTime(nxt.s)))
     : card('Próximos días', '<div class="f-t">Libre</div>', 'nada en los próximos 5 días'));
-  const M = (d.metas || []).filter(m => m.target && m.saved < m.target).sort((a, b) => b.saved / b.target - a.saved / a.target);
+  const M = (d.metas || []).map(x => Object.assign({ x }, metaInfo(x))).filter(m => m.total && !m.done).sort((a, b) => b.pc - a.pc);
   if (M.length) {
-    const m = M[0], pc = Math.round(m.saved / m.target * 100);
-    cards.push(card('Meta más cerca', '<div class="f-t">' + esc(m.name) + '</div>', 'faltan ' + B(money(m.target - m.saved)) + ' · ' + B(pc + '%'), '<div class="f-bar"><i style="width:' + pc + '%"></i></div>'));
+    const m = M[0];
+    cards.push(card('Meta más cerca', '<div class="f-t">' + esc(m.x.name) + '</div>', B(money(m.saved)) + ' de ' + B(money(m.total)) + ' · faltan ' + B(money(m.falta)) + ' · ' + B(Math.round(m.pc) + '%'),
+      '<div class="f-bar"><i style="width:' + m.pc + '%"></i></div>' + (m.hasMile && !m.mileHit ? '<div class="f-note">próximo hito ' + money(m.mile) + ' · faltan ' + money(m.mile - m.saved) + '</div>' : '')));
   }
   const V = (VL || []).filter(x => x.cls !== ' gone');
   if (V.length) {

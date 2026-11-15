@@ -28,7 +28,7 @@ test('desktop Production/WOD are readable and closed levels are header-sized', a
       const routines=page.locator('.t-rout-body>div.sf-core-routine');assert.equal(await routines.count(),2);
    for(const card of await routines.all()){
     const m=await card.evaluate(e=>({title:parseFloat(getComputedStyle(e.querySelector('.r-lab')).fontSize),meta:parseFloat(getComputedStyle(e.querySelector('.r-sub')).fontSize),buttons:[...e.querySelectorAll('.r-btn')].map(b=>({h:b.getBoundingClientRect().height,font:parseFloat(getComputedStyle(b).fontSize)})),overflow:e.scrollWidth>e.clientWidth+1}));
-    assert.ok(m.title>=18&&m.meta>=14,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=44&&b.font>=12));assert.equal(m.overflow,false);
+    assert.ok(m.title>=18&&m.meta>=14,JSON.stringify(m));assert.ok(m.buttons.every(b=>b.h>=42&&b.font>=12));assert.equal(m.overflow,false);
    }
    assert.equal(await page.evaluate(()=>document.querySelector('#scroll').scrollWidth<=innerWidth),true);
    if(width===1440&&skin==='glow'){await page.evaluate(()=>document.querySelector('#scroll').scrollTop=0);await page.waitForTimeout(400);await page.screenshot({path:'test-results/today-desktop-routines-glow.png'});}

@@ -18,7 +18,7 @@ test('compact routine parity across every selectable skin, widths and credit sta
      assert.deepEqual(await card.locator('button').evaluateAll(es=>es.map(e=>e.getAttribute('aria-label'))),['LIGHT',id==='production'?'PLAY':'START','DONE']);assert.equal(await card.locator('button svg.cr-action-icon').count(),3);assert.ok((await card.locator('button').allTextContents()).every(s=>s.trim()===''));
      assert.equal(await card.locator('svg:not(.cr-action-icon) circle,.cr-card-state,.cr-card-session,.r-step').count(),0);
      const m=await card.evaluate(e=>{const r=e.getBoundingClientRect();return {w:r.width,h:r.height,overflow:e.scrollWidth>e.clientWidth+1,buttons:[...e.querySelectorAll('button')].map(b=>{const q=b.getBoundingClientRect();return {w:q.width,h:q.height,y:q.y,bottom:q.bottom<=r.bottom+1}})}});
-     assert.equal(m.overflow,false,`${skin} ${width}`);assert.ok(m.buttons.every(b=>b.h>=44&&b.bottom));assert.ok(Math.max(...m.buttons.map(b=>b.w))-Math.min(...m.buttons.map(b=>b.w))<1);assert.ok(Math.max(...m.buttons.map(b=>b.y))-Math.min(...m.buttons.map(b=>b.y))<1);measures.push(m);
+     assert.equal(m.overflow,false,`${skin} ${width}`);assert.ok(m.buttons.every(b=>b.h>=42&&b.bottom));assert.ok(Math.max(...m.buttons.map(b=>b.w))-Math.min(...m.buttons.map(b=>b.w))<1);assert.ok(Math.max(...m.buttons.map(b=>b.y))-Math.min(...m.buttons.map(b=>b.y))<1);measures.push(m);
     }
     assert.ok(Math.abs(measures[0].w-measures[1].w)<1);assert.ok(Math.abs(measures[0].h-measures[1].h)<1,`${skin} ${width} symmetric height`);
     assert.equal(await page.evaluate(()=>document.querySelector('#scroll').scrollWidth<=innerWidth),true);

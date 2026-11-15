@@ -19,8 +19,8 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 ```
 python3 scripts/build-production.py     # source/ -> assets/ hasheados, index.html, sw.js
 npm ci
-npm run test:unit                        # 299 tests, ~5 s, verdes a día 2026-11-09
-npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~15 min. En verde a 2026-11-10: sin omitidos ni fallos. Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout -- docs y borra los .png sueltos de la raíz
+npm run test:unit                        # 302 tests, ~5 s, verdes a día 2026-11-15
+npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~13 min. En verde a 2026-11-15 (314 tests): sin omitidos ni fallos. Entre el 11 y el 15 de noviembre estuvo rota por cambios de diseño publicados sin correrla: corre al menos los archivos de la zona que tocas antes de publicar, y añade el flag de versión nuevo al fixture de tests/helpers.cjs cuando crees una migración `*Once`. Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout -- docs y borra los .png sueltos de la raíz
 SHAAH_SOURCE=source/app.js npm test      # probar el fuente sin reconstruir
 ```
 - Los tests unitarios ejecutan el código real de `app.js` en un `vm` con DOM simulado (`tests/helpers.cjs`, `loadApp()`); sirven para llamar funciones concretas (`calcScore`, `cfgForDate`, `persistDay`…).

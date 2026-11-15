@@ -4216,7 +4216,7 @@ function renderSettings(){
         ${[["chips","Chips","Side by side"],["slim","Bar","One thin line"],["circle","Circle","Smallest"]].map(([id,lbl,sub])=>`
           <button ${ui('click','cfgPill' ,id)} ${uiStyle(`flex:1;background:${(CFG.pill||'chips')===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${(CFG.pill||'chips')===id?'#3a3a55':'#222'};color:${(CFG.pill||'chips')===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer`)}>
             <div ${uiStyle(`font-size:13px`)}>${interfaceCopy(lbl)}</div>
-            <div ${uiStyle(`font-size:10px;color:#7e7e97;margin-top:3px`)}>${interfaceCopy(sub)}</div>
+            <div ${uiStyle(`font-size:10px;color:#9090aa;margin-top:3px`)}>${interfaceCopy(sub)}</div>
           </button>`).join("")}
       </div>
 <div class="st-div"></div>
@@ -4224,8 +4224,8 @@ function renderSettings(){
       <button ${ui('click','exportData')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("⬇  EXPORT JSON")}</button>
       ${unownedDayLogNoticeHTML()}
       <button ${ui('click','importPick')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("⬆  IMPORT JSON")}</button>
-      <button ${ui('click','restoreDefaults')} ${uiStyle(`width:100%;background:none;border:1px solid #221818;color:#a55;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("↺  RESTORE DEFAULTS")}</button>
-      <div ${uiStyle(`text-align:center;font-size:12px;color:#6e6e88;letter-spacing:.1em;margin:14px 0 2px`)}>${BUILD}</div>
+      <button ${ui('click','restoreDefaults')} ${uiStyle(`width:100%;background:none;border:1px solid #221818;color:#f87171;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("↺  RESTORE DEFAULTS")}</button>
+      <div ${uiStyle(`text-align:center;font-size:12px;color:#8888a4;letter-spacing:.1em;margin:14px 0 2px`)}>${BUILD}</div>
       <div ${uiStyle(`text-align:center;font-size:14.5px;color:#a4a4ba;margin-top:18px;letter-spacing:0.12em`)}>SHAAH · ${esc(USER?USER.email||'':'')}</div>
       <button data-signout ${ui('click','signOut' ,false)} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer`)}>${interfaceText('signOut')}</button>
       <button data-signout ${ui('click','signOut' ,true)} ${uiStyle(`width:100%;background:none;border:1px solid #34344a;color:#c0c0cd;font-family:inherit;font-size:14px;padding:12px;border-radius:10px;cursor:pointer;margin-top:10px`)}>${interfaceCopy("Sign out & remove saved copies")}</button>
@@ -4237,7 +4237,7 @@ function renderSettings(){
         ${[["work","💼 Work","Work active"],["vacation","🏖 Vacation","Work paused"]].map(([id,lbl,sub])=>`
           <button ${ui('click','setTravelMode' ,id)} ${uiStyle(`flex:1;background:${travelMode()===id?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${travelMode()===id?'#3a3a55':'#222'};color:${travelMode()===id?'#e2e2e2':'#9a9ab2'};font-family:inherit;border-radius:11px;padding:11px 6px;cursor:pointer`)}>
             <div ${uiStyle(`font-size:14px`)}>${interfaceCopy(lbl)}</div>
-            <div ${uiStyle(`font-size:10px;color:#7e7e97;margin-top:3px`)}>${interfaceCopy(sub)}</div>
+            <div ${uiStyle(`font-size:10px;color:#9090aa;margin-top:3px`)}>${interfaceCopy(sub)}</div>
           </button>`).join("")}
       </div>
       <div class="st-div"></div>

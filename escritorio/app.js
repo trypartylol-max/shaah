@@ -9,6 +9,7 @@ const BUILTIN = [
   { s: 'Apps', n: 'SHAAH', i: 'S', c: '#1d2b22', u: 'https://trypartylol-max.github.io/shaah/' },
   { s: 'Apps', n: 'Torre de Control', i: '🗼', c: '#1f1b2b', u: 'https://trypartylol-max.github.io/shaah/control/' },
   { s: 'Apps', n: 'SHAAH local', i: '⌂', c: '#16202a', u: 'http://localhost:8080/' },
+  { s: 'Apps', n: 'Event Scorecard', i: '🎪', c: '#2a2418', u: 'https://trypartylol-max.github.io/shaah/scorecard/' },
   { s: 'Dinero', n: 'Caja', i: '₪', c: '#142a22', u: PRIV + '?p=caja' },
   { s: 'Dinero', n: 'Libro Mayor', i: '📒', c: '#2a2618', u: PRIV + '?p=libro' },
   { s: 'Casa', n: 'WiFi Doctor', i: '📶', c: '#13232e', u: PRIV + '?p=wifi' }

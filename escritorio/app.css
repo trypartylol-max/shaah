@@ -281,3 +281,8 @@ html{background-color:#0a0b0d}
 .k-hero{justify-content:center;gap:18px}
 .k-hero .k-top{align-items:flex-start}
 .k-hero .hvrow{margin-top:-18px}
+/* modo foco: usable en iPhone */
+.focus{overscroll-behavior:contain;touch-action:none;cursor:pointer;padding:env(safe-area-inset-top) 20px env(safe-area-inset-bottom)}
+.f-x{top:calc(env(safe-area-inset-top) + 14px);right:calc(env(safe-area-inset-right) + 16px);width:46px;height:46px;font-size:18px;z-index:1}
+.f-hint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 24px);font-size:13px;color:#6f7a74}
+html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}

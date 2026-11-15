@@ -503,7 +503,15 @@ document.addEventListener('click', ev => {
   ev.preventDefault(); ev.stopPropagation();
   el.classList.add('rv'); setTimeout(() => el.classList.remove('rv'), 4000);
 }, true);
-function setFocus(on) { $('focus').hidden = !on; }
+function setFocus(on) {
+  $('focus').hidden = !on;
+  document.documentElement.classList.toggle('noscroll', on);
+}
+// Salir tocando en cualquier parte o deslizando (en iPhone la ✕ puede quedar bajo la barra de estado)
+$('focus').addEventListener('click', ev => { if (!ev.target.closest('.pv.rv')) setFocus(false); });
+let fY = null;
+$('focus').addEventListener('touchstart', ev => { fY = ev.touches[0].clientY; }, { passive: true });
+$('focus').addEventListener('touchmove', ev => { ev.preventDefault(); if (fY !== null && Math.abs(ev.touches[0].clientY - fY) > 60) { fY = null; setFocus(false); } }, { passive: false });
 $('focusBtn').onclick = () => setFocus(true);
 $('focusX').onclick = () => setFocus(false);
 

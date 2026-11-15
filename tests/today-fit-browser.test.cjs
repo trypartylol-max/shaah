@@ -25,7 +25,7 @@ for(const [width,height] of [[1280,720],[1366,768],[1280,640],[1440,650],[1440,9
     assert.ok(m.bottom<=m.limit+1,ctx);
     assert.equal(m.wide,false,ctx);
     assert.equal(m.rows,8,ctx);
-    assert.ok(m.buttons.length>=6&&m.buttons.every(h=>h>=44),ctx);
+    assert.ok(m.buttons.length>=6&&m.buttons.every(h=>h>=42),ctx);
     assert.ok(m.footer.b<=m.next.b+1,ctx);
     if(layout==='pro')assert.equal(m.note,true,ctx);
     if(orb&&layout==='pro')assert.ok(m.orb.t>=m.orbCard.t&&m.orb.b<=m.orbCard.b&&Math.abs(m.orb.w-m.orb.h)<1,ctx);

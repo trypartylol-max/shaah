@@ -21,6 +21,9 @@ function iconFixture() {
 for (const [device, viewport] of [['mobile', { width: 390, height: 844 }], ['desktop', { width: 1440, height: 1000 }]]) {
   test(`${device}: Matrix icons cover navigation and content, preserve names and restore other skins`, async t => {
     const page = await openApp(t, iconFixture(), viewport);
+    // The fixture's startup settings save queues a debounced config backup; wait for it so it is not
+    // mistaken for a write caused by changing the appearance (this made the test flaky).
+    await page.waitForFunction(() => window.__mockWrites.some(w => w.date === 'cfgbak') || !window.__mockWrites.length, null, { timeout: 15000 }).catch(() => {});
     const before = await snapshot(page);
     const writes = await page.evaluate(() => window.__mockWrites.length);
     const navNames = await page.locator('#nav button').allTextContents();

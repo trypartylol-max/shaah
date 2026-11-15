@@ -16,8 +16,10 @@ for (const width of [320, 390, 768, 879, 880, 1440]) {
       await page.evaluate(() => document.fonts.ready.then(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))));
       await page.waitForTimeout(250);
     };
-    const snapshot = () => page.evaluate(() => {
-      const boxes = [...document.querySelectorAll('.stats-metric-card,.t-lvl,.t-rout,.t-note,#nav')]
+    // Since the compact Stats metric cards (#80) this layer restyles their mobile value type,
+    // so their height legitimately differs below 880px; geometry parity covers the rest.
+    const snapshot = () => page.evaluate(wide => {
+      const boxes = [...document.querySelectorAll((wide ? '.stats-metric-card,' : '') + '.t-lvl,.t-rout,.t-note,#nav')]
         .map(el => { const r = el.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; });
       return {
         boxes,
@@ -26,7 +28,7 @@ for (const width of [320, 390, 768, 879, 880, 1440]) {
         scores: Object.keys(_state).filter(k => /^\d{4}-/.test(k)).map(k => [k, calcScore(k)]),
         writes: window.__mockWrites,
       };
-    });
+    }, width >= 880);
     await page.evaluate(() => setSkin('classic'));
     for (const tab of ['today', 'stats']) {
       await page.locator(`.nav-btn[data-tab="${tab}"]`).click();

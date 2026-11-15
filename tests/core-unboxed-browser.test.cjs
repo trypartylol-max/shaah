@@ -28,8 +28,8 @@ test('Core Routines is plain text with independent cards; responsive controls an
  await page.screenshot({path:process.env.SHAAH_CORE_DESKTOP_SCREENSHOT||'/tmp/shaah-core-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:process.env.SHAAH_CORE_SCREENSHOT||'/tmp/shaah-core-unboxed.png',fullPage:true});
- await page.locator('.t-rout-toggle').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);
- await page.locator('.t-rout-toggle').press('Enter');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
+ await page.locator('.today-routines-label').click();assert.equal(await page.locator('.t-rout-body').isVisible(),false);
+ await page.locator('.today-routines-label').press('Enter');assert.equal(await page.locator('.t-rout-body').isVisible(),true);
  for(const points of [10,20,25,0]){await page.locator('.sf-work-next:visible,.wg-card:visible').click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),points);}
  await page.getByRole('button',{name:/^(Complete|Completar)$/}).click();assert.equal(await page.evaluate(()=>calcScore(todayKey()).l1),35);
 });

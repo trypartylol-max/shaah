@@ -458,3 +458,8 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 .vc .a,.vc .n{align-self:flex-start}
 .shaah .st{display:block;padding:0;border:0;border-radius:0;background:none;font-size:13px;color:var(--dim);cursor:inherit}
 .shaah .st + .st{border:0}
+#vou{grid-template-columns:repeat(auto-fill,minmax(168px,1fr))}
+.vc{padding:13px 13px 12px}
+.vc .a{font-size:clamp(20px,1.35vw,26px)}
+#vou{grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:8px}
+.vc .vt{flex-wrap:wrap;row-gap:2px}

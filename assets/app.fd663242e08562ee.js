@@ -5212,7 +5212,7 @@ function topbarHTML(){
     <div id="desktop-status-controls">
     <div id="desktop-work-status">
     <div id="mode-status" title="${interfaceCopy(starterProfile()?'Your habit plan':'Current mode')}">${starterProfile()?interfaceCopy('MY PLAN'):interfaceText(travelMode()==='vacation'?'vacation':'work')}</div>
-    <div id="sync-status" title="${esc(syncInterfaceLabel(_syncText))}" aria-label="${esc(syncInterfaceLabel(_syncText))}"><span ${uiStyle(`background:${dot}`)}></span></div>
+    <div id="sync-status" role="img" title="${esc(syncInterfaceLabel(_syncText))}" aria-label="${esc(syncInterfaceLabel(_syncText))}"><span ${uiStyle(`background:${dot}`)}></span></div>
     </div>
     <button type="button" id="layout-quick-toggle" aria-label="${interfaceLanguage==='he'?'מצב Pro':'Pro Mode'}" aria-pressed="${_layout==='pro'}" ${ui('click','toggleLayout')}>Pro</button>
     </div>

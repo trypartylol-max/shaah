@@ -195,13 +195,13 @@ async function loadShaah() {
   } catch (e) { /* sin datos de SHAAH: se queda oculto */ }
 }
 
-/* Metas: ahorrado (B), próximo hito (C), meta total (E), falta (F) — tal cual la hoja */
+/* Metas: Actual, Milestone, Meta, PONER (lo que falta para el milestone) y Porcentaje — leídos por nombre de columna */
 function metaInfo(x) {
   const saved = x.saved || 0, mile = x.target || 0, total = x.final > 0 ? x.final : mile;
-  const falta = x.left != null && x.left !== '' ? Math.max(0, x.left) : Math.max(0, total - saved);
-  const pc = total ? Math.min(100, saved / total * 100) : 0;
-  const hasMile = mile > 0 && total > 0 && mile < total;
-  return { saved, mile, total, falta, pc, hasMile, mileHit: hasMile && saved >= mile, done: total > 0 && saved >= total };
+  const pc = typeof x.pct === 'number' ? Math.min(100, x.pct * 100) : total ? Math.min(100, saved / total * 100) : 0;
+  const hasMile = mile > 0 && mile < total;
+  const toMile = x.left != null && x.left !== '' ? Math.max(0, x.left) : Math.max(0, mile - saved);
+  return { saved, mile, total, pc, hasMile, toMile, mileHit: hasMile && saved >= mile, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
 }
 function renderMetas(M) {
   $('metasCard').hidden = !M.length;
@@ -209,9 +209,9 @@ function renderMetas(M) {
     const m = metaInfo(x);
     return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + '" data-meta="' + esc(x.name) + '">' +
       '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
-      '<div class="tr"><i style="width:' + m.pc + '%"></i>' + (m.hasMile ? '<b class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + (m.mile / m.total * 100) + '%" title="Próximo hito"></b>' : '') + '</div>' +
+      '<div class="tr"><i style="width:' + m.pc + '%"></i>' + (m.hasMile ? '<b class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + (m.mile / m.total * 100) + '%" title="Milestone ' + esc(money(m.mile)) + '"></b>' : '') + '</div>' +
       '<div class="s pv"><span>' + money(m.saved) + ' de ' + money(m.total) + '</span><span>' + (m.done ? '✓ lista' : 'faltan ' + money(m.falta)) + '</span></div>' +
-      (m.hasMile ? '<div class="s2 pv">' + (m.mileHit ? '✓ hito ' + money(m.mile) + ' alcanzado' : 'Próximo hito ' + money(m.mile) + ' · faltan ' + money(m.mile - m.saved)) + '</div>' : '') +
+      (m.hasMile ? '<div class="s2 pv">' + (m.mileHit ? '✓ milestone ' + money(m.mile) + ' alcanzado' : 'Milestone ' + money(m.mile) + ' · poner ' + money(m.toMile)) + '</div>' : '') +
       '<div class="ap"><button type="button" class="add">+ aportar</button></div></div>';
   }).join('');
 }
@@ -561,7 +561,7 @@ function buildFocus(keep) {
   if (M.length) {
     const m = M[0];
     cards.push(card('Meta más cerca', '<div class="f-t">' + esc(m.x.name) + '</div>', B(money(m.saved)) + ' de ' + B(money(m.total)) + ' · faltan ' + B(money(m.falta)) + ' · ' + B(Math.round(m.pc) + '%'),
-      '<div class="f-bar"><i style="width:' + m.pc + '%"></i></div>' + (m.hasMile && !m.mileHit ? '<div class="f-note">próximo hito ' + money(m.mile) + ' · faltan ' + money(m.mile - m.saved) + '</div>' : '')));
+      '<div class="f-bar"><i style="width:' + m.pc + '%"></i></div>' + (m.hasMile && !m.mileHit ? '<div class="f-note">milestone ' + money(m.mile) + ' · poner ' + money(m.toMile) + '</div>' : '')));
   }
   const V = (VL || []).filter(x => x.cls !== ' gone');
   if (V.length) {

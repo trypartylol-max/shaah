@@ -485,13 +485,6 @@ const DAYLOG_KEY='dayLogV2';
 let dayLogRefreshTimer=null;
 const dayLogLocalKey=()=>USER?DAYLOG_KEY+':'+USER.id:null;
 
-function dayLogLegacyStore(){
-  try{
-    const raw=localStorage.getItem('dayLogV1');
-    const obj=raw?JSON.parse(raw):{};
-    return obj&&typeof obj==='object'?obj:{};
-  }catch(e){return {};}
-}
 function dayLogEvents(key){
   if(!_state[key])_state[key]={checks:{},social:blankSocial(),note:'',people:[]};
   if(!Array.isArray(_state[key]._daylog))_state[key]._daylog=[];
@@ -658,10 +651,6 @@ function dayLogAdd(title,startISO,endISO,type='manual',sourceId=null,meta={}){
   dayLogPersist(key);
   return ev;
 }
-function dayLogUpdate(id,patch,key=todayKey()){
-  const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
-  Object.assign(ev,patch);dayLogPersist(key);
-}
 function dayLogDelete(id,key=todayKey()){
   const arr=dayLogEvents(key),i=arr.findIndex(e=>e.id===id);if(i<0)return;
   arr.splice(i,1);dayLogPersist(key);
@@ -760,17 +749,6 @@ function dayLogSyncChangedCompletions(key,before){
     dayLogSyncCompletion(id,key,after[id],{create:id!=='sleep'});
   }
 }
-function dayLogSyncAllCompleted(key){
-  const ch=getChecked(key),C=cfgForDate(key);
-  for(const i of [...C.L1,...C.L2,...C.L3]){
-    if(i.combo)continue;
-    if(ch[i.id]===true||ch[i.id]===0.5)dayLogSyncCompletion(i.id,key,ch[i.id]);
-  }
-  if(ch.social===true){
-    const ex=dayLogFindLinked('habit','social',key);
-    if(!ex){const now=dayLogNowISO();dayLogAdd('Social Combo',now,now,'habit','social',{completed:true});}
-  }
-}
 function dayLogActiveId(){
   const evs=dayLogEvents(todayKey());
   const open=dayLogSort(evs).reverse().find(dayLogIsRunning);
@@ -796,12 +774,6 @@ function dayLogStop(id=window.__dayLogActive){
   dayLogPersist(todayKey());window.__dayLogActive=null;haptic(10);render();
 }
 function dayLogToggle(){if(dayLogActiveId())dayLogStop();else dayLogStart();}
-function dayLogAddManual(){
-  const input=document.querySelector('#dayLogInput'),title=(input?.value||'').trim();
-  if(!title)return;
-  const now=dayLogNowISO();dayLogAdd(title,now,now,'manual');
-  if(input)input.value='';haptic(8);render();
-}
 function dayLogEdit(id,key=todayKey()){
   const ev=dayLogEvents(key).find(e=>e.id===id);if(!ev)return;
   const fmtTime=iso=>{
@@ -3266,109 +3238,6 @@ async function signOut(forget=false){
   finally{_signOutBusy=false;if(screen)screen.inert=false;signOutStatus(_signOutStatus);}
 }
 
-function renderReview(){
-  const days=getDays(7);
-  const logged=days.filter(d=>d.data);
-  const avg=avgW(days), tr=weekTrend();
-  const best=logged.reduce((m,d)=>!m||dPct(d.data)>dPct(m.data)?d:m,null);
-  const worst=logged.reduce((m,d)=>!m||dPct(d.data)<dPct(m.data)?d:m,null);
-  const habits=[...LVL1,...LVL2,...LVL3];
-  // completion rate per habit over the 7 days
-  const rate=habits.map(x=>{
-    const n=days.filter(d=>{const c=getChecked(d.key);return c&&c[x.id];}).length;
-    return {...x,n,pct:Math.round(n/7*100)};
-  }).sort((a,b)=>b.n-a.n);
-  const top=rate.filter(r=>r.n>0).slice(0,3);
-  const weak=rate.filter(r=>r.n<7).slice(-3).reverse();
-  const g=GRADE(avg,100);
-  const dn=k=>keyToDate(k).toLocaleDateString(interfaceLanguage,{weekday:"short",day:"numeric",month:"short"});
-
-  return`<div class="edit-day-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
-    <div ${uiStyle(`display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;border-bottom:1px solid #1e1e2e;background:#07070f;position:sticky;top:0;z-index:50`)}>
-      <button ${ui('click','closeReview')} ${uiStyle(`background:none;border:1px solid #1e1e2e;color:#c0c0cd;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0`)}>${interfaceLanguage==='he'?'→':'←'}</button>
-      <div ${uiStyle(`font-family:'Bebas Neue';font-size:19px;letter-spacing:0.16em;color:#e2e2e2`)}>${interfaceText('weeklyReview')}</div>
-    </div>
-    <div class="fade-up" ${uiStyle(`padding:18px 16px calc(68px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px`)}>
-
-      ${logged.length===0?`<div ${uiStyle(`text-align:center;padding:50px 20px;color:#9a9ab2;font-size:15px;line-height:1.6`)}>${interfaceText('noWeekDays')}<br>${interfaceText('checkHabit')}</div>`:`
-
-      <div class="card" ${uiStyle(`background:${g.bg};border:1px solid ${g.c}22`)}>
-        <div ${uiStyle(`font-size:12px;letter-spacing:0.1em;color:#9a9ab2;margin-bottom:10px`)}>${interfaceText('lastWeek')}</div>
-        <div ${uiStyle(`display:flex;align-items:center;gap:16px`)}>
-          <div ${uiStyle(`font-family:'Bebas Neue';font-size:56px;color:${g.c};line-height:1;text-shadow:0 0 24px ${g.g}`)}>${esc(g.l)}</div>
-          <div ${uiStyle(`flex:1`)}>
-            <div ${uiStyle(`font-family:'Bebas Neue';font-size:32px;color:${g.c};line-height:1`)}>${avg}%</div>
-            <div ${uiStyle(`font-size:13px;color:#adadbf;margin-top:4px`)}>average · ${logged.length}/7 days logged</div>
-            ${tr?`<div ${uiStyle(`font-size:13px;margin-top:6px;color:${tr.diff>=0?"#4ade80":"#f97316"}`)}>${tr.diff>=0?"▲":"▼"} ${Math.abs(tr.diff)}% vs previous week</div>`:""}
-          </div>
-        </div>
-      </div>
-
-      <div ${uiStyle(`display:grid;grid-template-columns:1fr 1fr;gap:10px`)}>
-        <div class="card">
-          <div ${uiStyle(`font-size:21px;margin-bottom:6px`)}>🏆</div>
-          <div ${uiStyle(`font-family:'Bebas Neue';font-size:26px;color:${best?GRADE(best.data.score,best.data.max).c:"#8a8aa0"};line-height:1`)}>${best?best.data.score+"%":"—"}</div>
-          <div ${uiStyle(`font-size:12px;color:#9a9ab2;margin-top:5px;letter-spacing:0.08em`)}>${interfaceText('bestDay')}</div>
-          <div ${uiStyle(`font-size:13px;color:#adadbf;margin-top:2px`)}>${best?dn(best.key):""}</div>
-        </div>
-        <div class="card">
-          <div ${uiStyle(`font-size:21px;margin-bottom:6px`)}>📉</div>
-          <div ${uiStyle(`font-family:'Bebas Neue';font-size:26px;color:${worst?GRADE(worst.data.score,worst.data.max).c:"#8a8aa0"};line-height:1`)}>${worst?worst.data.score+"%":"—"}</div>
-          <div ${uiStyle(`font-size:12px;color:#9a9ab2;margin-top:5px;letter-spacing:0.08em`)}>${interfaceText('lowestDay')}</div>
-          <div ${uiStyle(`font-size:13px;color:#adadbf;margin-top:2px`)}>${worst?dn(worst.key):""}</div>
-        </div>
-      </div>
-
-      <div>
-        <div class="sec">${interfaceText('mostConsistent')}</div>
-        <div class="card">
-          ${top.length?top.map(r=>`
-          <div ${uiStyle(`display:flex;align-items:center;gap:11px;margin-bottom:12px`)}>
-            <span ${uiStyle(`font-size:19px;width:24px;text-align:center`)}>${esc(r.icon)}</span>
-            <div ${uiStyle(`flex:1;min-width:0`)}>
-              <div ${uiStyle(`font-size:14px;color:#e2e2e2;margin-bottom:5px`)}>${esc(r.label)}</div>
-              ${bar(r.pct,"#4ade80","#4ade8055",5)}
-            </div>
-            <div ${uiStyle(`font-size:14px;color:#4ade80;width:44px;text-align:right`)}>${r.n}/7</div>
-          </div>`).join(""):`<div ${uiStyle(`font-size:14px;color:#9a9ab2`)}>${interfaceText('noWeekHabits')}</div>`}
-        </div>
-      </div>
-
-      <div>
-        <div class="sec">${interfaceText('needsAttention')}</div>
-        <div class="card">
-          ${weak.length?weak.map(r=>`
-          <div ${uiStyle(`display:flex;align-items:center;gap:11px;margin-bottom:12px`)}>
-            <span ${uiStyle(`font-size:19px;width:24px;text-align:center;opacity:.6`)}>${esc(r.icon)}</span>
-            <div ${uiStyle(`flex:1;min-width:0`)}>
-              <div ${uiStyle(`font-size:14px;color:#c0c0cd;margin-bottom:5px`)}>${esc(r.label)}</div>
-              ${bar(r.pct,r.n===0?"#ef4444":"#f59e0b",(r.n===0?"#ef4444":"#f59e0b")+"55",5)}
-            </div>
-            <div ${uiStyle(`font-size:14px;color:${r.n===0?"#ef4444":"#f59e0b"};width:44px;text-align:right`)}>${r.n}/7</div>
-          </div>`).join(""):`<div ${uiStyle(`font-size:14px;color:#4ade80`)}>${interfaceCopy("Every habit hit all 7 days. 🥂")}</div>`}
-        </div>
-      </div>
-
-      <div>
-        <div class="sec">${interfaceText('dayByDay')}</div>
-        <div class="card">
-          <div ${uiStyle(`display:flex;align-items:flex-end;gap:6px;height:104px;padding-top:8px`)}>
-            ${days.map(d=>{
-              const sc=d.data?d.data.score:0, gg=GRADE(sc,d.data?d.data.max:null);
-              const hh=sc>0?Math.max(Math.round(dPct(d.data)/100*76),6):4;
-              return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:5px`)}>
-                <div ${uiStyle(`font-size:11px;color:${sc>0?gg.c:"#76768f"}`)}>${sc||""}</div>
-                <div ${uiStyle(`width:100%;height:${hh}px;border-radius:4px 4px 0 0;background:${sc>0?gg.c+"33":"#14142a"};border:1px solid ${sc>0?gg.c+"55":"#1c1c30"};border-bottom:none`)}></div>
-                <div ${uiStyle(`font-size:11px;color:#8888a4`)}>${keyToDate(d.key).toLocaleDateString(interfaceLanguage,{weekday:"narrow"})}</div>
-              </div>`;
-            }).join("")}
-          </div>
-        </div>
-      </div>
-      `}
-    </div>
-  </div>`;
-}
 
 function settingsRowInfo(key){
   const rows={
@@ -4141,6 +4010,9 @@ const interfaceCopies = {
   "Who did you meet?": ["Who did you meet?", "¿Con quién te viste?", "עם מי נפגשת?"],
   "Search for anyone": ["Search for anyone", "Buscar cualquier persona", "חיפוש אדם"],
   "Name": ["Name", "Nombre", "שם"],
+  "Time zone": ["Time zone", "Zona horaria", "אזור זמן"],
+  "Minutes": ["Minutes", "Minutos", "דקות"],
+  "Day note": ["Day note", "Nota del día", "הערת היום"],
   "Locations": ["Locations", "Lugares", "מיקומים"],
   "Create locations in Social under Groups.": ["Create locations in Social under Groups.", "Puedes crear lugares desde Social → Grupos.", "אפשר ליצור מיקומים במסך החברה, תחת קבוצות."],
   "With no locations assigned, this contact appears everywhere.": ["With no locations assigned, this contact appears everywhere.", "Sin lugares asignados: aparece en todos.", "ללא שיוך למיקומים, איש הקשר מופיע בכל מקום."],
@@ -4170,7 +4042,6 @@ const interfaceCopies = {
   "Previous day": ["Previous day", "Día anterior", "היום הקודם"],
   "Next day": ["Next day", "Día siguiente", "היום הבא"],
   "CORE": ["CORE", "NÚCLEO", "ליבה"],
-  "AVERAGE": ["AVERAGE", "PROMEDIO", "ממוצע"],
   "VS LAST WEEK": ["VS LAST WEEK", "VS SEMANA ANTERIOR", "מול שבוע שעבר"],
   "before": ["before", "antes", "קודם"],
   "BEST DAY": ["BEST DAY", "MEJOR DÍA", "היום הטוב"],
@@ -4310,7 +4181,7 @@ function renderSettings(){
           </div>
           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="${interfaceCopy("Icon")}"
             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
-          <input dir="auto" value="${esc(x.l)}" ${ui('change','cfgSet' ,id,'l')}
+          <input dir="auto" value="${esc(x.l)}" ${ui('change','cfgSet' ,id,'l')} aria-label="${interfaceCopy("Name")}"
             ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0`)}/>
           ${x.combo
             ?`<span title="${interfaceCopy("Sum of the active parts below")}" ${uiStyle(`width:96px;flex-shrink:0;color:${col};font-size:12px;text-align:center;line-height:1.25`)}>W ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'work'),0)}% · V ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'vacation'),0)}%</span>`
@@ -4335,7 +4206,7 @@ function renderSettings(){
       ${interfaceLanguagePicker()}
       ${syncNoticeHTML()}
       <div class="settings-list">
-            ${stCard("data",interfaceText('settingsData'),"#9090aa",`<select ${ui('change','cfgTz')} ${uiStyle(`width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px`)}>
+            ${stCard("data",interfaceText('settingsData'),"#9090aa",`<select ${ui('change','cfgTz')} aria-label="${interfaceCopy("Time zone")}" ${uiStyle(`width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px`)}>
         ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${esc(interfaceCopy(t.label))}</option>`).join("")}
       </select>
       <div ${uiStyle(`font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5`)}>${interfaceText('timezoneNote')} <b ${uiStyle(`color:#d0d0da`)}>${todayKey()}</b>.</div>
@@ -4372,7 +4243,7 @@ function renderSettings(){
       <div class="st-div"></div>
       <div ${uiStyle(`display:flex;align-items:center;gap:10px;margin-bottom:12px`)}>
         <span ${uiStyle(`font-size:14px;color:#c0c0cd;flex:1`)}>${interfaceText('autoWork')}</span>
-        <input type="date" value="${esc(CFG.travel.resumeOn||'')}" ${ui('change','setTravelResume')} ${uiStyle(`background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px`)}/>
+        <input type="date" value="${esc(CFG.travel.resumeOn||'')}" ${ui('change','setTravelResume')} aria-label="${interfaceText('autoWork')}" ${uiStyle(`background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px`)}/>
       </div>
       <button ${ui('click','setTravelAuto' ,!CFG.travel.auto)} ${uiStyle(`width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer`)}>${CFG.travel.auto?'✓':'○'} ${interfaceCopy('AUTOMATIC')}${CFG.travel.auto&&CFG.travel.resumeOn?` — ${interfaceCopy('switches to Work on {date}').replace('{date}',esc(CFG.travel.resumeOn))}`:''}</button>`,"st-col-b")}
             ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
@@ -4389,9 +4260,9 @@ function renderSettings(){
           ${r.steps.map((s,i)=>`
             <div ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:4px`)}>
               <span ${uiStyle(`font-size:16.5px;width:20px;text-align:center`)}>${esc(s.icon)}</span>
-              <input dir="auto" value="${esc(s.label)}" ${ui('change','stepSet' ,rid,i,'label')}
+              <input dir="auto" value="${esc(s.label)}" ${ui('change','stepSet' ,rid,i,'label')} aria-label="${interfaceCopy("Step")}"
                 ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:15px;padding:3px 0`)}/>
-              <input type="number" min="1" max="180" value="${esc(s.dur)}" ${ui('change','stepSet' ,rid,i,'dur')}
+              <input type="number" min="1" max="180" value="${esc(s.dur)}" ${ui('change','stepSet' ,rid,i,'dur')} aria-label="${interfaceCopy("Minutes")}"
                 ${uiStyle(`width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:15px;padding:4px;text-align:center`)}/>
               <span ${uiStyle(`font-size:14.5px;color:#a2a2b6`)}>m</span>
             </div>`).join("")}
@@ -4497,7 +4368,6 @@ function subDel(i){ subsEnsure(); if(CFG.subs.length<=1||!CFG.subs[i])return;
   haptic(12); cfgEdit(()=>{ CFG.subs.splice(i,1); syncComboPts(); }); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid]&&CFG.routines[rid].steps[i]; if(!s)return; s[k]= k==='dur'?Math.max(1,Math.min(600,parseInt(v)||1)):String(v==null?'':v).slice(0,k==='icon'?3:40); saveCfg(); render(); }
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
-function openReview(){ reviewOpen=true; haptic(10); render(); }
 function closeReview(){ reviewOpen=false; render(); }
 function openSettings(){ settingsOpen=true; secOpen={}; haptic(10); render(); }
 function closeSettings(){ settingsOpen=false; render(); }
@@ -5320,7 +5190,7 @@ function dayNoteHTML(key,sidebar=false){
       <div class="sec">${interfaceCopy("✎ DAY NOTE")}</div>
       <div class="notecard${getNote(key)?" filled":""}">
         <div class="notebar"></div>
-        <textarea id="note-${key}" dir="auto" placeholder="${interfaceCopy("How was your day? What did you learn?")}"
+        <textarea id="note-${key}" dir="auto" aria-label="${interfaceCopy("Day note")}" placeholder="${interfaceCopy("How was your day? What did you learn?")}"
           ${ui('input','noteGrow')} ${ui('change','setNote' ,key)}
           ${uiStyle(`width:100%;min-height:70px;resize:none;overflow:hidden;background:transparent;border:none;color:#d8d8d8;font-family:inherit;font-size:15.5px;line-height:1.65;padding:14px 16px 14px 20px;outline:none;-webkit-user-select:text;user-select:text`)}>${(getNote(key)||"").replace(/</g,"&lt;")}</textarea>
         ${getNote(key)?`<div ${uiStyle(`position:absolute;bottom:8px;right:12px;font-size:14px;letter-spacing:.1em;color:#4ade8088`)}>${interfaceText('saved')}</div>`:""}
@@ -5926,17 +5796,13 @@ function renderDayLogTab(){
           ${mode==='edit'&&panelEv&&panelEv.type==='manual'?`<div class="logdesk-identity"><div class="logdesk-icon">${icon}</div><div><span class="logdesk-badge">${dayLogTypeLabel(panelEv.type)}</span></div></div>`:''}
           ${mode==='new'||(mode==='edit'&&panelEv&&panelEv.type==='manual')?`<div class="logdesk-field"><label for="logPanelName">${interfaceText('activity')}</label><input id="logPanelName" dir="auto" class="logdesk-input" type="text" maxlength="120" value="${dayLogEsc(panelTitle)}" placeholder="${interfaceText('activityExample')}" autocomplete="off"></div>`:''}
           ${mode==='edit'&&panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-note">${interfaceCopy("Wake & Sleep Early uses two timestamps: the first tap logs when you woke up, the second logs when you went to sleep. The overnight span is not drawn on the timeline.")}</div>`:mode==='edit'&&panelEv&&panelEv.type!=='manual'?`<div class="logdesk-note">${interfaceCopy('This activity is linked to completion of a {kind}. Its name and type are managed automatically; you can edit the time.').replace('{kind}',dayLogTypeLabel(panelEv.type).toLowerCase())}</div>`:''}
-          ${panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-field"><label>${panelSleepRole==='sleep'?interfaceCopy("SLEEP TIME"):panelSleepRole==='wake'?interfaceCopy("WAKE TIME"):interfaceCopy("RECORDED TIME")}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"></div></div>`:`<div class="logdesk-field"><label>${interfaceCopy("START / END")}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" value="${panelStart}"><input id="logPanelEnd" class="logdesk-input" type="time" value="${panelEnd}"></div></div>`}
+          ${panelEv&&dayLogIsSleepWake(panelEv)?`<div class="logdesk-field"><label>${panelSleepRole==='sleep'?interfaceCopy("SLEEP TIME"):panelSleepRole==='wake'?interfaceCopy("WAKE TIME"):interfaceCopy("RECORDED TIME")}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" aria-label="${interfaceText('start')}" value="${panelStart}"></div></div>`:`<div class="logdesk-field"><label>${interfaceCopy("START / END")}</label><div class="logdesk-times"><input id="logPanelStart" class="logdesk-input" type="time" aria-label="${interfaceText('start')}" value="${panelStart}"><input id="logPanelEnd" class="logdesk-input" type="time" aria-label="${interfaceText('end')}" value="${panelEnd}"></div></div>`}
           <div class="logdesk-duration-line"><span>${panelEv&&dayLogIsSleepWake(panelEv)?interfaceCopy("POINT EVENT"):interfaceText('duration')}</span><b>${panelEv&&dayLogIsSleepWake(panelEv)?(panelSleepRole==='sleep'?interfaceCopy("SLEEP LOGGED"):panelSleepRole==='wake'?interfaceCopy("WAKE LOGGED"):interfaceCopy("RECORDED TIME")):panelEv&&dayLogDuration(panelEv)!=null?dayLogFmt(dayLogDuration(panelEv)):interfaceCopy('Calculated on save')}</b></div>
           <div class="logdesk-actions">${mode==='new'?`<button type="button" class="logdesk-cancel" ${ui('click','dayLogPanelCancel')}>${interfaceText('cancel')}</button><button type="button" class="logdesk-save" ${ui('click','dayLogPanelSave' ,key)}>${interfaceText('addActivity')}</button>`:`<button type="button" class="logdesk-delete" ${ui('click','dayLogPanelDelete' ,key)}>${interfaceText('delete')}</button><button type="button" class="logdesk-save" ${ui('click','dayLogPanelSave' ,key)}>${interfaceText('save')}</button>`}</div>
         </div>
       </aside>
     </div>
   </div>`;
-}
-function dayLogQuickAdd(){
-  const i=document.querySelector('#dayLogQuickInput'),title=(i?.value||'').trim();if(!title)return;
-  const now=dayLogNowISO();dayLogAdd(title,now,now,'manual');i.value='';haptic(8);render();
 }
 
 function renderEditDay(){
@@ -5975,43 +5841,6 @@ function weekReview(){
   const bestDay=logged.reduce((m,x)=>!m||dPct(x.data)>dPct(m.data)?x:m,null);
   return{avg,pavg,diff:pavg==null?null:avg-pavg,tally:sorted,best,worst,bestDay,days:logged.length,cur};
 }
-function renderWeekReview(){
-  const r=weekReview();
-  if(!r)return "";
-  const g=GRADE(r.avg,100);
-  const arrow=r.diff==null?"":(r.diff>0?"▲":r.diff<0?"▼":"—");
-  const acol=r.diff==null?"#9a9ab4":(r.diff>0?"#4ade80":r.diff<0?"#ef4444":"#9a9ab4");
-  return`<div>
-    <div class="sec">${interfaceText('thisWeek')}</div>
-    <div class="card">
-      <div ${uiStyle(`display:flex;align-items:center;gap:16px;margin-bottom:18px`)}>
-        <div ${uiStyle(`position:relative;width:74px;height:74px;flex-shrink:0`)}>
-          ${ring(r.avg,100,74,6,g.c,g.g)}
-          <div ${uiStyle(`position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center`)}>
-            <span ${uiStyle(`font-family:'Bebas Neue';font-size:19px;color:${g.c};line-height:1`)}>${r.avg}</span>
-            <span ${uiStyle(`font-size:9px;color:${g.c};opacity:.65`)}>${interfaceText('avg')}</span>
-          </div>
-        </div>
-        <div ${uiStyle(`flex:1;min-width:0`)}>
-          <div ${uiStyle(`font-family:'Bebas Neue';font-size:30px;color:${g.c};line-height:1`)}>${esc(g.l)} · ${interfaceCopy(g.n)}</div>
-          <div ${uiStyle(`font-size:13px;color:${acol};margin-top:5px`)}>
-            ${r.diff==null?`${r.days} day${r.days!==1?"s":""} logged`:`${arrow} ${Math.abs(r.diff)}% vs last week`}
-          </div>
-          ${r.bestDay?`<div ${uiStyle(`font-size:12px;color:#9a9ab4;margin-top:3px`)}>${interfaceCopy("Best:")} ${keyToDate(r.bestDay.key).toLocaleDateString(interfaceLanguage,{weekday:"short"})} · ${dPct(r.bestDay.data)}%</div>`:""}
-        </div>
-      </div>
-      <div ${uiStyle(`display:flex;gap:8px;margin-bottom:16px`)}>
-        ${r.cur.map(x=>{const dg=x.data?GRADE(x.data.score,x.data.max):null;const hh=x.data?Math.max(6,(dPct(x.data)/100)*44):4;
-          return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:5px`)}>
-            <div ${uiStyle(`width:100%;height:44px;display:flex;align-items:flex-end`)}>
-              <div ${uiStyle(`width:100%;height:${hh}px;border-radius:4px 4px 0 0;background:${dg?dg.c+"33":"#14141f"};border:1px solid ${dg?dg.c+"55":"#1a1a28"};border-bottom:none`)}></div>
-            </div>
-            <div ${uiStyle(`font-size:10px;color:#8888a4`)}>${keyToDate(x.key).toLocaleDateString(interfaceLanguage,{weekday:"narrow"})}</div>
-          </div>`}).join("")}
-      </div>
-    </div>
-  </div>`;
-}
 // Tab SOCIAL: el mismo combo que en TODAY (siempre desplegado, es el motivo del tab),
 // más el registro de personas. El scoring no cambia — el combo sigue contando en LVL 3.
 function renderSocial(){
@@ -6035,45 +5864,21 @@ function renderSocial(){
 
   </div>`;
 }
-
-// ── Consistencia: una fila por habito, un punto por dia ──────────────────
-// Es el unico sitio donde se ve QUE habito te esta hundiendo sin deducirlo.
-// -1 = dia sin registrar (no cuenta), 0 = registrado y sin marcar, 1 = hecho.
-function habitGrid(dias){
-  const tk=todayKey(), C=cfgForDate(tk), keys=[];
-  for(let i=dias-1;i>=0;i--)keys.push(keyMinus(tk,i));
-  return [...C.L1,...C.L2,...C.L3].map(it=>{
-    const cells=keys.map(k=>_state[k]===undefined?-1:(getChecked(k)[it.id]?1:0));
-    const con=cells.filter(v=>v>=0).length, hechos=cells.filter(v=>v===1).length;
-    return {id:it.id,label:it.label,icon:it.icon,col:it.col,cells,hechos,con,
-            rate:con?Math.round(hechos/con*100):0,streak:habitStreak(it.id)};
-  });
-}
 function habitStreak(id){
   const tk=todayKey(); let s=0;
   for(let i=0;i<400;i++){ if(getChecked(keyMinus(tk,i))[id])s++; else if(i>0)break; else break; }
   return s;
 }
+
+// ── Consistencia: una fila por habito, un punto por dia ──────────────────
+// Es el unico sitio donde se ve QUE habito te esta hundiendo sin deducirlo.
+// -1 = dia sin registrar (no cuenta), 0 = registrado y sin marcar, 1 = hecho.
 function weekdayAvg(){
   const h=getStatsHistory(), acc=[[],[],[],[],[],[],[]];
   for(const k of Object.keys(h)){ if(!DATE_RE.test(k))continue;
     acc[keyToDate(k).getDay()].push(dPct(h[k])); }
   return acc.map((xs,i)=>({dia:i,n:xs.length,
     avg:xs.length?Math.round(xs.reduce((a,b)=>a+b,0)/xs.length):0}));
-}
-function renderConsistency(){
-  const rows=habitGrid(60).filter(r=>r.con>0);
-  if(!rows.length)return"";
-  return`<div><div class="sec" ${uiStyle(`display:flex;align-items:center;gap:8px`)}>${interfaceCopy('CONSISTENCY — 60 DAYS')}
-      <span ${uiStyle(`margin-left:auto;font-size:11px;color:#7e7e97`)}>${interfaceCopy("STREAK · HIT RATE")}</span></div>
-    <div class="card" ${uiStyle(`display:flex;flex-direction:column;gap:10px`)}>
-      ${rows.map(r=>`<div class="cg-row">
-        <span class="cg-lab">${esc(r.icon)} ${esc(r.label)}</span>
-        <span class="cg-strip">${r.cells.map(v=>`<i ${uiStyle(`background:${v===1?(r.col||"#8a8aa0"):v===0?"#1e1e38":"#101020"}`)}></i>`).join("")}</span>
-        <span class="cg-st" ${uiStyle(`color:${r.streak>0?"#FFD700":"#2a2a40"}`)}>${r.streak>0?"\ud83d\udd25 "+r.streak:"—"}</span>
-        <span class="cg-rate" ${uiStyle(`color:${r.rate>=70?"#4ade80":r.rate>=40?"#f59e0b":"#ef4444"}`)}>${r.rate}%</span>
-      </div>`).join("")}
-    </div></div>`;
 }
 function interfaceWeekdays(width) {
   const formatter=new Intl.DateTimeFormat(interfaceLanguage,{weekday:width,timeZone:'UTC'});
@@ -6779,7 +6584,6 @@ function resumeRoutine(id){
   startRoutine(id);if(S()&&!S().running)routineToggle();
 }
 function openRoutine(id){startRoutine(id);}
-function reopenRoutine(id){startRoutine(id||liveSessions()[0]);}
 
 // Discard just this session
 function closeRoutine(id){
@@ -6999,16 +6803,6 @@ function socialSearchRows(key){
   return list.map(p=>`<div class="sf-person"><div>${esc(p.name)}<div class="sf-muted">${p.inactive?interfaceCopy("Paused · "):''}${socialPlaces(p)}</div></div>${socialPersonButton(p,key)}</div>`).join('')||`<p class="sf-muted">${interfaceCopy("No one found. Choose “Someone new”.")}</p>`;
 }
 function socialPlaces(p){return personLocations(p).map(id=>esc(locationGroups().find(g=>g.id===id)?.name)).join(' · ')||interfaceCopy('All places');}
-function socialCapture(key,compact=false){
-  if(socialDraft&&socialDraft.key===key)return socialEditor();
-  const recent=peopleList().filter(p=>!p.inactive).sort((a,b)=>socialLast(b.id).localeCompare(socialLast(a.id))).slice(0,compact?4:8);
-  const seen=peopleList().filter(p=>getPeople(key).includes(p.id));
-  return `<section class="sf-capture"><div class="sf-heading"><strong>${interfaceCopy("Who did you meet?")}</strong>${compact?socialButton(interfaceCopy("Open Social →"),'setTab',['social']):''}</div><div class="sf-muted">${interfaceCopy(compact?'Log this day’s encounter here.':'Tap a name to log the encounter.')}</div>
-    <div class="sf-buttons">${recent.map(p=>socialPersonButton(p,key)).join('')}${socialButton(interfaceCopy('+ Someone new'),'socialNew',[key],true)}</div>
-    <label class="sf-field">${interfaceCopy("Search for anyone")}<input id="social-search" dir="auto" type="search" maxlength="80" placeholder="${interfaceCopy("Name, in any group")}" value="${esc(socialQuery)}" ${ui('input','socialSearch')}></label><div id="social-search-results">${socialSearchRows(key)}</div>
-    ${seen.length?`<div class="sf-muted">${interfaceCopy('Logged on this day')} · ${seen.length}</div><div class="sf-buttons">${seen.map(p=>socialPersonButton(p,key)).join('')}</div>`:''}
-  </section>`;
-}
 function socialNew(key,sub){
   const categories=subsOn(subsList());
   socialDraft={id:null,key,name:'',every:'',relationship:'friends',sub:sub||categories.find(s=>s.id==='friends')?.id||categories[0]?.id||'',locations:selectedLocation()==='all'?[]:[selectedLocation()]};socialFormError='';renderDayChange(key);
@@ -7076,10 +6870,6 @@ var socialBulkOpen=false;
 var socialFamilyIncluded=true;
 function socialPeople(){return `<section class="card sf-people-box" aria-label="${interfaceText('peopleGroups')}"><button type="button" class="sec sf-people-toggle" aria-expanded="${socialPeopleOpen}" ${ui('click','socialPeopleToggle')}>${socialPeopleOpen?'▾':'▸'} ${interfaceText('peopleGroups')} <span>${peopleList().length}</span></button><div class="sf-reveal${socialPeopleOpen?' is-open':''}" aria-hidden="${!socialPeopleOpen}" ${socialPeopleOpen?'':'inert'}><div class="sf-reveal-inner"><div class="sf-heading sf-directory-actions">${socialButton(interfaceCopy("+ Person"),'socialNew',[''],true)}<button type="button" id="social-directory-toggle" class="sf-button" aria-controls="social-directory-results social-groups-view" aria-pressed="${socialDirectoryView==='groups'}" ${ui('click','socialDirectoryToggle')}>${interfaceCopy(socialDirectoryView==='groups'?'People':'Groups')}</button></div><div class="sf-directory-filters"><label class="sf-field">${interfaceCopy("Search")}<input type="search" value="${esc(socialDirectoryQuery)}" ${ui('input','socialDirectorySearch')}></label><label class="sf-field">${interfaceCopy("Group")}<select ${ui('change','socialDirectoryGroup')}><option value="all">${interfaceCopy("Everyone")}</option>${locationGroups().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryGroup===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label><label class="sf-field">${interfaceText('category')}<select ${ui('change','socialDirectoryCategory')}><option value="all">${interfaceCopy("All")}</option>${socialCategories().map(g=>`<option value="${esc(g.id)}" ${socialDirectoryCategory===g.id?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label></div><div id="social-directory-results" class="sf-directory" ${socialDirectoryView==='groups'?'hidden':''}>${socialDirectoryRows()}</div><div id="social-groups-view" ${socialDirectoryView==='groups'?'':'hidden'}>${socialGroups()}</div></div></div></section>`;}
 function socialGroups(){return `<section class="card sf-groups"><div class="sec">${interfaceCopy("GROUPS")}</div><p class="sf-muted">${interfaceCopy("One person can belong to multiple groups.")}</p><div class="sf-group-grid">${locationGroups().map(g=>{const count=peopleList().filter(p=>personLocations(p).includes(g.id)).length;return `<article class="sf-group-tile"><strong>${esc(g.name)}</strong><span class="sf-muted">${count} ${count===1?interfaceCopy("person"):interfaceCopy("people")}</span>${socialButton(interfaceCopy("Rename"),'locationRename',[g.id])}</article>`;}).join('')}<button type="button" class="sf-button sf-group-add" ${ui('click','locationAdd')}>${interfaceCopy("+ Add group")}</button></div><p class="sf-muted">${interfaceCopy("Group focus filters Friends and Strangers suggestions. You can still record encounters with anyone.")}</p></section>`;}
-function socialSuggestions(){
-  const list=peopleStatus().filter(p=>p.every>0&&(p.days==null||p.overdue>=0));
-  return `<div class="sec">${interfaceCopy("WHO TO SEE NEXT")}</div><div class="sf-grid">${list.map(p=>socialTile(p,socialKeyForView())).join('')||`<p class="sf-muted">${interfaceCopy("No upcoming encounters at this location.")}</p>`}</div>`;
-}
 function socialWorkspace(key){return `${socialDraft?socialEditor():''}<section aria-label="${interfaceCopy("Who to See")}"><h2 class="sec">${interfaceCopy("Who to See")}</h2>${socialDashboard(key)}</section><section aria-label="${interfaceCopy("Social Combo")}"><h2 class="sec">${interfaceCopy("Social Combo")}</h2>${socialComboPanel(key)}</section>${socialPeople()}`;}
 function socialComboPanel(key){return comboBlock(key,true);}
 // Discovery only: Family visibility never writes contacts, day records or scores.
@@ -7308,7 +7098,7 @@ function socialGeneralSettings(){const bulkOpen=!!document.getElementById('socia
         <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};opacity:${x.on!==false?1:.45};margin-bottom:5px`)}>
           <input value="${esc(x.icon)}" ${ui('change','subSet' ,i,'icon')} aria-label="${interfaceCopy("Icon")}"
             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
-          <input value="${esc(x.label)}" ${ui('change','subSet' ,i,'label')}
+          <input value="${esc(x.label)}" ${ui('change','subSet' ,i,'label')} aria-label="${interfaceCopy("Name")}"
             ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #222;color:#e2e2e2;font-family:inherit;font-size:15px;padding:3px 0`)}/>
           <input type="number" min="0" max="99" value="${esc(modePts(x,'work'))}" ${ui('change','subSet' ,i,'pWork')}
              title="${interfaceCopy("Work Mode")}" aria-label="${interfaceCopy("Work Mode points")}"

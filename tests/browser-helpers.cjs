@@ -194,4 +194,24 @@ async function openApp(t, data = fixture(), viewport = { width: 1440, height: 10
 }
 
 
-module.exports = { openApp };
+// The stylesheets that used to load as separate files are sections of app.css, each opened by a
+// no-match marker rule `shaah-section[name="..."]{}`. Switch one section off/on like a <link>.
+async function cssSection(page, name, enabled) {
+  await page.evaluate(([name, enabled]) => {
+    const sheet = [...document.styleSheets].find(s => s.href && s.href.includes('/assets/app.'));
+    const marker = r => /^shaah-section\[/.test(r.selectorText || '');
+    const start = [...sheet.cssRules].findIndex(r => r.selectorText === `shaah-section[name="${name}"]`);
+    if (start < 0) throw new Error('Unknown CSS section: ' + name);
+    const store = window.__cssSectionsOff = window.__cssSectionsOff || {};
+    if (!enabled && !store[name]) {
+      let end = start + 1; while (end < sheet.cssRules.length && !marker(sheet.cssRules[end])) end++;
+      const saved = [];
+      for (let i = end - 1; i > start; i--) { saved.unshift(sheet.cssRules[i].cssText); sheet.deleteRule(i); }
+      store[name] = saved;
+    } else if (enabled && store[name]) {
+      store[name].forEach((text, k) => sheet.insertRule(text, start + 1 + k));
+      delete store[name];
+    }
+  }, [name, enabled]);
+}
+module.exports = { openApp, cssSection };

@@ -3347,3 +3347,1796 @@ html body #scroll .stats-page .stats-four-grid .stats-metric-card:has(.stats-met
  .hy-day{width:auto!important;height:34px!important;border-radius:7px!important}
  .hy-day>span:first-child{font-size:17px!important}
 }
+
+/* ==========================================================================
+   Hojas que antes se cargaban aparte, unidas aquí en su orden de carga original
+   (2026-11-15). El orden importa: cada sección pisa a las anteriores.
+   El selector shaah-section[name] no coincide con nada; marca el inicio de cada
+   sección para que los tests puedan apagarla (cssSection en tests/browser-helpers.cjs).
+   ========================================================================== */
+
+/* ===== mobile-circular-log (antes assets/mobile-circular-log-20261026.css) ===== */
+shaah-section[name="mobile-circular-log"]{}
+/* SHAAH mobile Today — reuse existing desktop LOG action, no JS/data changes. */
+@media (max-width:879px) {
+  #scroll .today:not(.history-day-editor) > .t-score-hero {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    align-items:center !important;
+    justify-items:center !important;
+    justify-content:center !important;
+    gap:12px !important;
+    width:100% !important;
+    max-width:none !important;
+    min-height:132px !important;
+    height:auto !important;
+    margin:0 !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero > .t-score-stack {
+    display:contents !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .t-ring {
+    grid-column:1 !important;
+    width:115px !important;
+    height:115px !important;
+    margin:0 auto !important;
+    transform:none !important;
+    justify-self:center !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .t-grade {
+    display:none !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start {
+    display:flex !important;
+    visibility:visible !important;
+    grid-column:2 !important;
+    width:82px !important;
+    min-width:82px !important;
+    height:82px !important;
+    min-height:82px !important;
+    padding:8px !important;
+    margin:0 auto !important;
+    border-radius:50% !important;
+    border:1px solid var(--skin-edge,#303047) !important;
+    background:var(--skin-panel,#10101c) !important;
+    color:var(--skin-copy,#ececf2) !important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.025) !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:center !important;
+    gap:4px !important;
+    font-size:11px !important;
+    letter-spacing:.12em !important;
+    text-transform:uppercase !important;
+    overflow:hidden !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start > span {
+    font-size:30px !important;
+    font-weight:400 !important;
+    line-height:1 !important;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start::after {
+    content:"LOG";
+    font-size:11px;
+    line-height:1;
+  }
+  #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.live {
+    border-color:#4ade80 !important;
+  }
+  #scroll .today:not(.history-day-editor) > .t-daylog {
+    display:none !important;
+  }
+}
+
+/* ===== aurora-skin (antes assets/aurora-skin.css) ===== */
+shaah-section[name="aurora-skin"]{}
+/* SHAAH Aurora V2 — optional; Original is restored by removing the skin class. */
+/* Native Appearance preview */
+.skin-preview-aurora{background:radial-gradient(circle at 25% 20%,#253e91,#150c36 70%,#050613)!important;border-color:#814dff!important;box-shadow:inset 0 0 14px #5b35ee66,0 0 9px #5c3bdf44}
+.skin-preview-aurora .skin-preview-ring{color:#45e6ff!important;border-color:#8a59ff!important;text-shadow:0 0 8px #21dfff;box-shadow:0 0 10px #9b3bff}
+.skin-preview-aurora .skin-preview-lines i{background:linear-gradient(90deg,#30dfff,#aa56ff)!important;box-shadow:0 0 5px #29cfff}
+
+/* Aurora palette audit: shared tokens for every screen and overlay. */
+html.shaah-aurora{
+ --skin-panel:#0d1630;--skin-edge:#2d3d62;--skin-copy:#edf4ff;
+ --skin-muted:#b0bfdd;--skin-focus:#67dfff;--skin-selected:#67dfff;
+ --skin-active-bg:#17334c;--skin-input-bg:#091226;--skin-input-border:#53658d;
+ --aurora-accent:#67dfff;--aurora-violet:#b9a2ff;--aurora-success:#68e0bb;
+ --aurora-warning:#f5c879;--aurora-danger:#ff879f;
+ color-scheme:dark;
+}
+html.shaah-aurora body{background:radial-gradient(ellipse at 50% 0%,#201847 0%,#0c1630 44%,#050b1b 85%) fixed!important;color:var(--skin-copy)}
+html.shaah-aurora #app{background:transparent!important}
+html.shaah-aurora #nav{background:linear-gradient(180deg,#101c38,#091226)!important;border-color:var(--skin-edge)!important;box-shadow:0 -4px 22px #050b1b66}
+html.shaah-aurora #nav .nav-btn{color:var(--skin-muted)}
+html.shaah-aurora #nav .nav-btn.active{color:var(--aurora-accent)!important;text-shadow:0 0 12px #67dfff40}
+html.shaah-aurora .today.sf-today-v27{
+ --today-card-bg:var(--skin-panel);--today-card-border:var(--skin-edge);
+ --today-title:var(--skin-muted);--today-copy:var(--skin-copy);--today-muted:var(--skin-muted);
+ --today-accent:var(--aurora-accent);--today-active:var(--skin-active-bg);
+}
+html.shaah-aurora .card,html.shaah-aurora .settings-list{border-color:var(--skin-edge)}
+/* Social additions previously bypassed the shared color variables. */
+html.shaah-aurora :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra){background:var(--skin-panel);border-color:var(--skin-edge)}
+html.shaah-aurora :is(.sf-button,.sd-location-toggle){background:#16213f;color:var(--skin-copy);border-color:var(--skin-edge)}
+html.shaah-aurora .sf-primary{background:var(--aurora-accent);color:#050b1b;border-color:var(--aurora-accent)}
+html.shaah-aurora :is(.sf-selected,.sf-category-toggle.sf-selected,.sd-location-toggle[aria-pressed="true"]){background:var(--skin-active-bg);border-color:var(--aurora-accent);color:var(--aurora-accent)}
+html.shaah-aurora :is(.sf-muted,.sf-field,.sf-scoring summary,.sd-caption>span:last-child,.sd-identity .w-when,.sd-edit,.sd-help,.sf-combo-heading>span,.sf-work-info .r-sub,.sf-work-points,.sf-work-targets){color:var(--skin-muted)}
+html.shaah-aurora :is(.sd-identity .w-name,.sf-work-info .r-lab){color:var(--skin-copy)}
+html.shaah-aurora :is(.sf-field input,.sf-field select){background:var(--skin-input-bg);border-color:var(--skin-input-border);color:var(--skin-copy)}
+html.shaah-aurora :is(.sf-person,.sf-locations,.sd-combo,.sf-category-toggle,.sf-directory .sf-heading .sf-button){border-color:var(--skin-edge)}
+html.shaah-aurora .sf-category-toggle{color:var(--skin-copy)}
+html.shaah-aurora .sf-seen{border-color:var(--aurora-success)}
+html.shaah-aurora .sd-done{background:#68e0bb0d}
+html.shaah-aurora .sd-done .sd-icon{color:var(--aurora-success)}
+html.shaah-aurora .sd-edit:hover{color:var(--aurora-accent);background:#67dfff10}
+html.shaah-aurora .sd-add{color:var(--skin-muted);border-color:var(--skin-edge)}
+html.shaah-aurora .sd-time-pill{background:#16213f}
+html.shaah-aurora .sf-core-icon{background:#16213f;border-color:var(--skin-edge)}
+html.shaah-aurora .sf-work-segment{background:#2d3d62}
+html.shaah-aurora .sf-work-segment.is-done{background:var(--aurora-accent)}
+html.shaah-aurora .sf-work-register{background:var(--aurora-accent);color:#050b1b}
+html.shaah-aurora :is(.sf-editor [role="alert"],.sf-group-dialog [role="alert"],#work-settings-error){color:var(--aurora-danger)}
+/* Navigation, filters and keyboard focus use one interaction accent. */
+html.shaah-aurora :is(.htab.active,.skin-option[aria-pressed="true"]){background:var(--skin-active-bg);border-color:var(--aurora-accent);color:var(--aurora-accent)}
+html.shaah-aurora :is(button,a,input,select,textarea,[tabindex]):focus-visible{outline:2px solid var(--skin-focus);outline-offset:3px}
+html.shaah-aurora :is(input,textarea)::placeholder{color:#97a9cc;opacity:1}
+html.shaah-aurora :is(input,textarea,select){accent-color:var(--aurora-accent)}
+html.shaah-aurora ::selection{background:#315f88;color:#edf4ff}
+/* Primary actions carry the same cyan fill and dark, high-contrast label. */
+html.shaah-aurora :is(.logdesk-new,.logdesk-save,.sf-routine-primary,[data-ui-click="startRoutineNested"],.sf-work-next){background:var(--aurora-accent)!important;border-color:var(--aurora-accent)!important;color:#050b1b!important;box-shadow:none!important}
+html.shaah-aurora :is(.logdesk-input,.logdesk-sort){background:var(--skin-input-bg);border-color:var(--skin-input-border);color:var(--skin-copy)}
+html.shaah-aurora :is(.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor){background:var(--skin-panel);border-color:var(--skin-edge)}
+html.shaah-aurora .logdesk-row.selected{background:var(--skin-active-bg);border-color:var(--aurora-accent)}
+html.shaah-aurora .logdesk-seg.selected{outline-color:var(--aurora-accent)}
+html.shaah-aurora .logdesk-delete{color:var(--aurora-danger);border-color:var(--aurora-danger);background:#ff879f0d}
+/* Match the mobile circular Log control's existing specificity. */
+html.shaah-aurora #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start{color:var(--aurora-accent)!important;border-color:var(--aurora-accent)!important;background:var(--skin-panel)!important;box-shadow:0 0 12px #67dfff30!important}
+html.shaah-aurora #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start.live{color:var(--aurora-success)!important;border-color:var(--aurora-success)!important;box-shadow:0 0 12px #68e0bb30!important}
+
+/* Aurora V2: restrained electric light, native geometry and semantic scores. */
+html.shaah-aurora{--aurora-blue:#75baff;--aurora-pink:#f39cdb;--aurora-violet:#b9a2ff}
+html.shaah-aurora body{background:radial-gradient(ellipse at 12% 0%,#142956 0%,transparent 52%),radial-gradient(ellipse at 100% 5%,#301b46 0%,transparent 50%),#050b1b!important}
+html.shaah-aurora .t-ring{animation:none;filter:drop-shadow(0 0 9px #758dff40)}
+html.shaah-aurora .t-ring svg{filter:none}
+html.shaah-aurora .t-grade{background:linear-gradient(140deg,#191b39,#0d1930)!important;border-color:#7665a8!important;box-shadow:0 0 16px #9574ff16!important;backdrop-filter:none}
+html.shaah-aurora #nav{border-image:linear-gradient(90deg,var(--aurora-blue),var(--aurora-violet),var(--aurora-pink)) 1}
+@media(max-width:879px){html.shaah-aurora :is(input,select,textarea){font-size:16px!important}}
+@media(prefers-reduced-motion:reduce){html.shaah-aurora .t-ring,html.shaah-aurora .t-ring svg{filter:none!important;animation:none!important}html.shaah-aurora *,html.shaah-aurora *::before,html.shaah-aurora *::after{scroll-behavior:auto!important;transition:none!important}}
+@media(forced-colors:active){html.shaah-aurora #nav,html.shaah-aurora .t-grade{border:1px solid CanvasText!important}html.shaah-aurora .t-ring{filter:none}}
+
+/* ===== work-skin-parity (antes assets/work-skin-parity-20261027.css) ===== */
+shaah-section[name="work-skin-parity"]{}
+/* Skin parity: one WORK markup/geometry, palette-only differences. */
+html[data-skin] .today .wg-card{
+  color:var(--skin-copy,#e2e2e2);
+  background:var(--skin-panel,#0d0d1a);
+  border-color:var(--skin-edge,#26263c);
+}
+html[data-skin] .today .wg-points,
+html[data-skin] .today .wg-daily>span,
+html[data-skin] .today .wg-weekly>span{color:var(--skin-muted,#a4a4ba)}
+html[data-skin] .wg-figure{--work-geom:#9cebd5;--work-geom-dim:#303c40}
+html[data-skin="aurora"] .wg-figure{--work-geom:#67dfff;--work-geom-dim:#2d3d62}
+html[data-skin="matrix"] .wg-figure{--work-geom:#00ff41;--work-geom-dim:#20532d}
+html[data-skin="minimal"] .wg-figure{--work-geom:var(--skin-copy,#dce0e1);--work-geom-dim:var(--skin-edge,#444)}
+html[data-skin="glow"] .wg-figure{--work-geom:#4bd7ff;--work-geom-dim:#25345d}
+html[data-skin] .wg-segment{stroke:var(--work-geom-dim)}
+html[data-skin] .wg-segment.lit{stroke:var(--work-geom);filter:drop-shadow(0 0 3px var(--work-geom))}
+html[data-skin] .wg-figure circle.lit{fill:var(--work-geom)}
+html[data-skin] .wg-interior{fill:var(--work-geom)}
+html[data-skin] .wg-segment.latest{animation:none}
+html[data-skin] .wg-card:focus-visible{outline-color:var(--work-geom,#9cebd5)}
+
+/* Completion: the same geometry lights up in every skin once all WORK
+   milestones are satisfied. Only the palette changes with the skin. */
+html[data-skin] .wg-figure.complete{
+  overflow:visible;
+  filter:drop-shadow(0 0 5px var(--work-geom)) drop-shadow(0 0 10px var(--work-geom));
+  animation:work-finish-aura 2.8s ease-in-out infinite;
+}
+html[data-skin] .wg-figure.complete .wg-segment.lit{
+  stroke:var(--work-geom);
+  stroke-width:3;
+  filter:drop-shadow(0 0 3px var(--work-geom));
+}
+html[data-skin] .wg-figure.complete .wg-interior{
+  fill:var(--work-geom);
+  fill-opacity:.22;
+  animation:work-finish-core 2.8s ease-in-out infinite;
+}
+html[data-skin] .wg-figure.complete circle.lit{
+  fill:var(--work-geom);
+  filter:drop-shadow(0 0 5px var(--work-geom));
+}
+@keyframes work-finish-aura{
+  0%,100%{filter:drop-shadow(0 0 3px var(--work-geom)) drop-shadow(0 0 6px var(--work-geom));}
+  50%{filter:drop-shadow(0 0 7px var(--work-geom)) drop-shadow(0 0 15px var(--work-geom));}
+}
+@keyframes work-finish-core{
+  0%,100%{fill-opacity:.12;}
+  50%{fill-opacity:.38;}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-skin] .wg-figure.complete,
+  html[data-skin] .wg-figure.complete .wg-interior{animation:none;}
+  html[data-skin] .wg-figure.complete .wg-interior{fill-opacity:.25;}
+}
+
+/* ===== ui-refinement (antes assets/ui-refinement-20261027.css) ===== */
+shaah-section[name="ui-refinement"]{}
+
+/* SHAAH UI refinement 2026-10-27: wider desktop Stats, readable social labels. */
+@media (min-width:880px) {
+  #scroll .cg-row { grid-template-columns:minmax(180px,260px) minmax(0,1fr) 64px 58px; gap:16px; }
+  #scroll .cg-strip { min-width:0; }
+  #scroll .cg-strip > i { min-width:2px; }
+}
+#scroll .sf-combo-category .sf-category-toggle > span:first-child,
+#scroll .sf-combo-category .sf-category-toggle > span:last-child { font-size:clamp(17px,calc(1.2 * var(--app-vw, 1vw)),20px) !important; line-height:1.35; }
+#scroll .sf-compact-combo .sf-combo-heading strong,
+#scroll .sf-capture .sf-heading strong { font-size:19px !important; }
+#scroll .sf-tile .sf-name { font-size:19px !important; }
+@media (max-width:879px) {
+  #scroll .today.sf-today-v27 .t-rout-body > .wg-card {height:auto !important;min-height:142px !important}
+  #scroll .sf-combo-category .sf-category-toggle > span { font-size:18px !important; }
+}
+
+/* Desktop Stats: use available viewport height without changing mobile. */
+@media (min-width:880px) and (min-height:700px) {
+  #scroll .stats-page { min-height:calc(calc(100 * var(--app-vh, 1dvh)) - 64px); padding-bottom:80px !important; justify-content:space-between; }
+  #scroll .stats-page > div:has(> .sec) { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
+  #scroll .stats-page > div:has(> .sec) > .card { flex:1 1 auto; display:flex; flex-direction:column; justify-content:space-evenly; min-height:0; }
+  #scroll .stats-page .stats-six-grid { flex:0 0 auto; }
+  #scroll .stats-page > div:has(> .sec) > .card > div[style*="align-items:flex-end"] { flex:1 1 auto; min-height:100px; }
+}
+
+
+/* WORK routine: approved larger interior, unchanged heading/points and card footprint. */
+#scroll .today.sf-today-v27 .t-rout-body > .wg-card {
+  height:auto !important;
+  min-height:122px !important;
+  gap:7px !important;
+  justify-content:space-between !important;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-row {
+  grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr);
+  gap:10px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-figure {
+  width:72px;
+  height:72px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-daily > span,
+#scroll .today.sf-today-v27 .wg-card .wg-weekly > span {
+  font-size:12px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-daily > strong {
+  font-size:32px;
+}
+#scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {
+  font-size:27px;
+}
+/* 48px baseline: 175% mobile, 150% desktop. Keep SVG and grid in sync. */
+@media (max-width:879px) {
+  #scroll .today.sf-today-v27 .t-rout-body > .wg-card {height:auto !important;min-height:142px !important}
+  #scroll .today.sf-today-v27 .wg-card .wg-row {grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr)}
+  #scroll .today.sf-today-v27 .wg-card .wg-figure {width:84px;height:84px}
+}
+@media (max-width:380px) {
+  #scroll .today.sf-today-v27 .wg-card .wg-row {
+    gap:6px;
+  }
+  #scroll .today.sf-today-v27 .wg-card .wg-daily > strong {font-size:27px}
+  #scroll .today.sf-today-v27 .wg-card .wg-weekly > strong {font-size:23px}
+}
+
+/* Desktop Core: one header line; share the recovered subtitle row between
+   the name/header (12px) and the controls (12px). Mobile remains unchanged. */
+@media (min-width:880px) {
+  #scroll .today.sf-today-v27 .wg-card .wg-row {grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr);flex:1;align-items:center}
+  #scroll .today.sf-today-v27 .wg-card .wg-figure {width:84px;height:84px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] {grid-template-columns:24px minmax(0,1fr)!important;grid-template-rows:minmax(36px,1fr) 56px!important;gap:12px 8px!important;min-height:134px!important;align-items:center!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon {width:24px!important;height:36px!important;font-size:22px!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy {display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;column-gap:8px;width:100%;min-width:0;min-height:36px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-lab {display:contents!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-routine-name {grid-column:1;grid-row:1;font-size:22px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--today-copy)}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub {grid-column:2;grid-row:1;margin:0!important;font-size:12px!important;line-height:1.35!important;white-space:nowrap}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {grid-column:3;grid-row:1;font-size:12px!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-btn {min-height:56px!important;font-size:14px!important}
+}
+
+@media (min-width:880px) and (max-width:1199px) {
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] {grid-template-columns:minmax(0,1fr)!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon {display:none!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy {column-gap:4px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-routine-name {font-size:clamp(17px,calc(1.8 * var(--app-vw, 1vw)),20px);letter-spacing:0}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub {font-size:10px!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {font-size:11px!important}
+}
+
+/* Center WORK geometry in the whole card, independent of its header/cash labels. */
+@media (min-width:880px) {
+  #scroll .today.sf-today-v27 .t-rout-body>.wg-card {position:relative;min-height:134px!important;align-self:stretch!important}
+  #scroll .today.sf-today-v27 .wg-card .wg-daily {grid-column:1}
+  #scroll .today.sf-today-v27 .wg-card .wg-weekly {grid-column:3}
+  #scroll .today.sf-today-v27 .t-rout-body>.wg-card .wg-figure {position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+}
+@media (min-width:880px) and (max-width:1199px) {
+  #scroll .today.sf-today-v27 .wg-card .wg-daily>strong {font-size:24px}
+  #scroll .today.sf-today-v27 .wg-card .wg-weekly>strong {font-size:16px;white-space:nowrap;letter-spacing:-.03em}
+}
+
+/* Core metadata stays readable; icon order is LIGHT / PLAY / DONE. */
+#scroll .today.sf-today-v27 .wg-card .wg-points {font-size:14px;font-weight:600;color:var(--today-copy,var(--skin-copy,#e2e2e2))}
+#scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub,
+#scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {font-size:15px!important;font-weight:500;line-height:1.45!important;color:var(--today-copy)!important;opacity:.9}
+#scroll .today.sf-today-v27 .cr-compact-actions .r-btn {display:flex;align-items:center;justify-content:center}
+#scroll .today.sf-today-v27 .cr-compact-actions .cr-action-icon {width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+@media (min-width:880px) and (max-width:1439px) {
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] {grid-template-columns:minmax(0,1fr)!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-icon {display:none!important}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub,
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {font-size:14px!important}
+}
+@media (min-width:880px) and (max-width:1199px) {
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy {grid-template-columns:minmax(0,1fr) auto;row-gap:4px}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total {grid-column:2;grid-row:1}
+  #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub {grid-column:1/-1;grid-row:2}
+}
+
+/* ===== today-disclosure (antes assets/today-disclosure-20261027.css) ===== */
+shaah-section[name="today-disclosure"]{}
+/* Today disclosure repair: collapsed cards must not stretch into empty boxes. */
+#scroll .today .lvl-b{max-height:none;opacity:1;overflow:visible;transition:none}
+#scroll .today .lvl-b.cl{display:none}
+#scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl),
+#scroll .today>.t-lvl:has(>.lvl-b.cl){height:auto!important;min-height:0!important;align-self:start!important}
+#scroll .today .lvl-toggle{min-height:40px;line-height:1.4}
+#scroll .today .row{min-height:44px}
+#scroll .today .row>div:first-child>span{white-space:normal!important;overflow-wrap:anywhere;line-height:1.45}
+#scroll .today .lvl-n{font-size:14px!important;color:var(--today-copy,var(--skin-muted,#adadbf))!important}
+@media(max-width:879px){
+ #scroll input,#scroll textarea,#scroll select{font-size:16px!important;line-height:1.5}
+ #scroll .today.sf-today-v27 .sec{font-size:14px!important;letter-spacing:.06em!important}
+ #scroll .today.sf-today-v27 .row span{font-size:16px!important}
+ #scroll .today.sf-today-v27 .t-rout .r-lab{font-size:15px!important;line-height:1.4!important;overflow-wrap:anywhere}
+ #scroll .today.sf-today-v27 .t-rout-body .r-sub,#scroll .today.sf-today-v27 .t-rout-body .r-step{font-size:14px!important}
+ #scroll .today.sf-today-v27 .t-rout-body .r-btn{font-size:14px!important;min-height:40px!important;letter-spacing:.04em!important}
+ #scroll .today .t-score-hero{order:10!important}
+ #scroll .today .t-rout{order:20!important}
+ #scroll .today .t-lvl1{order:30!important}
+ #scroll .today .t-lvl2{order:40!important}
+ #scroll .today .t-lvl3{order:50!important}
+ #scroll .today .t-daylog{order:55!important}
+ #scroll .today .t-note{order:60!important}
+ #scroll .today .t-reset{order:70!important}
+}
+@media(prefers-reduced-motion:reduce){.fade-up{animation:none}}
+
+/* ===== today-desktop (antes assets/today-desktop-20261027.css) ===== */
+shaah-section[name="today-desktop"]{}
+/* Compact closed levels and readable desktop routine cards. */
+@media(min-width:880px){
+ #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl){height:auto!important;min-height:0!important;align-self:start!important;padding:12px 18px!important}
+ #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl)>.lvl-h{margin:0!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine{grid-template-columns:48px minmax(0,1fr)!important;grid-template-rows:1fr auto!important;column-gap:12px!important;row-gap:20px!important;align-items:start!important;padding:22px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine>div:first-child{width:48px!important;height:48px!important;font-size:28px!important;border-radius:12px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-lab{font-size:20px!important;line-height:1.35!important;letter-spacing:.025em!important;color:var(--today-copy)!important;align-items:baseline!important;gap:8px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .sf-routine-total{font-size:14px!important;line-height:1.4!important;color:var(--today-muted)!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub{font-size:16px!important;line-height:1.5!important;margin-top:6px!important;color:var(--today-muted)!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div{gap:6px!important;margin-top:12px!important;font-size:14px!important;line-height:1.5!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-step{font-size:14px!important;line-height:1.5!important;padding:4px 8px!important;border-radius:7px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine>div:last-child{gap:8px!important;align-self:end!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{flex:1 1 80px;font-size:15px!important;line-height:1.35!important;min-height:44px!important;padding:10px 12px!important;letter-spacing:.025em!important;white-space:nowrap}
+}
+@media(min-width:880px) and (max-width:1100px){
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine{grid-template-columns:38px minmax(0,1fr)!important;padding:16px!important;column-gap:10px!important;row-gap:14px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine>div:first-child{width:38px!important;height:38px!important;font-size:24px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-lab{font-size:18px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{flex-basis:70px;padding:9px 8px!important}
+}
+
+/* ===== today-type (antes assets/today-type-20261027.css) ===== */
+shaah-section[name="today-type"]{}
+/* Desktop typography: match level headings to Social Combo. */
+@media(min-width:880px){
+ #scroll .today.sf-today-v27>.t-lvl2>.lvl-h>.lvl-toggle,
+ #scroll .today.sf-today-v27>.t-lvl3>.lvl-h>.lvl-toggle{font-size:19px!important;line-height:1.4!important;letter-spacing:.1em!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .sf-routine-total{font-size:16px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub{font-size:17px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div,
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-sub+div>span{font-size:16px!important}
+ #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine .r-btn{font-size:16px!important}
+}
+
+/* Today typography harmonization — 2026-10-29.
+   Presentation only. Preserve intentional card-less Core Routines and layout.
+   Scoped to current Today; historical editing and Social tab are excluded. */
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout > .sec,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout > .t-rout-toggle,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .sec,
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-note > .sec,
+#scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:16px!important;
+  font-weight:500!important;
+  letter-spacing:.06em!important;
+  line-height:1.35!important;
+}
+/* Level headings use the Social Combo title size at every width (owner decision 2026-11-10). */
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl > .lvl-h .lvl-toggle {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:19px!important;
+  font-weight:500!important;
+  letter-spacing:.05em!important;
+  line-height:1.35!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-lvl .lvl-n,
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-rout .sf-routine-total {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:13px!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+  font-variant-numeric:tabular-nums;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-lvl .row span:not(.lvl-n),
+#scroll .today.sf-today-v27:not(.history-day-editor) .t-rout .r-lab {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:16px!important;
+  letter-spacing:0!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-note textarea {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:16px!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) > .t-reset {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  letter-spacing:.06em!important;
+}
+
+/* Collapsed Social Combo / Day Log / Day Note headers read exactly like level headings (2026-11-11). */
+#scroll .today.sf-today-v27:not(.history-day-editor) > .today-box-collapsed > .today-box-disclosure {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  font-size:19px!important;
+  font-weight:500!important;
+  letter-spacing:.05em!important;
+  line-height:1.35!important;
+  color:var(--today-title,rgba(var(--skin-rgb-a0a0b6,160,160,182),1))!important;
+  height:auto!important;
+}
+#scroll .today.sf-today-v27:not(.history-day-editor) > .today-box-collapsed > .today-box-disclosure > span {
+  font:inherit!important;
+  letter-spacing:inherit!important;
+  color:inherit!important;
+}
+
+/* ===== mobile-width-test (antes assets/mobile-width-test-20261027.css) ===== */
+shaah-section[name="mobile-width-test"]{}
+/* SHAAH mobile width test (2026-10-27): test-only stylesheet. */
+@media (max-width:879px) {
+  html, body, #app, #scroll { width:100%; max-width:100%; min-width:0; }
+  #scroll { overflow-x:hidden; }
+  #scroll > .fade-up { width:100%; max-width:100%; min-width:0; box-sizing:border-box; }
+  #scroll > .today, #scroll > .soc, #scroll > .stats-page,
+  #scroll > .settings-body, #scroll > .logdesk-shell, #scroll > .daylog-page {
+    width:100% !important; max-width:100% !important; min-width:0 !important;
+    padding-left:8px !important; padding-right:8px !important; box-sizing:border-box !important;
+  }
+  #scroll > .fade-up:not(.today):not(.soc):not(.stats-page):not(.settings-body):not(.logdesk-shell):not(.daylog-page) {
+    padding-left:8px !important; padding-right:8px !important;
+  }
+  #scroll .today > .t-score-hero, #scroll .today > .t-rout,
+  #scroll .today > .t-lvl, #scroll .today > .t-daylog,
+  #scroll .today > .t-note, #scroll .today > .t-streak, #scroll .today > .t-head {
+    width:100% !important; max-width:none !important; min-width:0 !important; box-sizing:border-box !important;
+  }
+  #scroll .today > * { min-width:0; }
+  #scroll .today .t-score-hero .t-grade { min-width:0 !important; }
+  #scroll .today .t-rout-body, #scroll .today .t-rout-body > div,
+  #scroll .today .t-lvl .row, #scroll .today .t-daylog-row { min-width:0; max-width:100%; }
+  #scroll .today .t-rout-body > div { box-sizing:border-box; }
+  #scroll .settings-body > *, #scroll .soc > *, #scroll .stats-page > *,
+  #scroll .logdesk-shell > *, #scroll .daylog-page > * { min-width:0; max-width:100%; }
+  #scroll .cg-row { grid-template-columns:minmax(0, min(32%, 120px)) minmax(0,1fr) 40px 38px; gap:5px; }
+  #scroll .cg-strip { overflow:hidden; }
+  #scroll .history-month-bar { min-width:0; max-width:100%; }
+  #scroll .history-month-summary { min-width:0; }
+  #scroll .history-month-meta { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  #tb-score { width:100%; min-width:0; box-sizing:border-box; padding-left:8px; padding-right:8px; gap:7px; }
+  #tb-score .ts-bar { min-width:0; }
+  #tb-score .ts-nx { font-size:clamp(11px,3vw,13.5px); }
+  #topbar { width:100%; min-width:0; box-sizing:border-box; padding-left:8px; padding-right:8px; gap:6px; }
+  #tb-date { min-width:0; }
+  #nav { width:100%; min-width:0; box-sizing:border-box; }
+  #nav .nav-btn { min-width:0; padding-left:1px; padding-right:1px; letter-spacing:clamp(.04em,.25vw,.14em); font-size:clamp(10px,3vw,13.5px); }
+  #nav .nav-btn[data-tab="log"] { font-size:clamp(11px,3.3vw,16px); }
+}
+
+/* ===== today-mobile-order (antes assets/today-mobile-order-20261027.css) ===== */
+shaah-section[name="today-mobile-order"]{}
+/* SHAAH — mobile Today arrangement, 2026-10-27.
+   Presentation only: scoring, Social data and desktop markup are unchanged. */
+@media (max-width:879px) {
+  /* The existing ring and circular LOG action are the first Today content. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-score-hero {
+    order:10 !important;
+    margin-top:0 !important;
+    margin-bottom:2px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout {order:20 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl1 {order:30 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl2 {order:40 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl3 {order:50 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-daylog {order:55 !important;}
+  /* Social remains a separately rendered LVL 3 scoring component. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-social-independent {
+    order:58 !important;
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-note {order:60 !important;}
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-reset {order:70 !important;}
+
+  /* Equal-width Work/Production routine cards, with a measured gap. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:10px !important;
+    align-items:stretch !important;
+    justify-items:stretch !important;
+    width:100% !important;
+    min-width:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body > .sf-core-routine {
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    align-self:stretch !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body > .sf-core-routine .sf-core-actions {
+    width:100%;
+    min-width:0;
+  }
+  /* Keep the two cash values balanced around their central divider. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-work-cash-row {
+    grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);
+    gap:12px !important;
+    width:100%;
+  }
+}
+
+/* History / Edit Day follows the approved mobile sequence independently of Today. */
+@media (max-width:879px) {
+  #scroll .today.history-day-editor > .t-score-hero {order:10 !important;}
+  #scroll .today.history-day-editor > .t-lvl1 {order:30 !important;}
+  #scroll .today.history-day-editor > .t-lvl2 {order:40 !important;}
+  #scroll .today.history-day-editor > .t-lvl3 {order:50 !important;}
+  #scroll .today.history-day-editor > .t-daylog {order:55 !important;}
+  #scroll .today.history-day-editor > .t-social-independent {order:58 !important;}
+  #scroll .today.history-day-editor > .t-note {order:60 !important;}
+  #scroll .today.history-day-editor > .t-reset {order:70 !important;}
+}
+
+/* ===== today-mobile-density (antes assets/today-mobile-density-20261028.css) ===== */
+shaah-section[name="today-mobile-density"]{}
+/* SHAAH — Today mobile closed-state density, 2026-10-28.
+   Scoped to current Today (not historical editor), below the 880px breakpoint.
+   No change to bottom dock position, content ordering, routines or behavior. */
+@media (max-width:879px) {
+  #scroll .today.sf-today-v27:not(.history-day-editor) {
+    row-gap:7px !important;
+  }
+
+  /* Keep Core Routines as a bare disclosure row, never a card. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout {
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+    padding:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout.collapsed {
+    margin:0 !important;
+    min-height:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout.collapsed > .t-rout-toggle {
+    margin:0 !important;
+    padding-top:4px !important;
+    padding-bottom:4px !important;
+  }
+
+  /* Closed level headers retain readable, touch-friendly controls. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl:has(> .lvl-b.cl) {
+    padding:9px 12px !important;
+    height:auto !important;
+    min-height:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl:has(> .lvl-b.cl) > .lvl-h {
+    margin:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl:has(> .lvl-b.cl) .lvl-toggle {
+    min-height:44px !important;
+  }
+
+  /* Social is its own box; compact only the collapsed presentation. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-social-independent:is(:has(:is(.sf-compact-combo.is-collapsed,.t-social-independent.today-box-collapsed)),.today-box-collapsed) {
+    padding-top:9px !important;
+    padding-bottom:9px !important;
+    margin:0 !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed .sf-combo-heading,
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-social-independent.today-box-collapsed > .today-box-disclosure {
+    min-height:44px !important;
+    margin:0 !important;
+  }
+
+  /* Recover vertical space in Day Note, not by shrinking its text. */
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-note {
+    padding:11px 13px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-note .sec {
+    margin-bottom:6px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-note textarea {
+    min-height:76px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-reset {
+    margin-top:0 !important;
+    margin-bottom:0 !important;
+  }
+}
+
+/* Short iPhone viewports: keep the closed overview above the fixed dock.
+   Only applies while all three disclosures are closed. */
+@media (max-width:879px) and (max-height:740px) {
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(:is(.sf-compact-combo.is-collapsed,.t-social-independent.today-box-collapsed)) {
+    row-gap:5px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(:is(.sf-compact-combo.is-collapsed,.t-social-independent.today-box-collapsed)) > .t-lvl,
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(:is(.sf-compact-combo.is-collapsed,.t-social-independent.today-box-collapsed)) > .t-social-independent {
+    padding-top:3px !important;
+    padding-bottom:3px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(:is(.sf-compact-combo.is-collapsed,.t-social-independent.today-box-collapsed)) > .t-note {
+    padding-top:7px !important;
+    padding-bottom:7px !important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor):has(> .t-rout.collapsed):has(> .t-lvl2 > .lvl-b.cl):has(> .t-lvl3 > .lvl-b.cl):has(:is(.sf-compact-combo.is-collapsed,.t-social-independent.today-box-collapsed)) > .t-note textarea {
+    height:60px !important;
+    min-height:60px !important;
+    padding-top:6px !important;
+    padding-bottom:6px !important;
+  }
+}
+
+/* ===== today-mobile-disclosure (antes assets/today-mobile-disclosure-20261027.css) ===== */
+shaah-section[name="today-mobile-disclosure"]{}
+/* Mobile Today disclosure fix. Keep desktop/Social tab and scoring untouched. */
+@media(max-width:879px){
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl1:has(> .lvl-b.cl){
+    height:auto!important;min-height:0!important;align-self:start!important;
+    display:block!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-lvl1 > .lvl-b.cl{
+    display:none!important;max-height:0!important;overflow:hidden!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-social-independent{
+    height:auto!important;min-height:0!important;align-self:start!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading{
+    cursor:pointer;user-select:none;display:flex;align-items:center;
+    min-height:40px;margin-bottom:0!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo .sf-combo-heading::before{
+    content:"▾";font-size:13px;color:var(--skin-muted,#8888a4);
+    display:inline-block;transition:transform .18s ease;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed .sf-combo-heading::before{
+    transform:rotate(-90deg);
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed > .sf-combo-category{
+    display:none!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) .sf-compact-combo.is-collapsed{
+    margin-bottom:0!important;padding-bottom:0!important;
+  }
+}
+
+/* Core routine disclosure must outrank the mobile grid display override.
+   On migrated Today, Work and Production live in .t-rout, not .t-lvl1. */
+@media(max-width:879px){
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout.collapsed{
+    height:auto!important;min-height:0!important;align-self:start!important;
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) > .t-rout.collapsed > .t-rout-body{
+    display:none!important;
+  }
+}
+
+/* ===== core-routines-compact (antes assets/core-routines-compact-20261028.css) ===== */
+shaah-section[name="core-routines-compact"]{}
+/* Shared Today routine geometry for every skin, including mobile disclosure. */
+#scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card{
+ display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;
+ grid-template-rows:1fr auto!important;gap:12px!important;align-items:start!important;
+ align-content:stretch!important;padding:14px!important;margin:0!important;height:100%!important;min-width:0!important;
+}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card>.cr-compact-icon{
+ width:36px!important;height:36px!important;display:flex;align-items:center;justify-content:center;
+ font-size:23px!important;border-radius:9px!important;background:var(--today-card-bg)!important;
+}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card .r-lab{
+ display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px!important;
+ font-size:18px!important;line-height:1.35!important;color:var(--today-copy)!important;overflow-wrap:anywhere;
+}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card .sf-routine-total{font-size:13px!important;white-space:nowrap;color:var(--today-muted)!important}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card .r-sub{font-size:14px!important;line-height:1.5!important;margin-top:4px!important;color:var(--today-muted)!important}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card>.cr-compact-actions{
+ grid-column:1/-1;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:6px!important;align-self:end!important;width:100%;min-width:0;
+}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card .r-btn{
+ min-width:0;min-height:44px!important;padding:8px 4px!important;border-radius:9px;
+ font:600 12px/1.35 'DM Sans',sans-serif!important;letter-spacing:.025em!important;
+ border:1px solid var(--today-card-border);background:transparent;color:var(--today-copy);cursor:pointer;
+}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card .r-btn[aria-pressed=true]{
+ border-color:currentColor!important;box-shadow:inset 0 -3px currentColor!important;
+}
+#scroll .today.sf-today-v27 .t-rout-body>div.cr-compact-card .r-btn:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+
+/* ===== social-capsules (antes assets/social-capsules-20261029.css) ===== */
+shaah-section[name="social-capsules"]{}
+/* Approved Social capsule typography and contrast; preserve all geometry. */
+html .soc .sd-time-pill{background:#10182b}
+html .soc .sd-time-pill .sd-pill-fill{opacity:.18}
+html .soc .sd-time-pill .sd-pill-label{font-size:117.5%}
+
+/* ===== pro-mode (antes assets/pro-mode.css) ===== */
+shaah-section[name="pro-mode"]{}
+/* Pro Mode: presentation only. Native controls, DOM, history and timers stay intact. */
+.pro-nav-settings{display:none}
+
+@media(min-width:880px){
+ html[data-layout="pro"]{--pro-panel:rgba(var(--skin-rgb-0d0f1b,13,15,27),1);--pro-edge:rgba(var(--skin-rgb-28283f,40,40,63),1);--pro-copy:rgba(var(--skin-rgb-eeeaf8,238,234,248),1);--pro-muted:rgba(var(--skin-rgb-b3aec9,179,174,201),1);--pro-accent:rgba(var(--skin-rgb-a78bfa,167,139,250),1)}
+ html[data-layout="pro"] body{background:rgba(var(--skin-rgb-080912,8,9,18),1);color:var(--pro-copy)}
+ html[data-layout="pro"] #topbar{width:100%;max-width:1560px;margin:0 auto;padding:22px 28px;min-height:80px;background:transparent;border:0}
+ html[data-layout="pro"] #tb-date{gap:10px}
+ html[data-layout="pro"] .tb-day{font-size:32px}
+ html[data-layout="pro"] .tb-dt,html[data-layout="pro"] .tb-gr{font-size:16px;color:var(--pro-muted)}
+ html[data-layout="pro"] #tb-score{display:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){--today-card-bg:var(--pro-panel);--today-card-border:var(--pro-edge);--today-title:var(--pro-copy);--today-copy:var(--pro-copy);--today-muted:var(--pro-muted);display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:16px!important;max-width:1560px!important;width:100%!important;margin:0 auto!important;padding:0 28px 36px!important;zoom:1!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-score-hero{display:grid!important;grid-template-columns:minmax(196px,23fr) minmax(0,59fr) minmax(144px,18fr)!important;grid-template-rows:216px;gap:16px!important;height:auto!important;margin:0!important;padding:0!important;align-items:stretch!important;position:relative}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-stack{display:contents!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-ring,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-grade,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .today-log-start,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .cr-log-orb{width:100%!important;height:216px!important;min-width:0!important;max-width:none!important;margin:0!important;border:1px solid var(--pro-edge)!important;border-radius:14px!important;background:var(--pro-panel)!important;box-shadow:none!important;transform:none!important;zoom:1!important;align-self:stretch!important;box-sizing:border-box!important;position:relative!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-ring{grid-column:1;grid-row:1;display:flex!important;align-items:center;justify-content:center;padding:8px!important;isolation:isolate}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-ring::before{content:"";position:absolute;width:196px;height:196px;max-width:calc(100% - 16px);left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:var(--pro-ring-glow,radial-gradient(ellipse,color-mix(in srgb,currentColor 10%,transparent),transparent 72%));box-shadow:var(--pro-ring-shadow,0 0 24px color-mix(in srgb,currentColor 16%,transparent));pointer-events:none;z-index:-1}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-ring>svg{width:196px!important;height:196px!important;max-width:100%;flex:none;filter:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-ring>svg>circle:first-child{stroke:rgba(var(--skin-rgb-202339,32,35,57),1)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-ring>div>div:first-child{font-size:58px!important;line-height:1!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-ring>div>div:last-child{font-size:14px!important;opacity:1!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-grade.t-levelstatus{grid-column:2;grid-row:1;display:flex!important;flex-direction:column!important;justify-content:space-between!important;align-items:stretch!important;padding:20px 24px!important;gap:12px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-grade.t-levelstatus>.ls-top{display:flex!important;font:500 15px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;margin:0!important;flex:0 0 auto!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-kicker{font:500 15px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:.08em;color:var(--pro-copy)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-need{display:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-path{font-size:32px!important;line-height:1.2!important;gap:18px!important;margin:auto 0 0!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-path span{font-size:24px!important;color:var(--pro-muted)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-bar{height:12px!important;min-height:12px;width:100%;background:rgba(var(--skin-rgb-19192d,25,25,45),1);border-color:var(--pro-edge);margin:0!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-grade.t-levelstatus>.ls-footer{display:flex!important;flex:0 0 auto!important;justify-content:space-between!important;align-items:center!important;gap:12px!important;font:400 14px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:0;margin:0!important;color:var(--pro-muted)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .today-log-start{grid-column:3;grid-row:1;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:12px!important;padding:16px!important;cursor:pointer;visibility:visible!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .today-log-start>span{display:grid;place-items:center;flex:none;width:88px;height:88px;border:2px solid var(--pro-accent);border-radius:50%;background:rgba(var(--skin-rgb-a78bfa,167,139,250),0.0705882);color:var(--pro-copy)!important;font:400 42px/1 var(--identity-font,'DM Sans',sans-serif)!important;visibility:visible!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .today-log-start::after{content:attr(data-log-label)!important;position:static!important;inset:auto!important;font:500 14px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:.08em;color:var(--pro-copy);width:auto!important;height:auto!important;background:none!important;border:0!important;transform:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-log-start.live>span{color:rgba(var(--skin-rgb-f87171,248,113,113),1)!important;border-color:rgba(var(--skin-rgb-f87171,248,113,113),1);font-size:24px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-log-start.live>b{font:400 14px 'DM Mono',monospace;color:var(--pro-muted)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .today-log-start.cr-log-has-orb{display:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .cr-log-orb{grid-column:3;grid-row:1;display:flex!important;align-items:center;justify-content:center;flex-direction:column;padding:20px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .cr-log-orb .cr-orb-button{width:112px;height:112px;margin:0;box-shadow:none}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .cr-log-orb .cr-orb-label{position:static;max-width:100%;margin-top:10px;font-size:12px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .cr-log-orb .cr-orb-add{inset-inline-end:calc(50% - 76px);top:118px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout>.sec{min-height:24px!important;margin:0 0 8px!important;font-size:12px!important;color:var(--pro-muted)!important;letter-spacing:.08em!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout .t-rout-body{gap:16px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>.sf-core-routine,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-note{background:var(--pro-panel)!important;border:1px solid var(--pro-edge)!important;border-radius:14px!important;padding:16px 18px!important;box-shadow:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl{height:auto!important;align-self:stretch!important;min-width:0}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl){align-self:start!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-lvl>.lvl-h,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note>.sec{min-height:36px!important;padding:0 0 10px!important;margin:0 0 8px!important;border-bottom:1px solid var(--pro-edge);font:500 16px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:.02em!important;color:var(--pro-copy)!important;gap:8px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .lvl-toggle,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading strong{font:500 16px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:.02em!important;text-transform:uppercase;min-height:30px;color:var(--pro-copy)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .lvl-n,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading>span{font:400 13px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;color:var(--pro-muted)!important;letter-spacing:0;white-space:nowrap}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row{min-height:40px;padding:7px 0!important;margin:0!important;gap:8px!important;align-items:center}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>div:first-child{min-width:0;gap:10px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>div:first-child>span,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>span:first-child{font:400 15px/1.45 var(--identity-font,'DM Sans',sans-serif)!important;color:var(--pro-copy);letter-spacing:0!important;white-space:normal!important;overflow-wrap:anywhere}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>span,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>span:last-child{font:400 13px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;color:var(--pro-muted)!important;letter-spacing:0;white-space:nowrap;flex-shrink:0}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle{padding:7px 0!important;min-height:40px!important;gap:10px;border-radius:8px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row.on{background:rgba(var(--skin-rgb-a78bfa,167,139,250),0.0627451);border-radius:8px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note .notecard{border:1px solid var(--pro-edge);border-radius:10px;background:rgba(var(--skin-rgb-090b16,9,11,22),1)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note textarea{min-height:60px!important;padding:12px 14px!important;font-size:15px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note .notebar{display:none}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{padding:16px!important;min-height:140px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .cr-routine-name{font-size:18px!important;letter-spacing:0!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{font-size:12px!important;color:var(--pro-muted)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-btn{min-height:48px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-card{min-height:140px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-head{font:500 16px/1.4 var(--identity-font,'DM Sans',sans-serif)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-points{font-size:12px!important;color:var(--pro-muted)}
+}
+
+/* The existing bottom navigation becomes a sidebar only on full desktops. */
+@media(min-width:1180px){
+ html[data-layout="pro"] #app:has(#nav[style*="display: flex"])>#scroll{margin-inline-start:180px}
+ html[data-layout="pro"] #nav{top:0;bottom:0;inset-inline-start:0;inset-inline-end:auto;width:180px;flex-direction:column;gap:6px;padding:32px 16px;border:0;border-inline-end:1px solid var(--pro-edge);background:rgba(var(--skin-rgb-0e101e,14,16,30),1);backdrop-filter:none;transform:none!important;opacity:1!important;pointer-events:auto!important}
+ html[data-layout="pro"] #nav::before{content:"SHAAH";color:var(--pro-copy);font:500 18px/1.5 var(--identity-font,'DM Sans',sans-serif);letter-spacing:.28em;padding:5px 12px 30px}
+ html[data-layout="pro"] #nav .nav-btn{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;min-height:48px;padding:12px;border:1px solid transparent!important;border-radius:10px;font:500 12px/1.4 var(--identity-font,'DM Sans',sans-serif);letter-spacing:.07em;color:var(--pro-muted);box-shadow:none!important;transition:none}
+ html[data-layout="pro"] #nav .nav-btn.active{color:var(--pro-copy);border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),0.188235)!important;border-inline-start:2px solid var(--pro-accent)!important;background:rgba(var(--skin-rgb-a78bfa,167,139,250),0.0705882)}
+ html[data-layout="pro"] #nav .pro-nav-settings{display:flex}
+ html[data-layout="pro"] #nav .nav-symbol{font-size:21px;width:22px;text-align:center}
+ html[data-layout="pro"] #mode-status{font-size:12px;color:var(--pro-muted);margin-inline-start:auto}
+ html[data-layout="pro"] #gear{display:none}
+ html[data-layout="pro"] #topbar #tb-date{margin-inline-end:auto;justify-content:flex-start!important;position:static!important;transform:none!important;flex:1!important}
+}
+@media(min-width:880px) and (max-width:1179px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-inline-start:20px!important;padding-inline-end:20px!important;padding-bottom:90px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .lvl-toggle,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading strong{font-size:14px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl{padding:14px!important}
+}
+
+/* Content-sized Pro cards. Disclosure remains an application-wide behavior. */
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-row{display:flex;align-items:center;gap:6px}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-credit{display:grid;place-items:center;flex:0 0 24px;width:24px;height:36px;border:0;background:transparent;color:var(--skin-muted,rgba(var(--skin-rgb-b3aec9,179,174,201),1));font:20px/1 var(--identity-font,'DM Sans',sans-serif);cursor:pointer}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-credit[aria-pressed="true"]{color:rgba(var(--skin-rgb-bba5fa,187,165,250),1)}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-category-toggle{flex:1;min-width:0}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-category-mark,
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-person-check{display:none}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .combo-category-chevron{display:block;font:24px/1 sans-serif;transition:transform .15s;flex:none}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-category-toggle[aria-expanded="true"] .combo-category-chevron{transform:rotate(90deg)}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .sf-buttons{display:flex;flex-wrap:wrap;align-content:start;align-items:start;gap:6px;margin:0;padding:4px 2px;max-height:90px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(var(--skin-rgb-62577f,98,87,127),1) transparent}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .sf-button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;height:38px;margin:0;padding:7px 10px;border:1px solid rgba(var(--skin-rgb-35304c,53,48,76),1);border-radius:9px;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),1);color:rgba(var(--skin-rgb-eeeaf8,238,234,248),1);font:400 15px/1.4 var(--identity-font,'DM Sans',sans-serif);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .sf-button.sf-selected{background:rgba(var(--skin-rgb-9568ed,149,104,237),1)!important;border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),1)!important;color:rgba(var(--skin-rgb-ffffff,255,255,255),1)!important;box-shadow:none}
+@media(min-width:880px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero{grid-template-columns:minmax(196px,23fr) minmax(0,63fr) minmax(120px,14fr)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-ring>div>div:first-child{font-size:64px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-path{font:600 32px/1.2 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:0!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-kicker,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .lvl-toggle,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading strong,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-box-collapsed>.today-box-disclosure,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-head,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .cr-routine-name{font:600 16px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;letter-spacing:.02em!important;text-transform:uppercase}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>div:first-child>span,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>span:first-child{font:400 18px/1.4 var(--identity-font,'DM Sans',sans-serif)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>span,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .lvl-n,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-combo-heading>span,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>span:nth-child(2){font:400 14px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;color:var(--pro-muted)!important;white-space:nowrap;font-variant-numeric:tabular-nums}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle{gap:8px!important;min-height:44px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>span:first-child{flex:1;min-width:0;text-align:start}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row{min-height:44px;padding:8px 0!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-daily>strong,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-weekly>strong{font:600 28px/1.2 var(--identity-font,'DM Sans',sans-serif)!important;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .skin-emoji{font-size:20px!important;line-height:1;vertical-align:middle}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>div:first-child{gap:8px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .row>div:first-child>div{width:22px!important;height:22px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-points,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{font:400 14px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;font-variant-numeric:tabular-nums}
+}
+@media(min-width:1180px){
+ html[data-layout="pro"]{--pro-sidebar:176px;--pro-note-top:426px}
+ html[data-layout="pro"] #app:has(#nav[style*="display: flex"])>#scroll{margin-inline-start:var(--pro-sidebar)}
+ html[data-layout="pro"] #nav{width:var(--pro-sidebar);padding:20px 16px;gap:4px}
+ html[data-layout="pro"] #nav::before{padding:0 8px 100px;font-size:20px}
+ html[data-layout="pro"] #nav .nav-btn{min-height:46px;padding:10px 12px;font-size:14px;letter-spacing:.04em}
+ html[data-layout="pro"] #nav .pro-nav-settings{position:fixed;bottom:76px;inset-inline-start:16px;width:calc(var(--pro-sidebar) - 32px);height:44px;margin:0}
+ html[data-layout="pro"] #app #scroll #topbar{display:contents;position:static;width:auto;height:0;padding:0;min-height:0}
+ html[data-layout="pro"] #app #scroll #tb-date{position:fixed!important;top:66px;inset-inline-start:24px;width:calc(var(--pro-sidebar) - 48px);height:50px;display:flex;flex-wrap:wrap;justify-content:flex-start!important;align-content:start;gap:3px 7px;z-index:1000;pointer-events:none}
+ html[data-layout="pro"] #tb-date .tb-day{font:600 17px/1.4 var(--identity-font,'DM Sans',sans-serif);letter-spacing:.03em}
+ html[data-layout="pro"] #tb-date .tb-dt{font:400 15px/1.5 var(--identity-font,'DM Sans',sans-serif)}
+ html[data-layout="pro"] #tb-date .tb-gr{flex:0 0 100%;font:400 14px/1.5 var(--identity-font,'DM Sans',sans-serif);letter-spacing:.03em}
+ html[data-layout="pro"] #app #scroll #mode-status{position:fixed;inset-inline-start:46px;bottom:132px;z-index:1001;min-width:112px;height:34px;border:1px solid rgba(var(--skin-rgb-a78bfa,167,139,250),0.333333);border-radius:9px;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),1);color:var(--pro-copy);font:500 13px/32px var(--identity-font,'DM Sans',sans-serif);letter-spacing:.05em;padding:0 12px 0 36px;margin:0}
+ html[data-layout="pro"] #app #scroll #sync-status{position:fixed;inset-inline-start:52px;bottom:132px;z-index:1002;width:30px;height:34px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){animation:none!important;transform:none!important;max-width:none!important;height:auto!important;min-height:calc(100 * var(--app-vh, 1dvh))!important;grid-template-rows:216px auto auto!important;align-content:start!important;align-items:start!important;padding:20px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-score-hero{grid-template-rows:minmax(216px,1fr)!important;min-height:216px;align-self:stretch!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-ring,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .t-grade,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .today-log-start,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-score-hero .cr-log-orb{height:100%!important;min-height:216px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout{display:flex!important;flex-direction:column!important;min-height:174px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout .t-rout-body{flex:1;min-height:140px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout.collapsed{min-height:0}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl{align-self:start!important;min-height:0;overflow:visible}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-lvl:has(>.lvl-b.cl){align-self:start!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-note{position:fixed!important;top:var(--pro-note-top)!important;bottom:178px!important;inset-inline-start:16px!important;width:calc(var(--pro-sidebar) - 32px)!important;max-width:none!important;height:auto!important;min-height:70px!important;margin:0!important;padding:10px 0 0!important;border:0!important;border-top:1px solid var(--pro-edge)!important;border-radius:0!important;background:transparent!important;display:flex;flex-direction:column;z-index:1000;grid-row:auto!important;grid-column:auto!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note>.sec{flex:none;font:500 14px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;min-height:26px!important;border:0;padding:0 6px 8px!important;margin:0!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note .notecard{flex:1;min-height:0;display:flex;border-radius:10px;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),1)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-note textarea{height:100%!important;min-height:0!important;overflow-y:auto!important;padding:12px!important;font:400 14px/1.5 var(--identity-font,'DM Sans',sans-serif)!important;resize:none}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-reset{position:fixed!important;bottom:16px!important;inset-inline-start:16px!important;width:calc(var(--pro-sidebar) - 32px)!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;z-index:1003;grid-row:auto!important;grid-column:auto!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-reset::before{content:"";position:absolute;inset-inline-start:0;inset-inline-end:0;top:-12px;border-top:1px solid rgba(var(--skin-rgb-45405d,69,64,93),1)}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger{width:100%;justify-content:flex-start;gap:10px;font-size:12px;letter-spacing:.04em;padding:8px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .reset-day-warning{width:176px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy{grid-template-columns:minmax(0,1fr) auto!important;row-gap:2px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{grid-column:2;grid-row:1}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{grid-column:1/-1;grid-row:2}
+}
+@media(min-width:1180px) and (max-height:760px){
+ html[data-layout="pro"]{--pro-note-top:348px}
+ html[data-layout="pro"] #nav::before{padding-bottom:84px}
+ html[data-layout="pro"] #nav .nav-btn{min-height:36px;height:36px;padding:6px 12px;font-size:13px}
+}
+@media(min-width:1180px) and (max-height:600px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-note{display:none}
+}
+
+@media(min-width:880px) and (max-width:1399px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-daily>strong,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .wg-weekly>strong{font-size:22px!important}
+}
+html[data-layout="pro"] #app #scroll .today.sf-today-v27 .sf-category-toggle>.combo-category-chevron:last-child{font:24px/1 sans-serif!important;flex:0 0 16px;text-align:end;color:var(--pro-muted)!important}
+@media(min-width:880px){html[data-layout="pro"] #app #scroll .today:not(.history-day-editor) .sf-reveal .sf-buttons>.sf-button{min-height:38px!important;height:38px!important}}
+
+
+/* Today desktop: mode/status borrows a small band from the Log column. */
+@media(min-width:1180px){
+ html[data-layout="pro"] #app:has(.today.sf-today-v27) #scroll #mode-status{top:20px;inset-inline-end:20px;bottom:auto;inset-inline-start:auto;width:max(120px,calc((calc(100 * var(--app-vw, 1vw)) - var(--pro-sidebar) - 72px)*.14));min-width:0;height:36px;padding:0 36px 0 12px;text-align:center;line-height:34px;border-color:var(--pro-edge);border-radius:12px;background:var(--pro-panel)}
+ html[data-layout="pro"] #app:has(.today.sf-today-v27) #scroll #sync-status{top:20px;inset-inline-end:24px;bottom:auto;inset-inline-start:auto;width:30px;height:36px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{height:calc(100% - 44px)!important;min-height:172px!important;align-self:end!important}
+ /* Day Log box: no label, larger centred circle; X in the top-start corner, + in the opposite (bottom-end) corner. */
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{padding:12px!important;gap:10px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{position:relative}
+ /* LOG lives inside the circle (and the live timer takes its place), so the circle is the only in-flow child. */
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:104px;height:104px;box-sizing:border-box;padding-bottom:18px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after,
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start.live>b{position:absolute!important;top:calc(50% + 14px)!important;left:0!important;right:0!important;bottom:auto!important;text-align:center;font-size:11px!important;line-height:1.4!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start.live::after{display:none!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:104px;padding:12px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-label{display:none}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-button{width:var(--orb);height:var(--orb);gap:4px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add{top:auto;right:auto;bottom:8px;inset-inline-end:8px;width:28px;height:28px;min-height:28px;font-size:20px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add::before{inset:0}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb :is(.product-orb-close,.product-end-menu){top:8px;left:auto;inset-inline-start:8px;width:auto}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .product-orb-close{width:28px;height:28px;min-height:28px;font-size:19px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note{bottom:132px!important}
+}
+@media(min-width:1300px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:120px;height:120px;padding-bottom:20px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 17px)!important;font-size:12px!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:120px}
+}
+
+/* Give every desktop sidebar tab the same card treatment. */
+@media(min-width:1180px){
+ html[data-layout="pro"] #nav{gap:8px}
+ html[data-layout="pro"] #nav .nav-btn{border:1px solid var(--pro-edge)!important;background:var(--pro-panel);border-radius:10px}
+ html[data-layout="pro"] #nav .nav-btn.active{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),0.4)!important;border-inline-start:2px solid var(--pro-accent)!important;background:rgba(var(--skin-rgb-a78bfa,167,139,250),0.0941176)}
+ html[data-layout="pro"] #nav .nav-btn:hover{border-color:rgba(var(--skin-rgb-a78bfa,167,139,250),0.4)!important;background:rgba(var(--skin-rgb-a78bfa,167,139,250),0.0705882)}
+ html[data-layout="pro"] #nav .nav-btn:focus-visible{outline:2px solid var(--pro-accent);outline-offset:2px}
+}
+@media(min-width:1180px){
+ html[data-layout="pro"] #nav .nav-btn{height:46px;padding:8px 12px}
+ html[data-layout="pro"] #nav .nav-symbol{height:22px;line-height:1}
+}
+@media(min-width:1180px) and (max-height:760px){
+ html[data-layout="pro"] #nav{gap:4px}
+ html[data-layout="pro"] #nav .nav-btn{height:36px;min-height:36px;padding:6px 12px}
+}
+
+/* Shared desktop sidebar: centered navigation and today's note on every tab. */
+.pro-sidebar-note{display:none}
+@media(min-width:1180px){
+ html[data-layout="pro"] #nav .nav-btn{justify-content:flex-start;gap:10px;padding-inline-start:10px;padding-inline-end:10px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-reset::before{top:-8px}
+ html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #nav .pro-nav-settings{bottom:16px}
+ html[data-layout="pro"] #app #scroll>.pro-sidebar-note{position:fixed;top:var(--pro-note-top);bottom:76px;inset-inline-start:16px;width:calc(var(--pro-sidebar) - 32px)!important;max-width:none!important;height:auto;min-height:70px;margin:0;padding:10px 0 0;border:0;border-top:1px solid var(--pro-edge);border-radius:0;background:transparent;display:flex;flex-direction:column;z-index:1000}
+ html[data-layout="pro"] #app #scroll>.pro-sidebar-note>.sec{flex:none;font:500 14px/1.4 var(--identity-font,'DM Sans',sans-serif);min-height:26px;border:0;padding:0 6px 8px;margin:0;color:var(--pro-copy);letter-spacing:.02em}
+ html[data-layout="pro"] #app #scroll>.pro-sidebar-note .notecard{flex:1;min-height:0;display:flex;border:1px solid var(--pro-edge);border-radius:10px;background:rgba(var(--skin-rgb-0b0e1a,11,14,26),1)}
+ html[data-layout="pro"] #app #scroll>.pro-sidebar-note .notebar{display:none}
+ html[data-layout="pro"] #app #scroll>.pro-sidebar-note textarea{height:100%!important;min-height:0!important;overflow-y:auto!important;padding:12px!important;font:400 14px/1.5 var(--identity-font,'DM Sans',sans-serif)!important;resize:none}
+ html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])):not(:has(.edit-day-screen)) #scroll{padding-top:64px}
+ html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #mode-status{top:20px;inset-inline-end:20px;bottom:auto;inset-inline-start:auto;width:160px;min-width:0;height:36px;padding:0 36px 0 12px;text-align:center;line-height:34px;border-color:var(--pro-edge);border-radius:12px;background:var(--pro-panel)}
+ html[data-layout="pro"] #app:has(#nav .nav-btn.active:not([data-tab="today"])) #sync-status{top:20px;inset-inline-end:24px;bottom:auto;inset-inline-start:auto;width:30px;height:36px}
+ html[data-layout="pro"] #app:has(#nav .nav-btn[data-tab="log"].active) #mode-status,
+ html[data-layout="pro"] #app:has(#nav .nav-btn[data-tab="log"].active) #sync-status{display:none}
+}
+@media(min-width:1180px) and (max-height:600px){html[data-layout="pro"] #app #scroll>.pro-sidebar-note{display:none}}
+
+@media(min-width:1180px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger{padding-inline-start:10px;padding-inline-end:10px;font-size:13px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-reset>.reset-day-trigger>.navigation-icon{width:20px;height:20px}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .reset-day-warning{width:calc(var(--pro-sidebar) - 32px)}
+}
+@media(min-width:1180px){
+ html[data-layout="pro"] #nav .nav-symbol{width:20px;height:20px}
+ html[data-layout="pro"] #nav .nav-btn.active{padding-inline-start:9px}
+}
+
+/* Mobile demo: paint only. Keep native metrics, flow, hit areas and score colors. */
+
+
+/* Pro mobile: a single surface scale across all tabs. Paint only. */
+
+
+/* Layout geometry is independent from the selected skin's identity. */
+@media(min-width:880px){
+ html[data-layout="pro"]{--pro-panel:var(--skin-panel);--pro-edge:var(--skin-edge);--pro-copy:var(--skin-copy);--pro-muted:var(--skin-muted);--pro-accent:var(--skin-focus)}
+ html[data-layout="pro"][data-skin="minimal"]{--pro-ring-shadow:none;--pro-ring-glow:none}
+ html[data-layout="pro"][data-skin="matrix"] #nav .nav-btn{font-family:'DM Mono',monospace}
+}
+
+.pro-today-widgets{display:none}
+html[data-layout="pro"] #app #scroll .today>.pro-today-widgets{display:block;grid-column:1/-1;width:100%;min-width:0;color:var(--skin-copy)}
+.pro-today-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.pro-today-grid:not(:empty){margin-top:8px}
+.pro-today-grid>section{border:1px solid var(--skin-edge);border-radius:12px;background:var(--skin-panel);padding:12px}
+.pro-today-grid h3{margin:0 0 8px;font-size:15px}
+.pro-today-widgets button{min-height:36px;margin:2px;padding:5px 9px;border:1px solid var(--skin-edge);border-radius:8px;background:var(--skin-panel);color:var(--skin-copy);font:inherit}
+.pro-today-widgets button[aria-pressed="true"]{text-decoration:underline}
+html[data-layout="pro"] #app #scroll .today>.pro-today-widgets.has-note~.t-note{display:none!important}
+.pro-today-grid textarea{box-sizing:border-box;width:100%;min-height:84px;resize:vertical;padding:8px;border:1px solid var(--skin-edge);border-radius:8px;background:var(--skin-panel);color:var(--skin-copy);font:inherit}
+
+.pro-week-comparison{display:none}
+html[data-layout="pro"] .pro-week-comparison{display:block}
+.pro-week-comparison table{width:100%;border-collapse:collapse}
+.pro-week-comparison th,.pro-week-comparison td{text-align:start;padding:7px;border-bottom:1px solid var(--skin-edge)}
+.habit-award-ring{position:absolute;inset:10%;z-index:2;display:grid;place-items:center;text-align:center;border:3px solid #e8c480;border-radius:50%;background:var(--skin-panel,#161c35);color:var(--skin-copy,#fff);font-weight:700}
+.habit-award-dialog{max-width:min(380px,calc(100% - 32px));text-align:center;border:1px solid #e8c480;border-radius:14px;padding:22px;background:var(--skin-panel,#161c35);color:var(--skin-copy,#fff)}
+.habit-award-dialog::backdrop{background:#090d20bb}
+@media(prefers-reduced-motion:no-preference){
+  .habit-award-ring,.habit-award-dialog[open]{animation:habit-award-pulse .55s ease-out}
+  @keyframes habit-award-pulse{0%{transform:scale(.94)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
+}
+
+/* The Work widget is narrower than the full Core Routines card. */
+@media(min-width:880px){
+ html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-card{display:flex;flex-direction:column;gap:8px;width:100%;min-width:0;box-sizing:border-box;margin:0;text-align:start}
+ html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-row{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);gap:6px}
+ html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-figure{position:static;width:48px;height:48px;transform:none}
+ html[data-layout="pro"] #app #scroll .today .pro-today-grid .wg-row strong{font-size:16px!important;white-space:normal}
+}
+
+/* Collapsed Social Combo / Day Log / Day Note headers share the level-heading colour. */
+@media(min-width:880px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-box-collapsed>.today-box-disclosure{color:var(--pro-copy)!important}
+}
+
+/* Pro desktop: Core Routines heading matches Standard; Collapse/Expand as a pill button. */
+@media(min-width:880px){
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27>.t-rout>.sec{min-height:30px!important;margin:0 0 2px!important;font-size:16px!important;color:var(--pro-copy)!important;letter-spacing:.06em!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-routines-label{font-size:18px!important;font-weight:600!important;color:var(--pro-copy)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-routines-label .sf-core-total{font-size:14px!important;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-sections-toggle{font-size:14px!important;color:var(--pro-copy)!important;border-color:color-mix(in srgb,var(--pro-accent) 45%,transparent)!important;background:color-mix(in srgb,var(--pro-accent) 8%,transparent)!important}
+ html[data-layout="pro"] #app #scroll .today.sf-today-v27 .today-sections-toggle:hover{background:color-mix(in srgb,var(--pro-accent) 18%,transparent)!important;border-color:var(--pro-accent)!important}
+}
+
+/* Customize stays above the Pro widgets, aligned right. */
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit{display:block!important;margin-inline-start:auto!important}
+}
+/* Not editing: Customize sits on the Day Note title line (top-right of the widgets), so it reads as part of the boxes below. */
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets:has(>.pro-today-edit[aria-expanded="false"]){position:relative}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="false"]{position:absolute!important;top:23px!important;right:13px!important;min-height:0!important;height:24px!important;padding:0 11px!important;font-size:12.5px!important;line-height:1!important;transform:translateY(-50%);margin:0!important;z-index:1}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets:has(>.pro-today-edit[aria-expanded="false"])>.pro-today-grid{margin-top:0!important}
+}
+@media(min-width:880px){
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="false"]{top:20px!important}
+}
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-edit.pro-today-edit[aria-expanded="true"]{display:inline-block!important;float:right!important}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.pro-today-widgets>.pro-today-grid{clear:both}
+}
+
+/* Pro desktop Today: text that was white uses the same title colour as Standard (titles included). */
+@media(min-width:880px){
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) :is(.today-routines-label,.today-routines-label>span:not(.sf-core-total),.today-sections-toggle,.t-lvl>.sec,.t-lvl>.sec strong,.lvl-toggle,.sf-combo-heading>strong,.wg-daily strong,.wg-weekly strong,.cr-routine-name,.r-sub,.row,.row>*,.row>*>span:not([class]),.sf-category-toggle,.pro-today-edit,.pro-today-grid h3,.pro-today-grid section>button){color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important}
+ html[data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] :is(.r-sub,.cr-routine-name){color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important}
+}
+
+/* ===== display-adaptation (antes assets/display-adaptation.css) ===== */
+shaah-section[name="display-adaptation"]{}
+/* Shared by every view and appearance. Laptop/mobile use the original rules. */
+html[data-wide-display]{zoom:var(--app-display-scale)}
+/* Respect existing view-specific widths, and bound the formerly unlimited Today. */
+html[data-wide-display] #app #scroll .today.sf-today-v27:not(.history-day-editor){max-width:1320px!important;margin-left:auto!important;margin-right:auto!important}
+/* The Work/Pro box lives outside the centered Today grid; track the Log column. */
+@media(min-width:1180px){
+ html[data-wide-display][data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
+  inset-inline-end:calc(20px + max(0px, (100% - 1320px) / 2));
+  width:max(120px,(min(1320px,100%) - 72px)*.14);
+ }
+ /* Approved Next Level refinement applies to wide displays, preserving laptop. */
+ html[data-wide-display] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-path{transform:translateY(-16px)}
+ html[data-wide-display] #app #scroll .today.sf-today-v27 .t-levelstatus .ls-bar{height:22px!important;min-height:22px}
+}
+
+/* ===== mobile-dock-compact (antes assets/mobile-dock-compact-20261108-v2.css) ===== */
+shaah-section[name="mobile-dock-compact"]{}
+/* Approved mobile portrait dock adjustment. Existing buttons and view layouts are preserved. */
+@media (max-width:879px) and (orientation:portrait) {
+  :root {
+    --dock-bottom-compact:max(calc(env(safe-area-inset-bottom) - 36px),0px);
+    --dock-reclaim-compact:clamp(4px,calc(env(safe-area-inset-bottom) - 24px),12px);
+  }
+  #nav { padding-bottom:var(--dock-bottom-compact); }
+  #resume { bottom:calc(58px + var(--dock-bottom-compact)); }
+  #resume.cr-mini-sessions {
+    bottom:calc(64px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact));
+  }
+  #scroll .today.sf-today-v27:not(.history-day-editor) {
+    padding-bottom:calc(88px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact))!important;
+  }
+  #scroll .today:not(.history-day-editor)>.t-reset {
+    scroll-margin-bottom:calc(88px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact));
+  }
+  .logdesk-shell {
+    padding-bottom:calc(88px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact));
+  }
+  .soc {
+    padding-bottom:calc(96px + env(safe-area-inset-bottom) - var(--dock-reclaim-compact))!important;
+  }
+}
+/* Other views keep their existing, more generous reserves. */
+
+/* ===== original-refinement (antes assets/original-refinement.css) ===== */
+shaah-section[name="original-refinement"]{}
+/* Phase 1: Original presentation only. No dimensions, ordering or scoring rules.
+   Kept separate so the candidate can be compared and reverted as one layer. */
+html[data-skin="classic"] {
+  --original-copy: #eeeef5;
+  --original-muted: #b5b5cb;
+  --original-edge: #29293e;
+  --original-accent: #c4b5fd;
+}
+
+html[data-skin="classic"] .sec {
+  color: var(--original-muted);
+  font-weight: 600;
+}
+html[data-skin="classic"] .card {
+  border-color: var(--original-edge);
+  box-shadow: inset 0 1px 0 #ffffff04;
+}
+html[data-skin="classic"] .row.on {
+  background-color: #a78bfa12;
+  border-color: #a78bfa38;
+}
+html[data-skin="classic"] .sf-muted,
+html[data-skin="classic"] .skin-option-detail,
+html[data-skin="classic"] .skin-status {
+  color: var(--original-muted);
+}
+/* An inset ring improves keyboard visibility without shifting any control. */
+html[data-skin="classic"] :is(button, input, textarea, select, [role="button"]):focus-visible {
+  outline: 2px solid var(--original-accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 879px) {
+  html[data-skin="classic"] .stats-page .stats-metric-value {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 26px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.04em;
+    line-height: 1;
+  }
+  html[data-skin="classic"] .stats-page .stats-metric-label {
+    color: var(--original-copy);
+    font-weight: 600;
+    letter-spacing: .025em;
+  }
+  html[data-skin="classic"] .stats-page .stats-metric-sub {
+    /* Keep semantic colors on the metric value; supporting copy is readable
+       even for dark or low-scoring grades. */
+    color: var(--original-muted) !important;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ===== skin-identities (antes assets/skin-identities.css) ===== */
+shaah-section[name="skin-identities"]{}
+/* Phase 2. Identity tokens and presentation only; retain shared geometry,
+   native controls, semantic result colors and all legacy preference IDs. */
+html[data-skin="classic"] {
+  --identity-font:'DM Sans',system-ui,sans-serif;
+  --identity-accent:#c4b5fd;--identity-ink:#07070f;
+  --identity-input:#0c0c18;
+}
+html[data-skin="aurora"] {
+  --identity-font:'DM Sans',system-ui,sans-serif;
+  --identity-accent:#67dfff;--identity-ink:#050b1b;
+  --identity-input:#091226;
+}
+html[data-skin="matrix"] {
+  --identity-font:'DM Mono',ui-monospace,monospace;
+  --identity-accent:#00ff41;--identity-ink:#020705;
+  --identity-input:#041109;
+}
+html[data-skin="minimal"] {
+  --identity-font:'DM Sans',system-ui,sans-serif;
+  --identity-accent:#cdd2d8;--identity-ink:#15171a;
+  --identity-input:#15171a;
+}
+
+/* The same four choices on every device, with legacy preferences separate. */
+.skin-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+.skin-legacy{margin-top:18px;padding-top:14px;border-top:1px solid var(--skin-edge)}
+.skin-legacy-actions{display:flex;gap:8px;flex-wrap:wrap}
+.skin-legacy-option[aria-pressed="true"]{border-color:var(--skin-selected);color:var(--skin-selected);background:var(--skin-active-bg)}
+@media(max-width:600px){.skin-options{grid-template-columns:1fr}}
+
+/* Include new shared components which previously kept hard-coded violet. */
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .today.sf-today-v27 {
+  --today-card-bg:var(--skin-panel);--today-card-border:var(--skin-edge);
+  --today-title:var(--skin-muted);--today-copy:var(--skin-copy);
+  --today-muted:var(--skin-muted);--today-accent:var(--identity-accent);
+  --today-active:var(--skin-active-bg);
+}
+html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra,.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor,.cr-modal,.cr-bottom-dock,.cr-session-menu-panel) {
+  background:var(--skin-panel);border-color:var(--skin-edge);color:var(--skin-copy);
+}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-muted,.sf-field,.sf-scoring summary,.sd-help,.sf-work-info .r-sub,.sf-work-points,.sf-work-targets) {color:var(--skin-muted)}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-button,.sd-location-toggle,.cr-session-menu>summary,.cr-session-menu-panel button) {
+  color:var(--skin-copy);background:var(--skin-panel);border-color:var(--skin-edge);
+}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-primary,.sf-routine-primary,.sf-work-register,.sf-work-next,.logdesk-new,.logdesk-save) {
+  background:var(--identity-accent)!important;border-color:var(--identity-accent)!important;color:var(--identity-ink)!important;
+}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-selected,.htab.active,.logdesk-row.selected,.skin-option[aria-pressed="true"]) {
+  background:var(--skin-active-bg);border-color:var(--identity-accent);color:var(--identity-accent);
+}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) #app #scroll .today:not(.history-day-editor) .t-score-hero .today-log-start:not(.live):not(.cr-log-has-orb) {
+  background:var(--skin-panel)!important;border-color:var(--identity-accent)!important;color:var(--identity-accent)!important;box-shadow:none!important;
+}
+html:is([data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) #app #scroll .today:not(.history-day-editor) .today-log-start:not(.live):not(.cr-log-has-orb)>span {color:var(--identity-accent)!important}
+html:is([data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) :is(.sf-field input,.sf-field select,.logdesk-input,.logdesk-sort) {
+  background:var(--identity-input);color:var(--skin-copy);border-color:var(--skin-edge);
+}
+
+/* WORK has a single interactive DOM and dated calculation in every skin.
+   Carry identity through its title, amounts, surface, geometry and focus. */
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) #scroll .today.sf-today-v27 .wg-card {
+  font-family:var(--identity-font);color:var(--skin-copy);
+  background:var(--skin-panel);border-color:var(--skin-edge);
+}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card .wg-head>span:first-child {color:var(--skin-copy)}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card :is(.wg-daily,.wg-weekly) strong {
+  color:var(--skin-copy);font-variant-numeric:tabular-nums;
+}
+html:is([data-skin="classic"],[data-skin="aurora"],[data-skin="matrix"],[data-skin="minimal"],[data-skin="apple"]) .wg-card:focus-visible {outline-color:var(--identity-accent)}
+html[data-skin="classic"] .wg-figure{--work-geom:#c4b5fd;--work-geom-dim:#363047}
+html[data-skin="aurora"] .wg-card{box-shadow:inset 0 1px 0 #67dfff18,0 0 18px #758dff0a}
+html[data-skin="matrix"] .wg-card{box-shadow:inset 2px 0 0 #00ff4138}
+
+/* Quiet typography without condensed display numbers or decorative effects. */
+html[data-skin="minimal"] .stats-metric-value {font-family:var(--identity-font);font-variant-numeric:tabular-nums;font-weight:500}
+html[data-skin="minimal"] .wg-figure.complete,
+html[data-skin="minimal"] .wg-figure.complete * {filter:none!important;animation:none!important}
+html[data-skin="minimal"] .wg-figure.complete .wg-interior{fill-opacity:.2}
+
+/* No new celebration logic. Motion is strictly optional in every identity. */
+@media(prefers-reduced-motion:reduce){
+  html[data-skin] .wg-figure,html[data-skin] .wg-figure * {filter:none!important;animation:none!important}
+}
+@media(forced-colors:active){
+  html[data-skin] .wg-card{border-color:CanvasText!important;box-shadow:none!important}
+  html[data-skin] .wg-segment{stroke:GrayText!important}
+  html[data-skin] .wg-segment.lit{stroke:Highlight!important;filter:none!important}
+}
+
+/* Owner feedback: Aurora's sticky mobile score strip should sit within its
+   luminous canvas, with a clearly visible unfilled track. Geometry unchanged. */
+@media(max-width:879px){
+  html[data-skin="aurora"] #tb-score{
+    background:transparent;
+    border-bottom-color:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+  html[data-skin="aurora"] #tb-score .ts-bar{background:rgba(255,255,255,.22)}
+  html[data-skin="aurora"] #tb-score .ts-bar>i{background:#fff!important;box-shadow:none!important}
+  html[data-skin="aurora"] #tb-score .ts-p{color:#fff}
+  html[data-skin="aurora"] #tb-score .ts-nx{color:#e9edf8!important}
+  html[data-skin="aurora"] .t-levelstatus .ls-bar{
+    background:#293a61!important;border-color:#53658d!important;
+  }
+}
+
+/* Preview refinement: stronger score-strip typography, unchanged geometry. */
+@media(max-width:879px){
+  html[data-skin="aurora"] #tb-score .ts-l{font-weight:700}
+  html[data-skin="aurora"] #tb-score .ts-p,
+  html[data-skin="aurora"] #tb-score .ts-nx{font-weight:700}
+}
+
+html[data-skin="matrix"] .today :is(.today-sections-toggle,.today-box-disclosure,.reset-day-trigger) {color:var(--skin-muted);border-color:var(--skin-edge)}
+
+html[data-skin="matrix"] .sd-time-pill {background-color:var(--skin-panel)}
+html[data-skin="matrix"] .stats-page :is(.stats-heading span,.stats-details summary span) {color:var(--skin-muted)}
+html[data-skin="matrix"] :is(.performance-local,.performance-local .performance-state,.performance-local .performance-explanation) {color:var(--skin-copy)}
+
+/* ── Apple (design A, emilkowalski/skills › apple-design) ──────────────────
+   Presentation only. System type with size-specific tracking, grouped black
+   surfaces, a translucent floating tab bar with content scrolling under it,
+   feedback on press (not release), and answers for reduced motion,
+   reduced transparency and increased contrast. */
+html[data-skin="apple"] {
+  --identity-font:-apple-system,'SF Pro Text',system-ui,'Helvetica Neue',sans-serif;
+  --identity-accent:#8b6cff;--identity-ink:#ffffff;
+  --identity-input:#2c2c2e;
+  --apple-glass:rgba(30,30,32,.62);--apple-glass-edge:rgba(255,255,255,.2);
+  font-optical-sizing:auto;
+}
+html[data-skin="apple"] body,
+html[data-skin="apple"] body :is(div,span,p,h1,h2,h3,h4,label,button,a,input,textarea,select,summary,strong,b,em,small,li,td,th,output,time) {
+  font-family:var(--identity-font)!important;
+}
+/* Size-specific tracking: the old condensed labels used wide caps tracking. */
+html[data-skin="apple"] body :is(.sec,.st-title,.nav-btn,.ts-l,.t-score-hero *,.sf-muted,.sf-scoring summary) {letter-spacing:.01em}
+html[data-skin="apple"] body :is(h1,h2,.t-pct,.ts-p,.stats-metric-value) {letter-spacing:-.02em}
+html[data-skin="apple"] .nav-btn {text-transform:none;font-size:11px;font-weight:600}
+html[data-skin="apple"] :is(.t-pct,.ts-p,.stats-metric-value,.wg-card strong) {font-variant-numeric:tabular-nums}
+
+/* Grouped surfaces: no hairline boxes, iOS radii. */
+html[data-skin="apple"] :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra,.logdesk-timeline-card,.logdesk-list-card,.logdesk-editor,.notecard,.settings-list) {
+  border-color:transparent!important;border-radius:14px;
+}
+html[data-skin="apple"] #scroll .today.sf-today-v27 .wg-card {border-color:transparent;border-radius:14px}
+html[data-skin="apple"] .t-ring {filter:none!important}
+
+/* Floating glass tab bar (mobile): content scrolls underneath it. */
+@media(max-width:879px){
+  html[data-skin="apple"] #nav:not(.tucked) {
+    left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
+    border-radius:32px;border:.5px solid var(--apple-glass-edge);border-top-color:var(--apple-glass-edge);
+    background:var(--apple-glass);
+    backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+    box-shadow:0 8px 24px rgba(0,0,0,.35);padding:4px 6px;
+  }
+  html[data-skin="apple"] #nav .nav-btn {border-top:none;border-radius:26px;min-height:52px}
+  html[data-skin="apple"] #nav .nav-btn.active {background:rgba(255,255,255,.12);color:#8b6cff}
+}
+/* Sticky score strip becomes a translucent layer, not an opaque band. */
+html[data-skin="apple"] #tb-score {
+  background:rgba(0,0,0,.6);border-bottom-color:transparent;
+  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+
+/* Response: feedback on press, instant and small. */
+html[data-skin="apple"] :is(button,.row,.qtile,.nav-btn,.sf-button,.sf-primary,[role="button"]) {
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:transform 100ms ease-out,background-color 100ms ease-out,color .2s,opacity .2s;
+}
+html[data-skin="apple"] :is(button,.row,.qtile,.sf-button,.sf-primary,[role="button"]):active:not(:disabled) {transform:scale(.97)}
+html[data-skin="apple"] .nav-btn:active {opacity:1;transform:scale(.94)}
+html[data-skin="apple"] :is(.sf-primary,.sf-routine-primary,.sf-work-register,.sf-work-next,.logdesk-new,.logdesk-save) {
+  color:#ffffff!important;border-radius:999px!important;
+}
+
+/* Accessibility: gentler, not absent. */
+@media(prefers-reduced-motion:reduce){
+  html[data-skin="apple"] :is(button,.row,.qtile,.nav-btn,.sf-button,.sf-primary,[role="button"]):active {transform:none!important}
+}
+@media(prefers-reduced-transparency:reduce){
+  html[data-skin="apple"] :is(#nav,#tb-score) {background:#1c1c1e!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+@media(prefers-contrast:more){
+  html[data-skin="apple"] :is(#nav,#tb-score) {background:#1c1c1e!important;border:1px solid #8e8e93!important}
+  html[data-skin="apple"] :is(.sf-capture,.sf-tile,.sf-group-tile,.sf-work,.sf-core-extra) {border-color:#636366!important}
+}
+html[data-skin="apple"] :is(.today-disclosure-box,.t-lvl,.t-note) {border-color:transparent!important;border-radius:14px}
+html[data-skin="apple"] :is(.t-ring,.t-ring *,.t-score-hero svg *) {filter:none!important}
+html[data-skin="apple"] .nav-label {display:inline-block;text-transform:lowercase;letter-spacing:.01em}
+html[data-skin="apple"] .nav-label::first-letter {text-transform:uppercase}
+html[data-skin="apple"] .today.sf-today-v27 {--today-card-border:transparent;--today-card-bg:#1c1c1e}
+html[data-skin="apple"] #scroll :is(.stats-metric-card,.stats-details,.stats-weekday,.stats-card) {border-color:transparent!important;background:#1c1c1e!important;border-radius:14px!important}
+
+/* Apple: done = purple check, and the row recedes (struck through, translucent)
+   so what is still missing carries the screen. "Light" (½) stays prominent. */
+html[data-skin="apple"] {--apple-done:#8b6cff}
+html[data-skin="apple"] #scroll .row.on>div:first-child>div:first-child {
+  background-color:var(--apple-done)!important;border-color:var(--apple-done)!important;box-shadow:none!important;
+}
+html[data-skin="apple"] #scroll .row.on.half>div:first-child>div:first-child {
+  background-color:transparent!important;
+  background-image:linear-gradient(90deg,var(--apple-done) 50%,transparent 50%)!important;
+}
+html[data-skin="apple"] #scroll .row.on:not(.half):not(.history-work-row) {
+  opacity:.45;background:transparent!important;border-color:transparent!important;transition:opacity .25s ease,transform 100ms ease-out,background-color 100ms ease-out;
+}
+html[data-skin="apple"] #scroll .row.on:not(.half):not(.history-work-row)>div:first-child>span {
+  text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(255,255,255,.7);font-weight:450!important;
+}
+html[data-skin="apple"] #scroll .row.on.half>span:last-child {color:var(--apple-done)!important}
+html[data-skin="apple"] .combo-category-credit[aria-pressed="true"] {color:var(--apple-done)!important;font-weight:700}
+html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) {opacity:.42;transition:opacity .25s ease}
+html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) .sf-category-toggle {text-decoration:line-through;text-decoration-thickness:1.5px}
+@media(prefers-contrast:more){
+  html[data-skin="apple"] #scroll .row.on:not(.half),html[data-skin="apple"] .sf-combo-category:has(.combo-category-credit[aria-pressed="true"]) {opacity:.7}
+}
+
+/* One accent in both layouts: Standard and Pro share black ground, grouped
+   #1c1c1e surfaces without hairlines, and the same purple. */
+html[data-skin="apple"] .nav-btn.active {color:#8b6cff}
+html[data-skin="apple"][data-layout="pro"] {--pro-panel:#1c1c1e;--pro-edge:#1c1c1e;--pro-accent:#8b6cff;--pro-copy:#ffffff;--pro-muted:#aeaeb2}
+html[data-skin="apple"][data-layout="pro"] body {background:#000000}
+html[data-skin="apple"][data-layout="pro"] #nav {background:#1c1c1e;border-inline-end-color:#2c2c2e}
+html[data-skin="apple"][data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor) {--today-card-bg:#1c1c1e;--today-card-border:transparent}
+html[data-skin="apple"][data-layout="pro"] #app #scroll .today.sf-today-v27>.t-note {border-color:transparent!important}
+html[data-skin="apple"][data-layout="pro"] #nav .nav-btn.active {background:rgba(255,255,255,.08);border-color:transparent!important;border-inline-start:2px solid #8b6cff!important;color:#ffffff}
+html[data-skin="apple"][data-layout="pro"] #app #scroll .today.sf-today-v27 .row.on {background:transparent}
+
+/* ===== appearance-settings (antes assets/appearance-settings.css) ===== */
+shaah-section[name="appearance-settings"]{}
+/* Phase 3: device-local appearance, with a reversible live preview. */
+.skin-choice-card{min-width:0;display:flex;flex-direction:column;gap:0}
+.skin-choice-card>.skin-option{width:100%;flex:1;border-bottom-left-radius:0;border-bottom-right-radius:0}
+.skin-try{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:10px 14px;border:1px solid var(--skin-edge);border-top:0;border-radius:0 0 12px 12px;background:var(--skin-panel);color:var(--skin-copy);font:500 13px/1.4 'DM Sans',sans-serif;cursor:pointer}
+.skin-try:hover{background:var(--skin-active-bg)}
+#appearance-preview{position:fixed;z-index:1200;right:16px;bottom:calc(80px + env(safe-area-inset-bottom));width:min(420px,calc(100% - 32px));padding:16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--skin-selected);border-radius:14px;background:var(--skin-panel);color:var(--skin-copy);box-shadow:0 12px 36px #0005}
+.appearance-preview-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.appearance-preview-copy strong{font-size:15px;overflow-wrap:anywhere}
+.appearance-preview-copy>span{font-size:13px;color:var(--skin-muted)}
+.appearance-preview-actions{display:flex;gap:8px;flex-wrap:wrap}
+.appearance-preview-actions .sf-button{margin:0;min-height:44px}
+html[data-appearance-preview] #scroll{padding-bottom:180px}
+@media(max-width:600px){#appearance-preview{padding:12px;gap:10px}.appearance-preview-actions{width:100%}.appearance-preview-actions .sf-button{flex:1}}
+@media(forced-colors:active){#appearance-preview{border-color:Highlight}.skin-try{border-color:CanvasText}}
+
+/* Skin and desktop distribution are independent choices. */
+.layout-settings{margin-top:22px;padding-top:18px;border-top:1px solid var(--skin-edge)}
+.layout-settings h3{font-size:16px;color:var(--skin-copy);margin:0 0 6px}
+.layout-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.layout-option{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-height:90px;padding:14px;border:1px solid var(--skin-edge);border-radius:12px;background:var(--skin-panel);color:var(--skin-copy);font:inherit;text-align:left;cursor:pointer}
+.layout-option>strong{font-size:15px}.layout-option>span{font-size:13px;color:var(--skin-muted);line-height:1.5}
+.layout-option[aria-pressed="true"]{border-color:var(--skin-selected);background:var(--skin-active-bg);outline:1px solid var(--skin-selected);outline-offset:-1px}
+.layout-mobile-note{display:none}
+@media(max-width:879px){.layout-settings{display:none}.layout-mobile-note{display:block;margin-top:16px}}
+
+/* One fixed desktop anchor for both layouts; Work and sync retain their roles. */
+#desktop-status-controls,#desktop-work-status{display:contents}
+#layout-quick-toggle{display:none}
+@media(min-width:880px){
+  /* Scrolls away with the page instead of floating over it: anchored to the top of #scroll. */
+  html[data-layout] #app>#scroll:has(#desktop-status-controls){position:relative}
+  html[data-layout] #desktop-status-controls{position:absolute;top:20px;inset-inline-end:20px;z-index:1100;display:flex;align-items:center;border:1px solid var(--skin-edge);border-radius:10px;background:var(--skin-panel)}
+  html[data-layout] #desktop-work-status{display:flex;align-items:center;justify-content:center;gap:4px;height:36px;padding:0 8px;color:var(--skin-copy)}
+  html[data-layout] #app #scroll #desktop-status-controls #mode-status{position:static!important;display:block!important;width:auto!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;font:500 12px/1.4 var(--identity-font,'DM Sans',sans-serif)!important;color:var(--skin-copy)!important;letter-spacing:.05em;text-align:center}
+  html[data-layout] #app #scroll #desktop-status-controls #sync-status{position:static!important;display:flex!important;width:22px!important;height:34px!important;margin:0!important;padding:0!important}
+  html[data-layout] #layout-quick-toggle{display:grid;place-items:center;min-width:44px;height:36px;padding:0 8px;border:0;border-inline-start:1px solid var(--skin-edge);background:transparent;color:var(--skin-copy);font:600 12px/1.4 var(--identity-font,'DM Sans',sans-serif);cursor:pointer;box-shadow:none}
+  /* Active Pro: an inset accent pill (segmented control) instead of an underline. */
+  html[data-layout] #layout-quick-toggle[aria-pressed="true"]{text-decoration:none;border:0;border-radius:10px;background:rgba(var(--skin-rgb-a78bfa,167,139,250),.22);color:rgba(var(--skin-rgb-c4b5fd,196,181,253),1)}
+}
+/* Standard Today desktop: Work/Pro sits in the header corner opposite the gear, styled like it;
+   the Log circle returns to the hero row, 18% smaller than the score ring at every height tier. */
+@media(min-width:880px){
+  html[data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
+    top:8px;right:14px;left:auto;inset-inline-end:14px;bottom:auto;translate:none;height:34px;box-sizing:border-box;border-radius:17px;
+    background:rgba(var(--skin-rgb-0f0f1c,15,15,28),1);border-color:rgba(var(--skin-rgb-1e1e2e,30,30,46),1)
+  }
+  html[data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls>:is(#desktop-work-status,#layout-quick-toggle){height:32px}
+  html[data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{border-inline-start-color:rgba(var(--skin-rgb-1e1e2e,30,30,46),1)}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:151px}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){margin:0 36px!important;align-self:center!important}
+  /* Score ring mirrors the Log circle: its centre sits as far from the Next Level card as the Log's centre does
+     (margin to where the Log's centre would be, then shift by half its own width — the ring is larger than the Log). */
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-gap:36px}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-score-stack>.t-ring{justify-self:end!important;align-self:center!important;margin:0!important;margin-inline-end:calc(var(--log-gap) + var(--log-d)/2)!important;translate:50% 0}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start{width:var(--log-d)!important;min-width:var(--log-d)!important;height:var(--log-d)!important;min-height:var(--log-d)!important}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{font-size:calc(var(--log-d)*.3)!important}
+  /* Active routine: same rules as the Pro Day Log box — no label, X top-start, + in the opposite corner. */
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:var(--log-d)!important;width:var(--log-d)!important;height:var(--log-d)!important}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:var(--log-d)!important;height:var(--log-d)!important;gap:3px}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-icon{font-size:calc(var(--log-d)*.15)!important}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:calc(var(--log-d)*.2)!important;letter-spacing:-.6px}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-step{font-size:calc(var(--log-d)*.075)!important}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-label{display:none}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb :is(.product-orb-close,.product-end-menu){top:-6px;left:auto;inset-inline-start:-6px}
+  html[data-layout="standard"] #app #scroll .today.sf-today-v27:not(.history-day-editor) .cr-log-orb .cr-orb-add{top:auto;right:auto;bottom:-6px;inset-inline-end:-6px}
+}
+/* Narrow desktop (app.css: ring 160px, Next Level 500px) — smaller Log and tighter margins so it fits. */
+@media(min-width:880px) and (max-width:1250px){
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:131px}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){margin:0 16px!important}
+  html[data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-gap:16px}
+}
+/* today-fit tiers (html[data-today-fit], set from the effective viewport) shrink the ring to 116px / 92px; the Log follows at the same ratio. */
+html[data-today-hero~="mild"][data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:118px}
+html[data-today-hero~="compact"][data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:95px}
+html[data-today-hero~="compact"][data-layout="standard"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{top:4px}
+html[data-today-hero~="tight"][data-layout="standard"]:root body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero{--log-d:75px}
+@media(min-width:1180px){
+  html[data-layout="pro"] #app:has(#scroll>.today.sf-today-v27:not(.history-day-editor))>#scroll{position:relative}
+  html[data-layout="pro"] #app #scroll .today.sf-today-v27:not(.history-day-editor){padding-top:8px!important}
+  /* Two independent boxes in the Log column: Work/Pro (36px) on top, then
+     8px, then the Day Log card (pro-mode.css: height calc(100% - 44px), align-self:end). */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{
+    position:absolute;top:8px;inset-inline-end:20px;width:max(120px,(100% - 72px)*.14);height:36px;box-sizing:border-box;
+    justify-content:center;border:1px solid var(--pro-edge);border-radius:14px;background:var(--pro-panel);overflow:hidden
+  }
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls>:is(#desktop-work-status,#layout-quick-toggle){height:34px}
+  /* The box spans the Log column as a segmented control: Work fills the space, Pro is an inset pill. */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls{padding:3px;gap:3px}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{flex:1 1 auto;min-width:0;padding-inline:8px;height:28px!important}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{flex:0 0 48px;height:28px!important}
+  /* Larger type inside the same box. */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-status-controls #mode-status{font-size:15.5px!important}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #layout-quick-toggle{font-size:15.5px}
+  /* Optical centring: the dot's hit area shrinks to the dot so "WORK ●" centres as one group,
+     and caps are trimmed to cap height so they sit on the true vertical middle. */
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) #desktop-work-status{gap:8px}
+  html[data-layout="pro"] #app #scroll #desktop-status-controls #sync-status{width:9px!important}
+  html[data-layout="pro"] #app #scroll:has(>.today.sf-today-v27:not(.history-day-editor)) :is(#desktop-status-controls #mode-status,#layout-quick-toggle){text-box:trim-both cap alphabetic}
+}
+
+/* ===== today-fit (antes assets/today-fit-20261111.css) ===== */
+shaah-section[name="today-fit"]{}
+/* Today fits one desktop screen (2026-11-11/12).
+   Pro: everything open fits. Standard: everything open except the Day Note fits.
+   On desktop screens up to 960px of EFFECTIVE height (after display-adaptation's zoom),
+   display-adaptation.js measures Today and sets html[data-today-fit] to the roomiest tier
+   that fits: "roomy" (no change), "mild", "compact", "compact tight". In Pro the space
+   left over is published as --today-fit-spare and given to the Day Note.
+   Taller screens keep the roomy layout.
+   Scoped to live Today (not the past-day editor, which reuses renderToday). */
+
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:10px!important;column-gap:12px!important}
+
+ /* ---------- Hero: ring · next level · log ---------- */
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:136px auto auto!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:136px!important;min-height:136px!important;gap:12px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:136px!important;min-height:0!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:96px!important;padding:8px!important;gap:6px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:76px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:76px!important;height:76px!important;flex:none!important;gap:1px!important;padding:6px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-icon{font-size:15px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:17px!important;letter-spacing:-.5px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-step{font-size:8px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:76px!important;height:76px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:120px!important;height:120px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:120px!important;height:120px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;gap:6px!important;justify-content:space-between!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:28px!important;line-height:1!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
+ html[data-today-hero~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
+
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:128px!important;min-height:0!important;gap:20px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:116px!important;height:116px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:38px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:11px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:12px 20px!important;height:auto!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin-bottom:4px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin-bottom:8px!important}
+ html[data-today-hero~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:6px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #topbar{min-height:0!important;padding-top:4px!important;padding-bottom:0!important}
+
+ /* ---------- Core routines ---------- */
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:6px!important;gap:6px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:8px!important;min-height:0!important;height:34px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:12px 16px!important;min-height:0!important;height:auto!important;gap:8px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{min-height:0!important;grid-template-rows:auto 44px!important;row-gap:10px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body .wg-row{min-height:0!important;height:auto!important}
+
+ /* ---------- LVL 2 / LVL 3 / Social combo ---------- */
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:10px 14px!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{margin-bottom:2px!important;padding-bottom:4px!important;min-height:0!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:36px!important;height:36px!important;padding-top:4px!important;padding-bottom:4px!important;margin-top:0!important;margin-bottom:0!important}
+ html[data-today-fit~="compact"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .sf-combo-category{min-height:0!important}
+
+ /* ---------- Day note / widgets / reset ---------- */
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-edit{min-height:0!important;height:26px!important;padding:2px 10px!important;margin:0!important;font-size:12px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:6px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:8px 12px!important}
+ html[data-today-fit~="compact"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section>h3{margin-bottom:4px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:7px!important;padding-bottom:7px!important}
+ html[data-today-fit~="compact"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset{padding-top:0!important;padding-bottom:0!important}
+
+
+/* Laptop browser windows (~650px of page): a tighter tier on top of "compact". */
+
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:6px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:104px auto auto!important;padding-top:6px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:104px!important;min-height:104px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:104px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:64px!important;padding:4px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:54px!important;height:54px!important;padding-bottom:12px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start::after{top:calc(50% + 8px)!important;font-size:9px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:56px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:56px!important;height:56px!important;padding:3px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-icon,.cr-orb-step){display:none!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button b{font-size:14px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb :is(.cr-orb-add,.product-orb-close){width:22px!important;height:22px!important;min-height:22px!important;font-size:15px!important}
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
+ html[data-today-hero~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:92px!important;height:92px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:30px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:last-child{font-size:9px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:8px 18px!important;gap:4px!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;margin:0!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important}
+ html[data-today-hero~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.ls-top,.ls-footer){margin:0!important}
+
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:92px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:88px!important;height:88px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{min-height:0!important;height:92px!important;justify-content:space-between!important}
+
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:4px!important;gap:4px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important;height:28px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .today-sections-toggle{min-height:26px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:6px 14px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{row-gap:6px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:6px 12px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-h{padding-bottom:2px!important}
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
+ html[data-today-fit~="tight"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:31px!important;height:31px!important;padding-top:2px!important;padding-bottom:2px!important}
+
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:4px!important}
+ html[data-today-fit~="tight"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid>section{padding:6px 12px!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-top:3px!important;padding-bottom:3px!important;min-height:0!important}
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-reset .reset-day-trigger{min-height:28px!important;height:28px!important;padding-top:2px!important;padding-bottom:2px!important}
+
+
+/* ---------- Day Note height per tier + leftover space (Pro) ---------- */
+html[data-today-fit~="roomy"]{--today-note-h:84px}
+html[data-today-fit~="mild"]{--today-note-h:64px}
+html[data-today-fit~="compact"]{--today-note-h:48px}
+html[data-today-fit~="tight"]{--today-note-h:36px}
+html[data-today-fit][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid textarea{min-height:0!important;height:calc(var(--today-note-h,84px) + var(--today-fit-spare,0px))!important}
+
+/* ---------- "mild": between roomy and compact ---------- */
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:12px!important;column-gap:14px!important}
+ html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){grid-template-rows:176px auto auto!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{grid-template-rows:176px!important;min-height:176px!important;gap:14px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.t-ring,.t-grade,.today-log-start,.cr-log-orb){height:176px!important;min-height:0!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero :is(.today-log-start,.cr-log-orb){height:132px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb{--orb:96px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .cr-log-orb .cr-orb-button{width:96px!important;height:96px!important;flex:none!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .today-log-start>span{width:96px!important;height:96px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg,
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring::before{width:156px!important;height:156px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:48px!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:16px 20px!important;gap:8px!important;justify-content:space-between!important}
+ html[data-today-hero~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{margin:0!important}
+
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{height:164px!important;min-height:0!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-stack .t-ring,
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>svg{width:144px!important;height:144px!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-ring>div>div:first-child{font-size:46px!important}
+ html[data-today-hero~="mild"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{padding:14px 20px!important;height:auto!important;min-height:0!important}
+
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout{row-gap:8px!important;gap:8px!important}
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-toggle{margin-bottom:6px!important}
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.sf-core-routine{padding:14px 18px!important;min-height:0!important;height:auto!important}
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{min-height:0!important;row-gap:12px!important}
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl{padding:12px 16px!important}
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .lvl-b>.row,
+ html[data-today-fit~="mild"][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl .combo-category-row{min-height:40px!important;height:40px!important;margin-top:0!important;margin-bottom:0!important}
+ html[data-today-fit~="mild"][data-layout="pro"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .pro-today-grid{margin-top:6px!important}
+
+/* ---------- Leftover space spread between blocks (--today-fit-gap, set by display-adaptation.js) ---------- */
+html[data-today-fit~="roomy"]{--today-gap-base:16px}
+html[data-today-fit~="mild"]{--today-gap-base:12px}
+html[data-today-fit~="compact"]{--today-gap-base:10px}
+html[data-today-fit~="tight"]{--today-gap-base:6px}
+ html[data-today-fit][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:calc(var(--today-gap-base,16px) + var(--today-fit-gap,0px))!important}
+ html[data-today-fit][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body{margin-top:var(--today-fit-gap,0px)!important}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-score-hero{margin-top:var(--today-fit-gap,0px)!important}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body{column-gap:calc(var(--today-std-gap,16px) + var(--today-fit-gap,0px))!important}
+
+/* Social Combo / Day Note: arrow before the title (like LVL 2/3) and the whole heading row toggles (2026-11-12). */
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box]:is([data-today-box="social"],[data-today-box="note"]):not(.today-box-collapsed)>.today-box-disclosure{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box]:is([data-today-box="social"],[data-today-box="note"]):not(.today-box-collapsed):has(>.today-box-disclosure:focus-visible){outline:2px solid #a78bfa;outline-offset:2px}
+#app #scroll .today.sf-today-v27:not(.history-day-editor) .today-box-head{cursor:pointer!important;user-select:none;-webkit-user-select:none}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="social"] .sf-combo-heading::before{content:none!important}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="social"] .sf-combo-heading>strong::before,
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>[data-today-box="note"]>.sec::before{content:"▾";display:inline-block;margin-right:8px;font:400 13px/1 system-ui,sans-serif;letter-spacing:0;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1);vertical-align:middle;transform:translateY(-1px)}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>.today-box-collapsed>.today-box-disclosure{justify-content:flex-start!important;gap:8px!important;padding-left:0!important}
+#app #scroll .today.sf-today-v27:not(.history-day-editor)>.today-box-collapsed>.today-box-disclosure>b{order:-1;font:400 13px/1 system-ui,sans-serif!important;letter-spacing:0!important;color:rgba(var(--skin-rgb-7e7e97,126,126,151),1)!important}
+
+/* Collapsed LVL 1/2/3: no separator line under the heading, same as collapsed Social Combo (2026-11-12). */
+html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h{border-bottom:0!important;padding-bottom:0!important;margin-bottom:0!important;min-height:0!important}
+html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h>.lvl-toggle{min-height:0!important}
+html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(>.lvl-b.cl)>.lvl-h>button:not(.lvl-toggle){margin-top:-4px!important;margin-bottom:-4px!important}
+
+/* ---------- Standard desktop (2026-11-12): vertical gaps = horizontal gaps between boxes;
+   the open Day Note gets one more line instead of extra spacing. ---------- */
+html[data-today-fit~="roomy"]{--today-std-gap:16px}
+html[data-today-fit~="mild"]{--today-std-gap:14px}
+html[data-today-fit~="compact"]{--today-std-gap:12px}
+html[data-today-fit~="tight"]{--today-std-gap:6px}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor){row-gap:calc(var(--today-std-gap,16px) + var(--today-fit-gap,0px))!important;column-gap:calc(var(--today-std-gap,16px) + var(--today-fit-gap,0px))!important}
+ html[data-today-fit][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(3lh + 18px)!important}
+
+/* ---------- Routine card buttons: shorter, bigger icon, anchored to the bottom (2026-11-12) ----------
+   The actions row keeps the card's previous height; the buttons shrink and sit at the bottom,
+   so the freed space goes between the title and the buttons. */
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions{
+ align-self:stretch!important;align-items:end!important;align-content:end!important;min-height:44px}
+html[data-layout="pro"] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions{min-height:48px}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-compact-actions .r-btn{
+ min-height:0!important;height:42px!important;padding:0 4px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-compact-actions .cr-action-icon{
+ width:28px!important;height:28px!important}
+
+/* Routine card: "N steps · M min" always sits under the title, never beside it (2026-11-12). */
+@media (min-width:880px){
+ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-copy{grid-template-columns:minmax(0,1fr) auto!important;row-gap:4px!important;align-self:start!important}
+ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .sf-routine-total{grid-column:2!important;grid-row:1!important}
+ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{grid-column:1/-1!important;grid-row:2!important}
+}
+/* Routine card: steps · minutes a bit more legible (2026-11-12). */
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{font-size:16px!important;font-weight:500!important;line-height:1.4!important;opacity:1!important;color:var(--today-copy)!important}
+ /* Tight Standard: Next Level card keeps its bar and REMAINING line inside 100px. */
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-top{margin:0!important;line-height:1.1!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path{font-size:22px!important;line-height:1!important;margin:0!important;flex:none!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-path>*{font-size:inherit!important;line-height:1!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-bar{flex:none!important;height:8px!important;min-height:8px!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .ls-footer{margin-top:2px!important;line-height:1.2!important;flex:none!important}
+ html[data-today-hero~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-score-hero .t-grade.t-levelstatus{gap:2px!important;padding-top:6px!important;padding-bottom:6px!important}
+ /* Tight Standard: the open Day Note keeps two lines so Today does not scroll. */
+ html[data-today-fit~="tight"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note textarea{min-height:calc(2lh + 14px)!important;height:calc(2lh + 14px)!important}
+
+/* Social Combo parts use the LVL 2/3 row format: checkbox square, label, "earned / max", same row box. */
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row{display:flex!important;align-items:center!important;gap:13px!important;margin:0 0 3px!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.combo-category-credit{display:flex!important;align-items:center;justify-content:center;flex:0 0 auto!important;width:auto!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;background:none!important;font:inherit!important;line-height:0!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle{flex:1 1 auto!important;min-width:0;min-height:0!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:inherit!important;text-decoration:none!important;gap:10px!important;display:flex!important;align-items:center!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>span:first-child{flex:1 1 auto;min-width:0;text-align:start;color:inherit!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>span:nth-child(2){flex:none;font-variant-numeric:tabular-nums}
+html[data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>.combo-category-chevron{font:18px/1 sans-serif!important;flex:0 0 12px!important;color:var(--pro-muted,#8a8aa0)!important;opacity:.7}
+/* Matrix: the Standard-layout fallback above is violet-grey; keep the chevron inside the green palette. */
+html[data-skin="matrix"][data-layout] body #app #scroll .today .sf-compact-combo .combo-as-row>.sf-category-toggle>.combo-category-chevron{color:var(--pro-muted,var(--skin-muted))!important}
+html[data-skin="apple"] body #app #scroll .today .sf-combo-category:has(.combo-as-row){opacity:1}
+/* Social Combo people: compact chips on desktop; phones keep 38px touch targets. */
+@media(min-width:880px){
+html[data-layout] body #app #scroll .today .sf-compact-combo .sf-reveal .sf-buttons{gap:5px!important;padding:3px 0 5px!important;max-height:65px!important}
+html[data-layout] body #app #scroll .today .sf-compact-combo .sf-reveal .sf-buttons>.sf-button{min-height:26px!important;height:26px!important;padding:0 9px!important;font-size:13px!important;line-height:1!important;border-radius:7px!important}
+}
+
+/* Work card: title + icon at the same size as Production/WOD titles; TODAY column nudged right. */
+@media(min-width:880px){
+ html:not([data-layout="pro"]) body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.wg-card .wg-head>span:first-child{font-size:22px!important;font-weight:500!important;line-height:1.35!important;letter-spacing:.02em!important;color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important}
+ html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.wg-card .wg-daily{padding-inline-start:14px}
+ html:not([data-layout="pro"]) body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.wg-card .wg-points{font-size:15px!important;font-weight:400!important;color:rgba(var(--skin-rgb-a0a0b6,160,160,182),1)!important}
+}
+@media(min-width:880px) and (max-width:1199px){
+ html:not([data-layout="pro"]) body #app #scroll .today.sf-today-v27:not(.history-day-editor) .t-rout-body>.wg-card .wg-head>span:first-child{font-size:clamp(17px,calc(1.8 * var(--app-vw, 1vw)),20px)!important}
+}
+
+/* Open LVL 2/3 headings sit on the Social Combo title line: header row as tall as the combo heading. */
+@media(min-width:880px){
+ html[data-layout][data-layout][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(.lvl-toggle[aria-expanded="true"])>.lvl-h{min-height:0!important;height:28px!important;align-items:center!important;overflow:visible}
+ html[data-layout][data-layout][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(.lvl-toggle[aria-expanded="true"])>.lvl-h .lvl-toggle{min-height:0!important;height:28px!important}
+ html[data-layout][data-layout][data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:has(.lvl-toggle[aria-expanded="true"])>.lvl-h>button:not(.lvl-toggle){min-height:0!important;height:28px!important;width:28px!important}
+}
+
+
+/* Collapsed Day Note: arrow starts at the same inset as Social Combo / LVL rows. */
+@media(min-width:880px){
+ html[data-layout="standard"][data-layout="standard"] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-note.today-box-collapsed{padding-left:12px!important;padding-right:12px!important}
+}
+
+shaah-section[name="end"]{}

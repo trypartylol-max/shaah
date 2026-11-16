@@ -5,7 +5,7 @@ function load(fail=false){
 }
 test('offline release installation checks integrity for every file and removes partial cache on failure',async()=>{
  const good=load();let task;good.handlers.install({waitUntil:p=>task=p});await task;
- const reqs=[...good.stored.values()][0];assert.ok(reqs.length>20);assert.ok(reqs.every(r=>r.integrity.startsWith('sha384-')&&r.url.startsWith('https://example.test/shaah/')));
+ const reqs=[...good.stored.values()][0];assert.ok(reqs.length>10);assert.ok(reqs.every(r=>r.integrity.startsWith('sha384-')&&r.url.startsWith('https://example.test/shaah/')));
  const bad=load(true);bad.handlers.install({waitUntil:p=>task=p});await assert.rejects(task,/missing font/);assert.equal(bad.stored.size,0);assert.equal(bad.deleted.length,1);
 });
 test('worker never intercepts auth/API traffic, mutations, control pages or unrelated URLs',()=>{

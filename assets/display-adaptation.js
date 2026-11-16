@@ -2,7 +2,7 @@
 (() => {
   const root = document.documentElement;
   let pending = 0, fitPending = 0, band = false, scale = 1, fallback = '';
-  // Today fit tiers (today-fit-20261111.css), least compact first. On desktop screens up to
+  // Today fit tiers (sección today-fit de source/app.css), least compact first. On desktop screens up to
   // 960px of effective height, Today uses the roomiest tier whose content fits without
   // scrolling; in Pro any space left over goes to the Day Note.
   const TIERS = ['roomy', 'mild', 'compact', 'compact tight'];
@@ -61,7 +61,7 @@
         }
       }
       // The rest spreads between rows and under the Core heading; Standard also widens the
-      // horizontal gaps by the same amount so boxes keep even spacing (today-fit-20261111.css).
+      // horizontal gaps by the same amount so boxes keep even spacing (sección today-fit de source/app.css).
       let gap = pro ? Math.min(24, Math.floor(left / 4)) : Math.min(20, Math.floor(left / 5));
       // The extra gap must never create scrolling: shrink it until #scroll no longer overflows.
       const overflows = () => room() < 0 || scroll.scrollHeight > scroll.clientHeight;

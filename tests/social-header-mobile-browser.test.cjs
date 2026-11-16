@@ -10,14 +10,18 @@ test('Social header geometry and navigation at mobile and desktop widths',async 
  const state=await page.evaluate(()=>JSON.stringify(_state));
  for(const width of [320,390,600,879,880,1024,1440,1920]){
   await page.setViewportSize({width,height:1000});
+  // display-adaptation.js re-zooms large viewports on resize; let it settle so both snapshots share the same zoom.
+  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(r,60)))));
   const current=await snap();
   const baseline=await page.evaluate(()=>{
    const sheet=[...document.styleSheets].find(s=>s.href&&s.href.includes('/assets/app.'));
-   window.headerRule=sheet.cssRules[sheet.cssRules.length-1].cssText;
-   sheet.deleteRule(sheet.cssRules.length-1);
+   // The header rule is the last one of the base stylesheet, just before the first merged section.
+   window.headerIndex=[...sheet.cssRules].findIndex(r=>/^shaah-section\[/.test(r.selectorText||''))-1;
+   window.headerRule=sheet.cssRules[window.headerIndex].cssText;
+   sheet.deleteRule(window.headerIndex);
   });
   const old=await snap();
-  await page.evaluate(()=>{const sheet=[...document.styleSheets].find(s=>s.href&&s.href.includes('/assets/app.'));sheet.insertRule(window.headerRule,sheet.cssRules.length)});
+  await page.evaluate(()=>{const sheet=[...document.styleSheets].find(s=>s.href&&s.href.includes('/assets/app.'));sheet.insertRule(window.headerRule,window.headerIndex)});
   if(width<880)assert.deepEqual(current,old,'mobile unchanged by desktop rule');
   {
    assert.ok(Math.abs(current.bar.x+current.bar.width/2-current.parent.x-current.parent.width/2)<1,'centered selector');

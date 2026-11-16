@@ -1151,9 +1151,22 @@ function starterAddRoutine(id){
 function starterProgressLabel(done,total){
   return total?interfaceText('starterPlanCount').replace('{done}',done).replace('{total}',total):interfaceText('starterNoPlan');
 }
+// One line of continuity for a returning account: the streak it is on, or a fresh start after a gap.
+// Nothing on the very first day until the first habit is done.
+function starterContinuityHTML(key,done,total){
+  if(key!==todayKey()||!total)return '';
+  const hh=getHistory(),tk=todayKey(),streak=getStreak(),todayDone=done>0;
+  const past=Object.keys(hh).some(k=>DATE_RE.test(k)&&k<tk&&hh[k]&&hh[k].score>0);
+  const label=n=>(n===1?interfaceText('starterStreak1'):interfaceText('starterStreakN')).replace('{count}',n);
+  let text='';
+  if(streak>0&&past)text=`🔥 ${label(streak)}. ${interfaceText(todayDone?'starterSeeTomorrow':'starterKeepGoing')}`;
+  else if(streak>0&&todayDone)text=interfaceText('starterFirstDone');
+  else if(past)text=interfaceText('starterFreshStart');
+  return text?`<p class="starter-continuity">${text}</p>`:'';
+}
 function renderStarterToday(key){
   const {items,done}=starterSummary(key),ch=getChecked(key);
-  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p></div>
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p>${starterContinuityHTML(key,done,items.length)}</div>
     ${items.length?items.map(item=>{
       // The simple view must still expose EVERY active item and its real controls.
       if(item.combo)return legacyComboBlock(key,true);
@@ -3359,6 +3372,12 @@ const interfaceMessages = {
   starterNoPlan: ["No habit plan", "Sin plan de hábitos", "אין תוכנית הרגלים"],
   starterDone: ["✓ COMMITMENT COMPLETE", "✓ COMPROMISO COMPLETADO", "✓ ההתחייבות הושלמה"],
   starterTodayCommitment: ["TODAY’S COMMITMENT", "TU COMPROMISO DE HOY", "ההתחייבות להיום"],
+  starterStreak1: ["1-day streak", "Racha de 1 día", "רצף של יום אחד"],
+  starterStreakN: ["{count}-day streak", "Racha de {count} días", "רצף של {count} ימים"],
+  starterKeepGoing: ["Today keeps it going.", "Hoy la mantienes.", "היום ממשיכים אותו."],
+  starterSeeTomorrow: ["See you tomorrow.", "Nos vemos mañana.", "נתראה מחר."],
+  starterFirstDone: ["First day done. See you tomorrow.", "Primer día hecho. Nos vemos mañana.", "היום הראשון הושלם. נתראה מחר."],
+  starterFreshStart: ["Welcome back. Today is a fresh start.", "Qué bueno verte de nuevo. Hoy empiezas de cero.", "טוב שחזרת. היום מתחילים מחדש."],
   starterMarkDone: ["Mark as done", "Marcar como hecho", "סימון כהושלם"],
   starterMarked: ["✓ Done", "✓ Hecho", "✓ הושלם"],
   starterUndo: ["Undo", "Deshacer", "ביטול"],

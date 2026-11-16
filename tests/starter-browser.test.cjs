@@ -81,3 +81,17 @@ test('the sign-in screen says what SHAAH is before asking for an account',async 
  const p=await openApp(t,undefined,{width:390,height:844},{loggedOut:true});
  assert.match(await p.locator('#scroll').innerText(),/A habit tracker that scores your day/);
 });
+test('a returning simple account sees its streak, or a fresh start after a gap; nothing on a first day not yet done',async t=>{
+ const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
+ await p.getByRole('button',{name:/Focus/}).click();await p.getByRole('button',{name:'Start with this'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();
+ assert.equal(await p.locator('.starter-continuity').count(),0);
+ await p.getByRole('button',{name:'Mark as done',exact:true}).click();
+ assert.equal(await p.locator('.starter-continuity').innerText(),'First day done. See you tomorrow.');
+ const next=async iso=>{await p.waitForTimeout(2600);await p.clock.setFixedTime(new Date(iso));await p.reload();await p.waitForFunction(()=>_cfgReady&&_live);};
+ await next('2026-10-17T07:30:00Z');
+ assert.equal(await p.locator('.starter-continuity').innerText(),'🔥 1-day streak. Today keeps it going.');
+ await p.getByRole('button',{name:'Mark as done',exact:true}).click();
+ assert.equal(await p.locator('.starter-continuity').innerText(),'🔥 2-day streak. See you tomorrow.');
+ await next('2026-10-20T07:30:00Z');
+ assert.equal(await p.locator('.starter-continuity').innerText(),'Welcome back. Today is a fresh start.');
+});

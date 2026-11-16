@@ -59,3 +59,25 @@ test('new browser for an existing account never starts the old automatic tutoria
  const p=await openApp(t);await p.evaluate(()=>localStorage.removeItem(tourKey()));await p.reload();await p.waitForFunction(()=>_cfgReady);
  assert.equal(await p.locator('.starter-screen').count(),0);assert.equal(await p.locator('#tour.on').count(),0);
 });
+test('a new account gets the three-step tour, no Social tab and no contradictory Stats card until it asks for more',async t=>{
+ const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
+ await p.getByRole('button',{name:/Focus/}).click();await p.getByRole('button',{name:'Start with this'}).click();
+ await p.locator('#tour.on').waitFor();assert.equal(await p.locator('#tour .tour-dot').count(),3);
+ assert.match(await p.locator('#tour .tour-meta').innerText(),/STEP 1 OF 3/);
+ await p.locator('#tour-next').click();await p.locator('#tour-next').click();assert.equal(await p.locator('#tour-next').innerText(),'Finish');
+ await p.locator('#tour-next').click();assert.equal(await p.locator('#tour.on').count(),0);
+ assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),false);
+ assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','log','stats','history']);
+ await p.getByRole('button',{name:'Mark as done',exact:true}).click();
+ await p.locator('.nav-btn[data-tab="stats"]').click();
+ assert.equal(await p.getByText('MOST CONSISTENT').count(),1);assert.equal(await p.getByText('NEEDS WORK').count(),0);
+ // The full tutorial stays one tap away, and the full view brings Social back.
+ await p.locator('.nav-btn[data-tab="today"]').click();await p.getByRole('button',{name:'Show tutorial'}).click();
+ assert.equal(await p.locator('#tour .tour-dot').count(),9);await p.getByRole('button',{name:'Skip / close',exact:true}).click();
+ await p.getByRole('button',{name:'Show full view'}).click();
+ assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),true);
+});
+test('the sign-in screen says what SHAAH is before asking for an account',async t=>{
+ const p=await openApp(t,undefined,{width:390,height:844},{loggedOut:true});
+ assert.match(await p.locator('#scroll').innerText(),/A habit tracker that scores your day/);
+});

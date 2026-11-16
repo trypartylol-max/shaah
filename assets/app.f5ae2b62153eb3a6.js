@@ -985,7 +985,7 @@ function arrivalTourExit(){
 function renderArrival(){
   if(!USER||_starterGate!=='ready'||settingsOpen||editDayKey||_starterEditor)return;
   if(_arrivalTutorial){
-    _arrivalTutorial=false;startTour();return;
+    _arrivalTutorial=false;startTour(true);return;
   }
   if(!_arrivalWelcome||tourStep!==null||document.getElementById('arrival-welcome'))return;
   set(arrivalSeenKey(),1);
@@ -1397,7 +1397,7 @@ const UI_ACTIONS=Object.freeze({
   tourGo:uiRule('click',['integer'],(n,e,step)=>tourGo(step)),
   tourPractice:uiRule('click',['string'],(n,e,kind)=>tourPractice(kind)),
   tourPracticeEnter:uiRule('keydown',[],(n,e)=>{if(e.key==='Enter'){e.preventDefault();tourPractice('log');}}),
-  tourDraft:uiRule('input',[],(n,e)=>{if(tourStep!==null&&TOUR[tourStep].demo==='log')tourDemo.draft=n.value.slice(0,80);}),
+  tourDraft:uiRule('input',[],(n,e)=>{if(tourStep!==null&&tourList[tourStep].demo==='log')tourDemo.draft=n.value.slice(0,80);}),
   openSettings:uiRule('click',[],()=>openSettings()),
   handleSocial:uiRule('click',['string'],(n,e,key)=>handleSocial(key)),
   toggleSocialExpand:uiRule('click',['string'],(n,e,key)=>toggleSocialExpand(key),true),
@@ -3473,6 +3473,7 @@ const interfaceMessages = {
   back: ['Back', 'Volver', 'חזרה'],
   settingsData: ['SETTINGS & DATA', 'AJUSTES Y DATOS', 'הגדרות ונתונים'],
   hour: ['שעה · THE HOUR', 'שעה · LA HORA', 'שעה'],
+  loginWhat: ['A habit tracker that scores your day and helps you build it one small action at a time.', 'Un registro de hábitos que puntúa tu día y te ayuda a construirlo con una acción pequeña cada vez.', 'מעקב הרגלים שנותן ציון ליום שלך ועוזר לבנות אותו צעד קטן אחרי צעד.'],
   login: ['Sign in to sync your habits across all your devices.', 'Inicia sesión para sincronizar tus hábitos en todos tus dispositivos.', 'יש להתחבר כדי לסנכרן את ההרגלים בכל המכשירים.'],
   google: ['Continue with Google', 'Continuar con Google', 'המשך עם Google'],
   today: ['TODAY', 'HOY', 'היום'],
@@ -4010,6 +4011,11 @@ const interfaceCopies = {
   "Who did you meet?": ["Who did you meet?", "¿Con quién te viste?", "עם מי נפגשת?"],
   "Search for anyone": ["Search for anyone", "Buscar cualquier persona", "חיפוש אדם"],
   "Name": ["Name", "Nombre", "שם"],
+  "SHAAH helps you build your day one small action at a time. Three quick things and you are ready.": ["SHAAH helps you build your day one small action at a time. Three quick things and you are ready.", "SHAAH te ayuda a construir tu día con una acción pequeña cada vez. Tres cosas rápidas y listo.", "SHAAH עוזרת לך לבנות את היום צעד קטן אחרי צעד. שלושה דברים קצרים ומתחילים."],
+  "YOUR FIRST STEP": ["YOUR FIRST STEP", "TU PRIMER PASO", "הצעד הראשון שלך"],
+  "This is your commitment for today. Tap Mark as done when you finish it. You can change it or add another habit anytime.": ["This is your commitment for today. Tap Mark as done when you finish it. You can change it or add another habit anytime.", "Este es tu compromiso de hoy. Toca Marcar como hecho cuando lo termines. Puedes cambiarlo o añadir otro hábito cuando quieras.", "זו ההתחייבות שלך להיום. כשמסיימים, מקישים על סימון כהושלם. אפשר לשנות אותה או להוסיף הרגל נוסף בכל רגע."],
+  "MORE WHEN YOU WANT IT": ["MORE WHEN YOU WANT IT", "MÁS CUANDO QUIERAS", "עוד, כשתרצה"],
+  "Stats and History fill in as you use the app. Show full view opens levels, routines and scoring; Show tutorial walks you through them.": ["Stats and History fill in as you use the app. Show full view opens levels, routines and scoring; Show tutorial walks you through them.", "Stats e History se llenan a medida que usas la app. Ver vista completa abre niveles, rutinas y puntuación; Ver tutorial te los explica.", "הסטטיסטיקה וההיסטוריה מתמלאות ככל שמשתמשים באפליקציה. התצוגה המלאה פותחת רמות, שגרות וניקוד, והמדריך מסביר אותם."],
   "Time zone": ["Time zone", "Zona horaria", "אזור זמן"],
   "Minutes": ["Minutes", "Minutos", "דקות"],
   "Day note": ["Day note", "Nota del día", "הערת היום"],
@@ -4196,7 +4202,7 @@ function renderSettings(){
         </div>`}).join("")}
       <button ${ui('click','cfgAdd' ,n)} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceText('addHabit')}</button>
     </div>`;
-  return`<div class="edit-day-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
+  return`<div class="edit-day-screen settings-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
     <div class="settings-header">
       <button class="settings-back" ${ui('click','closeSettings')} aria-label="${interfaceText('back')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button>
       <h1 class="settings-heading">${interfaceText('settings')}</h1>
@@ -4327,6 +4333,8 @@ function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 // Por defecto SOCIAL es su propio tab; el ajuste sirve para integrarlo de vuelta.
 // Sin el campo guardado = true, así que las cuentas existentes lo estrenan activado.
 function socialOwnTab(){ return true; }
+// A new account in the simple view has no people yet: keep Social out of the dock until it is used or the full view is on.
+function socialTabShown(){ return socialOwnTab()&&!(starterSimple()&&!peopleList().length); }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x,pWork:6,pVacation:6}));
   const cid=comboIdIn(CFG.h);
@@ -4520,7 +4528,7 @@ function renderLogin(){
       <div ${uiStyle(`font-size:15px;letter-spacing:0.11em;color:#adadbf;margin-top:8px`)}>${interfaceText('hour')}</div>
     </div>
     <div ${uiStyle(`font-size:15px;color:#adadbf;text-align:center;max-width:280px;line-height:1.6`)}>
-      ${interfaceText('login')}
+      <span ${uiStyle(`display:block;color:#d0d0da;margin-bottom:10px`)}>${interfaceText('loginWhat')}</span>${interfaceText('login')}
     </div>
     ${signOutNoticeHTML()}
     ${AUTH_ERR?`<div ${uiStyle(`max-width:320px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 14px;font-size:15px;color:#ef8888;line-height:1.5;word-break:break-word`)}>⚠ ${esc(String(AUTH_ERR).slice(0,2000))}</div>`:""}
@@ -5038,18 +5046,27 @@ const TOUR=[
  {tab:'history',target:'.htab',ico:'◈',t:'HISTORY & STATS',b:'HISTORY lets you review dated entries. STATS shows trends and streaks. Historical scores use the configuration for that date. The navigation below takes you to each area after the guide.'},
  {tab:'today',target:'#gear',ico:'⚙',t:'MAKE IT YOURS',b:'Open Settings to customize habits, weights, timezone and backups. Work/Vacation affects your current day. You can replay this tutorial with VIEW TUTORIAL. Ready for your next small action?'}
 ];
+// First automatic tour of a new account in the simple view: only what is on screen.
+// The full tour stays behind "Show tutorial" / VIEW TUTORIAL.
+const TOUR_STARTER=[
+ {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'SHAAH helps you build your day one small action at a time. Three quick things and you are ready.'},
+ {tab:'today',target:'[data-starter-habit]',ico:'👆',t:'YOUR FIRST STEP',b:'This is your commitment for today. Tap Mark as done when you finish it. You can change it or add another habit anytime.'},
+ {tab:'today',target:'.starter-view',ico:'✨',t:'MORE WHEN YOU WANT IT',b:'Stats and History fill in as you use the app. Show full view opens levels, routines and scoring; Show tutorial walks you through them.'}
+];
+let tourList=TOUR;
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
-function startTour(){
+function startTour(short){
  if(!USER||tourStep!==null)return;
+ tourList=short===true&&starterSimple()?TOUR_STARTER:TOUR;
  arrivalDismiss();
  tourOwner=USER.id;tourReturnSettings=settingsOpen;tourReturnTab=currentTab;tourReturnFocus=document.activeElement;tourScroll=document.getElementById('scroll').scrollTop;
- tourDemo={};tourStep=0;settingsOpen=false;currentTab=TOUR[0].tab;haptic(10);render();
+ tourDemo={};tourStep=0;settingsOpen=false;currentTab=tourList[0].tab;haptic(10);render();
 }
 function tourGo(i){
  if(tourStep===null||!USER)return;
- if(i>=TOUR.length)return tourDone();
+ if(i>=tourList.length)return tourDone();
  if(!Number.isInteger(i)||i<0)return;
- tourStep=i;currentTab=TOUR[i].tab;haptic(8);render();
+ tourStep=i;currentTab=tourList[i].tab;haptic(8);render();
 }
 function tourDone(){
  if(tourStep===null)return;
@@ -5067,7 +5084,7 @@ function tourDone(){
  tourReturnTab=null;tourReturnFocus=null;tourReturnSettings=false;tourOwner=null;haptic(12);
 }
 function tourPractice(kind){
- if(tourStep===null||TOUR[tourStep].demo!==kind)return;
+ if(tourStep===null||tourList[tourStep].demo!==kind)return;
  if(kind==='work')tourDemo.work=((tourDemo.work||0)+1)%4;
  if(kind==='habit')tourDemo.habit=!tourDemo.habit;
  if(kind==='routine')tourDemo.routine=((tourDemo.routine||0)+1)%3;
@@ -5134,7 +5151,7 @@ function renderResume(){
 function tourPosition(){
  const hole=document.getElementById('tour-hole'),card=document.querySelector('#tour .tour-card');
  if(!hole||!card||tourStep===null)return;
- const target=document.querySelector(TOUR[tourStep].target||'#missing-tour-target');
+ const target=document.querySelector(tourList[tourStep].target||'#missing-tour-target');
  const r=target&&target.getBoundingClientRect(),c=card.getBoundingClientRect();
  const visible=r&&r.width&&r.height&&r.bottom>8&&r.top<c.top-12&&r.right>0&&r.left<innerWidth;
  hole.hidden=!visible;
@@ -5147,7 +5164,7 @@ function renderTour(){
  if(!tourOwner)tourOwner=USER.id;
  if(!tourInert.length)Array.from(document.getElementById('app').children).filter(el=>el!==t).forEach(el=>{tourInert.push([el,el.inert]);el.inert=true;});
  const active=document.activeElement,focusId=t.contains(active)?active.id:null,selection=active?.selectionStart;
- const s=TOUR[tourStep],last=tourStep===TOUR.length-1;
+ const s=tourList[tourStep],last=tourStep===tourList.length-1;
  let demo='';
  if(s.demo==='work')demo=`<div class="tour-work-figure">${workGeometry(3,tourDemo.work||0)}</div><p role="status">${tourDemo.work===3?interfaceCopy("3 / 3 · Triangle complete. Next tap resets the example."):`${tourDemo.work||0} / 3 · ${interfaceCopy("Example milestones completed")}`}</p><button id="tour-practice" class="tour-example" ${ui('click','tourPractice','work')}>${tourDemo.work===3?interfaceCopy("Reset Work example"):interfaceCopy("Complete example milestone")}</button>`;
  if(s.demo==='habit')demo=`<button id="tour-practice" class="tour-example" aria-pressed="${!!tourDemo.habit}" ${ui('click','tourPractice','habit')}>${tourDemo.habit?'✓':'○'} ${interfaceCopy("Drink water · example")}</button><p role="status">${tourDemo.habit?interfaceCopy("Example complete. Tap again to undo."):interfaceCopy("Tap the example to complete it.")}</p>`;
@@ -5156,8 +5173,8 @@ function renderTour(){
  t.className='on';
  uiHTML(t,`<div class="tour-scrim" aria-hidden="true"></div><div id="tour-hole" hidden aria-hidden="true"></div>
  <section class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-description">
- <div class="tour-dots" aria-hidden="true">${TOUR.map((_,i)=>`<div class="tour-dot ${i===tourStep?'cur':i<tourStep?'done':''}"></div>`).join('')}</div>
- <div class="tour-meta">${interfaceCopy('STEP {step} OF {total}').replace('{step}',tourStep+1).replace('{total}',TOUR.length)} · ${s.demo?interfaceCopy("SAFE DEMO"):interfaceCopy("GUIDED TOUR")}</div>
+ <div class="tour-dots" aria-hidden="true">${tourList.map((_,i)=>`<div class="tour-dot ${i===tourStep?'cur':i<tourStep?'done':''}"></div>`).join('')}</div>
+ <div class="tour-meta">${interfaceCopy('STEP {step} OF {total}').replace('{step}',tourStep+1).replace('{total}',tourList.length)} · ${s.demo?interfaceCopy("SAFE DEMO"):interfaceCopy("GUIDED TOUR")}</div>
  <div class="tour-ico" aria-hidden="true">${s.ico}</div><h2 id="tour-title" class="tour-t" tabindex="-1">${interfaceCopy(s.t)}</h2>
  <div id="tour-description" class="tour-b">${interfaceCopy(s.b)}</div>${demo?`<div class="tour-demo">${demo}</div>`:''}
  <div class="tour-row"><button id="tour-close" class="tour-skip" ${ui('click','tourDone')}>${interfaceText('skipClose')}</button><button id="tour-back" class="tour-skip" ${tourStep===0?'disabled':''} ${ui('click','tourGo',tourStep-1)}>${interfaceText('back')}</button><button id="tour-next" class="tour-next" ${ui('click','tourGo',tourStep+1)}>${interfaceCopy(last?'Finish':'Next')}</button></div></section>`);
@@ -5231,7 +5248,8 @@ function render(){
   if(settingsOpen){uiHTML(el,renderSettings());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   nav.style.display="flex";
   const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
-  if(sbtn)sbtn.hidden=!socialOwnTab();
+  if(sbtn)sbtn.hidden=!socialTabShown();
+  if(currentTab==='social'&&!socialTabShown())currentTab='today';
   // Editar dia es parte de History: el dock / panel lateral sigue a la vista.
   if(editDayKey){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));uiHTML(el,renderEditDay());layoutEditDay();tuckNav(false);renderTour();renderResume();return;}
   // Placement hides the navigation tab, but explicit Social shortcuts still open it.
@@ -6001,7 +6019,7 @@ function renderStats(){
         <div class="stats-metric-foot"><span class="stats-metric-sub" ${uiStyle(`color:${m.col}`)}>${esc(m.sub)}</span>${m.dsub?`<span class="stats-metric-sub stats-metric-dsub" ${uiStyle(`color:${m.col}`)}>${esc(m.dsub)}</span>`:""}${m.note?`<span class="stats-metric-note">${esc(m.note)}</span>`:""}</div>
       </div>`).join("")}
     </div>
-    <div class="stats-detail-habits">${(c=>c(metrics[1],0)+statsRisingCard(review)+c(metrics[2],1)+statsDroppingCard(review)+statsForgottenCard(review))((m,i)=>`<div class="card stats-habit-card"><div class="stats-habit-icon" ${uiStyle(`background:${m.col}14;border-color:${m.col}33`)}>${esc(m.icon)}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">${i?'⚠️':'✅'}</span><span>${esc(m.label)}</span></div><strong ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div></div>`)}</div>
+    <div class="stats-detail-habits">${(c=>c(metrics[1],0)+statsRisingCard(review)+(review?.worst&&review.worst.id!==review.best?.id&&review.worst.rate<100?c(metrics[2],1):'')+statsDroppingCard(review)+statsForgottenCard(review))((m,i)=>`<div class="card stats-habit-card"><div class="stats-habit-icon" ${uiStyle(`background:${m.col}14;border-color:${m.col}33`)}>${esc(m.icon)}</div><div class="stats-habit-body"><div class="sec"><span class="sec-ico" aria-hidden="true">${i?'⚠️':'✅'}</span><span>${esc(m.label)}</span></div><strong ${uiStyle(`color:${m.col}`)}>${esc(m.val)}</strong><div>${esc(m.sub)}</div></div></div>`)}</div>
     ${statsHabitGrid(review)}
     ${proWeekComparison()}
     ${total>=2?`<div><div class="sec"><span class="sec-ico" aria-hidden="true">📈</span><span>${interfaceText('fourWeekTrend')}</span></div><div class="card"><div ${uiStyle(`display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:20px`)}>${getWeeks().map((week,wi)=>{const a=avgW(week),recorded=week.some(d=>d.data),g=recorded?GRADE(a,100):null,bh=recorded?Math.max((a/100)*72,6):4;return`<div ${uiStyle(`flex:1;display:flex;flex-direction:column;align-items:center;gap:6px`)}>${recorded?`<div ${uiStyle(`font-size:14.5px;color:${g.c}`)}>${a}</div>`:("<div "+uiStyle("font-size:14.5px")+">&nbsp;</div>")}<div data-stats-bar="week-${wi}" data-stats-value="${bh}" ${uiStyle(`width:100%;border-radius:5px 5px 0 0;height:${bh}px;background:${g?g.c+"28":"#0f0f1e"};border:1px solid ${g?g.c+"44":"#161626"};border-bottom:none`)}></div><div ${uiStyle(`font-size:14px;color:#9090aa`)}>${interfaceCopy("W{count}").replace("{count}",4-wi)}</div></div>`;}).join("")}</div><div ${uiStyle(`height:1px;background:#111120`)}></div></div></div>`:""}
@@ -6727,7 +6745,7 @@ function renderRoutineTimer(){
   }
 }
 
-function tabsOrder(){ return socialOwnTab()?["today","log","social","stats","history"]:["today","log","stats","history"]; }
+function tabsOrder(){ return socialTabShown()?["today","log","social","stats","history"]:["today","log","stats","history"]; }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{

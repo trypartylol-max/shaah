@@ -2632,7 +2632,8 @@ html[data-skin] button:focus-visible,html[data-skin] [role="button"]:focus-visib
    (placed by layoutEditDay() on 4px rows).
    The screen bottom is only a ceiling. The dock / Pro sidebar stay visible. */
 @media(min-width:1200px){
- #scroll:has(>.edit-day-screen),#scroll .edit-day-screen{height:100%;min-height:0!important;overflow:hidden}
+ /* Settings shares the .edit-day-screen wrapper but is a long page: it must keep scrolling. */
+ #scroll:has(>.edit-day-screen:not(.settings-screen)),#scroll .edit-day-screen:not(.settings-screen){height:100%;min-height:0!important;overflow:hidden}
  #scroll .today.history-day-editor{flex:1;min-height:0;box-sizing:border-box;padding:14px 24px 4px!important;gap:0 16px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-rows:4px!important;align-content:start!important;align-items:start!important;margin:0 auto!important;max-width:1500px!important;width:100%!important}
  #scroll .today.history-day-editor>*{margin:0!important;max-width:none!important;align-self:start!important;min-height:0;max-height:calc(100% - 14px);overflow-y:auto;overscroll-behavior:contain}
  #scroll .today.history-day-editor>.t-score-hero{overflow:visible;padding:0!important;min-height:0!important;grid-template-columns:auto minmax(0,1fr)!important;justify-content:stretch!important;align-items:center!important;column-gap:20px!important}

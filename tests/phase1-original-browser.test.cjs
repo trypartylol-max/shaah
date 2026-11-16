@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { openApp } = require('./browser-helpers.cjs');
+const { openApp, cssSection } = require('./browser-helpers.cjs');
 
 // Exercise the built entrypoint, including its SRI, against the same synthetic
 // account with the candidate layer enabled/disabled. No real account requests.
@@ -9,9 +9,7 @@ for (const width of [320, 390, 768, 879, 880, 1440]) {
     const page = await openApp(t, undefined, { width, height: 1000 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const layer = async enabled => {
-      await page.evaluate(enabled => {
-        document.querySelector('link[href*="original-refinement.css"]').disabled = !enabled;
-      }, enabled);
+      await cssSection(page, 'original-refinement', enabled);
       // Let the stylesheet toggle finish reflowing before measuring.
       await page.evaluate(() => document.fonts.ready.then(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))));
       await page.waitForTimeout(250);

@@ -1,6 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {openApp}=require('./browser-helpers.cjs');
+const {openApp,cssSection}=require('./browser-helpers.cjs');
 
 for(const width of [320,390,600,879,1440])test(`Social capsules preserve geometry and enlarge only labels at ${width}px`,async t=>{
  const page=await openApp(t,undefined,{width,height:1000});
@@ -11,10 +11,10 @@ for(const width of [320,390,600,879,1440])test(`Social capsules preserve geometr
    const pill=el.querySelector('.sd-time-pill'),label=pill.querySelector('.sd-pill-label'),s=getComputedStyle(pill),l=getComputedStyle(label),r=pill.getBoundingClientRect(),row=el.getBoundingClientRect();
    return {width:r.width,height:r.height,padding:s.padding,rowWidth:row.width,rowHeight:row.height,font:parseFloat(l.fontSize),background:s.backgroundColor,opacity:getComputedStyle(pill.querySelector('.sd-pill-fill')).opacity,labelColor:l.color};
   }));
-  await page.locator('link[href*="social-capsules-20261029.css"]').evaluate(el=>el.disabled=true);
+  await cssSection(page,'social-capsules',false);
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const baseline=await measure();
-  await page.locator('link[href*="social-capsules-20261029.css"]').evaluate(el=>el.disabled=false);
+  await cssSection(page,'social-capsules',true);
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const updated=await measure();
   assert.ok(updated.length>0);

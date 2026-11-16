@@ -1,4 +1,4 @@
-// Roomy-layout geometry: viewports stay taller than the Today-fit compact tier (effective height > 960px, see today-fit-20261111.css).
+// Roomy-layout geometry: viewports stay taller than the Today-fit compact tier (effective height > 960px, see the today-fit section of source/app.css).
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');

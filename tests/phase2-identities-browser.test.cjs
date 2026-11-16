@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
-const {openApp}=require('./browser-helpers.cjs');
+const {openApp,cssSection}=require('./browser-helpers.cjs');
 const skins=['classic','aurora','matrix','minimal'];
 const account=p=>p.evaluate(()=>JSON.stringify({config:CFG,days:_state,scores:Object.keys(_state).filter(k=>/^\d{4}-/.test(k)).map(k=>[k,calcScore(k)]),writes:__mockWrites.filter(r=>r.date!=='cfgbak')}));
 const root=path.resolve(__dirname,'..');
@@ -60,7 +60,7 @@ test('Aurora mobile progress strip retains geometry with the lighter canvas and 
   assert.equal(await p.locator('#tb-score .ts-bar').evaluate(e=>getComputedStyle(e).backgroundColor),'rgba(255, 255, 255, 0.22)');
   assert.equal(await p.locator('#tb-score').evaluate(e=>getComputedStyle(e).backgroundImage),'none');
   await p.locator('#tb-score').screenshot({path:'docs/phase2/aurora-progress-updated.png'});
-  await p.locator('#tb-score').evaluate(e=>{window.__oldFeedbackSheet=[...document.styleSheets].find(s=>s.href?.includes('skin-identities'));window.__oldFeedbackSheet.disabled=true;});
+  await cssSection(p,'skin-identities',false);
   assert.deepEqual(await measure(),before);
-  await p.evaluate(()=>window.__oldFeedbackSheet.disabled=false);
+  await cssSection(p,'skin-identities',true);
 });

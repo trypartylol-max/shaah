@@ -20,8 +20,9 @@ name=f'performance.{hashlib.sha256(data).hexdigest()[:16]}.js'
 sri='sha384-'+base64.b64encode(hashlib.sha384(data).digest()).decode()
 html,count=re.subn(r'<script data-shaah-performance src="\./assets/performance\.[a-f0-9]{16}\.js"[^>]*></script>',f'<script data-shaah-performance src="./assets/{name}" integrity="{sri}" crossorigin="anonymous"></script>',html)
 assert count==1,('performance',count)
-# Version optional skin assets atomically with the entrypoint, under the same CSP.
-for name in ['aurora-skin.css','aurora-skin.js','work-skin-parity-20261027.css','ui-refinement-20261027.css','pro-mode.css','display-adaptation.css','display-adaptation.js','skin-identities.css','appearance-settings.css','today-fit-20261111.css','mobile-circular-log-20261026.css','today-disclosure-20261027.css','today-desktop-20261027.css','today-type-20261027.css','mobile-width-test-20261027.css','today-mobile-order-20261027.css','today-mobile-density-20261028.css','today-mobile-disclosure-20261027.css','core-routines-compact-20261028.css','social-capsules-20261029.css','history-back-first-click-20261026.js','today-mobile-disclosure-20261027.js','offline-register.js']:
+# Version the remaining hand-edited scripts atomically with the entrypoint, under the same CSP.
+# (Their stylesheets now live in source/app.css.)
+for name in ['aurora-skin.js','display-adaptation.js','history-back-first-click-20261026.js','today-mobile-disclosure-20261027.js','offline-register.js']:
     data=(r/'assets'/name).read_bytes()
     version=hashlib.sha256(data).hexdigest()[:16]
     sri='sha384-'+base64.b64encode(hashlib.sha384(data).digest()).decode()

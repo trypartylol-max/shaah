@@ -17,5 +17,7 @@ test('global monitor adaptation spans every skin and view, and restores laptop g
  await p.evaluate(()=>{setSkin('pro');setTab('today')});
  assert.ok(await p.locator('.ls-bar').evaluate(e=>e.getBoundingClientRect().height>30));
  await p.setViewportSize({width:1440,height:900});await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-wide-display'));
+ // The Today-fit tier is recomputed a frame after the zoom is removed; measure once it has settled.
+ await p.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(r,120)))));
  assert.deepEqual(await geometry(p),laptop);
 });

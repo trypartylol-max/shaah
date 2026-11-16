@@ -4202,7 +4202,7 @@ function renderSettings(){
         </div>`}).join("")}
       <button ${ui('click','cfgAdd' ,n)} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceText('addHabit')}</button>
     </div>`;
-  return`<div class="edit-day-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
+  return`<div class="edit-day-screen settings-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
     <div class="settings-header">
       <button class="settings-back" ${ui('click','closeSettings')} aria-label="${interfaceText('back')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button>
       <h1 class="settings-heading">${interfaceText('settings')}</h1>

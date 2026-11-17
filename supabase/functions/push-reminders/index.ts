@@ -3,6 +3,12 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import webpush from 'npm:web-push@3.6.7';
 
+// iOS already prints "from SHAAH" under the title, so the title says what the notification is about.
+const TITLE: Record<string, string> = {
+  en: "Today's plan",
+  es: 'Tu plan de hoy',
+  he: 'התוכנית של היום',
+};
 const TEXT: Record<string, string> = {
   en: 'Your day is still open. One small action is enough.',
   es: 'Tu día sigue abierto. Basta con una acción pequeña.',
@@ -20,7 +26,7 @@ Deno.serve(async (req) => {
   webpush.setVapidDetails('https://trypartylol-max.github.io/shaah/', data.vapid_public, data.vapid_private);
   let sent = 0, gone = 0, failed = 0;
   await Promise.all(due.map(async (s) => {
-    const payload = JSON.stringify({ title: 'SHAAH', body: TEXT[s.lang] ?? TEXT.en, url: './', tag: 'shaah-daily' });
+    const payload = JSON.stringify({ title: TITLE[s.lang] ?? TITLE.en, body: TEXT[s.lang] ?? TEXT.en, url: './', tag: 'shaah-daily' });
     try {
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 3 * 3600, urgency: 'normal' });
       sent++;

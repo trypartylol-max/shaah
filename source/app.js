@@ -5188,8 +5188,11 @@ async function pushResync(){
 function pushSettingHTML(){
   if(!USER||!pushSupported())return '';
   const pref=pushPref(),on=pref.on;
-  return `<div class="badge-setting push-setting"><div><strong>${interfaceText('pushTitle')}</strong><p>${interfaceText('pushBody')}</p>${_push.error?`<p class="push-error" role="status">${interfaceText(_push.error)}</p>`:''}</div><button type="button" class="badge-toggle" aria-pressed="${on}" ${_push.busy?'disabled':''} ${ui('click','pushToggle',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>${on?`<label class="push-time"><span>${interfaceText('pushTime')}</span><input type="time" value="${esc(pref.time)}" ${_push.busy?'disabled':''} ${ui('change','pushTime')}></label>`:''}`;
+  return `<div class="badge-setting push-setting"><div><strong>${interfaceText('pushTitle')}</strong><p>${interfaceText('pushBody')}</p>${_push.error?`<p class="push-error" role="status">${interfaceText(_push.error)}</p>`:''}</div><button type="button" class="badge-toggle" aria-pressed="${on}" ${_push.busy?'disabled':''} ${ui('click','pushToggle',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>${on?`<label class="push-time"><span>${interfaceText('pushTime')}</span><select ${_push.busy?'disabled':''} ${ui('change','pushTime')}>${pushTimeOptions(pref.time).map(t=>`<option value="${t}"${t===pref.time?' selected':''}>${t}</option>`).join('')}</select></label>`:''}`;
 }
+// A list, not a free time field: iOS fires change on every wheel step of the time picker and the re-render closed it.
+// Quarter-hour steps match the server check (every 5 minutes); an older custom time stays selectable.
+function pushTimeOptions(current){const out=[];for(let m=0;m<1440;m+=15)out.push(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));if(PUSH_TIME_RE.test(current)&&!out.includes(current)){out.push(current);out.sort();}return out;}
 function deviceSettingsHTML(){const html=badgeSettingHTML()+pushSettingHTML();return html?html+'<div class="st-div"></div>':'';}
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
 function startTour(short){

@@ -302,10 +302,10 @@ function renderMetas(all) {
     const m = metaInfo(x), isHid = H.includes(x.name);
     return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + (isHid ? ' hid' : '') + '" data-meta="' + esc(x.name) + '">' +
       '<button type="button" class="mc-eye" data-act="' + (isHid ? 'show' : 'hide') + '" title="' + (isHid ? 'Mostrar en el panel' : 'Ocultar del panel') + '" aria-label="' + (isHid ? 'Mostrar ' : 'Ocultar ') + esc(x.name) + '">' + (isHid ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>' : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>') + '</button>' +
-      '<div class="t"><span class="nm">' + esc(x.name) + (m.hasMile && !m.done ? '<span class="mlb' + (m.allHit ? ' ok' : '') + '">' + (m.allHit ? '✓ milestones' : m.mileLabel) + '</span>' : '') + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
+      '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
+      '<div class="sv pv"><b>' + money(m.saved) + '</b><span>ahorrado</span></div>' +
       metaBar(m) +
-      '<div class="s pv"><span>' + money(m.saved) + ' de ' + money(m.total) + '</span><span>' + (m.done ? '✓ lista' : 'faltan ' + money(m.falta)) + '</span></div>' +
-      (m.hasMile ? '<div class="s2 pv">' + (m.allHit ? '✓ milestones alcanzados' : '<b>' + m.mileLabel + '</b> ' + money(m.mile) + ' · poner ' + money(m.toMile)) + '</div>' : '') +
+      '<div class="s pv"><span>' + (m.done ? '✓ meta lista' : '<b class="nx">faltan ' + money(m.hasMile && !m.allHit ? m.toMile : m.falta) + '</b> para ' + (m.hasMile && !m.allHit ? m.mileLabel.replace('Milestone', 'M').replace(' ', '') : 'la meta')) + '</span><span>Meta ' + money(m.total) + '</span></div>' +
       (m.used ? '<div class="s2 use pv">en caja ' + money(Math.max(0, m.saved - m.used)) + ' · ya usado ' + money(m.used) + '</div>' : '') +
       '<div class="ap"><button type="button" class="add">+ aportar</button></div></div>';
   }).join('');

@@ -463,3 +463,9 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 .vc .a{font-size:clamp(20px,1.35vw,26px)}
 #vou{grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:8px}
 .vc .vt{flex-wrap:wrap;row-gap:2px}
+
+/* etiqueta de milestone en cada meta */
+.mc .mlb{display:inline-block;margin-left:10px;font-size:12.5px;font-weight:600;color:#14110a;background:#e6bb5c;padding:2px 9px;border-radius:99px;vertical-align:2px;letter-spacing:0}
+.mc .mlb.ok{background:#5fd0a0}
+.mc .s2 b{color:#e6bb5c;font-weight:600}
+.mc .s2.use{color:#8b929c}

@@ -246,18 +246,22 @@ async function loadShaah() {
 
 /* Metas: Actual, Milestone, Meta, PONER (lo que falta para el milestone) y Porcentaje — leídos por nombre de columna */
 function metaInfo(x) {
-  const saved = x.saved || 0, mile = x.target || 0, total = x.final > 0 ? x.final : mile;
-  const pc = typeof x.pct === 'number' ? Math.min(100, x.pct * 100) : total ? Math.min(100, saved / total * 100) : 0;
-  const hasMile = mile > 0 && mile < total;
-  const toMile = x.left != null && x.left !== '' ? Math.max(0, x.left) : Math.max(0, mile - saved);
-  return { saved, mile, total, pc, hasMile, toMile, mileHit: hasMile && saved >= mile, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
+  const saved = x.saved || 0, used = x.used || 0;
+  const miles = (x.miles && x.miles.length ? x.miles : (x.target ? [x.target] : [])).filter(v => v > 0);
+  const total = x.final > 0 ? x.final : (miles[miles.length - 1] || 0);
+  const pc = total ? Math.min(100, saved / total * 100) : 0;
+  let st = 0; while (st < miles.length && saved >= miles[st]) st++;
+  const allHit = miles.length > 0 && st >= miles.length;
+  const mile = allHit ? miles[miles.length - 1] : (miles[st] || 0);
+  const hasMile = miles.length > 0 && mile < total;
+  const mileLabel = miles.length > 1 ? 'Milestone ' + (Math.min(st, miles.length - 1) + 1) : 'Milestone';
+  return { saved, used, miles, mile, total, pc, hasMile, mileLabel, allHit, toMile: Math.max(0, mile - saved), mileHit: allHit, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
 }
 function metaBar(m) {
-  const mp = m.hasMile ? m.mile / m.total * 100 : 0;
-  const fill = m.pc > 0 ? Math.max(m.pc, 2.5) : 0;
-  const zone = m.hasMile && !m.mileHit ? '<span class="z" style="left:' + fill + '%;width:' + Math.max(0, mp - fill) + '%"></span>' : '';
-  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' + zone +
-    (m.hasMile ? '<span class="ms' + (m.mileHit ? ' hit' : '') + '" style="left:' + mp + '%" title="Milestone ' + esc(money(m.mile)) + '"></span>' : '') + '</div>';
+  const fill = m.pc > 0 ? Math.max(m.pc, 2.5) : 0, mp = m.hasMile ? m.mile / m.total * 100 : 0;
+  const zone = m.hasMile && !m.allHit ? '<span class="z" style="left:' + fill + '%;width:' + Math.max(0, mp - fill) + '%"></span>' : '';
+  const ticks = m.miles.filter(v => v < m.total).map(v => '<span class="ms' + (m.saved >= v ? ' hit' : '') + '" style="left:' + (v / m.total * 100) + '%" title="Milestone ' + esc(money(v)) + '"></span>').join('');
+  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' + zone + ticks + '</div>';
 }
 /* Metas ocultas (por dispositivo) */
 const HID = 'esc-metas-ocultas';
@@ -277,10 +281,11 @@ function renderMetas(all) {
     const m = metaInfo(x), isHid = H.includes(x.name);
     return '<div class="mc' + (m.done ? ' done' : '') + (m.pc <= 0 ? ' zero' : '') + (isHid ? ' hid' : '') + '" data-meta="' + esc(x.name) + '">' +
       '<button type="button" class="mc-eye" data-act="' + (isHid ? 'show' : 'hide') + '" title="' + (isHid ? 'Mostrar en el panel' : 'Ocultar del panel') + '" aria-label="' + (isHid ? 'Mostrar ' : 'Ocultar ') + esc(x.name) + '">' + (isHid ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>' : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M10.6 5.1A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>') + '</button>' +
-      '<div class="t"><span class="nm">' + esc(x.name) + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
+      '<div class="t"><span class="nm">' + esc(x.name) + (m.hasMile && !m.done ? '<span class="mlb' + (m.allHit ? ' ok' : '') + '">' + (m.allHit ? '✓ milestones' : m.mileLabel) + '</span>' : '') + '</span><span class="pc">' + Math.round(m.pc) + '%</span></div>' +
       metaBar(m) +
       '<div class="s pv"><span>' + money(m.saved) + ' de ' + money(m.total) + '</span><span>' + (m.done ? '✓ lista' : 'faltan ' + money(m.falta)) + '</span></div>' +
-      (m.hasMile ? '<div class="s2 pv">' + (m.mileHit ? '✓ milestone ' + money(m.mile) + ' alcanzado' : 'Milestone ' + money(m.mile) + ' · poner ' + money(m.toMile)) + '</div>' : '') +
+      (m.hasMile ? '<div class="s2 pv">' + (m.allHit ? '✓ milestones alcanzados' : '<b>' + m.mileLabel + '</b> ' + money(m.mile) + ' · poner ' + money(m.toMile)) + '</div>' : '') +
+      (m.used ? '<div class="s2 use pv">en caja ' + money(Math.max(0, m.saved - m.used)) + ' · ya usado ' + money(m.used) + '</div>' : '') +
       '<div class="ap"><button type="button" class="add">+ aportar</button></div></div>';
   }).join('');
 }

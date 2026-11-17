@@ -4241,7 +4241,7 @@ function renderSettings(){
       ${interfaceLanguagePicker()}
       ${syncNoticeHTML()}
       <div class="settings-list">
-            ${stCard("data",interfaceText('settingsData'),"#9090aa",`<select ${ui('change','cfgTz')} aria-label="${interfaceCopy("Time zone")}" ${uiStyle(`width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px`)}>
+            ${stCard("data",interfaceText('settingsData'),"#9090aa",`${badgeSettingHTML()?badgeSettingHTML()+'<div class="st-div"></div>':''}<select ${ui('change','cfgTz')} aria-label="${interfaceCopy("Time zone")}" ${uiStyle(`width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px`)}>
         ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${esc(interfaceCopy(t.label))}</option>`).join("")}
       </select>
       <div ${uiStyle(`font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5`)}>${interfaceText('timezoneNote')} <b ${uiStyle(`color:#d0d0da`)}>${todayKey()}</b>.</div>
@@ -4255,7 +4255,7 @@ function renderSettings(){
           </button>`).join("")}
       </div>
 <div class="st-div"></div>
-${badgeSettingHTML()}<button ${ui('click','startTour')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("▶  VIEW TUTORIAL")}</button>
+<button ${ui('click','startTour')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("▶  VIEW TUTORIAL")}</button>
       <button ${ui('click','exportData')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("⬇  EXPORT JSON")}</button>
       ${unownedDayLogNoticeHTML()}
       <button ${ui('click','importPick')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("⬆  IMPORT JSON")}</button>

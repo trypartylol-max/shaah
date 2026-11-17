@@ -37,3 +37,19 @@ self.addEventListener('fetch',event=>{
     return (await cache.match(shell?new URL('./index.html',root).href:request))||fetch(request);
   })());
 });
+// Daily reminder (opt-in in Settings). The payload is text only; nothing from the account is cached or read here.
+self.addEventListener('push',event=>{
+  let d={};try{d=event.data?event.data.json():{};}catch(error){d={};}
+  const title=typeof d.title==='string'&&d.title?d.title.slice(0,60):'SHAAH';
+  const body=typeof d.body==='string'?d.body.slice(0,200):'';
+  event.waitUntil(self.registration.showNotification(title,{body,tag:'shaah-daily',icon:new URL('./assets/icon-192.png',root).href,data:{url:root.href}}));
+});
+self.addEventListener('notificationclick',event=>{
+  event.notification.close();
+  event.waitUntil((async()=>{
+    for(const client of await self.clients.matchAll({type:'window',includeUncontrolled:true})){
+      if(client.url.startsWith(root.href)&&'focus' in client)return client.focus();
+    }
+    return self.clients.openWindow(root.href);
+  })());
+});

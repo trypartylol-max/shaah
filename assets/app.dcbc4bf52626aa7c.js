@@ -1383,6 +1383,8 @@ const UI_ACTIONS=Object.freeze({
   startTour:uiRule('click',[],()=>startTour()),
   installHintDismiss:uiRule('click',[],()=>installHintDismiss()),
   setBadge:uiRule('click',['boolean'],(n,e,on)=>setBadge(on)),
+  pushToggle:uiRule('click',['boolean'],(n,e,on)=>on?pushEnable(pushPref().time):pushDisable()),
+  pushTime:uiRule('change',[],n=>pushSetTime(n.value)),
   exportData:uiRule('click',[],()=>exportData()),
   importPick:uiRule('click',[],()=>importPick()),
   restoreDefaults:uiRule('click',[],()=>{if(confirm(interfaceCopy("Restore all default settings?"))){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}}),
@@ -3380,6 +3382,12 @@ const interfaceMessages = {
   starterSeeTomorrow: ["See you tomorrow.", "Nos vemos mañana.", "נתראה מחר."],
   starterFirstDone: ["First day done. See you tomorrow.", "Primer día hecho. Nos vemos mañana.", "היום הראשון הושלם. נתראה מחר."],
   starterFreshStart: ["Welcome back. Today is a fresh start.", "Qué bueno verte de nuevo. Hoy empiezas de cero.", "טוב שחזרת. היום מתחילים מחדש."],
+  pushTitle: ["Daily reminder", "Recordatorio diario", "תזכורת יומית"],
+  pushBody: ["One notification at this time, only on days you haven't marked anything yet. On this device only.", "Una notificación a esta hora, solo los días en que aún no marcaste nada. Solo en este dispositivo.", "התראה אחת בשעה הזו, רק בימים שעוד לא סימנת בהם כלום. במכשיר הזה בלבד."],
+  pushTime: ["Time", "Hora", "שעה"],
+  pushDenied: ["Notifications are blocked for SHAAH. Allow them in the system settings and try again.", "Las notificaciones de SHAAH están bloqueadas. Actívalas en los ajustes del sistema y vuelve a intentarlo.", "ההתראות של SHAAH חסומות. יש לאפשר אותן בהגדרות המערכת ולנסות שוב."],
+  pushUnavailable: ["Reminders need the published app. They are not available here.", "Los recordatorios necesitan la app publicada. Aquí no están disponibles.", "תזכורות דורשות את האפליקציה המפורסמת. הן לא זמינות כאן."],
+  pushFailed: ["The reminder could not be saved. Check your connection and try again.", "No se pudo guardar el recordatorio. Revisa la conexión y vuelve a intentarlo.", "לא ניתן היה לשמור את התזכורת. כדאי לבדוק את החיבור ולנסות שוב."],
   installTitle: ["Add SHAAH to your Home Screen", "Añade SHAAH a tu pantalla de inicio", "הוספת SHAAH למסך הבית"],
   installBody: ["Tap Share, then Add to Home Screen. It opens full screen, like an app.", "Toca Compartir y luego Añadir a pantalla de inicio. Se abre a pantalla completa, como una app.", "מקישים על שיתוף ואז על הוספה למסך הבית. היא נפתחת במסך מלא, כמו אפליקציה."],
   installDismiss: ["Dismiss", "Cerrar", "סגירה"],
@@ -4241,7 +4249,7 @@ function renderSettings(){
       ${interfaceLanguagePicker()}
       ${syncNoticeHTML()}
       <div class="settings-list">
-            ${stCard("data",interfaceText('settingsData'),"#9090aa",`${badgeSettingHTML()?badgeSettingHTML()+'<div class="st-div"></div>':''}<select ${ui('change','cfgTz')} aria-label="${interfaceCopy("Time zone")}" ${uiStyle(`width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px`)}>
+            ${stCard("data",interfaceText('settingsData'),"#9090aa",`${deviceSettingsHTML()}<select ${ui('change','cfgTz')} aria-label="${interfaceCopy("Time zone")}" ${uiStyle(`width:100%;background:#111120;border:1px solid #222;border-radius:10px;color:#e2e2e2;font-family:inherit;font-size:15px;padding:11px 12px;margin-bottom:6px`)}>
         ${TIMEZONES.map(t=>`<option value="${t.id}" ${CFG.tz===t.id?'selected':''}>${esc(interfaceCopy(t.label))}</option>`).join("")}
       </select>
       <div ${uiStyle(`font-size:15px;color:#adadbf;margin-bottom:22px;line-height:1.5`)}>${interfaceText('timezoneNote')} <b ${uiStyle(`color:#d0d0da`)}>${todayKey()}</b>.</div>
@@ -5118,6 +5126,71 @@ function badgeSettingHTML(){
   const on=badgeOn();
   return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
 }
+// ── Daily reminder by Web Push. Off unless the person turns it on; one subscription per device, kept server-side
+// (public.push_subscriptions via shaah_push_subscribe). The server sends it only on days with nothing scored yet.
+const PUSH_PUBLIC_KEY='BGqaFh82BQLiYAxPHAlnemx1D5MhGlExN8O7LPVLey4pRCQDmd585wkxzcF3jJYfQ4HT7z69x5SLvgdV43R6IEk';
+const PUSH_TIME_RE=/^([01]\d|2[0-3]):[0-5]\d$/;
+let _push={busy:false,error:'',synced:null};
+function pushSupported(){return !!window.isSecureContext&&'serviceWorker' in navigator&&typeof window.PushManager!=='undefined'&&typeof window.Notification!=='undefined'&&(!isIOS()||isStandalone());}
+function pushKey(){return 'shaah_push_'+(USER?USER.id:'anon');}
+function pushPref(){const p=get(pushKey());return {on:!!(p&&p.on),time:p&&PUSH_TIME_RE.test(p.time||'')?p.time:'20:00'};}
+function pushKeyBytes(){const b=atob(PUSH_PUBLIC_KEY.replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0));}
+async function pushRegistration(){try{return await navigator.serviceWorker.getRegistration('./')||null;}catch(e){return null;}}
+async function pushSave(owner,sub,time){
+  const j=sub.toJSON();
+  const {error}=await sb.rpc('shaah_push_subscribe',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_remind_at:time,p_timezone:dayLogTz(),p_lang:interfaceLanguage});
+  return !error&&USER?.id===owner;
+}
+async function pushEnable(time){
+  if(!USER||!pushSupported()||_push.busy)return;
+  const owner=USER.id;_push={..._push,busy:true,error:''};render();
+  let error='';
+  try{
+    if(Notification.permission!=='granted'&&(await Notification.requestPermission())!=='granted')error='pushDenied';
+    const reg=error?null:await pushRegistration();
+    if(!error&&!reg)error='pushUnavailable';
+    if(!error){
+      const sub=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes()});
+      if(USER?.id!==owner)return;
+      if(await pushSave(owner,sub,time))set(pushKey(),{on:true,time});else error='pushFailed';
+    }
+  }catch(e){error='pushFailed';}
+  if(USER?.id!==owner)return;
+  _push={..._push,busy:false,error,synced:owner};render();
+}
+async function pushDisable(){
+  if(!USER||_push.busy)return;
+  const owner=USER.id,time=pushPref().time;_push={..._push,busy:true,error:''};render();
+  try{
+    const reg=await pushRegistration(),sub=reg&&await reg.pushManager.getSubscription();
+    if(sub){await sb.rpc('shaah_push_unsubscribe',{p_endpoint:sub.endpoint});await sub.unsubscribe();}
+  }catch(e){}
+  if(USER?.id!==owner)return;
+  set(pushKey(),{on:false,time});_push={..._push,busy:false};render();
+}
+function pushSetTime(value){
+  if(!USER||!PUSH_TIME_RE.test(value||''))return;
+  if(pushPref().on)pushEnable(value);else set(pushKey(),{on:false,time:value});
+}
+// Once per session: refresh this device's subscription (time zone, language, rotated endpoint),
+// or turn the setting off here if the system permission was withdrawn.
+async function pushResync(){
+  if(!USER||_push.synced===USER.id)return;
+  const owner=USER.id;_push.synced=owner;
+  const pref=pushPref();if(!pref.on||!pushSupported())return;
+  try{
+    const reg=await pushRegistration(),sub=reg&&Notification.permission==='granted'&&await reg.pushManager.getSubscription();
+    if(USER?.id!==owner)return;
+    if(!sub){set(pushKey(),{on:false,time:pref.time});render();return;}
+    await pushSave(owner,sub,pref.time);
+  }catch(e){}
+}
+function pushSettingHTML(){
+  if(!USER||!pushSupported())return '';
+  const pref=pushPref(),on=pref.on;
+  return `<div class="badge-setting push-setting"><div><strong>${interfaceText('pushTitle')}</strong><p>${interfaceText('pushBody')}</p>${_push.error?`<p class="push-error" role="status">${interfaceText(_push.error)}</p>`:''}</div><button type="button" class="badge-toggle" aria-pressed="${on}" ${_push.busy?'disabled':''} ${ui('click','pushToggle',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>${on?`<label class="push-time"><span>${interfaceText('pushTime')}</span><input type="time" value="${esc(pref.time)}" ${_push.busy?'disabled':''} ${ui('change','pushTime')}></label>`:''}`;
+}
+function deviceSettingsHTML(){const html=badgeSettingHTML()+pushSettingHTML();return html?html+'<div class="st-div"></div>':'';}
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
 function startTour(short){
  if(!USER||tourStep!==null)return;
@@ -5307,6 +5380,7 @@ function render(){
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
   nav.classList.remove('boot-nav');
   if(!USER){updateBadge();uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
+  pushResync();
   updateBadge();
   if(_starterGate!=='ready'||_starterEditor){uiHTML(el,_starterEditor?starterChoicesHTML():starterGateHTML());nav.style.display='none';tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav

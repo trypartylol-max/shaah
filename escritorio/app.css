@@ -90,7 +90,7 @@ body.priv #privBtn{background:#2a2412;color:#e3b85b}
 .mc.done{background:linear-gradient(160deg,#15241d,var(--card2) 60%)}
 .mc .t{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .mc .nm{font-size:16px;font-weight:600}
-.mc .pc{font-size:30px;font-weight:600;letter-spacing:-.03em;color:var(--gold);font-variant-numeric:tabular-nums}
+.mc .pc{font-size:22px;font-weight:600;letter-spacing:-.03em;color:var(--gold);font-variant-numeric:tabular-nums}
 .mc.done .pc{color:var(--in)}
 .mc.zero .pc{color:#5f6670}.mc.zero .nm{color:#9aa1ab}
 .mc .tr{height:8px;border-radius:6px;background:#24272e;overflow:hidden}
@@ -481,3 +481,10 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 .seg.hit .sl{color:#5fd0a0}
 .seg.hit .tr2 .f{background:linear-gradient(90deg,#2f8a63,#5fd0a0);box-shadow:0 0 10px rgba(95,208,160,.25)}
 .seg:not(.now):not(.hit) .tr2{opacity:.55}
+
+/* cuánto lleva cada meta, grande */
+.mc .sv{display:flex;align-items:baseline;gap:8px;margin-top:-4px}
+.mc .sv b{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.mc .sv span{font-size:13px;color:#7d8590}
+.mc.zero .sv b{color:#5f6670}
+.mc .s b.nx{color:#e6bb5c;font-weight:600}

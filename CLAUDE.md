@@ -20,7 +20,7 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 ```
 python3 scripts/build-production.py     # source/ -> assets/ hasheados, index.html, sw.js
 npm ci
-npm run test:unit                        # 302 tests, ~5 s, verdes a día 2026-11-15
+npm run test:unit                        # 305 tests, ~5 s, verdes a día 2026-11-17
 npm run test:browser                     # Playwright; requiere CHROMIUM_PATH (ver abajo). ~13 min. En verde a 2026-11-15 (314 tests): sin omitidos ni fallos. Entre el 11 y el 15 de noviembre estuvo rota por cambios de diseño publicados sin correrla: corre al menos los archivos de la zona que tocas antes de publicar, y añade el flag de versión nuevo al fixture de tests/helpers.cjs cuando crees una migración `*Once`. Ojo: deja capturas modificadas en docs/ y en la raíz; revierte con git checkout -- docs y borra los .png sueltos de la raíz
 SHAAH_SOURCE=source/app.js npm test      # probar el fuente sin reconstruir
 ```
@@ -95,6 +95,13 @@ RLS: solo el propietario (`auth.uid() = user_id`). La clave `anon` embebida es p
 8. CSP estricta: nada de `onclick=`, `style=` inline ni scripts inline. Los eventos van por `ui('click','accion',…args)` y la acción debe existir en `UI_ACTIONS`; los estilos por `uiStyle(...)`. Todo texto de usuario pasa por `esc()`.
 9. `interfaceCopy("texto")` lanza `TypeError` si el texto no está en `interfaceCopies`; al añadir un texto, añade la entrada EN/ES. Los idiomas activos son `en` y `es` (las tablas traen una tercera columna sin usar).
 10. Ya no quedan funciones declaradas dos veces (se retiraron las copias muertas de `settingsPeople`, `locationAdd` y `locationRename`). Si aparece un duplicado, gana la última declaración: edita esa.
+
+## Recordatorio diario (Web Push, desde 2026-11-17)
+Opcional y por dispositivo: apagado hasta que la persona lo activa en Settings → Account & data (junto al globo del icono). En iPhone solo aparece dentro de la app instalada.
+- **Cliente** (`push*` en `source/app.js`): pide permiso, suscribe el dispositivo con la clave pública VAPID (`PUSH_PUBLIC_KEY`) y llama a la RPC `shaah_push_subscribe` con hora, zona (`dayLogTz()`) e idioma. La preferencia local `shaah_push_<uid>` solo recuerda si está activo y la hora. `pushResync()` refresca la suscripción una vez por sesión. El service worker (`source/sw-template.js`) muestra la notificación y al tocarla abre o enfoca la app.
+- **Servidor** (`supabase/migrations/20261117120000_push_reminders.sql`, ya aplicada en producción): tabla `public.push_subscriptions` (RLS: cada uno lee las suyas; escritura solo por `shaah_push_subscribe` / `shaah_push_unsubscribe`), `shaah_push_run(token)` (solo `service_role`) que reclama las suscripciones vencidas —hora local dentro de [hora, hora + 2 h), no enviado hoy, y sin puntos ese día en `day_logs`— y las marca como enviadas, y un trabajo `pg_cron` cada 15 minutos que llama a la Edge Function `push-reminders` (`supabase/functions/push-reminders/`, `verify_jwt` desactivado, comprueba el token).
+- **Secretos en Vault**, nunca en el repo: `shaah_push_vapid_public`, `shaah_push_vapid_private`, `shaah_push_cron_token`. Si se rotan las claves VAPID hay que actualizar `PUSH_PUBLIC_KEY` y todas las suscripciones dejan de valer.
+- Diagnóstico: `select * from net._http_response order by id desc limit 5;` y `select * from cron.job_run_details order by start_time desc limit 5;`.
 
 ## Torre de Control (`control/`)
 Panel privado del propietario, página independiente (`control/index.html`, 75 KB, un solo archivo con script inline). Se publica en `/shaah/control/` y también existe una variante `/api/control` fuera del repo. Login con Google (PKCE, clave de sesión `shaah-control-auth-v1`) y comprobación en cliente `user.id === OWNER` (UUID fijo en el archivo; en el cliente es solo de interfaz, la seguridad real está en el servidor). Pestañas: Vista general, Bitácora, PRODUCT ↔ TEST, Publicaciones, Usuarios, Roadmap/incidencias/notas.

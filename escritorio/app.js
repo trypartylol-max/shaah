@@ -267,19 +267,22 @@ function metaInfo(x) {
   return { saved, used, miles, mile, st, total, scale, pc, hasMile, mileLabel, allHit, toMile: Math.max(0, mile - saved), mileHit: allHit, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
 }
 function metaBar(m) {
-  // Con milestones pendientes: un tramo por milestone (M1, M2…), cada uno se llena con lo que llevas dentro de ese tramo
-  if (m.hasMile && !m.allHit && m.miles.length) {
+  // Un tramo por milestone (M1, M2…) que nunca desaparece: los pasados quedan en verde con ✓.
+  // Cuando ya pasaste todos, se añade el tramo final hacia la meta.
+  if (m.hasMile || m.allHit) {
+    const steps = m.miles.map((v, i) => ({ v, l: 'M' + (i + 1) }));
+    if (m.allHit && m.total > m.miles[m.miles.length - 1]) steps.push({ v: m.total, l: 'Meta' });
     let from = 0;
-    return '<div class="segs">' + m.miles.map((v, i) => {
-      const fr = Math.max(0, Math.min(1, (m.saved - from) / (v - from || 1))), cls = fr >= 1 ? ' hit' : i === m.st ? ' now' : '';
-      from = v;
+    return '<div class="segs">' + steps.map((st, i) => {
+      const fr = Math.max(0, Math.min(1, (m.saved - from) / (st.v - from || 1)));
+      const cls = fr >= 1 ? ' hit' : (from <= m.saved ? ' now' : '');
+      from = st.v;
       return '<div class="seg' + cls + '"><div class="tr2"><span class="f" style="width:' + (fr > 0 ? Math.max(fr * 100, 3) : 0) + '%"></span></div>' +
-        '<div class="sl pv">' + (fr >= 1 ? '✓ ' : '') + 'M' + (i + 1) + ' · ' + money(v) + '</div></div>';
+        '<div class="sl pv">' + (fr >= 1 ? '✓ ' : '') + st.l + ' · ' + money(st.v) + (fr >= 1 && st.l !== 'Meta' ? ' superado' : '') + '</div></div>';
     }).join('') + '</div>';
   }
-  const at = v => Math.min(100, m.total ? v / m.total * 100 : 0), fill = m.saved > 0 ? Math.max(at(m.saved), 2.5) : 0;
-  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' +
-    m.miles.filter(v => v < m.total).map(v => '<span class="ms hit" style="left:' + at(v) + '%" title="Milestone ' + esc(money(v)) + '"></span>').join('') + '</div>';
+  const fill = m.saved > 0 ? Math.max(Math.min(100, m.total ? m.saved / m.total * 100 : 0), 2.5) : 0;
+  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span></div>';
 }
 /* Metas ocultas (por dispositivo) */
 const HID = 'esc-metas-ocultas';

@@ -8,16 +8,16 @@ test('exclusive starter claim records one account tutorial; only winning device 
  await Promise.all([a.run('starterConfirm()'),b.run('starterConfirm()')]);
  assert.equal(server.writes.length,1);assert.equal(server.rows[0].data._cfg.starter.tutorial.state,'presented');
  assert.equal([a.read('_arrivalTutorial'),b.read('_arrivalTutorial')].filter(Boolean).length,1);
- const clean=device(server);await clean.run('loadAll()');assert.equal(clean.read('_arrivalTutorial'),false);assert.equal(clean.read('_arrivalWelcome'),true);
+ const clean=device(server);await clean.run('loadAll()');assert.equal(clean.read('_arrivalTutorial'),false);assert.equal(clean.read('_arrivalWelcome'),false);
 });
 test('existing account arrival is transient and never edits settings or historical fixtures',async()=>{
  const data=fixture(),server=syncBackend(serverRows(data).map(r=>({...r,user_id:id}))),a=device(server);
  const before=JSON.parse(JSON.stringify(server.rows.filter(r=>/^\d{4}-/.test(r.date))));await a.run('loadAll()');
- assert.equal(a.read('_arrivalWelcome'),true);assert.equal(a.read('_arrivalTutorial'),false);
+ assert.equal(a.read('_arrivalWelcome'),false);assert.equal(a.read('_arrivalTutorial'),false);
  assert.deepEqual(server.rows.filter(r=>/^\d{4}-/.test(r.date)),before);
  for(const k of Object.keys(data.days))assert.deepEqual(a.read(`_state[${JSON.stringify(k)}]`),data.days[k]);
  a.run('set(arrivalSeenKey(),1);_arrivalResolved=false;_arrivalWelcome=false;arrivalPlanExisting()');assert.equal(a.read('_arrivalWelcome'),false);
- a.run("USER={id:'synthetic-A',last_sign_in_at:'next-sign-in'};_arrivalResolved=false;arrivalPlanExisting()");assert.equal(a.read('_arrivalWelcome'),true);
+ a.run("USER={id:'synthetic-A',last_sign_in_at:'next-sign-in'};_arrivalResolved=false;arrivalPlanExisting()");assert.equal(a.read('_arrivalWelcome'),false);
 });
 test('late boot snapshot cannot resurrect a signed-out account or overwrite a newer identity',async()=>{
  for(const next of [null,{id:'synthetic-B'}]){

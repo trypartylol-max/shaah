@@ -202,9 +202,9 @@ async function borrarGasto(x) {
    Los "acc" (ej. gasolina) suman el monto a la fila del mes en vez de crear una nueva. */
 function renderQuick(d) {
   const names = {}; (d.cats || []).forEach(c => { names[c.code] = c.name; });
-  const Q = (d.quick || []).slice(0, 8);
+  const Q = (d.quick || []).slice(0, 12);
   $('quick').hidden = !Q.length;
-  $('quick').innerHTML = Q.map((q, i) => '<button type="button" class="qc' + (q.acc ? ' acc' : '') + '" data-i="' + i + '" title="' + esc((names[q.cat] || q.cat) + (q.acc ? ' · suma al total del mes' : '')) + '"><span>' + esc(cap(q.com)) + '</span>' +
+  $('quick').innerHTML = Q.map((q, i) => '<button type="button" class="qc' + (q.acc ? ' acc' : '') + '" data-i="' + i + '" title="' + esc((names[q.cat] || q.cat) + (q.acc ? ' · suma al total del mes' : '')) + '"><span>' + esc(cap(q.label || q.com)) + '</span>' +
     (q.monto ? '<b class="pv">' + money(q.monto) + '</b>' : q.acc ? '<b>+ suma</b>' : '') + '</button>').join('');
   $('quick')._q = Q;
 }
@@ -213,10 +213,12 @@ $('quick').addEventListener('click', ev => {
   const q = $('quick')._q[+b.dataset.i];
   $('aCat').value = q.cat; $('aCom').value = q.com;
   if (q.monto) $('aMonto').value = q.monto;
+  $('aCom').placeholder = q.ask || $('aCom').dataset.ph || $('aCom').placeholder;
   $('addForm').dataset.acc = q.acc ? q.com : '';
   [...$('quick').children].forEach(x => x.classList.toggle('armed', x === b));
-  $('aMonto').focus(); $('aMonto').select();
+  if (q.ask) $('aCom').focus(); else { $('aMonto').focus(); $('aMonto').select(); }
 });
+$('aCom').dataset.ph = $('aCom').placeholder;
 ['aCat', 'aCom'].forEach(id => $(id).addEventListener('input', () => { $('addForm').dataset.acc = ''; [...$('quick').children].forEach(x => x.classList.remove('armed')); }));
 
 /* ---------- SHAAH: nota de hoy y racha ---------- */
@@ -528,7 +530,7 @@ $('addForm').addEventListener('submit', async ev => {
   const acc = $('addForm').dataset.acc && $('addForm').dataset.acc === com;
   const ok = await addGasto({ monto, categoria: $('aCat').value, comercio: com, acc });
   $('aBtn').disabled = false;
-  if (ok) { $('aMonto').value = ''; $('aCom').value = ''; $('addForm').dataset.acc = ''; [...$('quick').children].forEach(x => x.classList.remove('armed')); }
+  if (ok) { $('aMonto').value = ''; $('aCom').value = ''; $('aCom').placeholder = $('aCom').dataset.ph; $('addForm').dataset.acc = ''; [...$('quick').children].forEach(x => x.classList.remove('armed')); }
 });
 
 /* ---------- aportar a metas ---------- */

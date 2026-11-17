@@ -1381,6 +1381,8 @@ const UI_ACTIONS=Object.freeze({
   cfgTz:uiRule('change',[],n=>cfgTz(n.value)),
   cfgPill:uiRule('click',['string'],(n,e,id)=>cfgPill(id)),
   startTour:uiRule('click',[],()=>startTour()),
+  installHintDismiss:uiRule('click',[],()=>installHintDismiss()),
+  setBadge:uiRule('click',['boolean'],(n,e,on)=>setBadge(on)),
   exportData:uiRule('click',[],()=>exportData()),
   importPick:uiRule('click',[],()=>importPick()),
   restoreDefaults:uiRule('click',[],()=>{if(confirm(interfaceCopy("Restore all default settings?"))){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}}),
@@ -3378,6 +3380,14 @@ const interfaceMessages = {
   starterSeeTomorrow: ["See you tomorrow.", "Nos vemos mañana.", "נתראה מחר."],
   starterFirstDone: ["First day done. See you tomorrow.", "Primer día hecho. Nos vemos mañana.", "היום הראשון הושלם. נתראה מחר."],
   starterFreshStart: ["Welcome back. Today is a fresh start.", "Qué bueno verte de nuevo. Hoy empiezas de cero.", "טוב שחזרת. היום מתחילים מחדש."],
+  installTitle: ["Add SHAAH to your Home Screen", "Añade SHAAH a tu pantalla de inicio", "הוספת SHAAH למסך הבית"],
+  installBody: ["Tap Share, then Add to Home Screen. It opens full screen, like an app.", "Toca Compartir y luego Añadir a pantalla de inicio. Se abre a pantalla completa, como una app.", "מקישים על שיתוף ואז על הוספה למסך הבית. היא נפתחת במסך מלא, כמו אפליקציה."],
+  installDismiss: ["Dismiss", "Cerrar", "סגירה"],
+  badgeTitle: ["Icon badge", "Globo en el icono", "תג על הסמל"],
+  badgeBody: ["Shows on the app icon how many habits are still open today. It updates when you open SHAAH.", "Muestra en el icono cuántos hábitos te quedan hoy. Se actualiza al abrir SHAAH.", "מציג על סמל האפליקציה כמה הרגלים נשארו להיום. מתעדכן כשפותחים את SHAAH."],
+  badgeDenied: ["Your device needs notification permission to show the badge. Allow it in the system settings and try again.", "Tu dispositivo necesita el permiso de notificaciones para mostrar el globo. Actívalo en los ajustes del sistema y vuelve a intentarlo.", "כדי להציג את התג נדרשת הרשאת התראות במכשיר. יש לאפשר אותה בהגדרות המערכת ולנסות שוב."],
+  badgeOn: ["On", "Activado", "פעיל"],
+  badgeOff: ["Off", "Desactivado", "כבוי"],
   starterMarkDone: ["Mark as done", "Marcar como hecho", "סימון כהושלם"],
   starterMarked: ["✓ Done", "✓ Hecho", "✓ הושלם"],
   starterUndo: ["Undo", "Deshacer", "ביטול"],
@@ -4245,7 +4255,7 @@ function renderSettings(){
           </button>`).join("")}
       </div>
 <div class="st-div"></div>
-<button ${ui('click','startTour')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("▶  VIEW TUTORIAL")}</button>
+${badgeSettingHTML()}<button ${ui('click','startTour')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("▶  VIEW TUTORIAL")}</button>
       <button ${ui('click','exportData')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("⬇  EXPORT JSON")}</button>
       ${unownedDayLogNoticeHTML()}
       <button ${ui('click','importPick')} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#d0d0da;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:8px`)}>${interfaceCopy("⬆  IMPORT JSON")}</button>
@@ -5073,6 +5083,41 @@ const TOUR_STARTER=[
  {tab:'today',target:'.starter-view',ico:'✨',t:'MORE WHEN YOU WANT IT',b:'Stats and History fill in as you use the app. Show full view opens levels, routines and scoring; Show tutorial walks you through them.'}
 ];
 let tourList=TOUR;
+// ── iPhone/iPad: install hint and optional icon badge. Both are device preferences, never account data.
+function isStandalone(){return navigator.standalone===true||!!(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);}
+function isIOS(){const ua=navigator.userAgent||'';return /iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+// iOS never offers to install a web app; in-app browsers (Instagram, Facebook…) cannot add to the Home Screen at all.
+function installHintShown(){return !!USER&&isIOS()&&!isStandalone()&&!/FBAN|FBAV|Instagram|Line\//.test(navigator.userAgent||'')&&!get('shaah_install_hint_'+USER.id);}
+function installHintHTML(){return installHintShown()?`<aside class="install-hint" role="note"><div><strong>${interfaceText('installTitle')}</strong><p>${interfaceText('installBody')}</p></div><button type="button" class="install-hint-close" aria-label="${interfaceText('installDismiss')}" ${ui('click','installHintDismiss')}>✕</button></aside>`:'';}
+function installHintDismiss(){if(USER)set('shaah_install_hint_'+USER.id,1);render();}
+// Icon badge = habits still open today. Off unless the person turns it on in Settings; iOS ties it to notification permission.
+// Without push it only refreshes while the app is open, so it reflects the last visit.
+let _badgeDenied=false;
+function badgeKey(){return 'shaah_badge_'+(USER?USER.id:'anon');}
+// Only an installed web app has an icon to badge.
+function badgeSupported(){return typeof navigator.setAppBadge==='function'&&isStandalone();}
+function badgeOn(){return badgeSupported()&&!!USER&&!!get(badgeKey());}
+function badgePending(){const k=todayKey(),c=cfgForDate(k),ch=getChecked(k)||{};return [...c.L1,...c.L2,...c.L3].filter(i=>i.pts>0&&!(doneFrac(ch[i.id])>0)).length;}
+function updateBadge(){
+  if(!badgeSupported())return;
+  try{const n=badgeOn()?badgePending():0;const p=n?navigator.setAppBadge(n):navigator.clearAppBadge();if(p&&p.catch)p.catch(()=>{});}catch(e){}
+}
+async function setBadge(on){
+  if(!USER||!badgeSupported())return;
+  const owner=USER.id;
+  if(on){
+    let ok=true;
+    try{if(typeof Notification!=='undefined'&&Notification.permission!=='granted')ok=(await Notification.requestPermission())==='granted';}catch(e){ok=false;}
+    if(!USER||USER.id!==owner)return;
+    if(!ok){_badgeDenied=true;render();return;}
+  }
+  _badgeDenied=false;set(badgeKey(),on?1:0);updateBadge();render();
+}
+function badgeSettingHTML(){
+  if(!badgeSupported())return '';
+  const on=badgeOn();
+  return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
+}
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
 function startTour(short){
  if(!USER||tourStep!==null)return;
@@ -5261,7 +5306,8 @@ function render(){
   routineDialogSync();
   const el=document.getElementById("scroll"),nav=document.getElementById("nav");
   nav.classList.remove('boot-nav');
-  if(!USER){uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
+  if(!USER){updateBadge();uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
+  updateBadge();
   if(_starterGate!=='ready'||_starterEditor){uiHTML(el,_starterEditor?starterChoicesHTML():starterGateHTML());nav.style.display='none';tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
   if(settingsOpen){uiHTML(el,renderSettings());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
@@ -5280,7 +5326,7 @@ function render(){
     else b.removeAttribute('aria-current');
   });
   if(currentTab==="social")uiHTML(el,bar+renderSocial());
-  else if(currentTab==="today")uiHTML(el,bar+renderToday(todayKey()));
+  else if(currentTab==="today")uiHTML(el,bar+installHintHTML()+renderToday(todayKey()));
   else if(currentTab==="log")uiHTML(el,bar+renderDayLogTab());
   else if(currentTab==="stats")renderStatsUpdate(el,bar);
   else if(currentTab==="history")uiHTML(el,bar+renderHistory());

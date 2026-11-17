@@ -472,3 +472,12 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 
 /* botón rápido que suma al total del mes */
 .qc.acc b{color:#7fd4ad;font-weight:600;font-size:13px}
+
+/* milestones como tramos: M1 | M2 */
+.segs{display:flex;gap:8px}
+.seg{flex:1;min-width:0}
+.seg .sl{margin-top:7px;font-size:12px;color:#7d8590;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg.now .sl{color:#e6bb5c;font-weight:600}
+.seg.hit .sl{color:#5fd0a0}
+.seg.hit .tr2 .f{background:linear-gradient(90deg,#2f8a63,#5fd0a0);box-shadow:0 0 10px rgba(95,208,160,.25)}
+.seg:not(.now):not(.hit) .tr2{opacity:.55}

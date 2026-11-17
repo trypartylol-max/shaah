@@ -253,21 +253,33 @@ async function loadShaah() {
 /* Metas: Actual, Milestone, Meta, PONER (lo que falta para el milestone) y Porcentaje — leídos por nombre de columna */
 function metaInfo(x) {
   const saved = x.saved || 0, used = x.used || 0;
-  const miles = (x.miles && x.miles.length ? x.miles : (x.target ? [x.target] : [])).filter(v => v > 0);
+  const miles = (x.miles && x.miles.length ? x.miles : (x.target ? [x.target] : [])).filter(v => v > 0).sort((a, b) => a - b);
   const total = x.final > 0 ? x.final : (miles[miles.length - 1] || 0);
-  const pc = total ? Math.min(100, saved / total * 100) : 0;
   let st = 0; while (st < miles.length && saved >= miles[st]) st++;
   const allHit = miles.length > 0 && st >= miles.length;
   const mile = allHit ? miles[miles.length - 1] : (miles[st] || 0);
   const hasMile = miles.length > 0 && mile < total;
+  // Mientras queden milestones, la barra va de 0 al último milestone (así se ven los dos bien separados)
+  // y el % grande es hacia el milestone que toca ahora. Pasados todos, la barra y el % son hacia la meta final.
+  const scale = hasMile && !allHit ? miles[miles.length - 1] : total;
+  const pc = hasMile && !allHit ? Math.min(100, saved / mile * 100) : total ? Math.min(100, saved / total * 100) : 0;
   const mileLabel = miles.length > 1 ? 'Milestone ' + (Math.min(st, miles.length - 1) + 1) : 'Milestone';
-  return { saved, used, miles, mile, total, pc, hasMile, mileLabel, allHit, toMile: Math.max(0, mile - saved), mileHit: allHit, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
+  return { saved, used, miles, mile, st, total, scale, pc, hasMile, mileLabel, allHit, toMile: Math.max(0, mile - saved), mileHit: allHit, falta: Math.max(0, total - saved), done: total > 0 && saved >= total };
 }
 function metaBar(m) {
-  const fill = m.pc > 0 ? Math.max(m.pc, 2.5) : 0, mp = m.hasMile ? m.mile / m.total * 100 : 0;
-  const zone = m.hasMile && !m.allHit ? '<span class="z" style="left:' + fill + '%;width:' + Math.max(0, mp - fill) + '%"></span>' : '';
-  const ticks = m.miles.filter(v => v < m.total).map(v => '<span class="ms' + (m.saved >= v ? ' hit' : '') + '" style="left:' + (v / m.total * 100) + '%" title="Milestone ' + esc(money(v)) + '"></span>').join('');
-  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' + zone + ticks + '</div>';
+  // Con milestones pendientes: un tramo por milestone (M1, M2…), cada uno se llena con lo que llevas dentro de ese tramo
+  if (m.hasMile && !m.allHit && m.miles.length) {
+    let from = 0;
+    return '<div class="segs">' + m.miles.map((v, i) => {
+      const fr = Math.max(0, Math.min(1, (m.saved - from) / (v - from || 1))), cls = fr >= 1 ? ' hit' : i === m.st ? ' now' : '';
+      from = v;
+      return '<div class="seg' + cls + '"><div class="tr2"><span class="f" style="width:' + (fr > 0 ? Math.max(fr * 100, 3) : 0) + '%"></span></div>' +
+        '<div class="sl pv">' + (fr >= 1 ? '✓ ' : '') + 'M' + (i + 1) + ' · ' + money(v) + '</div></div>';
+    }).join('') + '</div>';
+  }
+  const at = v => Math.min(100, m.total ? v / m.total * 100 : 0), fill = m.saved > 0 ? Math.max(at(m.saved), 2.5) : 0;
+  return '<div class="tr2' + (m.done ? ' done' : '') + '"><span class="f" style="width:' + fill + '%"></span>' +
+    m.miles.filter(v => v < m.total).map(v => '<span class="ms hit" style="left:' + at(v) + '%" title="Milestone ' + esc(money(v)) + '"></span>').join('') + '</div>';
 }
 /* Metas ocultas (por dispositivo) */
 const HID = 'esc-metas-ocultas';

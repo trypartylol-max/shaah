@@ -3739,6 +3739,7 @@ const interfaceCopies = {
   "Play prepared step": ["Play prepared step", "Iniciar el paso preparado", "הפעלת השלב המוכן"],
   "Play routine": ["Play routine", "Iniciar rutina", "הפעלת השגרה"],
   "Choose a version": ["Choose a version", "Elige una versión", "בחירת גרסה"],
+  "Close versions": ["Close versions", "Cerrar versiones", "סגירת גרסאות"],
   "Clear completed routine": ["Clear completed routine", "Desmarcar rutina completada", "ביטול הסימון של השגרה שהושלמה"],
   "Mark done without the timer": ["Mark done without the timer", "Marcar como hecha sin temporizador", "סימון כהושלם בלי טיימר"],
   "PLAY": ["PLAY", "INICIAR", "הפעלה"],
@@ -5856,7 +5857,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         const rt=ROUTINES[activeId],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=routineMinutes(rt);
         const session=sessions[activeId];
         const picking=family.length>1&&!session&&_routinePick===item.id;
-        const picker=picking?`<div class="cr-variants" role="group" aria-label="${interfaceCopy("Choose a version")}">${family.map(id=>{const v=ROUTINES[id];return`<button type="button" class="cr-variant" ${ui('click','routinePickStart',id)} ${uiStyle(`border-color:${v.col}`)}><span aria-hidden="true">${esc(v.icon)}</span><b>${esc(v.short||v.label)}</b><small>${routineMinutes(v)}m${routineCredit(id)===0.5?' · ½':''}</small></button>`;}).join('')}</div>`:'';
+        const picker=picking?`<div class="cr-variants" role="group" aria-label="${interfaceCopy("Choose a version")}">${family.map(id=>{const v=ROUTINES[id];return`<button type="button" class="cr-variant" ${ui('click','routinePickStart',id)} ${uiStyle(`border-color:${v.col}`)} aria-label="${esc(v.label)} · ${routineMinutes(v)} min"><span aria-hidden="true">${esc(v.icon)}</span><b>${esc(v.short||v.label)}</b></button>`;}).join('')}<button type="button" class="cr-variant-close" ${ui('click','routinePick',item.id)} aria-label="${interfaceCopy("Close versions")}">×</button></div>`:'';
         // The three shared controls retain daily credit toggles and the existing runner.
         return`<div class="sf-core-routine cr-compact-card" data-routine-card="${esc(item.id)}">
           <div class="cr-compact-icon" aria-hidden="true">${esc(rt.icon)}</div>
@@ -5868,7 +5869,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
             <button type="button" class="r-btn" aria-label="${interfaceLanguage==='he'?interfaceCopy(light?'Clear light credit':'Light version — half credit'):interfaceCopy("LIGHT")}" aria-pressed="${light}" title="${interfaceCopy(light?'Clear light credit':'Light version — half credit')}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor" stroke="none"/></svg></button>
             <button type="button" class="r-btn sf-routine-primary" aria-label="${interfaceLanguage==='he'?interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine'):item.id==='production'?interfaceCopy('PLAY'):interfaceText('start')}" title="${interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine')}" ${session&&!session.running?ui('click','routineResume',activeId):(family.length>1&&!session)?ui('click','routinePick',item.id):ui('click','startRoutine',activeId)} ${family.length>1&&!session?`aria-expanded="${picking}"`:''} ${uiStyle(`background:${rt.col};color:#080810`)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4 20 12 8 20Z" fill="currentColor" stroke="none"/></svg></button>
             <button type="button" class="r-btn" aria-label="${interfaceLanguage==='he'?interfaceCopy(full?'Clear completed routine':'Mark done without the timer'):interfaceCopy("DONE")}" aria-pressed="${full}" title="${interfaceCopy(full?'Clear completed routine':'Mark done without the timer')}" ${ui('click','setHabitState',item.id,key,full?false:true)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 5 5L20 6"/></svg></button>
-          </div>${picker}
+          ${picker}</div>
         </div>`;
       }).join("")}</div>
     </div>`}

@@ -18,16 +18,22 @@ test('Production version chips start the chosen routine and fit on desktop and m
   await page.setViewportSize({width,height});
   await page.evaluate(()=>{todayRoutinesOpen=true;_routinePick=null;render()});
   assert.equal(await page.locator('[data-routine-card="production"] .cr-variant').count(),0);
+  const cardBefore=(await page.locator('[data-routine-card="production"]').boundingBox()).height;
   await page.locator('[data-routine-card="production"] .sf-routine-primary').click();
+  await page.waitForTimeout(250); // let the reveal animation settle
   const chips=page.locator('[data-routine-card="production"] .cr-variant');
   assert.equal(await chips.count(),3);
   assert.deepEqual(await chips.locator('b').allTextContents(),['Sketch','Mínimo','Finish']);
-  assert.match(await chips.nth(1).locator('small').textContent(),/½/);
+  // Chips sit on top of the ◐ ▶ ✓ row: same box, the card does not grow.
+  const row=await page.locator('[data-routine-card="production"] .cr-compact-actions').boundingBox();
+  const pick=await page.locator('[data-routine-card="production"] .cr-variants').boundingBox();
+  assert.ok(Math.abs(pick.y-row.y)<1&&Math.abs(pick.height-row.height)<1,`${name}: picker covers the action row ${JSON.stringify([row,pick])}`);
+  assert.ok(Math.abs((await page.locator('[data-routine-card="production"]').boundingBox()).height-cardBefore)<1,`${name}: card height unchanged`);
   const box=await page.locator('[data-routine-card="production"]').boundingBox();
   for(const b of await chips.evaluateAll(n=>n.map(e=>e.getBoundingClientRect().toJSON())))
    assert.ok(b.left>=box.x-1&&b.right<=box.x+box.width+1,`${name}: chip inside card`);
   if(process.env.SHAAH_SHOTS)await page.locator('[data-routine-card="production"]').screenshot({path:`${process.env.SHAAH_SHOTS}/variants-${name}.png`});
-  if(name==='desktop')await page.locator('[data-routine-card="production"] .sf-routine-primary').click();
+  if(name==='desktop'){await page.locator('[data-routine-card="production"] .cr-variant-close').click();assert.equal(await chips.count(),0);}
  }
  await page.locator('[data-routine-card="production"] .cr-variant',{hasText:'Mínimo'}).click();
  assert.equal(await page.evaluate(()=>routineId),'production_min');

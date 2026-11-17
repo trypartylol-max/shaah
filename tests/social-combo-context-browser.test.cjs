@@ -1,0 +1,35 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {openApp}=require('./browser-helpers.cjs');
+const {locationFixture}=require('./location-fixtures.cjs');
+for(const width of [390,879,880,1440])test(`Today Friends group focus and history at ${width}px`,async t=>{
+ const page=await openApp(t,locationFixture(),{width,height:1000});
+ const snapshot=()=>page.evaluate(()=>JSON.stringify({state:_state,log:CFG.log,scores:['2026-09-07','2026-09-08','2026-09-15','2026-09-16','2026-09-17','2026-09-18','2026-10-08',todayKey()].map(k=>calcScore(k))}));
+ const before=await snapshot();
+ const ids=()=>page.locator('.t-social-independent [data-combo-id="friends"] [data-ui-click="socialRecord"]').evaluateAll(es=>es.map(e=>JSON.parse(e.dataset.uiClickArgs)[0]));
+ await page.evaluate(()=>setTab('today'));
+ assert.deepEqual(await ids(),['pold02']);
+ await page.evaluate(()=>locationSelect('pa'));assert.deepEqual(await ids(),['pold02','paway']);
+ await page.evaluate(()=>locationSelect('empty'));assert.deepEqual(await ids(),[]);
+ await page.evaluate(()=>locationSelect('all'));assert.deepEqual(await ids(),['pold01','pold02','paway','plegacy']);
+ await page.evaluate(()=>locationSelect('il'));
+ const historical=await page.evaluate(()=>{editDayKey='2026-09-16';return renderEditDay()});
+ for(const name of ['Ana Existing','Remote Person','Legacy Person'])assert.ok(historical.includes(name));
+ await page.evaluate(()=>setTab('social'));
+ assert.equal(await page.locator('[data-combo-id="friends"] [data-ui-click="socialRecord"]').count(),4);
+ assert.equal(await snapshot(),before);
+});
+for(const layout of ['standard','pro'])for(const width of [880,1440])test(`${layout} ${width}px collapsed Social beside expanded LVL2`,async t=>{
+ const page=await openApp(t,locationFixture(),{width,height:1000});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.evaluate(layout=>{setLayout(layout);setTab('today');todaySectionsSession=true;todayBoxesOpen.social=false;lvlOpen={1:true,2:true,3:false};render()},layout);
+ const social=page.locator('.t-social-independent');
+ const geom=await social.evaluate(e=>({h:e.getBoundingClientRect().height,head:e.querySelector('.today-box-disclosure').getBoundingClientRect().height,pad:parseFloat(getComputedStyle(e).paddingTop)+parseFloat(getComputedStyle(e).paddingBottom),x:e.getBoundingClientRect().x,w:e.getBoundingClientRect().width}));
+ assert.ok(geom.h<=geom.head+geom.pad+4,JSON.stringify(geom));
+ assert.ok((await page.locator('.t-lvl2').boundingBox()).height>geom.h);
+ await page.screenshot({path:require('node:path').join(__dirname,'..','test-results',`social-collapsed-${layout}-${width}.png`)});
+ await social.locator('.today-box-disclosure').click();
+ assert.ok((await social.boundingBox()).height>geom.h);
+ assert.equal((await social.boundingBox()).x,geom.x);assert.equal((await social.boundingBox()).width,geom.w);
+ await page.screenshot({path:require('node:path').join(__dirname,'..','test-results',`social-${layout}-${width}.png`)});
+});

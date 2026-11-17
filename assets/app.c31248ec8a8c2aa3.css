@@ -5184,3 +5184,16 @@ html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core
 html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions>.cr-variants>button:focus-visible{outline:2px solid currentColor!important;outline-offset:2px}
 @keyframes cr-variants-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions>.cr-variants{animation:none}}
+
+/* ---------- Core routine cards, tighter (2026-11-17) ----------
+   ~10-15% shorter by trimming empty space only: the title's extra line height, the gap
+   under it, the ◐ ▶ ✓ row's extra height (now exactly the buttons) and, when the screen
+   is not already in compact/tight fit, the vertical padding and row gap.
+   Text, icon and button sizes stay the same. */
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .cr-routine-name{line-height:1.2!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-lab{line-height:1.2!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card] .r-sub{margin-top:1px!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{grid-template-rows:auto 42px!important;min-height:0!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]>.cr-compact-actions{min-height:0!important}
+html:not([data-today-fit~="compact"])[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{padding-top:11px!important;padding-bottom:11px!important;row-gap:8px!important}
+html[data-layout] body #app #scroll .today.sf-today-v27 .t-rout-body>.wg-card{min-height:0!important}

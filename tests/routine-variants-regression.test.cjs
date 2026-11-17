@@ -7,8 +7,8 @@ test('productionVariantsOnce turns Production into Sketch and adds Mínimo and F
   assert.equal(a.read('productionVariantsOnce()'),true);
   assert.equal(a.read('CFG.prodV'),1);
   assert.equal(a.read('routineMinutes(ROUTINES.production)'),72);
-  assert.equal(a.read('routineMinutes(ROUTINES.production_min)'),20);
-  assert.equal(a.read('routineMinutes(ROUTINES.production_finish)'),115);
+  assert.equal(a.read('routineMinutes(ROUTINES.production_min)'),30);
+  assert.equal(a.read('routineMinutes(ROUTINES.production_finish)'),120);
   assert.deepEqual(a.read('routineFamily("production")'),['production','production_min','production_finish']);
   assert.equal(a.read('ROUTINES.production.short'),'Sketch');
   a.run('ROUTINES.production_min.steps[0].dur=9;CFG.routines.production_min.steps[0].dur=9');

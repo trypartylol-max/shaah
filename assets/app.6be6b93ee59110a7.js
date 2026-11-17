@@ -1693,7 +1693,7 @@ function socialIconsOnce(){
   return true;
 }
 // prodV 1 = Production en tres versiones: Sketch (la rutina base, todos los días),
-// Mínimo (días malos) y Finish (terminar el mejor sketch de la semana).
+// Mínimo (30 min, días malos) y Finish (2 h con descanso, terminar el mejor sketch).
 // Las versiones son rutinas aparte con `of:"production"` y se editan en Settings.
 // Play pregunta cuál hacer. Mínimo (`credit:0.5`) da media, como el botón ◐;
 // Sketch y Finish dan el hábito completo, como ✓.
@@ -1708,18 +1708,18 @@ const PRODUCTION_VARIANTS={
     {id:"archive",label:"Label & archive",dur:3,icon:"🗂"},
   ]},
   production_min:{label:"Production · Mínimo",short:"Mínimo",icon:"⚡",col:"#fbbf24",of:"production",credit:0.5,steps:[
-    {id:"open",label:"Open DAW (template ready)",dur:2,icon:"💻"},
-    {id:"freeplay",label:"Free play — one idea, no judging",dur:15,icon:"🎹"},
+    {id:"open",label:"Open DAW (template ready)",dur:3,icon:"💻"},
+    {id:"freeplay",label:"Free play — one idea, no judging",dur:24,icon:"🎹"},
     {id:"save",label:"Save & name it",dur:3,icon:"💾"},
   ]},
   production_finish:{label:"Production · Finish",short:"Finish",icon:"📐",col:"#34d399",of:"production",steps:[
     {id:"setup",label:"Setup & pick the best sketch",dur:5,icon:"💻",ses:1},
     {id:"fresh",label:"Fresh ears — listen + notes",dur:8,icon:"👂",ses:1},
-    {id:"arrange",label:"Arrangement & structure",dur:40,icon:"📐",ses:1},
+    {id:"arrange",label:"Arrangement & structure",dur:42,icon:"📐",ses:1},
     {id:"break",label:"Break — step away",dur:10,icon:"☕",ses:"break",isBreak:true},
-    {id:"design",label:"Sound design & layers",dur:25,icon:"🎛",ses:2},
-    {id:"mix",label:"Mix pass",dur:20,icon:"🎚",ses:2},
-    {id:"bounce",label:"Bounce & archive",dur:7,icon:"📀",ses:2},
+    {id:"design",label:"Sound design & layers",dur:26,icon:"🎛",ses:2},
+    {id:"mix",label:"Mix pass",dur:21,icon:"🎚",ses:2},
+    {id:"bounce",label:"Bounce & archive",dur:8,icon:"📀",ses:2},
   ]},
 };
 function productionVariantsOnce(){

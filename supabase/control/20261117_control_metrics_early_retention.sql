@@ -1,0 +1,7 @@
+-- Aplicado en producción el 2026-11-17 (migración control_metrics_early_retention).
+-- Añade a shaah_control_private.metrics():
+--   retention: [{day, eligible, returned}] para los días 2, 3, 5, 7, 14 y 30. Día 1 = primer día con registro;
+--              solo cuentan las cuentas que ya llegaron a ese día; la cuenta del propietario queda fuera.
+--   users[]:   owner, first_day, day_number y first14 (14 caracteres: 1 registró, 0 no registró, - aún no llega).
+-- El resto del backend de la Torre de Control sigue sin versionar en este repo (ver CLAUDE.md).
+-- La definición completa vive en la base: select pg_get_functiondef('shaah_control_private.metrics(text)'::regprocedure);

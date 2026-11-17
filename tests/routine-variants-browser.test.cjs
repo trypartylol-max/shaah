@@ -1,7 +1,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');
 const {openApp}=require('./browser-helpers.cjs');const {loadApp}=require('./helpers.cjs');
-// Production shows one chip per version (Sketch / Mínimo / Finish); each starts its own runner
-// and finishing any of them marks Production done.
+// Play on Production opens a picker (Sketch / Mínimo / Finish); each starts its own runner.
+// Mínimo gives half credit, the others full credit.
 test('Production version chips start the chosen routine and fit on desktop and mobile', async t=>{
  const a=loadApp();a.run(`
  for(const id of ['production','wod']){CFG.h[id]={...LEGACY_CFG.h[id],pWork:LEGACY_CFG.h[id].p,pVacation:LEGACY_CFG.h[id].p};}
@@ -16,20 +16,24 @@ test('Production version chips start the chosen routine and fit on desktop and m
  await page.evaluate(()=>setTab('today'));
  for(const [width,height,name] of [[1440,1000,'desktop'],[390,844,'mobile']]){
   await page.setViewportSize({width,height});
-  await page.evaluate(()=>{todayRoutinesOpen=true;render()});
+  await page.evaluate(()=>{todayRoutinesOpen=true;_routinePick=null;render()});
+  assert.equal(await page.locator('[data-routine-card="production"] .cr-variant').count(),0);
+  await page.locator('[data-routine-card="production"] .sf-routine-primary').click();
   const chips=page.locator('[data-routine-card="production"] .cr-variant');
   assert.equal(await chips.count(),3);
   assert.deepEqual(await chips.locator('b').allTextContents(),['Sketch','Mínimo','Finish']);
+  assert.match(await chips.nth(1).locator('small').textContent(),/½/);
   const box=await page.locator('[data-routine-card="production"]').boundingBox();
   for(const b of await chips.evaluateAll(n=>n.map(e=>e.getBoundingClientRect().toJSON())))
    assert.ok(b.left>=box.x-1&&b.right<=box.x+box.width+1,`${name}: chip inside card`);
   if(process.env.SHAAH_SHOTS)await page.locator('[data-routine-card="production"]').screenshot({path:`${process.env.SHAAH_SHOTS}/variants-${name}.png`});
+  if(name==='desktop')await page.locator('[data-routine-card="production"] .sf-routine-primary').click();
  }
  await page.locator('[data-routine-card="production"] .cr-variant',{hasText:'Mínimo'}).click();
  assert.equal(await page.evaluate(()=>routineId),'production_min');
  assert.match(await page.locator('#cr-dialog').textContent(),/Open DAW/);
  if(process.env.SHAAH_SHOTS)await page.screenshot({path:`${process.env.SHAAH_SHOTS}/variants-runner.png`});
  await page.evaluate(()=>{for(let i=0;i<3;i++)advanceSession('production_min');render()});
- assert.equal(await page.evaluate(()=>getChecked(todayKey()).production),true);
- assert.equal(await page.locator('[data-routine-card="production"] .cr-variant').count(),3);
+ assert.equal(await page.evaluate(()=>getChecked(todayKey()).production),0.5);
+ assert.equal(await page.locator('[data-routine-card="production"] .cr-variant').count(),0);
 });

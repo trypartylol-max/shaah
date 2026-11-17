@@ -1433,6 +1433,8 @@ const UI_ACTIONS=Object.freeze({
   productEndCancel:uiRule('click',[],()=>{productEndId=null;render();},true),
   productEndConfirm:uiRule('click',['string'],(n,e,id)=>{productEndId=null;finishRoutineEarly(id);},true),
   startRoutine:uiRule('click',['string'],(n,e,id)=>startRoutine(id),true),
+  routinePick:uiRule('click',['string'],(n,e,id)=>routinePick(id),true),
+  routinePickStart:uiRule('click',['string'],(n,e,id)=>routinePickStart(id),true),
   startRoutineNested:uiRule('click',['string'],(n,e,id)=>startRoutine(id),true),
   toggleLvl:uiRule('click',['integer'],(n,e,level)=>toggleLvl(level)),
   toggleHabit:uiRule('click',['string','string'],(n,e,id,key)=>toggleHabit(id,key)),
@@ -1691,9 +1693,10 @@ function socialIconsOnce(){
   return true;
 }
 // prodV 1 = Production en tres versiones: Sketch (la rutina base, todos los días),
-// Mínimo (días malos, cuenta igual) y Finish (terminar el mejor sketch de la semana).
-// Las versiones son rutinas aparte con `of:"production"`: se editan en Settings como
-// cualquier otra y cualquiera de las tres marca el hábito Production como hecho.
+// Mínimo (días malos) y Finish (terminar el mejor sketch de la semana).
+// Las versiones son rutinas aparte con `of:"production"` y se editan en Settings.
+// Play pregunta cuál hacer. Mínimo (`credit:0.5`) da media, como el botón ◐;
+// Sketch y Finish dan el hábito completo, como ✓.
 const PRODUCTION_VARIANTS={
   production:{short:"Sketch",steps:[
     {id:"setup",label:"Setup & open DAW",dur:4,icon:"💻"},
@@ -1704,7 +1707,7 @@ const PRODUCTION_VARIANTS={
     {id:"save1",label:"Save & export draft",dur:4,icon:"💾"},
     {id:"archive",label:"Label & archive",dur:3,icon:"🗂"},
   ]},
-  production_min:{label:"Production · Mínimo",short:"Mínimo",icon:"⚡",col:"#fbbf24",of:"production",steps:[
+  production_min:{label:"Production · Mínimo",short:"Mínimo",icon:"⚡",col:"#fbbf24",of:"production",credit:0.5,steps:[
     {id:"open",label:"Open DAW (template ready)",dur:2,icon:"💻"},
     {id:"freeplay",label:"Free play — one idea, no judging",dur:15,icon:"🎹"},
     {id:"save",label:"Save & name it",dur:3,icon:"💾"},
@@ -1734,6 +1737,18 @@ function productionVariantsOnce(){
 function routineHabit(id){const of=ROUTINES[id]?.of;return of&&ROUTINES[of]?of:id;}
 function routineFamily(hid){return [hid,...Object.keys(ROUTINES).filter(k=>k!==hid&&ROUTINES[k].of===hid)];}
 function routineMinutes(rt){return rt.steps.reduce((a,s)=>a+s.dur,0);}
+function routineCredit(id){return ROUTINES[id]?.credit===0.5?0.5:true;}
+// Terminar una rutina puntúa su hábito: completo o media según la versión.
+// Una media nunca rebaja un hábito que ya estaba completo hoy.
+function routineAward(id){
+  const hid=routineHabit(id),v=routineCredit(id),k=todayKey();
+  if(v===true)return quickComplete(hid);
+  if(getChecked(k)[hid]===true)return;
+  haptic(18);const ch={...getChecked(k)};ch[hid]=0.5;setChecked(k,ch);persistDay(k);dayLogSyncCompletion(hid,k,0.5);renderDayChange(k);
+}
+let _routinePick=null;
+function routinePick(id){if(!USER||!ROUTINES[id])return;haptic(8);_routinePick=_routinePick===id?null:id;render();}
+function routinePickStart(id){_routinePick=null;startRoutine(id);}
 // subsV 2 = Family colocada desde FAMILY_FROM. Los que ya tenían subsV 1 (Family desde el
 // día del update) pasan por aquí otra vez y se les corrige la fecha de entrada.
 function addFamilyOnce(){
@@ -4555,7 +4570,7 @@ function importPrepare(input){
     for(const [rid,r] of Object.entries(cfg.routines||{})){
       if(!id(rid)||!obj(r)||!optional(r,'label',text)||!optional(r,'icon',text)
         ||!optional(r,'col',v=>safeColor(v,null)!==null)
-        ||!optional(r,'of',id)||!optional(r,'short',v=>text(v,40))
+        ||!optional(r,'of',id)||!optional(r,'short',v=>text(v,40))||!optional(r,'credit',v=>v===0.5)
         ||!list(r.steps,s=>obj(s)&&optional(s,'id',id)&&optional(s,'label',text)&&optional(s,'icon',text)
           &&number(s.dur)&&Number(s.dur)>0&&Number(s.dur)<=600,500)||!r.steps.length)bad();
     }
@@ -5840,7 +5855,8 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
         const family=routineFamily(item.id),activeId=family.find(id=>sessions[id])||item.id;
         const rt=ROUTINES[activeId],st=ch[item.id],full=st===true,light=st===0.5,done=full||light,totalMin=routineMinutes(rt);
         const session=sessions[activeId];
-        const variants=family.length>1&&!session?`<div class="cr-variants" role="group" aria-label="${interfaceCopy("Choose a version")}">${family.map(id=>{const v=ROUTINES[id];return`<button type="button" class="cr-variant" ${ui('click','startRoutine',id)} ${uiStyle(`border-color:${v.col}`)}><span aria-hidden="true">${esc(v.icon)}</span><b>${esc(v.short||v.label)}</b><small>${routineMinutes(v)}m</small></button>`;}).join('')}</div>`:'';
+        const picking=family.length>1&&!session&&_routinePick===item.id;
+        const picker=picking?`<div class="cr-variants" role="group" aria-label="${interfaceCopy("Choose a version")}">${family.map(id=>{const v=ROUTINES[id];return`<button type="button" class="cr-variant" ${ui('click','routinePickStart',id)} ${uiStyle(`border-color:${v.col}`)}><span aria-hidden="true">${esc(v.icon)}</span><b>${esc(v.short||v.label)}</b><small>${routineMinutes(v)}m${routineCredit(id)===0.5?' · ½':''}</small></button>`;}).join('')}</div>`:'';
         // The three shared controls retain daily credit toggles and the existing runner.
         return`<div class="sf-core-routine cr-compact-card" data-routine-card="${esc(item.id)}">
           <div class="cr-compact-icon" aria-hidden="true">${esc(rt.icon)}</div>
@@ -5850,9 +5866,9 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
           </div>
           <div class="cr-compact-actions">
             <button type="button" class="r-btn" aria-label="${interfaceLanguage==='he'?interfaceCopy(light?'Clear light credit':'Light version — half credit'):interfaceCopy("LIGHT")}" aria-pressed="${light}" title="${interfaceCopy(light?'Clear light credit':'Light version — half credit')}" ${ui('click','setHabitState',item.id,key,light?false:0.5)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16Z" fill="currentColor" stroke="none"/></svg></button>
-            <button type="button" class="r-btn sf-routine-primary" aria-label="${interfaceLanguage==='he'?interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine'):item.id==='production'?interfaceCopy('PLAY'):interfaceText('start')}" title="${interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine')}" ${session&&!session.running?ui('click','routineResume',activeId):ui('click','startRoutine',activeId)} ${uiStyle(`background:${rt.col};color:#080810`)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4 20 12 8 20Z" fill="currentColor" stroke="none"/></svg></button>
+            <button type="button" class="r-btn sf-routine-primary" aria-label="${interfaceLanguage==='he'?interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine'):item.id==='production'?interfaceCopy('PLAY'):interfaceText('start')}" title="${interfaceCopy(session?(session.running?'Open running routine':session.paused?'Resume routine':'Play prepared step'):'Play routine')}" ${session&&!session.running?ui('click','routineResume',activeId):(family.length>1&&!session)?ui('click','routinePick',item.id):ui('click','startRoutine',activeId)} ${family.length>1&&!session?`aria-expanded="${picking}"`:''} ${uiStyle(`background:${rt.col};color:#080810`)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4 20 12 8 20Z" fill="currentColor" stroke="none"/></svg></button>
             <button type="button" class="r-btn" aria-label="${interfaceLanguage==='he'?interfaceCopy(full?'Clear completed routine':'Mark done without the timer'):interfaceCopy("DONE")}" aria-pressed="${full}" title="${interfaceCopy(full?'Clear completed routine':'Mark done without the timer')}" ${ui('click','setHabitState',item.id,key,full?false:true)}><svg class="cr-action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 5 5L20 6"/></svg></button>
-          </div>${variants}
+          </div>${picker}
         </div>`;
       }).join("")}</div>
     </div>`}
@@ -6854,11 +6870,11 @@ function finishRoutine(){
   const s=S(id),end=dayLogNowISO(),start=s?.startedAt||end;
   closeRoutine(id);
   if(id){
-    const hid=routineHabit(id);
-    quickComplete(hid);
+    const hid=routineHabit(id),light=routineCredit(id)===0.5;
+    routineAward(id);
     const key=todayKey(),old=dayLogFindLinked('routine',hid,key);
-    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true};dayLogPersist(key);}
-    else dayLogAdd(ROUTINES[id]?.label||id,start,end,'routine',hid,{completed:true});
+    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true,light};dayLogPersist(key);}
+    else dayLogAdd(ROUTINES[id]?.label||id,start,end,'routine',hid,light?{completed:true,meta:{completed:true,light:true}}:{completed:true});
   }
   setTab('today');
 }
@@ -6903,11 +6919,11 @@ function advanceSession(id){
   s.running=false; s.paused=false; s.endAt=null;
   if(!s.q.length){
     const end=dayLogNowISO(),start=s.startedAt||end,key=todayKey();
-    const hid=routineHabit(id);
-    quickComplete(hid);
+    const hid=routineHabit(id),light=routineCredit(id)===0.5;
+    routineAward(id);
     const old=dayLogFindLinked('routine',hid,key);
-    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true};dayLogPersist(key);}
-    else dayLogAdd(ROUTINES[id]?.label||id,start,end,'routine',hid,{completed:true});
+    if(old){old.start=start;old.end=end;old.meta={...(old.meta||{}),completed:true,light};dayLogPersist(key);}
+    else dayLogAdd(ROUTINES[id]?.label||id,start,end,'routine',hid,light?{completed:true,meta:{completed:true,light:true}}:{completed:true});
     delete sessions[id];
     if(routineId===id){routineId=null;routineView=false;routineQueue=[];routineCompleted={};timerSecs=0;timerRunning=false;timerEndAt=null;}
   }

@@ -1,0 +1,35 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');
+const {openApp}=require('./browser-helpers.cjs');const {loadApp}=require('./helpers.cjs');
+// Production shows one chip per version (Sketch / Mínimo / Finish); each starts its own runner
+// and finishing any of them marks Production done.
+test('Production version chips start the chosen routine and fit on desktop and mobile', async t=>{
+ const a=loadApp();a.run(`
+ for(const id of ['production','wod']){CFG.h[id]={...LEGACY_CFG.h[id],pWork:LEGACY_CFG.h[id].p,pVacation:LEGACY_CFG.h[id].p};}
+ CFG.order=['work','production','wod',...CFG.order.filter(id=>!['work','production','wod'].includes(id))];
+ CFG.routines=JSON.parse(JSON.stringify(LEGACY_CFG.routines));
+ for(const e of CFG.log){e.h=JSON.parse(JSON.stringify(CFG.h));e.order=[...CFG.order];}
+ CFG=upgradeShaahSocialCoreConfig(CFG,'2026-10-16','regression-user').config;
+ for(const id of ['production_min','production_finish'])CFG.routines[id]=JSON.parse(JSON.stringify(PRODUCTION_VARIANTS[id]));
+ CFG.routines.production.short='Sketch';CFG.routines.production.steps=JSON.parse(JSON.stringify(PRODUCTION_VARIANTS.production.steps));
+ _state['2026-10-16']={checks:{},social:{},people:[],note:'',_daylog:[]};`);
+ const page=await openApp(t,{config:a.read('CFG'),days:a.read('_state')});
+ await page.evaluate(()=>setTab('today'));
+ for(const [width,height,name] of [[1440,1000,'desktop'],[390,844,'mobile']]){
+  await page.setViewportSize({width,height});
+  await page.evaluate(()=>{todayRoutinesOpen=true;render()});
+  const chips=page.locator('[data-routine-card="production"] .cr-variant');
+  assert.equal(await chips.count(),3);
+  assert.deepEqual(await chips.locator('b').allTextContents(),['Sketch','Mínimo','Finish']);
+  const box=await page.locator('[data-routine-card="production"]').boundingBox();
+  for(const b of await chips.evaluateAll(n=>n.map(e=>e.getBoundingClientRect().toJSON())))
+   assert.ok(b.left>=box.x-1&&b.right<=box.x+box.width+1,`${name}: chip inside card`);
+  if(process.env.SHAAH_SHOTS)await page.locator('[data-routine-card="production"]').screenshot({path:`${process.env.SHAAH_SHOTS}/variants-${name}.png`});
+ }
+ await page.locator('[data-routine-card="production"] .cr-variant',{hasText:'Mínimo'}).click();
+ assert.equal(await page.evaluate(()=>routineId),'production_min');
+ assert.match(await page.locator('#cr-dialog').textContent(),/Open DAW/);
+ if(process.env.SHAAH_SHOTS)await page.screenshot({path:`${process.env.SHAAH_SHOTS}/variants-runner.png`});
+ await page.evaluate(()=>{for(let i=0;i<3;i++)advanceSession('production_min');render()});
+ assert.equal(await page.evaluate(()=>getChecked(todayKey()).production),true);
+ assert.equal(await page.locator('[data-routine-card="production"] .cr-variant').count(),3);
+});

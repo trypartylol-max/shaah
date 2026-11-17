@@ -1,5 +1,5 @@
 // Sends the daily SHAAH reminder to the devices that are due (see public.shaah_push_run).
-// Invoked every 15 minutes by pg_cron. JWT verification is off; the cron token is checked by the RPC.
+// Invoked every 5 minutes by pg_cron. JWT verification is off; the cron token is checked by the RPC.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import webpush from 'npm:web-push@3.6.7';
 

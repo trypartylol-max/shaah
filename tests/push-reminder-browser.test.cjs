@@ -27,8 +27,9 @@ test('the daily reminder is off by default, subscribes this device at the chosen
  assert.equal(first.name,'shaah_push_subscribe');assert.equal(first.args.p_remind_at,'20:00');assert.equal(first.args.p_timezone,'UTC');
  assert.equal(first.args.p_lang,'en');assert.equal(first.args.p_endpoint,'https://push.example.test/abc');
  assert.equal(await p.evaluate(()=>window.__push.key),65,'uses the 65-byte VAPID public key');
- await p.locator('.push-time input').fill('08:30');
- await p.waitForFunction(()=>window.__push.calls.some(c=>c.args.p_remind_at==='08:30'),null,{timeout:3000}).catch(async()=>{throw new Error('calls '+JSON.stringify(await p.evaluate(()=>window.__push.calls.map(c=>c.name+':'+c.args.p_remind_at)))+' busy '+await p.evaluate(()=>_push.busy)+' val '+await p.locator('.push-time input').inputValue())});
+ assert.equal(await p.locator('.push-time select option').count(),96,'quarter-hour steps');
+ await p.locator('.push-time select').selectOption('08:30');
+ await p.waitForFunction(()=>window.__push.calls.some(c=>c.args.p_remind_at==='08:30'),null,{timeout:3000}).catch(async()=>{throw new Error('calls '+JSON.stringify(await p.evaluate(()=>window.__push.calls.map(c=>c.name+':'+c.args.p_remind_at)))+' busy '+await p.evaluate(()=>_push.busy))});
  await p.waitForFunction(()=>!_push.busy);
  await p.locator('.push-setting .badge-toggle').click();
  await p.waitForFunction(()=>document.querySelector('.push-setting .badge-toggle').getAttribute('aria-pressed')==='false');

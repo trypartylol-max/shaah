@@ -82,7 +82,7 @@ end $$;
 revoke all on function public.shaah_push_run(text) from public, anon, authenticated;
 grant execute on function public.shaah_push_run(text) to service_role;
 
--- Every 15 minutes. The Edge Function checks the token against Vault through shaah_push_run.
+-- Every 15 minutes (5 since 20261117140000). The Edge Function checks the token against Vault through shaah_push_run.
 select cron.unschedule('shaah-push-reminders') where exists(select 1 from cron.job where jobname='shaah-push-reminders');
 select cron.schedule('shaah-push-reminders','*/15 * * * *',$cron$
   select net.http_post(

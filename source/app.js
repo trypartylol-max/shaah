@@ -960,7 +960,8 @@ function arrivalReset(){
 function arrivalPlanExisting(){
   if(_arrivalResolved)return;
   _arrivalResolved=true;
-  _arrivalWelcome=!get(arrivalSeenKey());
+  // Returning accounts open directly in the app, including after a new sign-in.
+  _arrivalWelcome=false;
 }
 function arrivalDismiss(){
   clearTimeout(_arrivalTimer);_arrivalTimer=null;_arrivalWelcome=false;

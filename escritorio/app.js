@@ -197,28 +197,29 @@ async function borrarGasto(x) {
   } catch (e) { toast('No pude borrarlo: ' + (e.message || 'sin conexión')); return false; }
 }
 
-/* ---------- gastos rápidos ---------- */
-let armed = null;
+/* ---------- gastos rápidos ----------
+   Cada botón rellena merchant y categoría y te deja el cursor en el monto.
+   Los "acc" (ej. gasolina) suman el monto a la fila del mes en vez de crear una nueva. */
 function renderQuick(d) {
   const names = {}; (d.cats || []).forEach(c => { names[c.code] = c.name; });
-  const Q = (d.quick || []).filter(q => q.cat !== 'fij').slice(0, 6);
+  const Q = (d.quick || []).slice(0, 12);
   $('quick').hidden = !Q.length;
-  $('quick').innerHTML = Q.map((q, i) => '<button type="button" class="qc" data-i="' + i + '" title="' + esc((names[q.cat] || q.cat) + ' · usado ' + q.n + ' veces') + '"><span>' + esc(cap(q.com)) + '</span><b class="pv">' + money(q.monto) + '</b></button>').join('');
+  $('quick').innerHTML = Q.map((q, i) => '<button type="button" class="qc' + (q.acc ? ' acc' : '') + '" data-i="' + i + '" title="' + esc((names[q.cat] || q.cat) + (q.acc ? ' · suma al total del mes' : '')) + '"><span>' + esc(cap(q.label || q.com)) + '</span>' +
+    (q.monto ? '<b class="pv">' + money(q.monto) + '</b>' : q.acc ? '<b>+ suma</b>' : '') + '</button>').join('');
   $('quick')._q = Q;
 }
-$('quick').addEventListener('click', async ev => {
+$('quick').addEventListener('click', ev => {
   const b = ev.target.closest('.qc'); if (!b) return;
   const q = $('quick')._q[+b.dataset.i];
-  if (armed !== b) {
-    if (armed) armed.classList.remove('armed');
-    armed = b; b.classList.add('armed'); b.querySelector('span').textContent = '¿Guardar ' + cap(q.com) + '? ✓';
-    clearTimeout(armed._t); b._t = setTimeout(() => { if (armed === b) { armed = null; b.classList.remove('armed'); b.querySelector('span').textContent = cap(q.com); } }, 3500);
-    return;
-  }
-  clearTimeout(b._t); armed = null; b.disabled = true;
-  await addGasto({ monto: q.monto, categoria: q.cat, comercio: q.com });
-  b.disabled = false; b.classList.remove('armed'); b.querySelector('span').textContent = cap(q.com);
+  $('aCat').value = q.cat; $('aCom').value = q.com;
+  if (q.monto) $('aMonto').value = q.monto;
+  $('aCom').placeholder = q.ask || $('aCom').dataset.ph || $('aCom').placeholder;
+  $('addForm').dataset.acc = q.acc ? q.com : '';
+  [...$('quick').children].forEach(x => x.classList.toggle('armed', x === b));
+  if (q.ask) $('aCom').focus(); else { $('aMonto').focus(); $('aMonto').select(); }
 });
+$('aCom').dataset.ph = $('aCom').placeholder;
+['aCat', 'aCom'].forEach(id => $(id).addEventListener('input', () => { $('addForm').dataset.acc = ''; [...$('quick').children].forEach(x => x.classList.remove('armed')); }));
 
 /* ---------- SHAAH: nota de hoy y racha ---------- */
 const ymd = dt => dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
@@ -495,14 +496,15 @@ $('evForm').addEventListener('submit', async ev => {
   if (ok) evClose();
 });
 async function sendGasto(g) {
-  const r = await apiPost({ op: 'gasto', monto: g.monto, categoria: g.categoria, comercio: g.comercio });
+  const r = await apiPost({ op: 'gasto', monto: g.monto, categoria: g.categoria, comercio: g.comercio, acc: g.acc ? 1 : 0 });
   if (!r || !r.ok) throw Object.assign(new Error((r && r.error) || 'error'), { server: true });
   return r;
 }
 async function addGasto(g) {
   try {
     const r = await sendGasto(g);
-    toast('✓ ' + money(g.monto) + ' · ' + g.comercio + ' guardado en ' + (r.pestana || 'Plata26'), r.fila ? 'Deshacer' : null, () => borrarGasto({ row: r.fila, monto: Number(g.monto), com: g.comercio }));
+    if (r.sumado) toast('✓ +' + money(g.monto) + ' sumado a ' + g.comercio + (r.total ? ' · total del mes ' + money(r.total) : ''));
+    else toast('✓ ' + money(g.monto) + ' · ' + g.comercio + ' guardado en ' + (r.pestana || 'Plata26'), r.fila ? 'Deshacer' : null, () => borrarGasto({ row: r.fila, monto: Number(g.monto), com: g.comercio }));
     load(true);
     return true;
   } catch (e) {
@@ -525,9 +527,10 @@ $('addForm').addEventListener('submit', async ev => {
   const monto = parseFloat(String($('aMonto').value).replace(',', '.')), com = $('aCom').value.trim();
   if (!monto || !com) return;
   $('aBtn').disabled = true;
-  const ok = await addGasto({ monto, categoria: $('aCat').value, comercio: com });
+  const acc = $('addForm').dataset.acc && $('addForm').dataset.acc === com;
+  const ok = await addGasto({ monto, categoria: $('aCat').value, comercio: com, acc });
   $('aBtn').disabled = false;
-  if (ok) { $('aMonto').value = ''; $('aCom').value = ''; }
+  if (ok) { $('aMonto').value = ''; $('aCom').value = ''; $('aCom').placeholder = $('aCom').dataset.ph; $('addForm').dataset.acc = ''; [...$('quick').children].forEach(x => x.classList.remove('armed')); }
 });
 
 /* ---------- aportar a metas ---------- */

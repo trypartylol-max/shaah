@@ -469,3 +469,6 @@ html.noscroll,html.noscroll body{overflow:hidden;overscroll-behavior:none}
 .mc .mlb.ok{background:#5fd0a0}
 .mc .s2 b{color:#e6bb5c;font-weight:600}
 .mc .s2.use{color:#8b929c}
+
+/* botón rápido que suma al total del mes */
+.qc.acc b{color:#7fd4ad;font-weight:600;font-size:13px}

@@ -5158,3 +5158,13 @@ html[data-layout] body #app #scroll .today .sf-compact-combo .sf-reveal .sf-butt
 }
 
 shaah-section[name="end"]{}
+
+/* Settings → Routines: step editing (icon, reorder, delete, add) */
+.rt-step-icon{width:34px;flex:0 0 34px;box-sizing:border-box;text-align:center;background:var(--skin-input-bg,rgba(17,17,32,1));border:1px solid var(--skin-input-border,rgba(41,41,60,1));border-radius:6px;color:inherit;font:inherit;font-size:16px;padding:3px 0}
+.rt-step-tools{display:flex;gap:2px;flex:0 0 auto}
+.rt-step-btn{min-width:30px;min-height:30px;padding:0;border:1px solid transparent;border-radius:6px;background:none;color:var(--skin-muted,#a2a2b6);font:inherit;font-size:14px;cursor:pointer}
+.rt-step-btn:hover:not(:disabled){border-color:var(--skin-input-border,rgba(41,41,60,1));color:var(--skin-copy,#e2e2e2)}
+.rt-step-btn:disabled{opacity:.25;cursor:default}
+.rt-step-add{margin-top:8px}
+.rt-steps-locked{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:var(--skin-muted,#a2a2b6)}
+@media (max-width:640px){.rt-step-row{flex-wrap:wrap;row-gap:2px;margin-bottom:10px!important}.rt-step-row>input[dir]:not(.rt-step-icon){flex:1 1 calc(100% - 50px)!important}.rt-step-row>input[type=number]{margin-left:42px}.rt-step-tools{margin-left:auto}.rt-step-btn{min-width:40px;min-height:40px}}

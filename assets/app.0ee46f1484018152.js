@@ -1397,6 +1397,9 @@ const UI_ACTIONS=Object.freeze({
   subDel:uiRule('click',['integer'],(n,e,i)=>subDel(i)),
   subAdd:uiRule('click',[],()=>subAdd()),
   stepSet:uiRule('change',['string','integer','stepField'],(n,e,id,i,field)=>stepSet(id,i,field,n.value)),
+  stepAdd:uiRule('click',['string'],(n,e,id)=>stepAdd(id),true),
+  stepDel:uiRule('click',['string','integer'],(n,e,id,i)=>stepDel(id,i),true),
+  stepMove:uiRule('click',['string','integer','integer'],(n,e,id,i,d)=>stepMove(id,i,d),true),
   locationAdd:uiRule('click',[],()=>locationAdd()),
   locationRename:uiRule('click',['string'],(n,e,id)=>locationRename(id)),
   setPeopleSettingsFilter:uiRule('click',['string'],(n,e,filter)=>setPeopleSettingsFilter(filter)),
@@ -1468,7 +1471,7 @@ const UI_ENUMS=Object.freeze(Object.fromEntries(Object.entries({
   layout:['standard','pro'],tab:['today','log','social','stats','history'],skin:SUPPORTED_SKINS.map(s=>s.id),
   scope:['all','unassigned'],membership:['add','remove'],resolution:['server','local'],
   mode:['work','vacation'],habitField:['i','l','p','pWork'],socialField:['icon','label','pWork','pVacation'],
-  stepField:['label','dur'],personField:['name','sub','every']
+  stepField:['label','dur','icon'],personField:['name','sub','every']
 }).map(([key,values])=>[key,Object.freeze(values)])));
 function uiValid(rule,type,args){
   if(!rule||rule.event!==type||!Array.isArray(args)||args.length!==rule.args.length)return false;
@@ -3911,6 +3914,13 @@ const interfaceCopies = {
   "Ready": ["Ready", "Listo", "מוכן"],
   "Open": ["Open", "Abrir", "פתיחה"],
   "Step": ["Step", "Paso", "שלב"],
+  "New step": ["New step", "Paso nuevo", "שלב חדש"],
+  "+ Add step": ["+ Add step", "+ Añadir paso", "+ הוספת שלב"],
+  "Delete the step \"{name}\"?": ["Delete the step \"{name}\"?", "¿Borrar el paso \"{name}\"?", "למחוק את השלב \"{name}\"?"],
+  "Delete step {number}": ["Delete step {number}", "Borrar paso {number}", "מחיקת שלב {number}"],
+  "Move up": ["Move up", "Subir", "העברה למעלה"],
+  "Move down": ["Move down", "Bajar", "העברה למטה"],
+  "Finish this routine to add, delete or reorder its steps.": ["Finish this routine to add, delete or reorder its steps.", "Termina esta rutina para añadir, borrar o reordenar sus pasos.", "סיימו את השגרה כדי להוסיף, למחוק או לסדר שלבים."],
   "Close routine": ["Close routine", "Cerrar rutina", "סגירת שגרה"],
   "Reset Step": ["Reset Step", "Reiniciar paso", "איפוס שלב"],
   "Pause": ["Pause", "Pausar", "השהיה"],
@@ -4300,15 +4310,18 @@ function renderSettings(){
             <span ${uiStyle(`font-size:16.5px;color:#e2e2e2`)}>${esc(r.label)}</span>
             <span class="settings-routine-summary" ${uiStyle(`font-size:15px;color:#adadbf`)}>${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',r.steps.length).replace('{minutes}',tm)}</span>
           </div>
+          ${routineStepsLocked(rid)?`<p class="rt-steps-locked" role="status">${interfaceCopy("Finish this routine to add, delete or reorder its steps.")}</p>`:''}
           ${r.steps.map((s,i)=>`
-            <div ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:4px`)}>
-              <span ${uiStyle(`font-size:16.5px;width:20px;text-align:center`)}>${esc(s.icon)}</span>
+            <div class="rt-step-row" ${uiStyle(`display:flex;align-items:center;gap:8px;margin-bottom:4px`)}>
+              <input class="rt-step-icon" dir="auto" maxlength="3" value="${esc(s.icon||'')}" ${ui('change','stepSet' ,rid,i,'icon')} aria-label="${interfaceCopy("Icon")}"/>
               <input dir="auto" value="${esc(s.label)}" ${ui('change','stepSet' ,rid,i,'label')} aria-label="${interfaceCopy("Step")}"
                 ${uiStyle(`flex:1;min-width:0;background:none;border:none;border-bottom:1px solid #1c1c2c;color:#bbb;font-family:inherit;font-size:15px;padding:3px 0`)}/>
               <input type="number" min="1" max="180" value="${esc(s.dur)}" ${ui('change','stepSet' ,rid,i,'dur')} aria-label="${interfaceCopy("Minutes")}"
                 ${uiStyle(`width:48px;background:#111120;border:1px solid #222;border-radius:6px;color:${r.col};font-family:inherit;font-size:15px;padding:4px;text-align:center`)}/>
               <span ${uiStyle(`font-size:14.5px;color:#a2a2b6`)}>m</span>
+              ${routineStepsLocked(rid)?'':`<span class="rt-step-tools"><button type="button" class="rt-step-btn" ${i===0?'disabled':ui('click','stepMove',rid,i,-1)} aria-label="${interfaceCopy("Move up")}">↑</button><button type="button" class="rt-step-btn" ${i===r.steps.length-1?'disabled':ui('click','stepMove',rid,i,1)} aria-label="${interfaceCopy("Move down")}">↓</button><button type="button" class="rt-step-btn" ${r.steps.length<=1?'disabled':ui('click','stepDel',rid,i)} aria-label="${esc(interfaceCopy("Delete step {number}").replace('{number}',()=>i+1))}">🗑</button></span>`}
             </div>`).join("")}
+          ${routineStepsLocked(rid)||r.steps.length>=20?'':`<button type="button" class="sf-button rt-step-add" ${ui('click','stepAdd',rid)}>${interfaceCopy("+ Add step")}</button>`}
         </div>`}).join("")}`,"st-col-b")}
             ${stCard("ppl",interfaceText('socialSettings'),"#9090aa",`${socialGeneralSettings()}<p class="sf-muted">${interfaceText('socialSettingsHint')}</p><button class="sf-button" ${ui('click','socialManage')}>${interfaceText('openSocial')}</button>`,"st-col-b")}
             ${stCard("bak",interfaceText('backups'),"#9090aa",`${historySafetyHTML()}
@@ -4412,6 +4425,22 @@ function subDel(i){ subsEnsure(); if(CFG.subs.length<=1||!CFG.subs[i])return;
   if(!confirm(interfaceCopy("Remove \"{name}\" from the Social Combo? Past days keep the score they already had.").replace('{name}', () => CFG.subs[i].label)))return;
   haptic(12); cfgEdit(()=>{ CFG.subs.splice(i,1); syncComboPts(); }); }
 function stepSet(rid,i,k,v){ const s=CFG.routines[rid]&&CFG.routines[rid].steps[i]; if(!s)return; s[k]= k==='dur'?Math.max(1,Math.min(600,parseInt(v)||1)):String(v==null?'':v).slice(0,k==='icon'?3:40); saveCfg(); render(); }
+// Adding, deleting or reordering steps shifts the step positions a live session keeps
+// (sessions[id].q / .done are indexes), so those edits wait until the routine is finished.
+function routineStepsLocked(rid){ return !!(sessions[rid]&&Array.isArray(sessions[rid].q))||!!_routineClaims[rid]; }
+function routineStepsEditable(rid){
+  const r=CFG.routines&&CFG.routines[rid];
+  return !!r&&Array.isArray(r.steps)&&!(USER&&(!_cfgReady||_cfgConflict))&&!routineStepsLocked(rid);
+}
+function stepAdd(rid){ if(!routineStepsEditable(rid))return; const r=CFG.routines[rid]; if(r.steps.length>=20)return;
+  let id; do{ id='st'+Math.random().toString(36).slice(2,8).padEnd(6,'0'); }while(r.steps.some(x=>x&&x.id===id));
+  haptic(12); r.steps.push({id,label:interfaceCopy("New step"),dur:5,icon:'•'}); saveCfg(); render(); }
+function stepDel(rid,i){ if(!routineStepsEditable(rid))return; const r=CFG.routines[rid];
+  if(r.steps.length<=1||!r.steps[i])return;   // a routine with zero steps is dropped by routineViews
+  if(!confirm(interfaceCopy('Delete the step "{name}"?').replace('{name}',()=>r.steps[i].label)))return;
+  haptic(12); r.steps.splice(i,1); saveCfg(); render(); }
+function stepMove(rid,i,d){ if(!routineStepsEditable(rid)||(d!==-1&&d!==1))return; const r=CFG.routines[rid],j=i+d;
+  if(!r.steps[i]||!r.steps[j])return; haptic(8); [r.steps[i],r.steps[j]]=[r.steps[j],r.steps[i]]; saveCfg(); render(); }
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
 function closeReview(){ reviewOpen=false; render(); }
 function openSettings(){ settingsOpen=true; secOpen={}; haptic(10); render(); }

@@ -82,7 +82,12 @@ function render(d) {
 
   countTo($('left'), left);
   $('left').style.color = left < 0 ? 'var(--c-spent)' : '';
-  const paceAmt = budget * m, ahead = spent > paceAmt * 1.05;
+  // Ritmo hoy: los fijos y gastos únicos (renta, moto, cursos…) cuentan tal cual ya pagados;
+  // solo el budget de lo cotidiano se reparte por días. Así pagar la renta no te hace parecer pasado.
+  const COT = ['sup', 'com', 'jag', 'alc', 'gas', 'cas', 'dat', 'soc', 'gen', 'cp'];
+  const cotC = (d.catb || []).filter(c => COT.includes(c.code));
+  const cotSpent = cotC.reduce((s, c) => s + (c.spent || 0), 0), cotBud = cotC.reduce((s, c) => s + (c.budget || 0), 0);
+  const paceAmt = cotC.length ? (spent - cotSpent) + cotBud * m : budget * m, ahead = spent > paceAmt * 1.05;
   $('pct').textContent = Math.round(p * 100) + '% usado';
   $('pct').className = 'pill pv ' + (p >= 1 ? 'bad' : ahead ? 'warn' : 'ok');
   $('daysPill').textContent = (dim - day) + (dim - day === 1 ? ' día' : ' días');

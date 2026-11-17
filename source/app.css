@@ -5203,3 +5203,10 @@ html[data-layout] body #app #scroll .today.sf-today-v27.sf-today-v27:not(.histor
 html:not([data-today-fit~="compact"])[data-layout] body #app #scroll .today.sf-today-v27.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{padding-top:13px!important;padding-bottom:13px!important;row-gap:10px!important}
 @media (min-width:880px){html:not([data-today-fit~="compact"])[data-layout] body #app #scroll .today.sf-today-v27.sf-today-v27:not(.history-day-editor) .t-rout-body>div.sf-core-routine.cr-compact-card[data-routine-card]{padding-top:15px!important;padding-bottom:15px!important}}
 html[data-layout] body #app #scroll .today.sf-today-v27.sf-today-v27:not(.history-day-editor) .t-rout-body>.wg-card{min-height:0!important}
+
+/* A closed Today card owns its height even when a sibling fills the grid row. */
+@media(min-width:880px){
+ html[data-layout] body #app #scroll .today.sf-today-v27:not(.history-day-editor)>.t-lvl:is(.today-box-collapsed,:has(>.lvl-b.cl)){
+  align-self:start!important;height:auto!important;min-height:0!important;
+ }
+}

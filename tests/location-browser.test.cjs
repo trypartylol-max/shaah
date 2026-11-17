@@ -45,7 +45,7 @@ test('Unassigned and All contacts clear bulk selection; migration retains all se
  assert.equal(await page.evaluate(()=>personById('pinactive').every),180);
  assert.equal(await page.evaluate(()=>Object.hasOwn(personById('pinactive'),'inactive')),false);
 });
-test('locations filter discovery while every contact remains available in the Social Combo',async t=>{
+test('locations filter discovery while the Social tab encounter register retains every contact',async t=>{
  const page=await openApp(t,locationFixture()),before=await history(page);
  assert.deepEqual((await page.locator('.w-name').allTextContents()).sort(),['Alex Existing','Ana Existing','Inactive Person','Legacy Person','Luis Existing','Orphan Person'].sort());
  await page.getByLabel('Current social location').selectOption('pa');

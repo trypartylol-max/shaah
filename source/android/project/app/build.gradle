@@ -150,9 +150,22 @@ android {
 
         
     }
+    // Release signing comes only from the environment (GitHub Actions secrets); the key never enters git.
+    signingConfigs {
+        release {
+            def ks = System.getenv("SHAAH_KEYSTORE")
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv("SHAAH_KEYSTORE_PASSWORD")
+                keyAlias "shaah"
+                keyPassword System.getenv("SHAAH_KEYSTORE_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
+            if (System.getenv("SHAAH_KEYSTORE")) signingConfig signingConfigs.release
         }
     }
     compileOptions {

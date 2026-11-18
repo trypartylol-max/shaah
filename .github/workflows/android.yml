@@ -1,0 +1,53 @@
+name: Android APK
+
+# Builds the signed SHAAH Android APK and publishes it as the "android-latest" pre-release,
+# so it can be downloaded straight onto the phone. Runs on demand or when source/android changes.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'source/android/**'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.SHAAH_KEYSTORE_B64 }}
+        run: |
+          test -n "$KEYSTORE_B64" || { echo "Falta el secreto SHAAH_KEYSTORE_B64"; exit 1; }
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/shaah-upload.jks"
+      - name: Build
+        working-directory: source/android/project
+        env:
+          SHAAH_KEYSTORE: ${{ runner.temp }}/shaah-upload.jks
+          SHAAH_KEYSTORE_PASSWORD: ${{ secrets.SHAAH_KEYSTORE_PASSWORD }}
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Verify signature
+        run: |
+          APK=source/android/project/app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME"/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner verify --print-certs "$APK" | grep -i sha-256
+          VERSION=$(grep -m1 versionName source/android/project/app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+          cp "$APK" "SHAAH-$VERSION.apk"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Publish to the android-latest pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android-latest >/dev/null 2>&1 || gh release create android-latest --prerelease --title "SHAAH Android (última)" --notes "APK firmada. Descárgala desde el teléfono e instálala." --target "$GITHUB_SHA"
+          gh release upload android-latest "SHAAH-$VERSION.apk" --clobber
+          gh release edit android-latest --notes "SHAAH $VERSION · rama ${GITHUB_REF_NAME} · commit ${GITHUB_SHA::7}"

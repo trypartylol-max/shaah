@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import androidx.browser.customtabs.*;
 import androidx.browser.trusted.Token;
 import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
@@ -15,7 +17,11 @@ public class LauncherActivity extends Activity {
     private static final Uri ORIGIN = Uri.parse("https://trypartylol-max.github.io");
     private static final Uri HOME = Uri.parse("https://trypartylol-max.github.io/shaah/");
     private CustomTabsSession session;
-    private boolean validated, loaded, requested, ready, bound;
+    private boolean validated, loaded, requested, ready, bound, launched;
+    // HyperOS can delay or block binding to the browser service; never leave the translucent launcher stuck.
+    private static final long CONNECT_TIMEOUT_MS = 3000L;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable connectTimeout = () -> { if (!launched && !isFinishing()) fallback(); };
     private final CustomTabsCallback callback = new CustomTabsCallback() {
         @Override public void onRelationshipValidationResult(int relation, Uri origin, boolean result, Bundle extras) {
             if (relation != CustomTabsService.RELATION_USE_AS_ORIGIN || !ORIGIN.equals(origin)) return;
@@ -53,12 +59,14 @@ public class LauncherActivity extends Activity {
     }
     private final CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
         @Override public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            if (isFinishing()) return;
+            if (isFinishing() || launched) return;
             client.warmup(0L);
             session = client.newSession(callback);
             if (session == null) { fallback(); return; }
             new SharedPreferencesTokenStore(LauncherActivity.this).store(Token.create(name.getPackageName(), getPackageManager()));
             session.validateRelationship(CustomTabsService.RELATION_USE_AS_ORIGIN, ORIGIN, null);
+            launched = true;
+            handler.removeCallbacks(connectTimeout);
             new TrustedWebActivityIntentBuilder(launchUri()).build(session).launchTrustedWebActivity(LauncherActivity.this);
         }
         @Override public void onServiceDisconnected(ComponentName name) {
@@ -72,7 +80,8 @@ public class LauncherActivity extends Activity {
         String provider = CustomTabsClient.getPackageName(this, null);
         if (provider == null) { fallback(); return; }
         bound = CustomTabsClient.bindCustomTabsService(this, provider, connection);
-        if (!bound) fallback();
+        if (!bound) { fallback(); return; }
+        handler.postDelayed(connectTimeout, CONNECT_TIMEOUT_MS);
     }
     private Uri launchUri() {
         Uri input = getIntent().getData();
@@ -84,12 +93,16 @@ public class LauncherActivity extends Activity {
         return HOME; // Preserve valid OAuth query/fragment; refuse external launch URLs.
     }
     private void fallback() {
+        if (launched) return;
+        launched = true;
+        handler.removeCallbacks(connectTimeout);
         new CustomTabsIntent.Builder().build().launchUrl(this, launchUri());
         finish();
     }
     @Override protected void onRestart() { super.onRestart(); finish(); }
     @Override protected void onDestroy() {
         ready = false;
+        handler.removeCallbacks(connectTimeout);
         if (bound) unbindService(connection);
         super.onDestroy();
     }

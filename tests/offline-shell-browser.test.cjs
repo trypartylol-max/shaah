@@ -16,14 +16,21 @@ test('installed shell cold-opens offline at a subpath, queues changes, reconnect
  const cacheURLs=await p.evaluate(async()=>{const result=[];for(const name of await caches.keys())for(const req of await (await caches.open(name)).keys())result.push(req.url);return result;});
  assert.ok(cacheURLs.some(u=>u.includes('/assets/supabase-')));assert.ok(cacheURLs.some(u=>u.endsWith('.woff2')));assert.ok(cacheURLs.every(u=>u.startsWith(url)&&!u.includes('auth-token')));
  await p.evaluate(()=>{set(AUTH_STORAGE_KEY,{user:USER,access_token:'synthetic-only',refresh_token:'synthetic-only',expires_at:1});saveCache();set(cfgKey(),CFG);});
- const context=p.context();await context.setOffline(true);await p.close();const q=await context.newPage();await q.goto(url);await q.waitForFunction(()=>_offlineBoot&&_cfgReady);
+ // Keep the reported connection state consistent with transport emulation across
+ // service-worker navigations. The app's own offline state is never overridden.
+ const context=p.context();
+ await context.addInitScript(()=>Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>localStorage.getItem('shaah_test_offline')!=='1'}));
+ await p.evaluate(()=>localStorage.setItem('shaah_test_offline','1'));
+ await context.setOffline(true);await p.close();const q=await context.newPage();await q.goto(url);
+ assert.equal(await q.evaluate(()=>navigator.onLine),false);
+ await q.waitForFunction(()=>_offlineBoot&&_cfgReady);
  assert.equal(await q.evaluate(()=>USER.id),'regression-user');await q.locator('.nav-btn[data-tab="log"]').click();assert.ok(await q.getByRole('region',{name:'Day summary'}).isVisible());
  await q.evaluate(()=>{setNote(todayKey(),'Offline edit survives restart');});await q.waitForTimeout(500);
  assert.equal(await q.evaluate(()=>__mockWrites.length),0);assert.ok(await q.evaluate(()=>Object.keys(_offlineQueue).length)>0);
  await q.reload();await q.waitForFunction(()=>_offlineBoot&&_cfgReady);assert.equal(await q.evaluate(()=>getNote(todayKey())),'Offline edit survives restart');
- await context.setOffline(false);await q.evaluate(()=>reconnectOfflineAccount());await q.waitForFunction(()=>!_offlineBoot&&_live&&Object.keys(_offlineQueue).length===0);
+ await q.evaluate(()=>localStorage.removeItem('shaah_test_offline'));await context.setOffline(false);assert.equal(await q.evaluate(()=>navigator.onLine),true);await q.evaluate(()=>reconnectOfflineAccount());await q.waitForFunction(()=>!_offlineBoot&&_live&&Object.keys(_offlineQueue).length===0);
  assert.equal(await q.evaluate(()=>getNote(todayKey())),'Offline edit survives restart');
- await q.evaluate(()=>{localStorage.removeItem(AUTH_STORAGE_KEY);sessionStorage.setItem('shaah_mock_signedout','1')});await context.setOffline(true);await q.reload();await q.getByRole('button',{name:'Continue with Google'}).waitFor();assert.equal(await q.evaluate(()=>USER),null);
+ await q.evaluate(()=>{localStorage.removeItem(AUTH_STORAGE_KEY);sessionStorage.setItem('shaah_mock_signedout','1');localStorage.setItem('shaah_test_offline','1')});await context.setOffline(true);await q.reload();await q.getByRole('button',{name:'Continue with Google'}).waitFor();assert.equal(await q.evaluate(()=>USER),null);
 });
 test('real pinned SDK with an expired saved session can cold-open offline without authenticating another account',async t=>{
  const {fixture}=require('./helpers.cjs');const {url}=await serve(t);

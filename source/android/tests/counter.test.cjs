@@ -17,6 +17,44 @@ test('native bridge rejects other origins, wrong messages and sibling pages',()=
     location.pathname='/other/';androidBadgeReceive({origin:location.origin,data:'shaah.badge.ready.v1',ports:[port]});`);
   assert.equal(a.read('messages.length'),0);
 });
+test('Chrome transfers an empty window message then sends the handshake on the port',()=>{
+  const a=app();
+  a.run(`androidBadgeReceive({origin:location.origin,data:'',ports:[port]});`);
+  assert.equal(a.read('messages.length'),0);
+  assert.equal(a.read('_androidBadgeReady'),false);
+  a.run(`port.onmessage({data:'unknown'});androidBadgeSend();`);
+  assert.equal(a.read('messages.length'),0);
+  a.run(`port.onmessage({data:'shaah.badge.ready.v1'});`);
+  assert.equal(a.read('_androidBadgeReady'),true);
+  assert.equal(a.read('messages.length'),1);
+  a.run('set(badgeKey(),1);updateBadge();');
+  assert.equal(a.read('messages.at(-1).pending'),a.read('badgePending()'));
+  a.run(`port.onmessage({data:'shaah.badge.permission-denied.v1'});`);
+  assert.equal(a.read('_badgeDenied'),true);
+});
+test('accepts the exact Chrome android-app identity only on the associated HTTPS site',()=>{
+  const a=app();
+  const origin='android-app://trypartylol-max.github.io/io.github.trypartylol_max.shaah';
+  for(const wrong of [origin+'.evil',origin.replace('shaah','other'),'android-app://evil.test/io.github.trypartylol_max.shaah']){
+    a.run(`androidBadgeReceive({origin:${JSON.stringify(wrong)},data:'',ports:[port]});`);
+    assert.equal(a.read('_androidBadgePort'),null);
+  }
+  a.run(`location.origin='https://example.invalid';androidBadgeReceive({origin:${JSON.stringify(origin)},data:'',ports:[port]});`);
+  assert.equal(a.read('_androidBadgePort'),null);
+  a.run(`location.origin='https://trypartylol-max.github.io';androidBadgeReceive({origin:${JSON.stringify(origin)},data:'',ports:[port]});port.onmessage({data:'shaah.badge.ready.v1'});`);
+  assert.equal(a.read('messages.length'),1);
+});
+test('replaced ports cannot activate or report errors on the current connection',()=>{
+  const a=app();
+  a.run(`androidBadgeReceive({origin:location.origin,data:'',ports:[port]});
+    const old=port;globalThis.newPort={postMessage:s=>messages.push(JSON.parse(s)),start(){},close(){}};
+    androidBadgeReceive({origin:location.origin,data:'',ports:[newPort]});
+    old.onmessage({data:'shaah.badge.ready.v1'});old.onmessage({data:'shaah.badge.permission-denied.v1'});`);
+  assert.equal(a.read('messages.length'),0);
+  assert.equal(a.read('_badgeDenied'),false);
+  a.run(`newPort.onmessage({data:'shaah.badge.ready.v1'});`);
+  assert.equal(a.read('messages.length'),1);
+});
 test('counter is opt-in and sends only aggregate count, language and expiry',()=>{
   const a=app();connect(a);
   assert.equal(a.read('messages.at(-1).enabled'),false);

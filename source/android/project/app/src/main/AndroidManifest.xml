@@ -164,6 +164,11 @@
 
         <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
 
+        <activity android:name=".DiagnosticActivity"
+            android:label="@string/diagnosticLabel"
+            android:theme="@android:style/Theme.Material"
+            android:exported="true" />
+
         <activity android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"
             android:configChanges="orientation|screenSize" />
 

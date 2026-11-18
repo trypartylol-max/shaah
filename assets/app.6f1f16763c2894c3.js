@@ -3458,6 +3458,7 @@ const interfaceMessages = {
   badgeTitle: ["Icon badge", "Globo en el icono", "תג על הסמל"],
   badgeBody: ["Shows on the app icon how many habits are still open today. It updates when you open SHAAH.", "Muestra en el icono cuántos hábitos te quedan hoy. Se actualiza al abrir SHAAH.", "מציג על סמל האפליקציה כמה הרגלים נשארו להיום. מתעדכן כשפותחים את SHAAH."],
   badgeAndroidBody: ["Uses a visible Android notification for today's pending habits. Updates while SHAAH is open; icon numbers depend on your phone. Clears at midnight until you reopen the app.", "Usa una notificación visible de Android para los hábitos pendientes de hoy. Se actualiza al usar SHAAH; el número del icono depende del teléfono. Se borra a medianoche hasta que vuelvas a abrir la app.", "מציג את מספר ההרגלים שנותרו בהתראת Android גלויה. מתעדכן בזמן השימוש; המספר על הסמל תלוי בטלפון."],
+  badgeAndroidNoteBody: ["Shows a silent notification with how many habits are left today; your phone may also mark the app icon. It updates while you use SHAAH.", "Muestra una notificación silenciosa con los hábitos que te quedan hoy; el teléfono puede marcarlo también en el icono. Se actualiza mientras usas SHAAH.", "מציג התראה שקטה עם מספר ההרגלים שנותרו להיום; הטלפון עשוי לסמן זאת גם על הסמל. מתעדכן בזמן השימוש ב-SHAAH."],
   badgeDenied: ["Your device needs notification permission to show the badge. Allow it in the system settings and try again.", "Tu dispositivo necesita el permiso de notificaciones para mostrar el globo. Actívalo en los ajustes del sistema y vuelve a intentarlo.", "כדי להציג את התג נדרשת הרשאת התראות במכשיר. יש לאפשר אותה בהגדרות המערכת ולנסות שוב."],
   badgeOn: ["On", "Activado", "פעיל"],
   badgeOff: ["Off", "Desactivado", "כבוי"],
@@ -5198,12 +5199,17 @@ function installHintDismiss(){if(USER)set('shaah_install_hint_'+USER.id,1);rende
 let _badgeDenied=false;
 function badgeKey(){return 'shaah_badge_'+(USER?USER.id:'anon');}
 // Only an installed web app has an icon to badge.
-function badgeSupported(){return !!_androidBadgePort||(typeof navigator.setAppBadge==='function'&&isStandalone());}
+// Android launchers ignore the web Badging API. Without a ready native host channel, the count is a quiet
+// notification shown by the service worker: the installed app (WebAPK or TWA) owns it and the launcher can mark the icon.
+function isAndroid(){return /Android/i.test(navigator.userAgent||'');}
+function badgeViaNotification(){return !(_androidBadgePort&&_androidBadgeReady)&&isAndroid()&&isStandalone()&&'serviceWorker' in navigator&&typeof Notification!=='undefined';}
+function badgeSupported(){return !!(_androidBadgePort&&_androidBadgeReady)||badgeViaNotification()||(typeof navigator.setAppBadge==='function'&&isStandalone());}
 function badgeOn(){return badgeSupported()&&!!USER&&!!get(badgeKey());}
 function badgePending(){const k=todayKey(),c=cfgForDate(k),ch=getChecked(k)||{};return [...c.L1,...c.L2,...c.L3].filter(i=>i.pts>0&&!(doneFrac(ch[i.id])>0)).length;}
 function updateBadge(){
   if(!badgeSupported())return;
-  if(_androidBadgePort){androidBadgeSend();return;}
+  if(_androidBadgePort&&_androidBadgeReady){pendingNoteShow(0);androidBadgeSend();return;}
+  if(badgeViaNotification()){pendingNoteShow(badgeOn()?badgePending():0);return;}
   try{const n=badgeOn()?badgePending():0;const p=n?navigator.setAppBadge(n):navigator.clearAppBadge();if(p&&p.catch)p.catch(()=>{});}catch(e){}
 }
 async function setBadge(on){
@@ -5220,12 +5226,25 @@ async function setBadge(on){
 function badgeSettingHTML(){
   if(!badgeSupported())return '';
   const on=badgeOn();
-  return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':_androidBadgePort?'badgeAndroidBody':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
+  return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':_androidBadgePort&&_androidBadgeReady?'badgeAndroidBody':badgeViaNotification()?'badgeAndroidNoteBody':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
+}
+const PENDING_NOTE_TAG='shaah-pending';
+let _pendingNoteLast='';
+async function pendingNoteShow(n){
+  if(!('serviceWorker' in navigator)||typeof Notification==='undefined')return;
+  const lang=document.documentElement.lang==='es'?'es':document.documentElement.lang==='he'?'he':'en';
+  const key=n+'|'+todayKey()+'|'+lang;if(key===_pendingNoteLast)return;_pendingNoteLast=key;
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    if(!n||Notification.permission!=='granted'){(await reg.getNotifications({tag:PENDING_NOTE_TAG})).forEach(x=>x.close());return;}
+    const title=lang==='es'?(n===1?'Te queda 1 hábito hoy':`Te quedan ${n} hábitos hoy`):lang==='he'?(n===1?'נשאר הרגל אחד להיום':`נשארו ${n} הרגלים להיום`):(n===1?'1 habit left today':`${n} habits left today`);
+    await reg.showNotification(title,{tag:PENDING_NOTE_TAG,silent:true,renotify:false,icon:new URL('assets/icon-192.png',location.href).href,data:{url:location.origin+location.pathname}});
+  }catch(e){_pendingNoteLast='';}
 }
 // The native host receives only the aggregate count, never account credentials or habit data.
-let _androidBadgePort=null,_androidBadgeListening=false,_androidBadgeLast='';
+let _androidBadgePort=null,_androidBadgeReady=false,_androidBadgeListening=false,_androidBadgeLast='';
 function androidBadgeSend(){
-  if(!_androidBadgePort)return;
+  if(!_androidBadgePort||!_androidBadgeReady)return;
   const enabled=!!USER&&_cfgReady&&!!get(badgeKey());
   const end=new Date();end.setHours(24,0,0,0);
   const packet={type:'shaah.badge.state.v1',enabled,pending:enabled?badgePending():0,expiresAt:end.getTime(),lang:document.documentElement.lang==='es'?'es':'en'};
@@ -5233,13 +5252,22 @@ function androidBadgeSend(){
   try{_androidBadgePort.postMessage(wire);_androidBadgeLast=wire;}catch(e){_androidBadgeLast='';}
 }
 function androidBadgeReceive(event){
-  if(window!==window.top||event.origin!==location.origin||event.data!=='shaah.badge.ready.v1'||!event.ports||event.ports.length!==1)return;
+  // Chrome identifies the DAL-verified host with its exact android-app origin.
+  const nativeOrigin=location.origin==='https://trypartylol-max.github.io'&&event.origin==='android-app://trypartylol-max.github.io/io.github.trypartylol_max.shaah';
+  if(window!==window.top||(!nativeOrigin&&event.origin!==location.origin)||(event.data!==''&&event.data!=='shaah.badge.ready.v1')||!event.ports||event.ports.length!==1)return;
   if(location.pathname!=='/shaah/'&&location.pathname!=='/shaah/index.html')return;
   if(_androidBadgePort&&_androidBadgePort!==event.ports[0])_androidBadgePort.close();
-  _androidBadgePort=event.ports[0];_androidBadgeLast='';
-  _androidBadgePort.onmessage=e=>{if(e.data==='shaah.badge.permission-denied.v1'){_badgeDenied=true;render();}};
+  const port=event.ports[0];
+  _androidBadgePort=port;_androidBadgeReady=event.data==='shaah.badge.ready.v1';_androidBadgeLast='';
+  // Chrome transfers the port in an empty window message. The host handshake
+  // arrives next on that port, not in the window message carrying the port.
+  port.onmessage=e=>{
+    if(_androidBadgePort!==port)return;
+    if(e.data==='shaah.badge.ready.v1'){_androidBadgeReady=true;androidBadgeSend();render();}
+    else if(_androidBadgeReady&&e.data==='shaah.badge.permission-denied.v1'){_badgeDenied=true;render();}
+  };
   if(_androidBadgePort.start)_androidBadgePort.start();
-  androidBadgeSend();render();
+  if(_androidBadgeReady){androidBadgeSend();render();}
 }
 function androidBadgeInit(){
   if(_androidBadgeListening)return;

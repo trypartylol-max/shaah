@@ -25,6 +25,12 @@ test('installed Android app shows pending count as a silent notification, update
   const first=[...(await p.evaluate(()=>cfgForDate(todayKey()).L1.filter(i=>i.pts>0).map(i=>i.id)))][0];
   await p.evaluate(id=>{setChecked(todayKey(),{[id]:true});render();},first);
   await p.waitForFunction(m=>window.__notes.get('shaah-pending')?.title.startsWith(String(m-1)),n);
+  const before=await p.evaluate(()=>window.__log.length);
+  await p.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});
+  await p.waitForFunction(b=>window.__log.length>=b+2,before);
+  assert.deepEqual(await p.evaluate(b=>window.__log.slice(b).map(x=>x[0]),before),['close','show']);
+  assert.ok(await p.evaluate(()=>window.__notes.has('shaah-pending')));
+  await p.evaluate(()=>Object.defineProperty(document,'hidden',{configurable:true,get:()=>false}));
   await toggle.click();
   await p.waitForFunction(()=>!window.__notes.has('shaah-pending'));
   await toggle.click();await p.waitForFunction(()=>window.__notes.has('shaah-pending'));

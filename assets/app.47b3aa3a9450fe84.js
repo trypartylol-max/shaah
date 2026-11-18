@@ -5230,13 +5230,17 @@ function badgeSettingHTML(){
 }
 const PENDING_NOTE_TAG='shaah-pending';
 let _pendingNoteLast='';
-async function pendingNoteShow(n){
+async function pendingNoteShow(n,fresh){
   if(!('serviceWorker' in navigator)||typeof Notification==='undefined')return;
   const lang=document.documentElement.lang==='es'?'es':document.documentElement.lang==='he'?'he':'en';
-  const key=n+'|'+todayKey()+'|'+lang;if(key===_pendingNoteLast)return;_pendingNoteLast=key;
+  const key=n+'|'+todayKey()+'|'+lang;if(!fresh&&key===_pendingNoteLast)return;_pendingNoteLast=key;
   try{
     const reg=await navigator.serviceWorker.ready;
-    if(!n||Notification.permission!=='granted'){(await reg.getNotifications({tag:PENDING_NOTE_TAG})).forEach(x=>x.close());return;}
+    const old=await reg.getNotifications({tag:PENDING_NOTE_TAG});
+    if(!n||Notification.permission!=='granted'){old.forEach(x=>x.close());return;}
+    // HyperOS marks an app's notifications as seen when it is opened and drops the icon number;
+    // a fresh post (close, then show) on leaving the app gives the launcher an unseen one again.
+    if(fresh)old.forEach(x=>x.close());
     const title=lang==='es'?(n===1?'Te queda 1 hábito hoy':`Te quedan ${n} hábitos hoy`):lang==='he'?(n===1?'נשאר הרגל אחד להיום':`נשארו ${n} הרגלים להיום`):(n===1?'1 habit left today':`${n} habits left today`);
     await reg.showNotification(title,{tag:PENDING_NOTE_TAG,silent:true,renotify:false,icon:new URL('assets/icon-192.png',location.href).href,data:{url:location.origin+location.pathname}});
   }catch(e){_pendingNoteLast='';}
@@ -5274,6 +5278,7 @@ function androidBadgeInit(){
   _androidBadgeListening=true;
   window.addEventListener('message',androidBadgeReceive);
   document.addEventListener('visibilitychange',androidBadgeSend);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&badgeViaNotification()&&badgeOn())pendingNoteShow(badgePending(),true);});
 }
 // ── Daily reminder by Web Push. Off unless the person turns it on; one subscription per device, kept server-side
 // (public.push_subscriptions via shaah_push_subscribe). The server sends it only on days with nothing scored yet.

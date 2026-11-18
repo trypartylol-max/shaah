@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
+import android.content.SharedPreferences;
 import androidx.browser.customtabs.*;
 import androidx.browser.trusted.Token;
 import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
@@ -19,7 +21,11 @@ public class LauncherActivity extends Activity {
     private CustomTabsSession session;
     private boolean validated, loaded, requested, ready, bound, launched;
     // HyperOS can delay or block binding to the browser service; never leave the translucent launcher stuck.
-    private static final long CONNECT_TIMEOUT_MS = 3000L;
+    private static final long CONNECT_TIMEOUT_MS = 1500L;
+    // Leaving SHAAH with Back hides the tab and brings this launcher back within moments; coming back from the
+    // home screen after HyperOS dropped the app does not. Only the first case should close the app.
+    private static final long BACK_WINDOW_MS = 2000L;
+    private static final String PREFS = "shaah_launcher", KEY_HIDDEN_AT = "tab_hidden_at";
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable connectTimeout = () -> { if (!launched && !isFinishing()) fallback(); };
     private final CustomTabsCallback callback = new CustomTabsCallback() {
@@ -31,6 +37,7 @@ public class LauncherActivity extends Activity {
         @Override public void onNavigationEvent(int event, Bundle extras) {
             if (event == NAVIGATION_STARTED) { loaded = false; ready = false; requested = false; }
             if (event == NAVIGATION_FINISHED) { loaded = true; requestChannel(); }
+            if (event == TAB_HIDDEN) prefs().edit().putLong(KEY_HIDDEN_AT, SystemClock.elapsedRealtime()).apply();
         }
         @Override public void onMessageChannelReady(Bundle extras) {
             if (!validated || session == null) return;
@@ -65,18 +72,31 @@ public class LauncherActivity extends Activity {
             if (session == null) { fallback(); return; }
             new SharedPreferencesTokenStore(LauncherActivity.this).store(Token.create(name.getPackageName(), getPackageManager()));
             session.validateRelationship(CustomTabsService.RELATION_USE_AS_ORIGIN, ORIGIN, null);
-            launched = true;
-            handler.removeCallbacks(connectTimeout);
-            new TrustedWebActivityIntentBuilder(launchUri()).build(session).launchTrustedWebActivity(LauncherActivity.this);
+            launchTwa();
         }
         @Override public void onServiceDisconnected(ComponentName name) {
             ready = false; validated = false; session = null;
         }
     };
+    private SharedPreferences prefs() { return getSharedPreferences(PREFS, MODE_PRIVATE); }
+    private boolean userJustLeft() {
+        long at = prefs().getLong(KEY_HIDDEN_AT, -1L), now = SystemClock.elapsedRealtime();
+        return at > 0 && now >= at && now - at < BACK_WINDOW_MS;
+    }
+    private void launchTwa() {
+        launched = true;
+        handler.removeCallbacks(connectTimeout);
+        new TrustedWebActivityIntentBuilder(launchUri()).build(session).launchTrustedWebActivity(LauncherActivity.this);
+    }
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         BadgeNotifier.clear(this);
-        if (state != null) { finish(); return; }
+        // Recreated after HyperOS killed the app: reopen SHAAH unless the person just backed out of it.
+        if (state != null && userJustLeft()) { finish(); return; }
+        start();
+    }
+    private void start() {
+        launched = false;
         String provider = CustomTabsClient.getPackageName(this, null);
         if (provider == null) { fallback(); return; }
         bound = CustomTabsClient.bindCustomTabsService(this, provider, connection);
@@ -99,8 +119,21 @@ public class LauncherActivity extends Activity {
         new CustomTabsIntent.Builder().build().launchUrl(this, launchUri());
         finish();
     }
-    @Override protected void onRestart() { super.onRestart(); finish(); }
+    // Chrome may report the hidden tab a moment after this launcher is back on top, so decide shortly after.
+    private final Runnable afterRestart = () -> {
+        if (isFinishing()) return;
+        if (userJustLeft()) { finish(); return; }
+        // Back on top without the tab (it was closed in the background): open SHAAH again instead of an empty screen.
+        if (session != null) { launchTwa(); return; }
+        if (bound) { try { unbindService(connection); } catch (IllegalArgumentException ignored) { } bound = false; }
+        start();
+    };
+    @Override protected void onRestart() {
+        super.onRestart();
+        handler.postDelayed(afterRestart, 500L);
+    }
     @Override protected void onDestroy() {
+        handler.removeCallbacks(afterRestart);
         ready = false;
         handler.removeCallbacks(connectTimeout);
         if (bound) unbindService(connection);

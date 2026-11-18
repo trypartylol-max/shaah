@@ -5198,12 +5198,12 @@ function installHintDismiss(){if(USER)set('shaah_install_hint_'+USER.id,1);rende
 let _badgeDenied=false;
 function badgeKey(){return 'shaah_badge_'+(USER?USER.id:'anon');}
 // Only an installed web app has an icon to badge.
-function badgeSupported(){return !!_androidBadgePort||(typeof navigator.setAppBadge==='function'&&isStandalone());}
+function badgeSupported(){return !!(_androidBadgePort&&_androidBadgeReady)||(typeof navigator.setAppBadge==='function'&&isStandalone());}
 function badgeOn(){return badgeSupported()&&!!USER&&!!get(badgeKey());}
 function badgePending(){const k=todayKey(),c=cfgForDate(k),ch=getChecked(k)||{};return [...c.L1,...c.L2,...c.L3].filter(i=>i.pts>0&&!(doneFrac(ch[i.id])>0)).length;}
 function updateBadge(){
   if(!badgeSupported())return;
-  if(_androidBadgePort){androidBadgeSend();return;}
+  if(_androidBadgePort&&_androidBadgeReady){androidBadgeSend();return;}
   try{const n=badgeOn()?badgePending():0;const p=n?navigator.setAppBadge(n):navigator.clearAppBadge();if(p&&p.catch)p.catch(()=>{});}catch(e){}
 }
 async function setBadge(on){
@@ -5223,9 +5223,9 @@ function badgeSettingHTML(){
   return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':_androidBadgePort?'badgeAndroidBody':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
 }
 // The native host receives only the aggregate count, never account credentials or habit data.
-let _androidBadgePort=null,_androidBadgeListening=false,_androidBadgeLast='';
+let _androidBadgePort=null,_androidBadgeReady=false,_androidBadgeListening=false,_androidBadgeLast='';
 function androidBadgeSend(){
-  if(!_androidBadgePort)return;
+  if(!_androidBadgePort||!_androidBadgeReady)return;
   const enabled=!!USER&&_cfgReady&&!!get(badgeKey());
   const end=new Date();end.setHours(24,0,0,0);
   const packet={type:'shaah.badge.state.v1',enabled,pending:enabled?badgePending():0,expiresAt:end.getTime(),lang:document.documentElement.lang==='es'?'es':'en'};
@@ -5233,13 +5233,22 @@ function androidBadgeSend(){
   try{_androidBadgePort.postMessage(wire);_androidBadgeLast=wire;}catch(e){_androidBadgeLast='';}
 }
 function androidBadgeReceive(event){
-  if(window!==window.top||event.origin!==location.origin||event.data!=='shaah.badge.ready.v1'||!event.ports||event.ports.length!==1)return;
+  // Chrome identifies the DAL-verified host with its exact android-app origin.
+  const nativeOrigin=location.origin==='https://trypartylol-max.github.io'&&event.origin==='android-app://trypartylol-max.github.io/io.github.trypartylol_max.shaah';
+  if(window!==window.top||(!nativeOrigin&&event.origin!==location.origin)||(event.data!==''&&event.data!=='shaah.badge.ready.v1')||!event.ports||event.ports.length!==1)return;
   if(location.pathname!=='/shaah/'&&location.pathname!=='/shaah/index.html')return;
   if(_androidBadgePort&&_androidBadgePort!==event.ports[0])_androidBadgePort.close();
-  _androidBadgePort=event.ports[0];_androidBadgeLast='';
-  _androidBadgePort.onmessage=e=>{if(e.data==='shaah.badge.permission-denied.v1'){_badgeDenied=true;render();}};
+  const port=event.ports[0];
+  _androidBadgePort=port;_androidBadgeReady=event.data==='shaah.badge.ready.v1';_androidBadgeLast='';
+  // Chrome transfers the port in an empty window message. The host handshake
+  // arrives next on that port, not in the window message carrying the port.
+  port.onmessage=e=>{
+    if(_androidBadgePort!==port)return;
+    if(e.data==='shaah.badge.ready.v1'){_androidBadgeReady=true;androidBadgeSend();render();}
+    else if(_androidBadgeReady&&e.data==='shaah.badge.permission-denied.v1'){_badgeDenied=true;render();}
+  };
   if(_androidBadgePort.start)_androidBadgePort.start();
-  androidBadgeSend();render();
+  if(_androidBadgeReady){androidBadgeSend();render();}
 }
 function androidBadgeInit(){
   if(_androidBadgeListening)return;

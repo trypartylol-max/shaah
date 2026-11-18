@@ -28,7 +28,7 @@ fetchUtils.fetch = async url => {
   const buildFile = path.join(target, 'build.gradle');
   fs.writeFileSync(buildFile, fs.readFileSync(buildFile, 'utf8').replaceAll('jcenter()', 'mavenCentral()'));
   const javaDir = path.join(target, 'app/src/main/java/io/github/trypartylol_max/shaah');
-  for (const name of ['LauncherActivity.java', 'BadgeNotifier.java', 'BadgePolicy.java']) {
+  for (const name of ['LauncherActivity.java', 'BadgeNotifier.java', 'BadgePolicy.java', 'DelegationService.java']) {
     fs.copyFileSync(path.join(__dirname, 'native', name), path.join(javaDir, name));
   }
   const androidManifest = path.join(target, 'app/src/main/AndroidManifest.xml');

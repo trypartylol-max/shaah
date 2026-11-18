@@ -1,0 +1,9 @@
+private/
+project/.gradle/
+project/local.properties
+project/**/build/
+project/*.apk
+project/*.aab
+project/*.idsig
+*.keystore
+*.jks

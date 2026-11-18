@@ -1,0 +1,36 @@
+{
+  "packageId": "io.github.trypartylol_max.shaah",
+  "host": "trypartylol-max.github.io",
+  "name": "SHAAH",
+  "launcherName": "SHAAH",
+  "display": "standalone",
+  "themeColor": "#07070f",
+  "navigationColor": "#07070f",
+  "backgroundColor": "#07070f",
+  "enableNotifications": true,
+  "startUrl": "/shaah/",
+  "iconUrl": "https://trypartylol-max.github.io/shaah/assets/icon-512.png",
+  "maskableIconUrl": "https://trypartylol-max.github.io/shaah/assets/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "../private/shaah-upload.keystore",
+    "alias": "shaah-upload"
+  },
+  "appVersionCode": 2,
+  "appVersion": "0.2.0",
+  "webManifestUrl": "https://trypartylol-max.github.io/shaah/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://trypartylol-max.github.io/shaah/",
+  "minSdkVersion": 24,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}

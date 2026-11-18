@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.use_as_origin"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.trypartylol_max.shaah",
+      "sha256_cert_fingerprints": [
+        "7E:E8:2E:39:6F:AE:AE:66:86:43:3F:5A:BA:BF:FA:67:FE:D6:97:97:80:83:67:52:60:D3:A4:8D:BE:1A:15:AE"
+      ]
+    }
+  }
+]

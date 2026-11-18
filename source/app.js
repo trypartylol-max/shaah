@@ -2847,6 +2847,7 @@ function changeSyncUser(user){
   _starterGate=user?'loading':'ready';_starterChoice=null;_starterText='';_starterBusy=false;_starterError='';_starterEditor=false;_starterEditId=null;_starterRoutineId=null;
   USER=user;_live=false;_state={};CFG=cfgCopy(DEFAULT_CFG);_dayCfgCache={};applyCfg();selectOfflineOwner();
   window.SHAAHPerformance?.setOwner(USER?.id||null);
+  androidBadgeSend();
 }
 // A new identity must never inherit the previous account's live controls. Saved
 // drafts and routine copies stay under their original keys for later recovery.
@@ -3456,6 +3457,7 @@ const interfaceMessages = {
   installDismiss: ["Dismiss", "Cerrar", "סגירה"],
   badgeTitle: ["Icon badge", "Globo en el icono", "תג על הסמל"],
   badgeBody: ["Shows on the app icon how many habits are still open today. It updates when you open SHAAH.", "Muestra en el icono cuántos hábitos te quedan hoy. Se actualiza al abrir SHAAH.", "מציג על סמל האפליקציה כמה הרגלים נשארו להיום. מתעדכן כשפותחים את SHAAH."],
+  badgeAndroidBody: ["Uses a visible Android notification for today's pending habits. Updates while SHAAH is open; icon numbers depend on your phone. Clears at midnight until you reopen the app.", "Usa una notificación visible de Android para los hábitos pendientes de hoy. Se actualiza al usar SHAAH; el número del icono depende del teléfono. Se borra a medianoche hasta que vuelvas a abrir la app.", "מציג את מספר ההרגלים שנותרו בהתראת Android גלויה. מתעדכן בזמן השימוש; המספר על הסמל תלוי בטלפון."],
   badgeDenied: ["Your device needs notification permission to show the badge. Allow it in the system settings and try again.", "Tu dispositivo necesita el permiso de notificaciones para mostrar el globo. Actívalo en los ajustes del sistema y vuelve a intentarlo.", "כדי להציג את התג נדרשת הרשאת התראות במכשיר. יש לאפשר אותה בהגדרות המערכת ולנסות שוב."],
   badgeOn: ["On", "Activado", "פעיל"],
   badgeOff: ["Off", "Desactivado", "כבוי"],
@@ -4738,6 +4740,7 @@ async function boot(){
   initSkin();
   try{_signOutNotice=signOutNoticeFor(sessionStorage.getItem(SIGNOUT_NOTICE_KEY));sessionStorage.removeItem(SIGNOUT_NOTICE_KEY);}catch(e){}
   applyCfg();   // primera sentencia ejecutable del programa: aquí ya está todo declarado
+  androidBadgeInit();
   // Surface any OAuth error returned in the URL
   const q=new URLSearchParams(location.search), hp=new URLSearchParams(location.hash.slice(1));
   const err=q.get('error_description')||hp.get('error_description')||q.get('error')||hp.get('error');
@@ -5195,11 +5198,12 @@ function installHintDismiss(){if(USER)set('shaah_install_hint_'+USER.id,1);rende
 let _badgeDenied=false;
 function badgeKey(){return 'shaah_badge_'+(USER?USER.id:'anon');}
 // Only an installed web app has an icon to badge.
-function badgeSupported(){return typeof navigator.setAppBadge==='function'&&isStandalone();}
+function badgeSupported(){return !!_androidBadgePort||(typeof navigator.setAppBadge==='function'&&isStandalone());}
 function badgeOn(){return badgeSupported()&&!!USER&&!!get(badgeKey());}
 function badgePending(){const k=todayKey(),c=cfgForDate(k),ch=getChecked(k)||{};return [...c.L1,...c.L2,...c.L3].filter(i=>i.pts>0&&!(doneFrac(ch[i.id])>0)).length;}
 function updateBadge(){
   if(!badgeSupported())return;
+  if(_androidBadgePort){androidBadgeSend();return;}
   try{const n=badgeOn()?badgePending():0;const p=n?navigator.setAppBadge(n):navigator.clearAppBadge();if(p&&p.catch)p.catch(()=>{});}catch(e){}
 }
 async function setBadge(on){
@@ -5216,7 +5220,32 @@ async function setBadge(on){
 function badgeSettingHTML(){
   if(!badgeSupported())return '';
   const on=badgeOn();
-  return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
+  return `<div class="badge-setting"><div><strong>${interfaceText('badgeTitle')}</strong><p>${interfaceText(_badgeDenied?'badgeDenied':_androidBadgePort?'badgeAndroidBody':'badgeBody')}</p></div><button type="button" class="badge-toggle" aria-pressed="${on}" ${ui('click','setBadge',!on)}>${interfaceText(on?'badgeOn':'badgeOff')}</button></div>`;
+}
+// The native host receives only the aggregate count, never account credentials or habit data.
+let _androidBadgePort=null,_androidBadgeListening=false,_androidBadgeLast='';
+function androidBadgeSend(){
+  if(!_androidBadgePort)return;
+  const enabled=!!USER&&_cfgReady&&!!get(badgeKey());
+  const end=new Date();end.setHours(24,0,0,0);
+  const packet={type:'shaah.badge.state.v1',enabled,pending:enabled?badgePending():0,expiresAt:end.getTime(),lang:document.documentElement.lang==='es'?'es':'en'};
+  const wire=JSON.stringify(packet);if(wire===_androidBadgeLast)return;
+  try{_androidBadgePort.postMessage(wire);_androidBadgeLast=wire;}catch(e){_androidBadgeLast='';}
+}
+function androidBadgeReceive(event){
+  if(window!==window.top||event.origin!==location.origin||event.data!=='shaah.badge.ready.v1'||!event.ports||event.ports.length!==1)return;
+  if(location.pathname!=='/shaah/'&&location.pathname!=='/shaah/index.html')return;
+  if(_androidBadgePort&&_androidBadgePort!==event.ports[0])_androidBadgePort.close();
+  _androidBadgePort=event.ports[0];_androidBadgeLast='';
+  _androidBadgePort.onmessage=e=>{if(e.data==='shaah.badge.permission-denied.v1'){_badgeDenied=true;render();}};
+  if(_androidBadgePort.start)_androidBadgePort.start();
+  androidBadgeSend();render();
+}
+function androidBadgeInit(){
+  if(_androidBadgeListening)return;
+  _androidBadgeListening=true;
+  window.addEventListener('message',androidBadgeReceive);
+  document.addEventListener('visibilitychange',androidBadgeSend);
 }
 // ── Daily reminder by Web Push. Off unless the person turns it on; one subscription per device, kept server-side
 // (public.push_subscriptions via shaah_push_subscribe). The server sends it only on days with nothing scored yet.

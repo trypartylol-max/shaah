@@ -24,24 +24,24 @@ public class LauncherActivity extends Activity {
     private static final Uri ORIGIN = Uri.parse("https://trypartylol-max.github.io");
     private static final Uri HOME = Uri.parse("https://trypartylol-max.github.io/shaah/");
     private static final long CONNECT_TIMEOUT_MS = 1500L;
-    private static final long WATCHDOG_MS = 2500L;
+    private static final long WATCHDOG_MS = 4000L;
     // Leaving SHAAH with Back hides the tab and brings this launcher back within moments; coming back from the
     // home screen after HyperOS dropped the app does not. Only the first case should close the app.
     private static final long BACK_WINDOW_MS = 2000L;
     private static final String PREFS = "shaah_launcher", KEY_HIDDEN_AT = "tab_hidden_at";
 
     private CustomTabsSession session;
-    private boolean validated, loaded, requested, ready, bound, launched, resumed;
+    private boolean validated, loaded, requested, ready, bound, launched, resumed, tabShown;
     private int launches;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable connectTimeout = () -> {
         if (!launched && !isFinishing()) { log("timeout: browser service did not connect in " + CONNECT_TIMEOUT_MS + " ms"); fallback(); }
     };
-    // Still in front after a launch means the tab never covered this translucent screen.
+    // Chrome reports "tab shown" when SHAAH is on screen. Without it, retry once, then open a plain browser tab.
     private final Runnable watchdog = () -> {
-        if (isFinishing() || !resumed) return;
-        log("watchdog: SHAAH did not appear after launch #" + launches);
-        if (launches < 2) { launched = false; fallback(); } else { log("watchdog: giving up, closing launcher"); finish(); }
+        if (isFinishing() || tabShown) return;
+        log("watchdog: no tab shown after launch #" + launches + " (launcher " + (resumed ? "in front" : "covered") + ")");
+        if (launches < 2 && session != null) { launchTwa(); } else { launched = false; fallback(); }
     };
 
     private final CustomTabsCallback callback = new CustomTabsCallback() {
@@ -55,7 +55,7 @@ public class LauncherActivity extends Activity {
             if (event == NAVIGATION_STARTED) { loaded = false; ready = false; requested = false; }
             if (event == NAVIGATION_FINISHED) { loaded = true; requestChannel(); }
             if (event == NAVIGATION_FAILED) log("navigation failed");
-            if (event == TAB_SHOWN) log("tab shown");
+            if (event == TAB_SHOWN) { tabShown = true; handler.removeCallbacks(watchdog); log("tab shown"); }
             if (event == TAB_HIDDEN) { log("tab hidden"); prefs().edit().putLong(KEY_HIDDEN_AT, SystemClock.elapsedRealtime()).apply(); }
         }
         @Override public void onMessageChannelReady(Bundle extras) {
@@ -111,6 +111,7 @@ public class LauncherActivity extends Activity {
     private void launchTwa() {
         launched = true;
         launches++;
+        tabShown = false;
         handler.removeCallbacks(connectTimeout);
         log("launch TWA #" + launches);
         try {
@@ -175,6 +176,7 @@ public class LauncherActivity extends Activity {
         if (isFinishing()) return;
         if (userJustLeft()) { log("back on top right after Back: closing"); finish(); return; }
         log("back on top without SHAAH: reopening (session " + (session != null ? "alive" : "gone") + ")");
+        launches = 0;
         if (session != null) { launchTwa(); return; }
         if (bound) { try { unbindService(connection); } catch (IllegalArgumentException ignored) { } bound = false; }
         start();
@@ -185,8 +187,8 @@ public class LauncherActivity extends Activity {
         log("onRestart");
         handler.postDelayed(afterRestart, 500L);
     }
-    @Override protected void onResume() { super.onResume(); resumed = true; }
-    @Override protected void onPause() { resumed = false; handler.removeCallbacks(watchdog); super.onPause(); }
+    @Override protected void onResume() { super.onResume(); resumed = true; log("onResume"); }
+    @Override protected void onPause() { resumed = false; log("onPause"); super.onPause(); }
     @Override protected void onDestroy() {
         log("onDestroy");
         handler.removeCallbacks(afterRestart);

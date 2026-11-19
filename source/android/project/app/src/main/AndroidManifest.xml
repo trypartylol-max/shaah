@@ -164,10 +164,19 @@
 
         <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
 
+        <!-- Its own launcher icon: HyperOS does not show static shortcuts for sideloaded apps. -->
         <activity android:name=".DiagnosticActivity"
             android:label="@string/diagnosticLabel"
+            android:icon="@mipmap/ic_launcher"
             android:theme="@android:style/Theme.Material"
-            android:exported="true" />
+            android:taskAffinity="io.github.trypartylol_max.shaah.diagnostic"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"
             android:configChanges="orientation|screenSize" />

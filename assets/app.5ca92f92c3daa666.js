@@ -5205,9 +5205,10 @@ function isAndroid(){return /Android/i.test(navigator.userAgent||'');}
 function badgeViaNotification(){return !(_androidBadgePort&&_androidBadgeReady)&&isAndroid()&&isStandalone()&&'serviceWorker' in navigator&&typeof Notification!=='undefined';}
 function badgeSupported(){return !!(_androidBadgePort&&_androidBadgeReady)||badgeViaNotification()||(typeof navigator.setAppBadge==='function'&&isStandalone());}
 function badgeOn(){return badgeSupported()&&!!USER&&!!get(badgeKey());}
-function badgePending(){const k=todayKey(),c=cfgForDate(k),ch=getChecked(k)||{};return [...c.L1,...c.L2,...c.L3].filter(i=>i.pts>0&&!(doneFrac(ch[i.id])>0)).length;}
+function badgePending(k=todayKey()){const c=cfgForDate(k),ch=getChecked(k)||{};return [...c.L1,...c.L2,...c.L3].filter(i=>i.pts>0&&!(doneFrac(ch[i.id])>0)).length;}
 function updateBadge(){
   if(!badgeSupported())return;
+  badgeServerSync();
   if(_androidBadgePort&&_androidBadgeReady){pendingNoteShow(0);androidBadgeSend();return;}
   if(badgeViaNotification()){pendingNoteShow(badgeOn()?badgePending():0);return;}
   try{const n=badgeOn()?badgePending():0;const p=n?navigator.setAppBadge(n):navigator.clearAppBadge();if(p&&p.catch)p.catch(()=>{});}catch(e){}
@@ -5280,6 +5281,29 @@ function androidBadgeInit(){
   document.addEventListener('visibilitychange',androidBadgeSend);
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&badgeViaNotification()&&badgeOn())pendingNoteShow(badgePending(),true);});
 }
+// The icon number is only recalculated while SHAAH is open, so the server wakes this device at local midnight
+// (public.shaah_push_badge / shaah_push_run) with the count the app computed in advance for the new day.
+let _badgeSyncKey='';
+function nextDayKey(){const [y,m,d]=todayKey().split('-').map(Number);return new Date(Date.UTC(y,m-1,d+1)).toISOString().slice(0,10);}
+async function badgeServerSync(){
+  if(!USER||!_cfgReady||!pushSupported())return;
+  const owner=USER.id,on=badgeOn(),next=nextDayKey(),count=on?badgePending(next):0;
+  const key=[owner,on?1:0,next,count,interfaceLanguage,dayLogTz()].join('|');
+  if(key===_badgeSyncKey)return;
+  // Nothing was ever sent from this device and the badge is off: no need to create a subscription for it.
+  if(!on&&!_badgeSyncKey&&!get(badgeKey()+'_server'))return;
+  _badgeSyncKey=key;
+  try{
+    const reg=await pushRegistration();if(!reg){_badgeSyncKey='';return;}
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub&&on&&Notification.permission==='granted')sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes()});
+    if(!sub||USER?.id!==owner){_badgeSyncKey='';return;}
+    const j=sub.toJSON();
+    const {error}=await sb.rpc('shaah_push_badge',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_timezone:dayLogTz(),p_lang:interfaceLanguage,p_on:on,p_next_day:next,p_next_count:count});
+    if(error){_badgeSyncKey='';return;}
+    set(badgeKey()+'_server',on?1:0);
+  }catch(e){_badgeSyncKey='';}
+}
 // ── Daily reminder by Web Push. Off unless the person turns it on; one subscription per device, kept server-side
 // (public.push_subscriptions via shaah_push_subscribe). The server sends it only on days with nothing scored yet.
 const PUSH_PUBLIC_KEY='BGqaFh82BQLiYAxPHAlnemx1D5MhGlExN8O7LPVLey4pRCQDmd585wkxzcF3jJYfQ4HT7z69x5SLvgdV43R6IEk';
@@ -5317,7 +5341,7 @@ async function pushDisable(){
   const owner=USER.id,time=pushPref().time;_push={..._push,busy:true,error:''};render();
   try{
     const reg=await pushRegistration(),sub=reg&&await reg.pushManager.getSubscription();
-    if(sub){await sb.rpc('shaah_push_unsubscribe',{p_endpoint:sub.endpoint});await sub.unsubscribe();}
+    if(sub){await sb.rpc('shaah_push_unsubscribe',{p_endpoint:sub.endpoint});if(!badgeOn())await sub.unsubscribe();}
   }catch(e){}
   if(USER?.id!==owner)return;
   set(pushKey(),{on:false,time});_push={..._push,busy:false};render();

@@ -38,8 +38,25 @@ self.addEventListener('fetch',event=>{
   })());
 });
 // Daily reminder (opt-in in Settings). The payload is text only; nothing from the account is cached or read here.
+// Same wording as the app's pending-habits notification (pendingNoteShow in source/app.js).
+function pendingTitle(n,lang){
+  if(lang==='es')return n===1?'Te queda 1 hábito hoy':`Te quedan ${n} hábitos hoy`;
+  if(lang==='he')return n===1?'נשאר הרגל אחד להיום':`נשארו ${n} הרגלים להיום`;
+  return n===1?'1 habit left today':`${n} habits left today`;
+}
 self.addEventListener('push',event=>{
   let d={};try{d=event.data?event.data.json():{};}catch(error){d={};}
+  // Midnight icon number: the badge on iPhone, and the silent pending notification that marks the icon on Android.
+  // Every push must show a notification (iOS revokes subscriptions that don't), so it is the same pending one.
+  if(d.kind==='badge'){
+    const n=Math.max(0,Math.min(999,Math.floor(Number(d.count))||0));
+    event.waitUntil((async()=>{
+      try{if(self.navigator&&typeof self.navigator.setAppBadge==='function')await(n?self.navigator.setAppBadge(n):self.navigator.clearAppBadge());}catch(error){}
+      for(const old of await self.registration.getNotifications({tag:'shaah-pending'}))old.close();
+      await self.registration.showNotification(pendingTitle(n,d.lang),{tag:'shaah-pending',silent:true,icon:new URL('./assets/icon-192.png',root).href,data:{url:root.href}});
+    })());
+    return;
+  }
   const title=typeof d.title==='string'&&d.title?d.title.slice(0,60):'SHAAH';
   const body=typeof d.body==='string'?d.body.slice(0,200):'';
   event.waitUntil(self.registration.showNotification(title,{body,tag:'shaah-daily',icon:new URL('./assets/icon-192.png',root).href,data:{url:root.href}}));

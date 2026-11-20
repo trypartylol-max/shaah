@@ -5672,7 +5672,7 @@ function legacyComboBlock(key,alwaysOpen){
         </div>
         ${expanded?`<div ${uiStyle(`padding:0 12px 12px;display:flex;flex-direction:column;gap:2px`)}>
           ${dSubs.map(s=>{
-            const mine=peopleList().filter(x=>!x.inactive&&x.sub===s.id), tag=getPeople(key), corto=shortLabels(mine);
+            const tag=getPeople(key), mine=peopleList().filter(x=>!x.inactive&&x.sub===s.id&&(s.id!=='strangers'||tag.includes(x.id))), corto=shortLabels(mine);
             return`<div ${uiStyle(`border-radius:10px;background:${soc[s.id]?"rgba(251,191,36,0.05)":"transparent"}`)}>
             <div class="cb-row" role="button" tabindex="0" aria-pressed="${!!soc[s.id]}" ${ui('click','toggleSub' ,s.id,key)} ${ui('keydown','activate')} ${uiStyle(`display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:15px;color:${soc[s.id]?"#e2e2e2":"#8a8aa0"};user-select:none`)}>
               ${chk(!!soc[s.id],"#fbbf24",18)}
@@ -7137,7 +7137,7 @@ function socialSearch(value){
   if(box)uiHTML(box,socialSearchRows(socialKeyForView()));
 }
 function socialKeyForView(){return editDayKey|| (currentTab==='social'?socialKey():todayKey());}
-function socialButton(label,action,args=[],primary=false){return `<button type="button" class="sf-button${primary?' sf-primary':''}"  ${label==='+'?'aria-label="הוספת איש קשר"':''} ${ui('click',action,...args)}>${label}</button>`;}
+function socialButton(label,action,args=[],primary=false){return `<button type="button" class="sf-button${primary?' sf-primary':''}"  ${label==='+'?`aria-label="${esc(interfaceCopy('Add someone'))}"`:''} ${ui('click',action,...args)}>${label}</button>`;}
 function socialPersonButton(p,key){const on=getPeople(key).includes(p.id);return `<button type="button" class="sf-button${on?' sf-selected':''}" aria-pressed="${on}" ${ui('click','socialRecord',p.id,key)}><span class="sf-person-check">${on?'✓ ':''}</span><span class="sf-person-name">${esc(p.name)}</span></button>`;}
 function socialSearchRows(key){
   if(!socialQuery.trim())return '';
@@ -7289,6 +7289,8 @@ function syncComboDisclosureDOM(){
 // general encounter register retain everyone; filtering never changes day data.
 function comboPeople(id,key,alwaysOpen){
  const group=selectedLocation();
+ // Strangers are rarely seen twice: list only the ones already recorded that day, never the whole directory.
+ if(id==='strangers'){const tagged=getPeople(key);return peopleList().filter(p=>socialCategory(p)===id&&tagged.includes(p.id));}
  return peopleList().filter(p=>socialCategory(p)===id&&
   (alwaysOpen||key!==todayKey()||id!=='friends'||group==='all'||personLocations(p).includes(group)));
 }
@@ -7299,7 +7301,7 @@ function comboBlock(key,alwaysOpen){
  const total=C.subs.reduce((n,s)=>n+s.p,0),earned=checked?(C.subs.some(s=>soc[s.id])?C.subs.reduce((n,s)=>n+(soc[s.id]?s.p:0),0):total):0;
  return `<section class="card sf-compact-combo" aria-label="${interfaceCopy("Social Combo")}"><div class="sec lvl-h sf-heading sf-combo-heading"><strong>${interfaceCopy("👥 Social Combo")}</strong><span>${alwaysOpen?earned+' / '+total+' '+interfaceCopy('pts'):earned+'/'+total}</span></div>${C.subs.map(s=>{
  const open=comboDisclosureIsOpen(s.id,key);
- return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="combo-category-row${asRow?' row combo-as-row'+(soc[s.id]?' on':''):''}"><button type="button" class="combo-category-credit" aria-label="${esc(interfaceCopy('Credit {category}').replace('{category}',()=>s.label))}" aria-pressed="${!!soc[s.id]}" ${ui('click','comboCategoryCredit',s.id,key)}>${asRow?chk(!!soc[s.id],'#a78bfa'):soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]&&!asRow?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}>${asRow?`<span ${uiStyle(`font-size:16.5px;font-weight:${soc[s.id]?600:450}`)}>${esc(s.icon)} ${esc(s.label)}</span><span ${uiStyle(`font-size:15px;color:${soc[s.id]?"#a78bfa99":"#8a8aa0"}`)}><bdi dir="ltr">${soc[s.id]?s.p:0} / ${s.p}</bdi></span>`:`<span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} ${interfaceCopy('pts')}</span>`}<span class="combo-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${comboPeople(s.id,key,alwaysOpen).map(p=>socialPersonButton(p,key)).join('')}${socialButton(interfaceCopy("+ Person"),'socialNewCategory',[key,s.id])}</div></div></div></div>`;
+ return `<div class="sf-combo-category" data-combo-id="${esc(s.id)}" data-combo-key="${esc(key)}"><div class="combo-category-row${asRow?' row combo-as-row'+(soc[s.id]?' on':''):''}"><button type="button" class="combo-category-credit" aria-label="${esc(interfaceCopy('Credit {category}').replace('{category}',()=>s.label))}" aria-pressed="${!!soc[s.id]}" ${ui('click','comboCategoryCredit',s.id,key)}>${asRow?chk(!!soc[s.id],'#a78bfa'):soc[s.id]?'✓':'○'}</button><button type="button" class="sf-category-toggle${soc[s.id]&&!asRow?' sf-selected':''}" aria-pressed="${!!soc[s.id]}" aria-expanded="${open}" ${ui('click','socialCategoryToggle',s.id,key)}>${asRow?`<span ${uiStyle(`font-size:16.5px;font-weight:${soc[s.id]?600:450}`)}>${esc(s.icon)} ${esc(s.label)}</span><span ${uiStyle(`font-size:15px;color:${soc[s.id]?"#a78bfa99":"#8a8aa0"}`)}><bdi dir="ltr">${soc[s.id]?s.p:0} / ${s.p}</bdi></span>`:`<span><span class="sf-category-mark">${soc[s.id]?'✓':'○'} </span>${esc(s.icon)} ${esc(s.label)}</span><span>${s.p} ${interfaceCopy('pts')}</span>`}<span class="combo-category-chevron" aria-hidden="true">›</span></button></div><div class="sf-reveal${open?' is-open':''}" aria-hidden="${!open}" ${open?'':'inert'}><div class="sf-reveal-inner"><div class="sf-buttons">${socialButton('+','socialNewCategory',[key,s.id])}${comboPeople(s.id,key,alwaysOpen).map(p=>socialPersonButton(p,key)).join('')}</div></div></div></div>`;
  }).join('')}</section>`;
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}

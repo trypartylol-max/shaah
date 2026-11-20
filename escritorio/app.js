@@ -4,16 +4,15 @@
 const API = 'https://script.google.com/macros/s/AKfycbyljFHpv10NvGR2XKSZTw401TdhNsw_KeL53iIgMKIHxaL5y1ll-J5PwLUepsBu1FkVDQ/exec';
 const PRIV = 'https://script.google.com/macros/s/AKfycbz7uwOF4lhMMvCY0L_ttaWZ09Bi6fUaO7t3C49FxJXe6mVxvvBvZuizQhfC5DKJ-Y6hPw/exec';
 const LS = { key: 'esc-key', cache: 'esc-cache-v1', queue: 'esc-queue-v1', priv: 'esc-priv', apps: 'hub-custom-v1', cmp: 'esc-cmp-open' };
-const SECTIONS = ['Apps', 'Dinero', 'Casa'];
+const SECTIONS = ['Apps', 'Forms', 'Dinero'];
 const BUILTIN = [
-  { s: 'Apps', n: 'SHAAH', i: 'S', c: '#1d2b22', u: 'https://trypartylol-max.github.io/shaah/' },
   { s: 'Apps', n: 'Torre de Control', i: '🗼', c: '#1f1b2b', u: 'https://trypartylol-max.github.io/shaah/control/' },
   { s: 'Apps', n: 'SHAAH local', i: '⌂', c: '#16202a', u: 'http://localhost:8080/' },
-  { s: 'Apps', n: 'Event Scorecard', i: '🎪', c: '#2a2418', u: 'https://trypartylol-max.github.io/shaah/scorecard/' },
+  { s: 'Forms', n: 'Event Scorecard', i: '🎪', c: '#2a2418', u: 'https://trypartylol-max.github.io/shaah/scorecard/' },
   { s: 'Dinero', n: 'Caja', i: '₪', c: '#142a22', u: PRIV + '?p=caja' },
   { s: 'Dinero', n: 'Libro Mayor', i: '📒', c: '#2a2618', u: PRIV + '?p=libro' },
-  { s: 'Casa', n: 'Cocina', i: '🍳', c: '#2a1f14', u: 'https://script.google.com/macros/s/AKfycbxpMXAXEnQxyQ305l_IUNW4RLLXfgL22LJJXfVFBUZUuSi7bDvZ4E6i6f3LWmFkCnSpsA/exec' },
-  { s: 'Casa', n: 'WiFi Doctor', i: '📶', c: '#13232e', u: PRIV + '?p=wifi' }
+  { s: 'Apps', n: 'Cocina', i: '🍳', c: '#2a1f14', u: 'https://script.google.com/macros/s/AKfycbxpMXAXEnQxyQ305l_IUNW4RLLXfgL22LJJXfVFBUZUuSi7bDvZ4E6i6f3LWmFkCnSpsA/exec' },
+  { s: 'Apps', n: 'WiFi Doctor', i: '📶', c: '#13232e', u: PRIV + '?p=wifi' }
 ];
 
 const $ = id => document.getElementById(id);
@@ -710,7 +709,7 @@ $('focusBtn').onclick = () => setFocus(true);
 $('focusX').onclick = () => setFocus(false);
 
 /* ---------- apps ---------- */
-function allApps() { return BUILTIN.concat(custom.map((x, k) => Object.assign({}, x, { k }))); }
+function allApps() { return BUILTIN.concat(custom.map((x, k) => Object.assign({}, x, { k }, SECTIONS.includes(x.s) ? {} : { s: 'Apps' }))); }
 function renderApps() {
   let n = 0;
   const all = allApps();

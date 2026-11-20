@@ -1,7 +1,7 @@
 name: Android APK
 
-# Builds the signed SHAAH Android APK and publishes it as the "android-latest" pre-release,
-# so it can be downloaded straight onto the phone. Runs on demand or when source/android changes.
+# Builds the signed SHAAH Android APK and publishes it as release v<versionName> (one APK each),
+# so it can be downloaded straight onto the phone or tracked by Obtainium. Runs on demand or when source/android changes.
 on:
   workflow_dispatch:
   push:
@@ -36,7 +36,10 @@ jobs:
         env:
           SHAAH_KEYSTORE: ${{ runner.temp }}/shaah-upload.jks
           SHAAH_KEYSTORE_PASSWORD: ${{ secrets.SHAAH_KEYSTORE_PASSWORD }}
-        run: ./gradlew --no-daemon assembleRelease
+        run: |
+          ./gradlew --no-daemon assembleRelease
+          # Play Store bundle (AAB): same code and key, without the diagnostic launcher icon.
+          ./gradlew --no-daemon -PplayStore bundleRelease
       - name: Verify signature
         run: |
           APK=source/android/project/app/build/outputs/apk/release/app-release.apk
@@ -44,10 +47,22 @@ jobs:
           VERSION=$(grep -m1 versionName source/android/project/app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
           cp "$APK" "SHAAH-$VERSION.apk"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-      - name: Publish to the android-latest pre-release
+      - name: Keep the Play Store bundle (AAB) as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHAAH-${{ env.VERSION }}-play-aab
+          path: source/android/project/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+      - name: Publish as release v<version>
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view android-latest >/dev/null 2>&1 || gh release create android-latest --prerelease --title "SHAAH Android (última)" --notes "APK firmada. Descárgala desde el teléfono e instálala." --target "$GITHUB_SHA"
-          gh release upload android-latest "SHAAH-$VERSION.apk" --clobber
-          gh release edit android-latest --notes "SHAAH $VERSION · rama ${GITHUB_REF_NAME} · commit ${GITHUB_SHA::7}"
+          # One release per version with a single APK, so updaters such as Obtainium detect new versions by tag.
+          TAG="v$VERSION"
+          NOTES="SHAAH Android $VERSION · rama ${GITHUB_REF_NAME} · commit ${GITHUB_SHA::7}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "SHAAH-$VERSION.apk" --clobber
+            gh release edit "$TAG" --notes "$NOTES"
+          else
+            gh release create "$TAG" "SHAAH-$VERSION.apk" --title "SHAAH Android $VERSION" --notes "$NOTES" --target "$GITHUB_SHA" --latest
+          fi

@@ -13,4 +13,16 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<shortcuts xmlns:android='http://schemas.android.com/apk/res/android' />
+<shortcuts xmlns:android='http://schemas.android.com/apk/res/android'>
+    <shortcut
+        android:shortcutId="diagnostic"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/diagnosticLabel"
+        android:shortcutLongLabel="@string/diagnosticLabel">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="io.github.trypartylol_max.shaah"
+            android:targetClass="io.github.trypartylol_max.shaah.DiagnosticActivity" />
+    </shortcut>
+</shortcuts>

@@ -39,4 +39,5 @@
     }]
     
   </string>  
+    <string name="diagnosticLabel">SHAAH Diagnóstico</string>
 </resources>

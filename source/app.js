@@ -1387,6 +1387,7 @@ const UI_ACTIONS=Object.freeze({
   pushToggle:uiRule('click',['boolean'],(n,e,on)=>on?pushEnable(pushPref().time):pushDisable()),
   pushTime:uiRule('change',[],n=>pushSetTime(n.value)),
   exportData:uiRule('click',[],()=>exportData()),
+  deleteAccount:uiRule('click',[],()=>deleteAccount()),
   importPick:uiRule('click',[],()=>importPick()),
   restoreDefaults:uiRule('click',[],()=>{if(confirm(interfaceCopy("Restore all default settings?"))){CFG=JSON.parse(JSON.stringify(DEFAULT_CFG));saveCfg();render();}}),
   signOut:uiRule('click',['boolean'],(n,e,forget)=>signOut(forget)),
@@ -3273,7 +3274,8 @@ const SIGNOUT_NOTICES={
   kept:'Signed out. Saved account copies remain on this browser.',
   cleared:'Signed out. Saved copies for this account were removed from this browser. Older unlinked recovery data, if any, was kept.',
   pending:'Signed out. New unsynced changes were kept on this browser for recovery.',
-  failed:'Signed out, but this browser could not remove every saved copy. Save any recovery data before clearing browser site data on a shared device.'
+  failed:'Signed out, but this browser could not remove every saved copy. Save any recovery data before clearing browser site data on a shared device.',
+  deleted:'Your SHAAH account and all its data were deleted.'
 };
 function signOutNoticeFor(code){return Object.hasOwn(SIGNOUT_NOTICES,code)?interfaceCopy(SIGNOUT_NOTICES[code]):'';}
 function signOutNoticeHTML(){return _signOutNotice?`<p role="status" ${uiStyle(`max-width:380px;font-size:14px;line-height:1.6;color:#adadbf;text-align:center`)}>${esc(_signOutNotice)}</p>`:'';}
@@ -3316,6 +3318,30 @@ async function signOut(forget=false){
     try{sessionStorage.setItem(SIGNOUT_NOTICE_KEY,notice);}catch(e){if(notice==='pending'||notice==='failed')alert(signOutNoticeFor(notice));}
     location.reload();return true;
   }catch(e){signOutStatus(interfaceCopy("Could not sign out. Your saved copies were kept. Please try again."));return false;}
+  finally{_signOutBusy=false;if(screen)screen.inert=false;signOutStatus(_signOutStatus);}
+}
+// Deletes the account and all its data on the server (Edge Function delete-account), then this device's copies.
+// Required by Google Play; also reachable from delete-account.html through ?action=delete-account.
+async function deleteAccount(){
+  const owner=USER?.id;if(!owner||_signOutBusy)return false;
+  const word=interfaceCopy("DELETE");
+  const typed=prompt(interfaceCopy("This permanently deletes your SHAAH account and all its data: days, settings, people and notifications. It cannot be undone. Type {word} to confirm.").replace('{word}',()=>word));
+  if(typed===null)return false;
+  if(typed.trim().toUpperCase()!==word.toUpperCase()){signOutStatus(interfaceCopy("The account was not deleted: the word did not match."));return false;}
+  _signOutBusy=true;signOutStatus(interfaceCopy("Deleting account…"));
+  const screen=document.getElementById('scroll');if(screen)screen.inert=true;
+  try{
+    const {data,error}=await sb.functions.invoke('delete-account',{body:{confirm:'DELETE'}});
+    if(error||!data||data.deleted!==true)throw error||new Error('not deleted');
+    try{const reg=await pushRegistration(),sub=reg&&await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe();}catch(e){}
+    try{const p=navigator.clearAppBadge&&navigator.clearAppBadge();if(p&&p.catch)p.catch(()=>{});}catch(e){}
+    try{await pendingNoteShow(0,true);}catch(e){}
+    removeAccountCopies(owner);
+    try{await sb.auth.signOut({scope:'local'});}catch(e){}
+    _offlineBoot=false;changeSyncUser(null);
+    try{sessionStorage.setItem(SIGNOUT_NOTICE_KEY,'deleted');}catch(e){}
+    location.reload();return true;
+  }catch(e){signOutStatus(interfaceCopy("The account could not be deleted. Check your connection and try again."));return false;}
   finally{_signOutBusy=false;if(screen)screen.inert=false;signOutStatus(_signOutStatus);}
 }
 
@@ -4108,6 +4134,14 @@ const interfaceCopies = {
   "⬇  EXPORT JSON": ["⬇  EXPORT JSON", "⬇  EXPORTAR JSON", "⬇  ייצוא JSON"],
   "⬆  IMPORT JSON": ["⬆  IMPORT JSON", "⬆  IMPORTAR JSON", "⬆  ייבוא JSON"],
   "↺  RESTORE DEFAULTS": ["↺  RESTORE DEFAULTS", "↺  RESTAURAR VALORES PREDETERMINADOS", "↺  שחזור ברירות המחדל"],
+  "DELETE": ["DELETE", "BORRAR", "מחיקה"],
+  "Delete account": ["Delete account", "Borrar cuenta", "מחיקת החשבון"],
+  "Deletes your account and all its data on every device. It cannot be undone.": ["Deletes your account and all its data on every device. It cannot be undone.", "Borra tu cuenta y todos sus datos en todos los dispositivos. No se puede deshacer.", "מוחק את החשבון ואת כל הנתונים שלו בכל המכשירים. לא ניתן לבטל."],
+  "This permanently deletes your SHAAH account and all its data: days, settings, people and notifications. It cannot be undone. Type {word} to confirm.": ["This permanently deletes your SHAAH account and all its data: days, settings, people and notifications. It cannot be undone. Type {word} to confirm.", "Esto borra para siempre tu cuenta de SHAAH y todos sus datos: días, configuración, personas y notificaciones. No se puede deshacer. Escribe {word} para confirmar.", "פעולה זו מוחקת לצמיתות את חשבון SHAAH ואת כל הנתונים שלו: ימים, הגדרות, אנשים והתראות. לא ניתן לבטל. כתבו {word} לאישור."],
+  "The account was not deleted: the word did not match.": ["The account was not deleted: the word did not match.", "La cuenta no se borró: la palabra no coincide.", "החשבון לא נמחק: המילה לא תאמה."],
+  "Deleting account…": ["Deleting account…", "Borrando la cuenta…", "מוחק את החשבון…"],
+  "The account could not be deleted. Check your connection and try again.": ["The account could not be deleted. Check your connection and try again.", "No se pudo borrar la cuenta. Revisa la conexión e inténtalo de nuevo.", "לא ניתן היה למחוק את החשבון. בדקו את החיבור ונסו שוב."],
+  "Your SHAAH account and all its data were deleted.": ["Your SHAAH account and all its data were deleted.", "Tu cuenta de SHAAH y todos sus datos se borraron.", "חשבון SHAAH וכל הנתונים שלו נמחקו."],
   "Sign out & remove saved copies": ["Sign out & remove saved copies", "Cerrar sesión y eliminar copias guardadas", "יציאה והסרת עותקים שמורים"],
   "Use simple Today": ["Use simple Today", "Usar Hoy simplificado", "שימוש בתצוגת היום הפשוטה"],
   "Use full view": ["Use full view", "Usar vista completa", "שימוש בתצוגה המלאה"],
@@ -4348,7 +4382,9 @@ function renderSettings(){
       <button data-signout ${ui('click','signOut' ,false)} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:15px;letter-spacing:0.12em;padding:13px;border-radius:10px;cursor:pointer`)}>${interfaceText('signOut')}</button>
       <button data-signout ${ui('click','signOut' ,true)} ${uiStyle(`width:100%;background:none;border:1px solid #34344a;color:#c0c0cd;font-family:inherit;font-size:14px;padding:12px;border-radius:10px;cursor:pointer;margin-top:10px`)}>${interfaceCopy("Sign out & remove saved copies")}</button>
       <p ${uiStyle(`font-size:12px;color:#8888a4;line-height:1.6;margin-top:10px`)}>${interfaceCopy("Removes only this account’s saved copies and local backups from this browser. Your online data stays available. Sync changes and download any local backups you want to keep first. Older unlinked recovery data is preserved.")}</p>
-      <p id="signout-status" role="status" aria-live="polite" ${uiStyle(`font-size:13px;line-height:1.5;color:#fbbf24;margin-top:8px`)}>${esc(_signOutStatus)}</p>`,"st-full")}
+      <p id="signout-status" role="status" aria-live="polite" ${uiStyle(`font-size:13px;line-height:1.5;color:#fbbf24;margin-top:8px`)}>${esc(_signOutStatus)}</p>
+      <button data-delete-account ${ui('click','deleteAccount')} ${uiStyle(`width:100%;background:none;border:1px solid #3a1c1c;color:#f87171;font-family:inherit;font-size:14px;padding:12px;border-radius:10px;cursor:pointer;margin-top:18px`)}>${interfaceCopy("Delete account")}</button>
+      <p ${uiStyle(`font-size:12px;color:#8888a4;line-height:1.6;margin-top:8px`)}>${interfaceCopy("Deletes your account and all its data on every device. It cannot be undone.")}</p>`,"st-full")}
             ${stCard("trav",interfaceText('mode'),"#9090aa",`
       <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px`)}>${interfaceCopy("Work and Vacation have independent point values for every habit. Switching mode changes which values are used; Vacation also pauses Work from today.")}</div>
       <div ${uiStyle(`display:flex;gap:7px;margin-bottom:16px`)}>
@@ -4509,6 +4545,8 @@ function stepMove(rid,i,d){ if(!routineStepsEditable(rid)||(d!==-1&&d!==1))retur
 function noteGrow(t){t.style.height='auto';t.style.height=Math.max(70,t.scrollHeight)+'px';}
 function closeReview(){ reviewOpen=false; render(); }
 function openSettings(){ settingsOpen=true; secOpen={}; haptic(10); render(); }
+const DELETE_NAV_KEY='shaah_delete_account_nav';
+function deleteNavPending(){try{if(sessionStorage.getItem(DELETE_NAV_KEY)!=='1')return false;sessionStorage.removeItem(DELETE_NAV_KEY);return true;}catch(e){return false;}}
 function closeSettings(){ settingsOpen=false; render(); }
 // Importa un export de SHAAH, o un archivo suelto de personas.
 // Nunca pisa días que ya existen, y deja instantánea antes de tocar la config.
@@ -4744,6 +4782,8 @@ async function boot(){
   androidBadgeInit();
   // Surface any OAuth error returned in the URL
   const q=new URLSearchParams(location.search), hp=new URLSearchParams(location.hash.slice(1));
+  // delete-account.html links here: remember it across the Google sign-in and open Settings once signed in.
+  if(q.get('action')==='delete-account'){try{sessionStorage.setItem(DELETE_NAV_KEY,'1');}catch(e){}q.delete('action');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);}
   const err=q.get('error_description')||hp.get('error_description')||q.get('error')||hp.get('error');
   if(err)AUTH_ERR=err.slice(0,2000); // URLSearchParams already decoded it once.
 
@@ -5563,6 +5603,7 @@ function render(){
   if(!USER){updateBadge();uiHTML(el,renderLogin());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}
   pushResync();
   updateBadge();
+  if(_cfgReady&&deleteNavPending()){settingsOpen=true;secOpen={data:true};}
   if(_starterGate!=='ready'||_starterEditor){uiHTML(el,_starterEditor?starterChoicesHTML():starterGateHTML());nav.style.display='none';tuckNav(false);renderTour();renderResume();return;}
   // Full-screen modes own the whole viewport — no top bar, no nav
   if(settingsOpen){uiHTML(el,renderSettings());nav.style.display="none";tuckNav(false);renderTour();renderResume();return;}

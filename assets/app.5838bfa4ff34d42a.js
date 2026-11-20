@@ -1167,7 +1167,7 @@ function starterContinuityHTML(key,done,total){
 }
 function renderStarterToday(key){
   const {items,done}=starterSummary(key),ch=getChecked(key);
-  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p>${starterContinuityHTML(key,done,items.length)}</div>
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p>${starterContinuityHTML(key,done,items.length)}</div>${tipCardHTML(key)}
     ${items.length?items.map(item=>{
       // The simple view must still expose EVERY active item and its real controls.
       if(item.combo)return legacyComboBlock(key,true);
@@ -1385,6 +1385,8 @@ const UI_ACTIONS=Object.freeze({
   installHintDismiss:uiRule('click',[],()=>installHintDismiss()),
   setBadge:uiRule('click',['boolean'],(n,e,on)=>setBadge(on)),
   pushToggle:uiRule('click',['boolean'],(n,e,on)=>on?pushEnable(pushPref().time):pushDisable()),
+  tipAccept:uiRule('click',['string'],(n,e,id)=>tipAccept(id)),
+  tipDismiss:uiRule('click',['string'],(n,e,id)=>tipDismiss(id)),
   pushTime:uiRule('change',[],n=>pushSetTime(n.value)),
   exportData:uiRule('click',[],()=>exportData()),
   deleteAccount:uiRule('click',[],()=>deleteAccount()),
@@ -3393,6 +3395,15 @@ function performanceExport(){
 // UI language is a browser preference, independent of account data.
 const interfaceLanguages = {en:'English', es:'Español', he:'עברית'};
 const interfaceMessages = {
+  tipLabel: ["Suggestion", "Sugerencia", "הצעה"],
+  tipLater: ["Not now", "Ahora no", "לא עכשיו"],
+  tipRemind: ["Want a reminder on days when you haven't marked anything yet? Pick the time.", "¿Te aviso los días en que aún no hayas marcado nada? Elige la hora.", "להזכיר לך בימים שעוד לא סימנת כלום? בחר/י שעה."],
+  tipRemindAgain: ["Yesterday slipped by. Want a reminder next time a day is still empty?", "Ayer se te pasó. ¿Te aviso la próxima vez que un día siga vacío?", "אתמול זה התפספס. להזכיר לך בפעם הבאה שיום עדיין ריק?"],
+  tipRemindGo: ["Remind me", "Avísame", "הזכר לי"],
+  tipRoutine: ["3 days in. Long habits work better as a routine with a timer, step by step.", "Llevas 3 días. Los hábitos largos van mejor como rutina con temporizador, paso a paso.", "3 ימים כבר. הרגלים ארוכים עובדים טוב יותר כשגרה עם טיימר, צעד אחר צעד."],
+  tipRoutineGo: ["Set up a routine", "Crear una rutina", "ליצור שגרה"],
+  tipFull: ["A week of tracking. Want to see everything: levels, history, Social, skins and work/vacation mode?", "Una semana registrando. ¿Quieres ver todo: niveles, historial, Social, pieles y modo trabajo/vacaciones?", "שבוע של מעקב. לראות הכול: רמות, היסטוריה, Social, עיצובים ומצב עבודה/חופשה?"],
+  tipFullGo: ["Show everything", "Ver todo", "להציג הכול"],
   welcome: ['Welcome back', 'Qué bueno verte de nuevo', 'טוב שחזרת'],
   welcomeKicker: ['YOUR NEXT HOUR', 'TU SIGUIENTE HORA', 'השעה הבאה שלך'],
   welcomeBody: ['Pick up at your own pace. One small step counts.', 'Retoma a tu ritmo. Un pequeño paso cuenta.', 'אפשר להמשיך בקצב שלך. גם צעד קטן נחשב.'],
@@ -4488,6 +4499,8 @@ function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function socialOwnTab(){ return true; }
 // A new account in the simple view has no people yet: keep Social out of the dock until it is used or the full view is on.
 function socialTabShown(){ return socialOwnTab()&&!(starterSimple()&&!peopleList().length); }
+// The simple view shows History once there are 3 days with something recorded to look back on.
+function historyTabShown(){ return !starterSimple()||daysLogged()>=3; }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x,pWork:6,pVacation:6}));
   const cid=comboIdIn(CFG.h);
@@ -5346,6 +5359,66 @@ async function badgeServerSync(){
     set(badgeKey()+'_server',on?1:0);
   }catch(e){_badgeSyncKey='';}
 }
+// ── Suggestions that unlock features with use (doc "SHAAH: funciones que se desbloquean con el uso").
+// One card at the top of Today, one suggestion at most per day, chosen from what the account does.
+// New and existing accounts alike: a suggestion only appears for something the account does not use yet.
+// CFG.tips[id] = {n: times dismissed, until: 'YYYY-MM-DD' hidden until, done: accepted}; CFG.tips._lastDay = last dismissal.
+const TIP_ORDER=['remind','routine','full'],TIP_DEFAULT_TIME='15:00';
+function tipsState(){if(!CFG.tips||typeof CFG.tips!=='object'||Array.isArray(CFG.tips))CFG.tips={};return CFG.tips;}
+// getHistory scores every day; the helpers below share one result per render.
+let _tipHist=null;
+function tipHistory(){if(!_tipHist){_tipHist=getHistory();queueMicrotask(()=>{_tipHist=null;});}return _tipHist;}
+function dayShift(k,n){const [y,m,d]=k.split('-').map(Number);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10);}
+function daysLogged(){const hh=tipHistory();return Object.keys(hh).filter(k=>DATE_RE.test(k)&&hh[k]&&hh[k].score>0).length;}
+function dayLogged(k){const h=tipHistory()[k];return !!(h&&h.score>0);}
+// Back after a day with nothing marked, having used the app before it.
+function missedYesterday(){const y=dayShift(todayKey(),-1),hh=tipHistory();return !dayLogged(y)&&Object.keys(hh).some(k=>DATE_RE.test(k)&&k<y&&hh[k]&&hh[k].score>0);}
+function tipEligible(id){
+  const t=tipsState()[id]||{},tk=todayKey();
+  if(t.done||(t.n||0)>=2||(t.until&&tk<t.until))return false;
+  // The reminder exists to stop a whole day passing unused: offered from the start, and once more after a missed day.
+  if(id==='remind')return pushSupported()&&!pushPref().on&&(!(t.n>0)||missedYesterday());
+  // The others never interrupt what the person came to do: only after something is marked today.
+  if(!dayLogged(tk))return false;
+  if(id==='routine')return daysLogged()>=3&&!Object.keys(ROUTINES).length;
+  if(id==='full')return daysLogged()>=7&&starterSimple();
+  return false;
+}
+function tipCurrent(){if(!USER||!_cfgReady||tipsState()._lastDay===todayKey())return null;return TIP_ORDER.find(tipEligible)||null;}
+function tipCardHTML(key){
+  if(key!==todayKey())return '';
+  const id=tipCurrent();if(!id)return '';
+  const later=`<button type="button" class="tip-later" ${ui('click','tipDismiss',id)}>${interfaceText('tipLater')}</button>`;
+  let body='',action='';
+  if(id==='remind'){
+    const again=(tipsState().remind?.n||0)>0;
+    body=interfaceText(again?'tipRemindAgain':'tipRemind');
+    action=`<select id="tip-time" aria-label="${interfaceText('pushTime')}" ${_push.busy?'disabled':''}>${pushTimeOptions(TIP_DEFAULT_TIME).map(t=>`<option value="${t}"${t===TIP_DEFAULT_TIME?' selected':''}>${t}</option>`).join('')}</select><button type="button" class="tip-go" ${_push.busy?'disabled':''} ${ui('click','tipAccept',id)}>${interfaceText('tipRemindGo')}</button>`;
+    if(_push.error)body+=`<span class="tip-error" role="status">${interfaceText(_push.error)}</span>`;
+  }else if(id==='routine'){body=interfaceText('tipRoutine');action=`<button type="button" class="tip-go" ${ui('click','tipAccept',id)}>${interfaceText('tipRoutineGo')}</button>`;}
+  else if(id==='full'){body=interfaceText('tipFull');action=`<button type="button" class="tip-go" ${ui('click','tipAccept',id)}>${interfaceText('tipFullGo')}</button>`;}
+  return `<section class="tip-card" data-tip="${id}" aria-label="${interfaceText('tipLabel')}"><p>${body}</p><div class="tip-actions">${action}${later}</div></section>`;
+}
+async function tipAccept(id){
+  if(!USER||!TIP_ORDER.includes(id))return;
+  const t=tipsState();
+  if(id==='remind'){
+    const time=document.getElementById('tip-time')?.value;
+    await pushEnable(PUSH_TIME_RE.test(time||'')?time:TIP_DEFAULT_TIME);
+    if(pushPref().on){t.remind={...(t.remind||{}),done:true};saveCfgPref();}
+    render();return;
+  }
+  t[id]={...(t[id]||{}),done:true};saveCfgPref();
+  if(id==='routine'){settingsOpen=true;secOpen={rout:true};haptic(10);render();return;}
+  if(id==='full')starterView('full');
+}
+// "Not now": the reminder waits for the next missed day, the others for 7 days. A second "Not now" retires it.
+function tipDismiss(id){
+  if(!USER||!TIP_ORDER.includes(id))return;
+  const t=tipsState(),cur=t[id]||{},tk=todayKey();
+  t[id]={...cur,n:(cur.n||0)+1,until:dayShift(tk,id==='remind'?1:7)};t._lastDay=tk;
+  saveCfgPref();render();
+}
 // ── Daily reminder by Web Push. Off unless the person turns it on; one subscription per device, kept server-side
 // (public.push_subscriptions via shaah_push_subscribe). The server sends it only on days with nothing scored yet.
 const PUSH_PUBLIC_KEY='BGqaFh82BQLiYAxPHAlnemx1D5MhGlExN8O7LPVLey4pRCQDmd585wkxzcF3jJYfQ4HT7z69x5SLvgdV43R6IEk';
@@ -5613,6 +5686,9 @@ function render(){
   const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
   if(sbtn)sbtn.hidden=!socialTabShown();
   if(currentTab==='social'&&!socialTabShown())currentTab='today';
+  const hbtn=nav.querySelector('.nav-btn[data-tab="history"]');
+  if(hbtn)hbtn.hidden=!historyTabShown();
+  if(currentTab==='history'&&!historyTabShown())currentTab='today';
   // Editar dia es parte de History: el dock / panel lateral sigue a la vista.
   if(editDayKey){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));uiHTML(el,renderEditDay());layoutEditDay();tuckNav(false);renderTour();renderResume();return;}
   // Placement hides the navigation tab, but explicit Social shortcuts still open it.
@@ -5937,6 +6013,7 @@ function renderToday(key,nested=false){
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
   return`<div class="fade-up today${nested?" history-day-editor":""}${core&&!nested&&isToday?" sf-today-v27":""}${(!nested&&isToday&&isNight())?" night":""}" ${uiStyle(`padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px`)}>
+    ${(!nested&&isToday)?tipCardHTML(key):''}
     ${(!nested&&!isToday)?`<div class="t-head" ${uiStyle(`text-align:center;width:100%`)}>
       <div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4`)}>${interfaceText('dayScore')}</div>
       <div ${uiStyle(`font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px`)}>${keyToDate(key).toLocaleDateString(interfaceLanguage,{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -7113,7 +7190,7 @@ function renderRoutineTimer(){
   }
 }
 
-function tabsOrder(){ return socialTabShown()?["today","log","social","stats","history"]:["today","log","stats","history"]; }
+function tabsOrder(){ return ["today","log","social","stats","history"].filter(t=>(t!=="social"||socialTabShown())&&(t!=="history"||historyTabShown())); }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{

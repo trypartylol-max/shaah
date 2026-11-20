@@ -5210,3 +5210,12 @@ html[data-layout] body #app #scroll .today.sf-today-v27.sf-today-v27:not(.histor
   align-self:start!important;height:auto!important;min-height:0!important;
  }
 }
+/* Suggestion card at the top of Today (tipCardHTML). */
+shaah-section[name="tip-card"]{}
+.tip-card{width:100%;max-width:560px;box-sizing:border-box;margin:4px 0 2px;padding:12px 14px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:14px;background:rgba(var(--skin-rgb-171725,23,23,37),1);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1)}
+.tip-card p{margin:0 0 10px;font-size:14.5px;line-height:1.5}
+.tip-card .tip-error{display:block;margin-top:6px;font-size:13px;color:rgba(var(--skin-rgb-f87171,248,113,113),1)}
+.tip-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tip-actions select{font:inherit;font-size:16px;padding:7px 10px;border-radius:9px;background:rgba(var(--skin-rgb-07070f,7,7,15),1);color:inherit;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1)}
+.tip-go{font:inherit;font-size:14px;font-weight:600;min-height:38px;padding:8px 14px;border-radius:10px;border:1px solid rgba(var(--skin-rgb-fbbf24,251,191,36),1);background:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-07070f,7,7,15),1);cursor:pointer}
+.tip-later{font:inherit;font-size:14px;min-height:38px;padding:8px 12px;border-radius:10px;border:1px solid transparent;background:none;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);cursor:pointer;margin-left:auto}

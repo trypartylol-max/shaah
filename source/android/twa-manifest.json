@@ -1,5 +1,5 @@
 {
-  "packageId": "io.github.trypartylol_max.shaah",
+  "packageId": "app.shaah",
   "host": "trypartylol-max.github.io",
   "name": "SHAAH",
   "launcherName": "SHAAH",
@@ -16,8 +16,8 @@
     "path": "../private/shaah-upload.keystore",
     "alias": "shaah-upload"
   },
-  "appVersionCode": 10,
-  "appVersion": "0.3.6",
+  "appVersionCode": 11,
+  "appVersion": "0.4.0",
   "webManifestUrl": "https://trypartylol-max.github.io/shaah/manifest.webmanifest",
   "fallbackType": "customtabs",
   "features": {},

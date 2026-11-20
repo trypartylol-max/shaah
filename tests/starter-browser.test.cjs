@@ -17,9 +17,8 @@ test('first session uses a real habit and real Day Log, survives refresh, automa
  await p.getByRole('button',{name:'Add another habit'}).click();await p.getByRole('button',{name:'Movement',exact:false}).click();await p.getByRole('button',{name:'Add to my plan'}).click();
  assert.equal(await p.locator('[data-starter-habit]').count(),2);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),20);
  assert.equal(await p.evaluate(()=>!!CFG.h.work||!!CFG.h.cjunk0),false);
- await p.getByRole('button',{name:'Log an activity',exact:true}).click();
- await p.locator('#logPanelName').fill('Paseo de prueba');await p.locator('#logPanelStart').fill('10:00');await p.locator('#logPanelEnd').fill('10:20');
- await p.getByRole('button',{name:'ADD ACTIVITY',exact:true}).click();assert.equal(await p.evaluate(()=>dayLogEvents(todayKey()).some(e=>e.title==='Paseo de prueba')),true);
+ assert.equal(await p.getByRole('button',{name:'Log an activity',exact:true}).count(),0,'Day Log stays in the full view');
+ assert.equal(await p.locator('#nav .nav-btn[data-tab="log"]').isHidden(),true);
 });
 test('skip stays neutral across refresh; custom name is escaped and editable',async t=>{
  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
@@ -67,7 +66,7 @@ test('a new account gets the three-step tour, no Social tab and no contradictory
  await p.locator('#tour-next').click();await p.locator('#tour-next').click();assert.equal(await p.locator('#tour-next').innerText(),'Finish');
  await p.locator('#tour-next').click();assert.equal(await p.locator('#tour.on').count(),0);
  assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),false);
- assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','log','stats'],'History waits for three days with something marked');
+ assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','stats'],'History waits for three days with something marked');
  await p.getByRole('button',{name:'Mark as done',exact:true}).click();
  await p.locator('.nav-btn[data-tab="stats"]').click();
  assert.equal(await p.getByText('MOST CONSISTENT').count(),1);assert.equal(await p.getByText('NEEDS WORK').count(),0);

@@ -1177,7 +1177,7 @@ function renderStarterToday(key){
       ${rt?`<div class="starter-routine"><span class="starter-muted">${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',rt.steps.length).replace('{minutes}',rt.steps.reduce((n,s)=>n+s.dur,0))}</span><button class="starter-secondary" type="button" ${ui('click','startRoutine',item.id)}>${sessions[item.id]?interfaceText('routineOpen'):interfaceText('routineStart')}</button><button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,partial?false:0.5)}>${interfaceText('routineLight')}</button></div>`:!full?`<button class="starter-link starter-small" type="button" ${ui('click','starterRoutinePreview',item.id)}>${interfaceText('routineSplit')}</button>`:''}
       ${_starterRoutineId===item.id&&!rt?`<div class="starter-routine-preview"><p>${interfaceText('routineOptional')}</p><ol>${starterRoutineSteps(item.id).map(s=>`<li>${esc(s.label)} <span>${dayLogFmt(s.dur)}</span></li>`).join('')}</ol><p class="starter-muted starter-small">${interfaceText('routineEditHint')}</p><div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterAddRoutine',item.id)}>${interfaceText('routineAdd')}</button><button type="button" class="starter-link" ${ui('click','starterRoutinePreview','')}>${interfaceText('routineLater')}</button></div></div>`:''}</section>`;
     }).join(''):`<section class="starter-habit"><h2>${interfaceText('starterEmpty')}</h2><p class="starter-muted">${interfaceText('starterEmptyHint')}</p><button type="button" class="starter-primary" ${ui('click','starterOpen','')}>${interfaceText('starterFirstHabit')}</button></section>`}
-    <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>${interfaceText('starterAddHabit')}</button>`:''}<button type="button" class="starter-secondary" ${ui('click','openDayLogStart')}>${interfaceText('starterLog')}</button></div>
+    <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>${interfaceText('starterAddHabit')}</button>`:''}</div>
     ${dayNoteHTML(key)}<div class="starter-actions starter-view">${starterProfile()?`<button type="button" class="starter-link starter-small" ${ui('click','starterView','full')}>${interfaceText('starterFull')}</button>`:''}<button type="button" class="starter-link starter-small" ${ui('click','startTour')}>${interfaceText('starterTutorial')}</button></div></div>`;
 }
 const DEFAULT_CFG={
@@ -4501,6 +4501,8 @@ function socialOwnTab(){ return true; }
 function socialTabShown(){ return socialOwnTab()&&!(starterSimple()&&!peopleList().length); }
 // The simple view shows History once there are 3 days with something recorded to look back on.
 function historyTabShown(){ return !starterSimple()||daysLogged()>=3; }
+// Day Log lives in the full view; the simple view keeps it only while an activity is running.
+function logTabShown(){ return !starterSimple()||!!dayLogActiveId(); }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x,pWork:6,pVacation:6}));
   const cid=comboIdIn(CFG.h);
@@ -5689,6 +5691,9 @@ function render(){
   const hbtn=nav.querySelector('.nav-btn[data-tab="history"]');
   if(hbtn)hbtn.hidden=!historyTabShown();
   if(currentTab==='history'&&!historyTabShown())currentTab='today';
+  const lbtn=nav.querySelector('.nav-btn[data-tab="log"]');
+  if(lbtn)lbtn.hidden=!logTabShown();
+  if(currentTab==='log'&&!logTabShown())currentTab='today';
   // Editar dia es parte de History: el dock / panel lateral sigue a la vista.
   if(editDayKey){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));uiHTML(el,renderEditDay());layoutEditDay();tuckNav(false);renderTour();renderResume();return;}
   // Placement hides the navigation tab, but explicit Social shortcuts still open it.
@@ -7190,7 +7195,7 @@ function renderRoutineTimer(){
   }
 }
 
-function tabsOrder(){ return ["today","log","social","stats","history"].filter(t=>(t!=="social"||socialTabShown())&&(t!=="history"||historyTabShown())); }
+function tabsOrder(){ return ["today","log","social","stats","history"].filter(t=>(t!=="log"||logTabShown())&&(t!=="social"||socialTabShown())&&(t!=="history"||historyTabShown())); }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{

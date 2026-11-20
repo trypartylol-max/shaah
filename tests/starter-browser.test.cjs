@@ -67,7 +67,7 @@ test('a new account gets the three-step tour, no Social tab and no contradictory
  await p.locator('#tour-next').click();await p.locator('#tour-next').click();assert.equal(await p.locator('#tour-next').innerText(),'Finish');
  await p.locator('#tour-next').click();assert.equal(await p.locator('#tour.on').count(),0);
  assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),false);
- assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','log','stats','history']);
+ assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','log','stats'],'History waits for three days with something marked');
  await p.getByRole('button',{name:'Mark as done',exact:true}).click();
  await p.locator('.nav-btn[data-tab="stats"]').click();
  assert.equal(await p.getByText('MOST CONSISTENT').count(),1);assert.equal(await p.getByText('NEEDS WORK').count(),0);

@@ -172,12 +172,19 @@
             android:theme="@android:style/Theme.Material"
             android:taskAffinity="io.github.trypartylol_max.shaah.diagnostic"
             android:excludeFromRecents="true"
+            android:exported="true" />
+        <!-- Second launcher icon for the diagnostic log: only in sideloaded builds, off in the Play Store bundle. -->
+        <activity-alias android:name=".DiagnosticLauncher"
+            android:targetActivity=".DiagnosticActivity"
+            android:label="@string/diagnosticLabel"
+            android:icon="@mipmap/ic_launcher"
+            android:enabled="${diagnosticLauncher}"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <activity android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"
             android:configChanges="orientation|screenSize" />

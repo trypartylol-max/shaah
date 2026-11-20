@@ -36,7 +36,10 @@ jobs:
         env:
           SHAAH_KEYSTORE: ${{ runner.temp }}/shaah-upload.jks
           SHAAH_KEYSTORE_PASSWORD: ${{ secrets.SHAAH_KEYSTORE_PASSWORD }}
-        run: ./gradlew --no-daemon assembleRelease
+        run: |
+          ./gradlew --no-daemon assembleRelease
+          # Play Store bundle (AAB): same code and key, without the diagnostic launcher icon.
+          ./gradlew --no-daemon -PplayStore bundleRelease
       - name: Verify signature
         run: |
           APK=source/android/project/app/build/outputs/apk/release/app-release.apk
@@ -44,6 +47,12 @@ jobs:
           VERSION=$(grep -m1 versionName source/android/project/app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
           cp "$APK" "SHAAH-$VERSION.apk"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Keep the Play Store bundle (AAB) as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHAAH-${{ env.VERSION }}-play-aab
+          path: source/android/project/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
       - name: Publish as release v<version>
         env:
           GH_TOKEN: ${{ github.token }}

@@ -16,8 +16,8 @@
     "path": "../private/shaah-upload.keystore",
     "alias": "shaah-upload"
   },
-  "appVersionCode": 9,
-  "appVersion": "0.3.5",
+  "appVersionCode": 10,
+  "appVersion": "0.3.6",
   "webManifestUrl": "https://trypartylol-max.github.io/shaah/manifest.webmanifest",
   "fallbackType": "customtabs",
   "features": {},

@@ -28,3 +28,9 @@ test('a server error keeps the account signed in and says so',async t=>{
  await p.locator('#signout-status').filter({hasText:'could not be deleted'}).waitFor();
  assert.ok(await p.evaluate(()=>!!USER));
 });
+test('Settings links to the privacy policy',async t=>{
+ const p=await openApp(t,undefined,{width:390,height:844},{stayOnToday:true});
+ await p.evaluate(()=>{openSettings();secOpen={data:true};render();});
+ const link=p.locator('[data-privacy-link]');
+ assert.equal(await link.getAttribute('href'),'privacy.html');assert.equal(await link.innerText(),'Privacy policy');
+});

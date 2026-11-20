@@ -22,7 +22,7 @@
         android:shortcutLongLabel="@string/diagnosticLabel">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="io.github.trypartylol_max.shaah"
+            android:targetPackage="app.shaah"
             android:targetClass="io.github.trypartylol_max.shaah.DiagnosticActivity" />
     </shortcut>
 </shortcuts>

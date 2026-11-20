@@ -4135,6 +4135,7 @@ const interfaceCopies = {
   "⬆  IMPORT JSON": ["⬆  IMPORT JSON", "⬆  IMPORTAR JSON", "⬆  ייבוא JSON"],
   "↺  RESTORE DEFAULTS": ["↺  RESTORE DEFAULTS", "↺  RESTAURAR VALORES PREDETERMINADOS", "↺  שחזור ברירות המחדל"],
   "DELETE": ["DELETE", "BORRAR", "מחיקה"],
+  "Privacy policy": ["Privacy policy", "Política de privacidad", "מדיניות פרטיות"],
   "Delete account": ["Delete account", "Borrar cuenta", "מחיקת החשבון"],
   "Deletes your account and all its data on every device. It cannot be undone.": ["Deletes your account and all its data on every device. It cannot be undone.", "Borra tu cuenta y todos sus datos en todos los dispositivos. No se puede deshacer.", "מוחק את החשבון ואת כל הנתונים שלו בכל המכשירים. לא ניתן לבטל."],
   "This permanently deletes your SHAAH account and all its data: days, settings, people and notifications. It cannot be undone. Type {word} to confirm.": ["This permanently deletes your SHAAH account and all its data: days, settings, people and notifications. It cannot be undone. Type {word} to confirm.", "Esto borra para siempre tu cuenta de SHAAH y todos sus datos: días, configuración, personas y notificaciones. No se puede deshacer. Escribe {word} para confirmar.", "פעולה זו מוחקת לצמיתות את חשבון SHAAH ואת כל הנתונים שלו: ימים, הגדרות, אנשים והתראות. לא ניתן לבטל. כתבו {word} לאישור."],
@@ -4384,7 +4385,8 @@ function renderSettings(){
       <p ${uiStyle(`font-size:12px;color:#8888a4;line-height:1.6;margin-top:10px`)}>${interfaceCopy("Removes only this account’s saved copies and local backups from this browser. Your online data stays available. Sync changes and download any local backups you want to keep first. Older unlinked recovery data is preserved.")}</p>
       <p id="signout-status" role="status" aria-live="polite" ${uiStyle(`font-size:13px;line-height:1.5;color:#fbbf24;margin-top:8px`)}>${esc(_signOutStatus)}</p>
       <button data-delete-account ${ui('click','deleteAccount')} ${uiStyle(`width:100%;background:none;border:1px solid #3a1c1c;color:#f87171;font-family:inherit;font-size:14px;padding:12px;border-radius:10px;cursor:pointer;margin-top:18px`)}>${interfaceCopy("Delete account")}</button>
-      <p ${uiStyle(`font-size:12px;color:#8888a4;line-height:1.6;margin-top:8px`)}>${interfaceCopy("Deletes your account and all its data on every device. It cannot be undone.")}</p>`,"st-full")}
+      <p ${uiStyle(`font-size:12px;color:#8888a4;line-height:1.6;margin-top:8px`)}>${interfaceCopy("Deletes your account and all its data on every device. It cannot be undone.")}</p>
+      <p ${uiStyle(`font-size:13px;line-height:1.6;margin-top:16px;text-align:center`)}><a data-privacy-link href="privacy.html" target="_blank" rel="noopener" ${uiStyle(`color:#a4a4ba`)}>${interfaceCopy("Privacy policy")}</a></p>`,"st-full")}
             ${stCard("trav",interfaceText('mode'),"#9090aa",`
       <div ${uiStyle(`font-size:13.5px;color:#8888a4;line-height:1.5;margin-bottom:10px`)}>${interfaceCopy("Work and Vacation have independent point values for every habit. Switching mode changes which values are used; Vacation also pauses Work from today.")}</div>
       <div ${uiStyle(`display:flex;gap:7px;margin-bottom:16px`)}>

@@ -21,7 +21,7 @@ plugins {
 }
 
 def twaManifest = [
-    applicationId: 'io.github.trypartylol_max.shaah',
+    applicationId: 'app.shaah',
     hostName: 'trypartylol-max.github.io', // The domain being opened in the TWA.
     launchUrl: '/shaah/', // The start path for the TWA. Must be relative to the domain.
     name: 'SHAAH', // The application name.
@@ -56,11 +56,11 @@ android {
     defaultConfig {
         // -PplayStore builds the Play Store bundle: no "SHAAH Diagnóstico" icon there.
         manifestPlaceholders = [diagnosticLauncher: project.hasProperty('playStore') ? 'false' : 'true']
-        applicationId "io.github.trypartylol_max.shaah"
+        applicationId "app.shaah"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 10
-        versionName "0.3.6"
+        versionCode 11
+        versionName "0.4.0"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -205,7 +205,7 @@ task generateShorcutsFile {
                     'intent'(
                             'android:action': 'android.intent.action.MAIN',
                             'android:targetPackage': twaManifest.applicationId,
-                            'android:targetClass': twaManifest.applicationId + '.LauncherActivity',
+                            'android:targetClass': 'io.github.trypartylol_max.shaah.LauncherActivity', // Java package (namespace), not the applicationId
                             'android:data': s.url)
                     'categories'('android:name': 'android.intent.category.LAUNCHER')
                 }

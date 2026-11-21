@@ -7,15 +7,15 @@ test('first session uses a real habit and real Day Log, survives refresh, automa
  fs.mkdirSync('test-results',{recursive:true});await p.screenshot({path:'test-results/starter-choose-mobile.png'});
  await p.getByRole('button',{name:/Focus/}).click();await p.getByRole('button',{name:'Start with this'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  await p.getByRole('heading',{name:'Your day, at your own pace.'}).waitFor();assert.equal(await p.locator('[data-starter-habit]').count(),1);
- await p.getByRole('button',{name:'Mark as done',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
+ await p.getByRole('button',{name:'Mark as done',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),100);
  assert.equal(await p.locator('#tb-score').innerText(),'1 of 1 in your plan');
  await p.getByRole('button',{name:'Undo',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),0);
  await p.getByRole('button',{name:'Break into steps · optional'}).click();await p.getByRole('button',{name:'Add this routine'}).click();
- assert.equal(await p.evaluate(()=>Object.keys(CFG.routines).length),1);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),10);
+ assert.equal(await p.evaluate(()=>Object.keys(CFG.routines).length),1);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
  await p.evaluate(()=>flushCfgSaves());await p.reload();await p.getByRole('heading',{name:'Your day, at your own pace.'}).waitFor();
  assert.equal(await p.locator('#tour.on').count(),0);assert.equal(await p.locator('[data-starter-habit]').count(),1);
  await p.getByRole('button',{name:'Add another habit'}).click();await p.getByRole('button',{name:'Movement',exact:false}).click();await p.getByRole('button',{name:'Add to my plan'}).click();
- assert.equal(await p.locator('[data-starter-habit]').count(),2);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),20);
+ assert.equal(await p.locator('[data-starter-habit]').count(),2);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
  assert.equal(await p.evaluate(()=>!!CFG.h.work||!!CFG.h.cjunk0),false);
  assert.equal(await p.getByRole('button',{name:'Log an activity',exact:true}).count(),0,'Day Log stays in the full view');
  assert.equal(await p.locator('#nav .nav-btn[data-tab="log"]').isHidden(),true);
@@ -50,9 +50,9 @@ test('optional generic routine opens the existing runner without duplicate point
  await p.getByRole('button',{name:'Start routine',exact:true}).click();await p.locator('#cr-dialog').waitFor();
  assert.equal(await p.evaluate(()=>ROUTINES[CFG.order[0]].steps.length),3);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),0);
  await p.getByRole('button',{name:'Close routine',exact:true}).click();await p.getByRole('button',{name:'Mark as done'}).click();
- assert.equal(await p.evaluate(()=>Object.keys(sessions).length),0);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
+ assert.equal(await p.evaluate(()=>Object.keys(sessions).length),0);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),100);
  await p.getByRole('button',{name:'Show tutorial',exact:true}).click();await p.locator('#tour.on').waitFor();
- await p.getByRole('button',{name:'Skip / close',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
+ await p.getByRole('button',{name:'Skip / close',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),100);
 });
 test('new browser for an existing account never starts the old automatic tutorial',async t=>{
  const p=await openApp(t);await p.evaluate(()=>localStorage.removeItem(tourKey()));await p.reload();await p.waitForFunction(()=>_cfgReady);
@@ -69,7 +69,8 @@ test('a new account gets the three-step tour, no Social tab and no contradictory
  assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','stats'],'History waits for three days with something marked');
  await p.getByRole('button',{name:'Mark as done',exact:true}).click();
  await p.locator('.nav-btn[data-tab="stats"]').click();
- assert.equal(await p.getByText('MOST CONSISTENT').count(),1);assert.equal(await p.getByText('NEEDS WORK').count(),0);
+ assert.equal(await p.getByText('MOST CONSISTENT').count(),1);// Social Combo counts from day one (118 = 100 + 18), so unmarked it is what needs work.
+ assert.equal(await p.getByText('NEEDS WORK').count(),1);
  // The full tutorial stays one tap away, and the full view brings Social back.
  await p.locator('.nav-btn[data-tab="today"]').click();await p.getByRole('button',{name:'Show tutorial'}).click();
  assert.equal(await p.locator('#tour .tour-dot').count(),9);await p.getByRole('button',{name:'Skip / close',exact:true}).click();

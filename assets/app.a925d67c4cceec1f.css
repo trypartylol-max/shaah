@@ -5219,3 +5219,16 @@ shaah-section[name="tip-card"]{}
 .tip-actions select{font:inherit;font-size:16px;padding:7px 10px;border-radius:9px;background:rgba(var(--skin-rgb-07070f,7,7,15),1);color:inherit;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1)}
 .tip-go{font:inherit;font-size:14px;font-weight:600;min-height:38px;padding:8px 14px;border-radius:10px;border:1px solid rgba(var(--skin-rgb-fbbf24,251,191,36),1);background:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-07070f,7,7,15),1);cursor:pointer}
 .tip-later{font:inherit;font-size:14px;min-height:38px;padding:8px 12px;border-radius:10px;border:1px solid transparent;background:none;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);cursor:pointer;margin-left:auto}
+/* Escritorio: el aviso no se cuela en una columna de 89 px. Por defecto es una
+   franja horizontal bajo los niveles; sin LVL 1 (plan de arranque) ocupa la
+   columna izquierda, que queda libre. Sin LVL 1 ni rutinas, LVL 3 ocupa dos filas
+   y DAY NOTE sube bajo LVL 2, para que todo quepa sin scroll. */
+@media(min-width:880px){
+ #scroll .today>.tip-card{grid-row:5!important;grid-column:1/-1!important;justify-self:center!important;align-self:start!important;width:100%!important;max-width:760px!important;display:flex!important;align-items:center;gap:16px;padding:10px 14px!important}
+ #scroll .today>.tip-card p{margin:0!important;flex:1}
+ #scroll .today>.tip-card .tip-actions{flex-wrap:nowrap}
+ #scroll .today:not(:has(>.t-lvl1))>.tip-card{grid-row:2!important;grid-column:1/span 4!important;max-width:none!important;display:block!important;padding:14px 16px!important}
+ #scroll .today:not(:has(>.t-lvl1))>.tip-card p{margin:0 0 12px!important}
+ #scroll .today:not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-lvl3{grid-row:2/span 2!important;align-self:start!important}
+ #scroll .today:not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-note{grid-row:3!important;grid-column:5/span 4!important}
+}

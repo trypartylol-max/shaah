@@ -68,3 +68,12 @@ test('an existing full-view account using routines and with the reminder unavail
  assert.equal(await p.locator('.tip-card').count(),0);
  assert.equal(await p.locator('#nav .nav-btn[data-tab="history"]').isHidden(),false);
 });
+test('desktop full view: the reminder sits in the free left column, Social Combo counts and everything fits without scrolling',async t=>{
+ const p=await openApp(t,undefined,{width:1280,height:720},{emptyAccount:true});
+ await startFocus(p);await withPush(p);
+ await p.evaluate(()=>{starterView('full');render();});
+ const card=p.locator('.tip-card[data-tip="remind"]');await card.waitFor();
+ const box=await card.boundingBox();assert.ok(box.width>300,'the reminder is not squeezed into one narrow column');
+ assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
+ assert.equal(await p.evaluate(()=>{const s=document.getElementById('scroll');return s.scrollHeight<=s.clientHeight;}),true);
+});

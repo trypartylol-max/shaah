@@ -1032,15 +1032,47 @@ function starterHabit(choice,text,id){
   if(!label)throw Error(interfaceCopy("Choose a habit or write your own."));
   return {id,h:{l:label,p:10,pWork:10,pVacation:10,i:template?.icon||'○',lv:2,on:true,starterTemplate:choice}};
 }
+// Plan de arranque: el Social Combo vale 18 (6 por grupo) y los hábitos se reparten
+// el resto hasta 118. Con un hábito vale 100; con dos, 50 y 50; etc.
+const STARTER_TOTAL=118,STARTER_COMBO=18;
+function starterComboSubs(){const n=SOCIAL_SUBS_BASE.length,p=STARTER_COMBO/n;return SOCIAL_SUBS_BASE.map(x=>({...x,p,pWork:p,pVacation:p}));}
+function starterBalanceIn(h,order,subs,habits=true){
+  if(!h.social||!h.social.combo){
+    if(comboIdIn(h))return;
+    h.social={l:"Social",p:STARTER_COMBO,pWork:STARTER_COMBO,pVacation:STARTER_COMBO,i:"👥",lv:3,on:true,combo:true};
+    if(!order.includes('social'))order.push('social');
+  }
+  if(Array.isArray(subs)&&!subs.length)subs.push(...starterComboSubs());
+  if(!habits)return;
+  const combo=Array.isArray(subs)&&subs.length?subsOn(subs).reduce((n,x)=>n+modePts(x,'work'),0):STARTER_COMBO;
+  const ids=order.filter(id=>h[id]&&!h[id].combo&&h[id].on!==false),budget=Math.max(0,STARTER_TOTAL-combo),n=ids.length;
+  ids.forEach((id,k)=>{const p=Math.floor(budget/n)+(k<budget%n?1:0);h[id].p=p;h[id].pWork=p;h[id].pVacation=p;});
+}
+// En la vista simple los puntos se rebalancean solos al añadir o quitar un hábito,
+// mientras todos sigan siendo del arranque (en la vista completa manda el usuario).
+function starterRebalanceLive(){
+  if(!starterSimple()||!Object.values(CFG.h).some(x=>x&&!x.combo))return;
+  if(!Object.values(CFG.h).every(x=>!x||x.combo||x.starterTemplate))return;
+  if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs);
+}
+// Cuentas creadas con el arranque anterior: hábito a 10 y sin Social Combo. Desde hoy
+// se añade el combo y, si los puntos siguen en el 10 de fábrica, se reparten hasta 118.
+function starterBalanceOnce(){
+  if(!starterProfile()||CFG.starter.balanceV>=1)return false;
+  if(!Object.values(CFG.h).some(x=>x&&!x.combo))return false;   // sin hábitos: el combo llega con el primero
+  const auto=Object.values(CFG.h).filter(x=>x&&!x.combo&&x.on!==false).every(x=>x.starterTemplate&&safePts(x.pWork??x.p)===10);
+  return cfgEdit(()=>{if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs,auto);CFG.starter.balanceV=1;});
+}
 function starterNewId(){let id;do{id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0');}while(CFG.h[id]);return id;}
 function starterBuild(choice,text,token){
   const day=todayKey(),h={},order=[];
   if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
-  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines:{},people:[],subs:[],locationGroups:[],
+  const subs=[];if(order.length)starterBalanceIn(h,order,subs);
+  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines:{},people:[],subs,locationGroups:[],
     travel:{mode:'work',auto:false,resumeOn:''},v:4,
-    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple',tutorial:{version:1,state:'presented'}},
+    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple',balanceV:1,tutorial:{version:1,state:'presented'}},
     log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
-      {from:day,h:cfgCopy(h),order:[...order],subs:[],mode:'work'}]};
+      {from:day,h:cfgCopy(h),order:[...order],subs:cfgCopy(subs),mode:'work'}]};
 }
 function starterPick(choice){
   if(_starterBusy||!['custom',...STARTER_TEMPLATES.map(t=>t.id)].includes(choice))return;
@@ -1079,7 +1111,8 @@ async function starterConfirm(skip=false){
       const id=_starterEditId||starterNewId(),item=starterHabit(choice,_starterText,id);
       const changed=cfgEdit(()=>{
         if(_starterEditId){const old=CFG.h[id];if(!old)throw Error(interfaceCopy("This habit is no longer available."));CFG.h[id]={...old,l:item.h.l,i:item.h.i,starterTemplate:choice};}
-        else {if(CFG.order.length>=40)throw Error(interfaceCopy("You already have 40 habits."));CFG.h[id]=item.h;CFG.order.push(id);}
+        else {if(CFG.order.length>=40)throw Error(interfaceCopy("You already have 40 habits."));CFG.h[id]=item.h;CFG.order.push(id);
+          starterRebalanceLive();}
       });
       if(changed){_starterEditor=false;_starterEditId=null;render();}
     }catch(e){_starterError=e.message;render();}return;
@@ -1137,7 +1170,8 @@ function starterGateHTML(){
   return `<section class="starter-screen" aria-labelledby="starter-title" aria-busy="${_starterGate==='loading'}"><div class="starter-brand">SHAAH</div><h1 id="starter-title">${interfaceText(_starterGate==='error'?'recovery':'preparing')}</h1><p class="starter-muted" role="status">${interfaceText(_starterGate==='error'?'recoveryBody':'loading')}</p>${_starterGate==='error'?`<button class="starter-primary" type="button" ${ui('click','starterRetry')}>${interfaceText('retry')}</button>`:'<div class="loading-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>'}</section>`;
 }
 function starterItems(key){const c=cfgForDate(key);return [...c.L1,...c.L2,...c.L3];}
-function starterSummary(key){const items=starterItems(key),ch=getChecked(key);return {items,done:items.filter(i=>ch[i.id]===true).length};}
+// El Social Combo es bonus: se muestra en el plan pero no cuenta en "X de Y".
+function starterSummary(key){const items=starterItems(key),ch=getChecked(key),plan=items.filter(i=>!i.combo);return {items,total:plan.length,done:plan.filter(i=>ch[i.id]===true).length};}
 function starterRoutineSteps(id){
   const kind=CFG.h[id]?.starterTemplate;
   if(kind==='move')return [{id:'prepare',label:interfaceText('stepPrepare'),dur:1,icon:'○'},{id:'move',label:interfaceText('stepMove'),dur:3,icon:'↗'},{id:'close',label:interfaceText('stepFinish'),dur:1,icon:'✓'}];
@@ -1166,8 +1200,8 @@ function starterContinuityHTML(key,done,total){
   return text?`<p class="starter-continuity">${text}</p>`:'';
 }
 function renderStarterToday(key){
-  const {items,done}=starterSummary(key),ch=getChecked(key);
-  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p>${starterContinuityHTML(key,done,items.length)}</div>${tipCardHTML(key)}
+  const {items,done,total}=starterSummary(key),ch=getChecked(key);
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,total)}</p>${starterContinuityHTML(key,done,total)}</div>${tipCardHTML(key)}
     ${items.length?items.map(item=>{
       // The simple view must still expose EVERY active item and its real controls.
       if(item.combo)return legacyComboBlock(key,true);
@@ -2250,8 +2284,8 @@ function nextMove(key){
 // La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
 function scoreStripHTML(key){
   if(starterSimple()||calcScore(key).max===0){
-    const {items,done}=starterSummary(key);
-    return `<div id="tb-score" class="starter-score" role="status">${starterProgressLabel(done,items.length)}</div>`;
+    const {done,total}=starterSummary(key);
+    return `<div id="tb-score" class="starter-score" role="status">${starterProgressLabel(done,total)}</div>`;
   }
   const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
   const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
@@ -3139,7 +3173,7 @@ async function loadAccountRows(owner,epoch){
     checkTravelAuto();
     recoverPeopleFromDays();
     runShaahSocialCoreMigration();
-    }else{applyCfg();hydrateRoutineRows(rows);}
+    }else{starterBalanceOnce();applyCfg();hydrateRoutineRows(rows);}
     saveCache();
     cfgSyncStatus();
     arrivalPlanExisting();
@@ -4475,7 +4509,7 @@ function cfgDel(id){
   if(!CFG.h[id]||!isCustom(id))return;
   if(!confirm(interfaceCopy("Remove \"{name}\"? Past days keep the score they already had.").replace('{name}', () => CFG.h[id].l)))return;
   haptic(12);
-  cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); });
+  cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); starterRebalanceLive(); });
 }
 function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
 function cfgLevel(id,level){

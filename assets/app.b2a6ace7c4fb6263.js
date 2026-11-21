@@ -4183,13 +4183,13 @@ const interfaceCopies = {
   "Example milestones completed": ["Example milestones completed", "Hitos de ejemplo completados", "אבני דרך לדוגמה הושלמו"],
   "STEP {step} OF {total}": ["STEP {step} OF {total}", "PASO {step} DE {total}", "שלב {step} מתוך {total}"],
   "WELCOME TO SHAAH": ["WELCOME TO SHAAH", "BIENVENIDA A SHAAH", "ברוכים הבאים ל־SHAAH"],
-  "Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.": ["Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.", "Construye tu día paso a paso. Puedes omitir, retroceder o repetir esta guía de nueve pasos en Ajustes.", "בנו את היום צעד אחר צעד. אפשר לדלג, לחזור או להפעיל מחדש את המדריך בן תשעת השלבים בהגדרות."],
+  "Build your day one action at a time. Explore the interface and try safe demos in a few short steps. You can skip, go back or replay this guide in Settings.": ["Build your day one action at a time. Explore the interface and try safe demos in a few short steps. You can skip, go back or replay this guide in Settings.", "Construye tu día paso a paso. Puedes omitir, retroceder o repetir esta guía en Ajustes.", "בנו את היום צעד אחר צעד. אפשר לדלג, לחזור או להפעיל מחדש את המדריך בהגדרות."],
   "YOUR DAY SCORE": ["YOUR DAY SCORE", "TU PUNTUACIÓN DIARIA", "הניקוד היומי שלך"],
   "Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.": ["Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.", "Los hábitos completados suman puntos. La calificación compara tus puntos con el máximo de ese día y modo. S+ empieza al 95 %.", "הרגלים שהושלמו מזכים בנקודות. הציון משווה את הניקוד למקסימום של אותו יום ומצב. ציון S+ מתחיל ב־95%."],
   "THREE LEVELS": ["THREE LEVELS", "TRES NIVELES", "שלוש רמות"],
   "CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.": ["CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.", "Núcleo reúne lo esencial, Hábitos fomenta la constancia y Bonus añade metas. Despliega un nivel para ver sus hábitos y puntuaciones.", "הליבה כוללת את העיקר, ההרגלים מעודדים התמדה והבונוס מוסיף יעדים. פתחו רמה כדי לראות את ההרגלים והניקוד."],
-  "WORK & ITS GEOMETRY": ["WORK & ITS GEOMETRY", "TRABAJO Y SU GEOMETRÍA", "עבודה והצורה שלה"],
-  "Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.": ["Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.", "Cada hito de Trabajo ilumina un segmento. Tres hitos forman un triángulo. Completar y reiniciar el ejemplo deja intacto tu progreso.", "כל אבן דרך בעבודה מאירה מקטע. שלוש אבני דרך יוצרות משולש. השלמת הדוגמה ואיפוסה אינם משנים את ההתקדמות שלך."],
+  "WORK, IN MILESTONES": ["WORK, IN MILESTONES", "EL TRABAJO, POR HITOS", "עבודה באבני דרך"],
+  "Work can be split into milestones. Each one you complete lights up one side of the shape: three milestones form a triangle, and the shape changes with how many you set. On the left you see today’s progress; on the right, the week’s total. Try the demo, then reset it — your real Work stays as it is.": ["Work can be split into milestones. Each one you complete lights up one side of the shape: three milestones form a triangle, and the shape changes with how many you set. On the left you see today’s progress; on the right, the week’s total. Try the demo, then reset it — your real Work stays as it is.", "El trabajo se puede dividir en hitos. Cada hito que completas ilumina un lado de la figura: con tres hitos se forma un triángulo, y la figura cambia según cuántos tengas. A la izquierda ves el progreso de hoy y a la derecha el total de la semana. Prueba el ejemplo y luego reinícialo: tu trabajo real no cambia.", "אפשר לחלק את העבודה לאבני דרך. כל אבן דרך שמשלימים מאירה צלע אחת בצורה: שלוש אבני דרך יוצרות משולש, והצורה משתנה לפי המספר שקבעתם. משמאל רואים את ההתקדמות של היום, ומימין את הסיכום השבועי. נסו את הדוגמה ואפסו אותה — העבודה האמיתית שלכם לא משתנה."],
   "TRY A HABIT": ["TRY A HABIT", "PRUEBA UN HÁBITO", "נסו הרגל"],
   "Try checking this example habit, then undo it. This demo never changes your habits or score.": ["Try checking this example habit, then undo it. This demo never changes your habits or score.", "Marca el hábito de ejemplo y luego desmárcalo. Tus hábitos y puntuación se conservan.", "סמנו את ההרגל לדוגמה ואז בטלו את הסימון. ההרגלים והניקוד שלך נשמרים."],
   "TRY A ROUTINE": ["TRY A ROUTINE", "PRUEBA UNA RUTINA", "נסו שגרה"],
@@ -5341,11 +5341,11 @@ function initScrollHide(){
 let tourStep=null;
 let tourDemo={},tourReturnTab=null,tourReturnFocus=null,tourScroll=0,tourInert=[],tourReturnSettings=false,tourOwner=null,tourFocusStep=null;
 const TOUR=[
- {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.'},
+ {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in a few short steps. You can skip, go back or replay this guide in Settings.'},
  {tab:'today',target:'.t-ring',ico:'◎',t:'YOUR DAY SCORE',b:'Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.'},
  {tab:'today',target:'.t-lvl1',ico:'⬛',t:'THREE LEVELS',b:'CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.'},
- {tab:'today',target:'.wg-card',ico:'△',t:'WORK & ITS GEOMETRY',demo:'work',b:'Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.'},
- {tab:'today',target:'.t-lvl2',ico:'👆',t:'TRY A HABIT',demo:'habit',b:'Try checking this example habit, then undo it. This demo never changes your habits or score.'},
+ {tab:'today',target:'.wg-card',ico:'△',t:'WORK, IN MILESTONES',demo:'work',b:'Work can be split into milestones. Each one you complete lights up one side of the shape: three milestones form a triangle, and the shape changes with how many you set. On the left you see today’s progress; on the right, the week’s total. Try the demo, then reset it — your real Work stays as it is.'},
+ {tab:'today',target:'.t-lvl2,.t-flat',ico:'👆',t:'TRY A HABIT',demo:'habit',b:'Try checking this example habit, then undo it. This demo never changes your habits or score.'},
  {tab:'today',target:'.t-rout-toggle',ico:'⚡',t:'TRY A ROUTINE',demo:'routine',b:'Routines guide you through timed steps. Try advancing this two-step example. No real timer or session is started.'},
  {tab:'log',target:'.logdesk-card-title',ico:'◷',t:'TRY DAY LOG',demo:'log',b:'Day Log helps reconstruct your day. Add an example activity below; it stays only inside this tutorial.'},
  {tab:'history',target:'.htab',ico:'◈',t:'HISTORY & STATS',b:'HISTORY lets you review dated entries. STATS shows trends and streaks. Historical scores use the configuration for that date. The navigation below takes you to each area after the guide.'},
@@ -5607,7 +5607,8 @@ function deviceSettingsHTML(){const html=badgeSettingHTML()+pushSettingHTML();re
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
 function startTour(short){
  if(!USER||tourStep!==null)return;
- tourList=short===true&&starterSimple()?TOUR_STARTER:TOUR;
+ // En la lista única (sin niveles) no se explican los tres niveles.
+ tourList=short===true&&starterSimple()?TOUR_STARTER:TOUR.filter(s=>s.target!=='.t-lvl1'||!starterFlat());
  arrivalDismiss();
  tourOwner=USER.id;tourReturnSettings=settingsOpen;tourReturnTab=currentTab;tourReturnFocus=document.activeElement;tourScroll=document.getElementById('scroll').scrollTop;
  tourDemo={};tourStep=0;settingsOpen=false;currentTab=tourList[0].tab;haptic(10);render();
@@ -6128,7 +6129,7 @@ function renderToday(key,nested=false){
   // This keeps historical Vacation days (including routines) consistent with
   // the scoring model and prevents a stale Work item from appearing in L1.
   const L1vis=C.inVacation?C.L1.filter(i=>i.id!=='work'):C.L1;
-  const core=coreLayoutFor(key),flat=!core&&starterFlat();
+  const core=coreLayoutFor(key),flat=!core&&starterFlat(),sp=!core&&starterProfile();
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
@@ -6235,10 +6236,10 @@ ${(flat||nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?""
       </div>`;}).join("")}
       </div>
     </div>
-    <div class="t-lvl t-lvl3" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[3]}" ${ui('click','toggleLvl' ,3)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[3]?"":" cl"}">▾</span>${interfaceCopy("· LVL 3 — BONUS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${core?bonusSummary(key).earned:l3}/${core?bonusSummary(key).max:dM3}</span></span></button>${allBtn(3,core?C.L3.filter(i=>!i.combo):C.L3)}</div>
+    ${(sp&&!C.L3.some(x=>!x.combo))?'':`    <div class="t-lvl t-lvl3" ${uiStyle(`width:100%;max-width:390px`)}>
+      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[3]}" ${ui('click','toggleLvl' ,3)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[3]?"":" cl"}">▾</span>${interfaceCopy("· LVL 3 — BONUS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${(core||sp)?bonusSummary(key).earned:l3}/${(core||sp)?bonusSummary(key).max:dM3}</span></span></button>${allBtn(3,(core||sp)?C.L3.filter(i=>!i.combo):C.L3)}</div>
       <div class="lvl-b${lvlShown[3]?"":" cl"}">
-      ${core?"":comboBlock(key)}
+      ${(core||sp)?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>{
         const st=ch[item.id];
         return `
@@ -6251,8 +6252,9 @@ ${(flat||nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?""
       </div>`;
       }).join("")}
       </div>
-    </div>
+    </div>`}
 `}
+    ${(sp&&!flat&&C.L3.some(x=>x.combo))?`<div class="t-flat-social" ${uiStyle(`width:100%;max-width:390px`)}>${comboBlock(key)}</div>`:''}
     ${(!nested&&isToday&&!core)?tipCardHTML(key):''}
     ${core?`<div class="t-lvl t-social-independent">${comboBlock(key)}</div>`:""}
     ${isToday?`<div class="t-daylog" ${uiStyle(`width:100%;max-width:390px`)}>

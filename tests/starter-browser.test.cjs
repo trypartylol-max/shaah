@@ -73,7 +73,7 @@ test('a new account gets the three-step tour, no Social tab and no contradictory
  assert.equal(await p.getByText('NEEDS WORK').count(),1);
  // The full tutorial stays one tap away, and the full view brings Social back.
  await p.locator('.nav-btn[data-tab="today"]').click();await p.getByRole('button',{name:'Show tutorial'}).click();
- assert.equal(await p.locator('#tour .tour-dot').count(),9);await p.getByRole('button',{name:'Skip / close',exact:true}).click();
+ assert.equal(await p.locator('#tour .tour-dot').count(),8);await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  await p.getByRole('button',{name:'Show full view'}).click();
  assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),true);
 });
@@ -94,4 +94,16 @@ test('a returning simple account sees its streak, or a fresh start after a gap; 
  assert.equal(await p.locator('.starter-continuity').innerText(),'🔥 2-day streak. See you tomorrow.');
  await next('2026-10-20T07:30:00Z');
  assert.equal(await p.locator('.starter-continuity').innerText(),'Welcome back. Today is a fresh start.');
+});
+test('the full SHAAH plan gets the full guided tour, Work milestones included',async t=>{
+ const p=await openApp(t,undefined,{width:1280,height:720},{emptyAccount:true});
+ await p.getByRole('button',{name:/The full SHAAH plan/}).click();await p.getByRole('button',{name:'Start with this'}).click();
+ await p.locator('#tour.on').waitFor();assert.equal(await p.locator('#tour .tour-dot').count(),9);
+ assert.equal((await p.evaluate(()=>tourList.map(s=>s.t))).includes('WORK, IN MILESTONES'),true);
+ assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
+ await p.getByRole('button',{name:'Skip / close',exact:true}).click();
+ assert.equal(await p.locator('.t-lvl3 .sf-compact-combo').count(),0,'Social Combo is its own card, not inside LVL 3');
+ assert.equal(await p.locator('.t-flat-social .sf-compact-combo').count(),1);
+ const tops=await p.evaluate(()=>['.t-lvl1','.t-lvl2','.t-lvl3'].map(s=>Math.round(document.querySelector(s).getBoundingClientRect().top)));
+ assert.ok(Math.max(...tops)-Math.min(...tops)<=2,'the three levels start at the same height');
 });

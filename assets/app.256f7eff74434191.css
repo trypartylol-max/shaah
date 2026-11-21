@@ -5235,7 +5235,7 @@ shaah-section[name="tip-card"]{}
    el ancho bajo el marcador; las filas de debajo bajan una. Móvil y vista simple: el
    aviso va en el DOM después del plan (primero se ve el hábito a marcar). */
 @media(min-width:880px){
- #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card{grid-row:2!important;grid-column:1/-1!important;justify-self:stretch!important;align-self:center!important;width:auto!important;max-width:none!important;display:flex!important;align-items:center;gap:16px;padding:8px 10px 8px 18px!important;margin:0!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card{grid-row:2!important;grid-column:1/-1!important;justify-self:stretch!important;align-self:center!important;width:auto!important;max-width:none!important;display:flex!important;align-items:center;gap:16px;padding:8px 10px 8px 18px!important;margin:0 0 8px!important}
  #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card p{margin:0!important;flex:1;min-width:0}
  #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card .tip-actions{flex-wrap:nowrap;flex-shrink:0}
  #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card .tip-later{margin-left:0}
@@ -5247,5 +5247,36 @@ shaah-section[name="tip-card"]{}
 }
 /* La barra inferior se superpone a #scroll: sin este margen, lo último de Today
    (RESET DAY) quedaba debajo de la barra y no había scroll para verlo. */
-@media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today){padding-bottom:84px!important}}
+@media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today){padding-bottom:76px!important}}
 .starter-or{margin:22px 0 10px}.starter-full{display:block;width:100%;box-sizing:border-box;margin:0 0 12px}
+/* Los niveles se alinean ARRIBA en su fila: alineados abajo, cuando LVL 3 es más alto,
+   LVL 1 y 2 dejaban un hueco encima que parecía espacio reservado. */
+@media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today)>:is(.t-lvl1,.t-lvl2,.t-lvl3){align-self:start!important}}
+/* Con rutinas, LVL 3 (el más alto por el Social Combo) ocupa también la fila de las
+   rutinas, que suben justo debajo de LVL 1 y 2; DAY NOTE pasa a la fila siguiente. */
+@media(min-width:880px){
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3)>.t-lvl3{grid-row:2/span 2!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3)>.t-note{grid-row:4!important;grid-column:9/span 4!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3)>.t-reset{grid-row:5!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3):has(>.tip-card)>.t-lvl3{grid-row:3/span 2!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3):has(>.tip-card)>.t-note{grid-row:5!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3):has(>.tip-card)>.t-reset{grid-row:6!important}
+}
+/* Cuentas nuevas con niveles: el Social Combo va en su propia tarjeta bajo LVL 3,
+   no dentro. Columna derecha: LVL 3 y debajo el combo; izquierda: niveles, rutinas, nota. */
+@media(min-width:880px){
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-lvl3{grid-row:2!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-flat-social{grid-row:3/span 2!important;grid-column:9/span 4!important;align-self:start!important;min-width:0!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):not(:has(>.t-lvl3))>.t-flat-social{grid-row:2/span 3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-rout{grid-row:3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-note{grid-row:4!important;grid-column:1/span 8!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):not(:has(>.t-rout))>.t-note{grid-row:3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-reset{grid-row:5!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-lvl3{grid-row:3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-flat-social{grid-row:4/span 2!important;grid-column:9/span 4!important;align-self:start!important;min-width:0!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card):not(:has(>.t-lvl3))>.t-flat-social{grid-row:3/span 3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-rout{grid-row:4!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-note{grid-row:5!important;grid-column:1/span 8!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card):not(:has(>.t-rout))>.t-note{grid-row:4!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-reset{grid-row:6!important}
+}

@@ -1034,18 +1034,47 @@ function starterHabit(choice,text,id){
 }
 // Plan de arranque: el Social Combo vale 18 (6 por grupo) y los hábitos se reparten
 // el resto hasta 118. Con un hábito vale 100; con dos, 50 y 50; etc.
-const STARTER_TOTAL=118,STARTER_COMBO=18;
-function starterComboSubs(){const n=SOCIAL_SUBS_BASE.length,p=STARTER_COMBO/n;return SOCIAL_SUBS_BASE.map(x=>({...x,p,pWork:p,pVacation:p}));}
-function starterBalanceIn(h,order,subs,habits=true){
+// Máximo diario elegible en Settings: 118 (por defecto: hábitos 100 + combo 18) o
+// 100, la escala normal (hábitos 85 + combo 15, 5 por grupo).
+const STARTER_TOTAL=118,STARTER_COMBO=18,STARTER_TARGETS=[100,118];
+const starterComboFor=t=>t===100?15:STARTER_COMBO;
+function starterTarget(){return CFG?.starter?.max===100?100:STARTER_TOTAL;}
+function starterComboSubs(total=STARTER_COMBO){const n=SOCIAL_SUBS_BASE.length,p=total/n;return SOCIAL_SUBS_BASE.map(x=>({...x,p,pWork:p,pVacation:p}));}
+// Reparte `budget` entre `weights` en enteros que suman exactamente `budget`
+// (proporcional; con pesos iguales o todos a cero, a partes iguales).
+function starterSplit(weights,budget){
+  const n=weights.length;if(!n)return [];
+  const tot=weights.reduce((a,w)=>a+w,0),raw=weights.map(w=>tot>0?w*budget/tot:budget/n);
+  const out=raw.map(Math.floor);let left=budget-out.reduce((a,v)=>a+v,0);
+  raw.map((v,i)=>[v-Math.floor(v),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).forEach(([,i])=>{if(left>0){out[i]++;left--;}});
+  return out;
+}
+function starterSetMax(t){
+  t=Number(t);if(!starterProfile()||!STARTER_TARGETS.includes(t)||t===starterTarget())return;
+  cfgEdit(()=>{
+    CFG.starter.max=t;
+    if(!Array.isArray(CFG.subs))CFG.subs=[];
+    if(comboIdIn(CFG.h)){
+      const on=subsOn(CFG.subs.length?CFG.subs:(CFG.subs=starterComboSubs(starterComboFor(t)))),pts=starterSplit(on.map(()=>1),starterComboFor(t));
+      on.forEach((x,i)=>{x.p=x.pWork=x.pVacation=pts[i];});
+      const c=CFG.h[comboIdIn(CFG.h)];c.p=c.pWork=c.pVacation=starterComboFor(t);
+    }
+    const ids=CFG.order.filter(id=>CFG.h[id]&&!CFG.h[id].combo&&CFG.h[id].on!==false);
+    const budget=t-(comboIdIn(CFG.h)?starterComboFor(t):0),pts=starterSplit(ids.map(id=>safePts(CFG.h[id].pWork??CFG.h[id].p)),budget);
+    ids.forEach((id,i)=>{const x=CFG.h[id];x.p=x.pWork=x.pVacation=pts[i];});
+  });
+}
+function starterBalanceIn(h,order,subs,habits=true,target=STARTER_TOTAL){
   if(!h.social||!h.social.combo){
     if(comboIdIn(h))return;
-    h.social={l:"Social",p:STARTER_COMBO,pWork:STARTER_COMBO,pVacation:STARTER_COMBO,i:"👥",lv:3,on:true,combo:true};
+    const cp=starterComboFor(target);
+    h.social={l:"Social",p:cp,pWork:cp,pVacation:cp,i:"👥",lv:3,on:true,combo:true};
     if(!order.includes('social'))order.push('social');
   }
-  if(Array.isArray(subs)&&!subs.length)subs.push(...starterComboSubs());
+  if(Array.isArray(subs)&&!subs.length)subs.push(...starterComboSubs(starterComboFor(target)));
   if(!habits)return;
-  const combo=Array.isArray(subs)&&subs.length?subsOn(subs).reduce((n,x)=>n+modePts(x,'work'),0):STARTER_COMBO;
-  const ids=order.filter(id=>h[id]&&!h[id].combo&&h[id].on!==false),budget=Math.max(0,STARTER_TOTAL-combo),n=ids.length;
+  const combo=Array.isArray(subs)&&subs.length?subsOn(subs).reduce((n,x)=>n+modePts(x,'work'),0):starterComboFor(target);
+  const ids=order.filter(id=>h[id]&&!h[id].combo&&h[id].on!==false),budget=Math.max(0,target-combo),n=ids.length;
   ids.forEach((id,k)=>{const p=Math.floor(budget/n)+(k<budget%n?1:0);h[id].p=p;h[id].pWork=p;h[id].pVacation=p;});
 }
 // En la vista simple los puntos se rebalancean solos al añadir o quitar un hábito,
@@ -1053,7 +1082,7 @@ function starterBalanceIn(h,order,subs,habits=true){
 function starterRebalanceLive(){
   if(!starterSimple()||!Object.values(CFG.h).some(x=>x&&!x.combo))return;
   if(!Object.values(CFG.h).every(x=>!x||x.combo||x.starterTemplate))return;
-  if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs);
+  if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs,true,starterTarget());
 }
 // Cuentas creadas con el arranque anterior: hábito a 10 y sin Social Combo. Desde hoy
 // se añade el combo y, si los puntos siguen en el 10 de fábrica, se reparten hasta 118.
@@ -1359,6 +1388,7 @@ const UI_ACTIONS=Object.freeze({
   starterOpen:uiRule('click',['string'],(n,e,id)=>starterOpen(id)),
   starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
   starterLevels:uiRule('click',['boolean'],(n,e,on)=>starterLevels(on)),
+  starterSetMax:uiRule('click',['integer'],(n,e,t)=>starterSetMax(t)),
   arrivalDismiss:uiRule('click',[],()=>arrivalDismiss()),
   starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
   retryAccountLoad:uiRule('click',[],()=>{if(_offlineBoot)reconnectOfflineAccount();else loadAll();render();}),
@@ -4050,6 +4080,8 @@ const interfaceCopies = {
   "End activity": ["End activity", "Finalizar actividad", "סיום פעילות"],
   "Habit level": ["Habit level", "Nivel del hábito", "רמת ההרגל"],
   "HABITS": ["HABITS", "HÁBITOS", "הרגלים"],
+  "Daily max": ["Daily max", "Máximo diario", "מקסימום יומי"],
+  "100% is the usual scale. With 118%, your habits make 100% and the Social Combo is extra on top.": ["100% is the usual scale. With 118%, your habits make 100% and the Social Combo is extra on top.", "100 % es la escala normal. Con 118 %, tus hábitos suman 100 % y el Social Combo es un extra por encima.", "100% הוא הסולם הרגיל. ב-118%, ההרגלים שלך מגיעים ל-100% וה-Social Combo הוא תוספת מעל."],
   "Organize into levels (LVL 1 · 2 · 3)": ["Organize into levels (LVL 1 · 2 · 3)", "Organizar en niveles (LVL 1 · 2 · 3)", "לארגן ברמות (LVL 1 · 2 · 3)"],
   "Back to a single list": ["Back to a single list", "Volver a una sola lista", "חזרה לרשימה אחת"],
   "LIGHT": ["LIGHT", "LIGERO", "קל"],
@@ -4428,7 +4460,7 @@ function renderSettings(){
     <div class="settings-header">
       <button class="settings-back" ${ui('click','closeSettings')} aria-label="${interfaceText('back')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button>
       <h1 class="settings-heading">${interfaceText('settings')}</h1>
-      <div class="settings-max${tot===118?'':' is-custom'}">MAX ${tot}%</div>
+      <div class="settings-max${tot===(starterProfile()?starterTarget():118)?'':' is-custom'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body">
       ${interfaceLanguagePicker()}
@@ -4480,6 +4512,7 @@ function renderSettings(){
             ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${starterFlat()?lvlBlock(0,interfaceCopy("HABITS"),"#a78bfa"):`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
       ${lvlBlock(2,interfaceCopy("▪ LVL 2 — HABITS"),"#a78bfa")}
       ${lvlBlock(3,interfaceCopy("· LVL 3 — BONUS"),"#fbbf24")}`}
+      ${starterProfile()?`<div class="starter-max" role="group" aria-label="${interfaceCopy("Daily max")}" ${uiStyle(`margin:4px 0 14px`)}><div class="sec" ${uiStyle(`color:#9090aa;margin-bottom:8px`)}>${interfaceCopy("Daily max")}</div><div ${uiStyle(`display:flex;gap:8px`)}>${STARTER_TARGETS.map(t=>`<button type="button" aria-pressed="${starterTarget()===t}" ${ui('click','starterSetMax',t)} ${uiStyle(`flex:1;background:${starterTarget()===t?'rgba(167,139,250,.14)':'none'};border:1px solid ${starterTarget()===t?'#a78bfa':'#222'};color:${starterTarget()===t?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:15px;padding:10px;border-radius:10px;cursor:pointer`)}>${t}%</button>`).join('')}</div><p ${uiStyle(`margin:8px 2px 0;font-size:13px;line-height:1.45;color:#7e7e97`)}>${interfaceCopy("100% is the usual scale. With 118%, your habits make 100% and the Social Combo is extra on top.")}</p></div>`:''}
       ${starterProfile()?`<button class="starter-levels-toggle" ${ui('click','starterLevels',starterFlat())} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:14px;padding:10px;border-radius:10px;cursor:pointer`)}>${interfaceCopy(starterFlat()?"Organize into levels (LVL 1 · 2 · 3)":"Back to a single list")}</button>`:''}
 `,"st-col-a")}
             ${stCard("rout",interfaceText('routines'),"#9090aa",`${CFG.shaahSocialCoreMigration?workMilestonesSettings():''}${Object.keys(ROUTINES).filter(rid=>rid!=="work"||!CFG.shaahSocialCoreMigration).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`

@@ -106,3 +106,18 @@ test('skipped plan gets the Social Combo with its first habit, and old starter p
  assert.equal(b.read('calcScore(todayKey()).max'),118);assert.equal(b.read('calcScore("2026-10-15").max'),10);
  assert.equal(b.read('starterBalanceOnce()'),false);
 });
+test('daily max can switch between 118 (default) and 100 from today, keeping past days and custom weights in proportion',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run('_starterChoice="focus"');await a.run('starterConfirm()');
+ a.run('_starterEditor=true;_starterChoice="move"');await a.run('starterConfirm()');
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('starterTarget()'),118);
+ a.run('starterSetMax(100)');
+ assert.equal(a.read('calcScore(todayKey()).max'),100);assert.equal(a.read('CFG.subs.reduce((n,x)=>n+x.p,0)'),15);
+ assert.deepEqual(a.read('CFG.order.filter(id=>!CFG.h[id].combo).map(id=>CFG.h[id].p)'),[43,42]);
+ assert.equal(a.read('calcScore("2026-10-15").max'),0);
+ a.run('const [x,y]=CFG.order.filter(id=>!CFG.h[id].combo);cfgSet(x,"pWork",60);cfgSet(y,"pWork",25)');
+ a.run('starterSetMax(118)');assert.equal(a.read('calcScore(todayKey()).max'),118);
+ assert.deepEqual(a.read('CFG.order.filter(id=>!CFG.h[id].combo).map(id=>CFG.h[id].p)'),[71,29]);
+ a.run('starterSetMax(77)');assert.equal(a.read('starterTarget()'),118);
+ a.run('_starterEditor=true;_starterChoice="rest"');a.run('starterSetMax(100)');await a.run('starterConfirm()');
+ assert.equal(a.read('calcScore(todayKey()).max'),100);
+});

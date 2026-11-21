@@ -1118,18 +1118,31 @@ function flatHabitsHTML(key,isToday,nested){
   </div>${combo?`<div class="t-flat-social" ${uiStyle(`width:100%;max-width:390px`)}>${comboBlock(key)}</div>`:''}`;
 }
 function starterNewId(){let id;do{id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0');}while(CFG.h[id]);return id;}
+// "Plan completo": la configuración de SHAAH tal cual (3 niveles, rutinas, Social
+// Combo), con los hábitos reescalados en proporción para sumar 100 + combo 18 = 118.
+function starterFullPlan(){
+  const h=cfgCopy(DEFAULT_CFG.h),order=[...DEFAULT_CFG.order],subs=starterComboSubs();
+  const ids=order.filter(id=>h[id]&&!h[id].combo&&h[id].on!==false),pts=starterSplit(ids.map(id=>safePts(h[id].p)),STARTER_TOTAL-STARTER_COMBO);
+  ids.forEach((id,i)=>{h[id].p=pts[i];});
+  for(const x of Object.values(h)){if(x.combo)x.p=STARTER_COMBO;x.pWork=x.pVacation=safePts(x.p);}
+  return {h,order,subs,routines:cfgCopy(DEFAULT_CFG.routines)};
+}
 function starterBuild(choice,text,token){
-  const day=todayKey(),h={},order=[];
-  if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
-  const subs=[];if(order.length)starterBalanceIn(h,order,subs);
-  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines:{},people:[],subs,locationGroups:[],
+  const day=todayKey(),full=choice==='full';
+  let h={},order=[],subs=[],routines={};
+  if(full)({h,order,subs,routines}=starterFullPlan());
+  else{
+    if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
+    if(order.length)starterBalanceIn(h,order,subs);
+  }
+  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines,people:[],subs,locationGroups:[],
     travel:{mode:'work',auto:false,resumeOn:''},v:4,
-    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple',balanceV:1,tutorial:{version:1,state:'presented'}},
+    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:full?'full':'simple',...(full?{levels:true,template:'full'}:{}),balanceV:1,tutorial:{version:1,state:'presented'}},
     log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
       {from:day,h:cfgCopy(h),order:[...order],subs:cfgCopy(subs),mode:'work'}]};
 }
 function starterPick(choice){
-  if(_starterBusy||!['custom',...STARTER_TEMPLATES.map(t=>t.id)].includes(choice))return;
+  if(_starterBusy||!['custom',...STARTER_TEMPLATES.map(t=>t.id),...(_starterEditor?[]:['full'])].includes(choice))return;
   _starterChoice=choice;_starterError='';render();
   if(choice==='custom')document.getElementById('starter-custom')?.focus();
   else document.querySelector('.starter-option[aria-pressed="true"]')?.focus();
@@ -1215,6 +1228,7 @@ function starterChoicesHTML(){
     <div class="starter-options">${STARTER_TEMPLATES.map(t=>`<button type="button" class="starter-option" aria-pressed="${_starterChoice===t.id}" ${_starterBusy?'disabled':''} ${ui('click','starterPick',t.id)}><span aria-hidden="true">${esc(t.icon)}</span><strong>${esc(interfaceText(t.name))}</strong><small>${esc(interfaceText(t.label))}</small></button>`).join('')}</div>
     <button type="button" class="starter-link" ${_starterBusy?'disabled':''} ${ui('click','starterPick','custom')}>＋ ${interfaceText('starterCustom')}</button>
     ${_starterChoice==='custom'?`<label class="starter-custom-label" for="starter-custom">${interfaceText('starterCommitment')}</label><input id="starter-custom" class="starter-input" maxlength="120" value="${esc(_starterText)}" placeholder="${interfaceText('starterPlaceholder')}" ${_starterBusy?'disabled':''} ${ui('input','starterDraft')}>`:''}
+    ${add?'':`<p class="starter-kicker starter-or">${interfaceText('starterOr')}</p><button type="button" class="starter-option starter-full" aria-pressed="${_starterChoice==='full'}" ${_starterBusy?'disabled':''} ${ui('click','starterPick','full')}><span aria-hidden="true">⚡</span><strong>${interfaceText('starterFullName')}</strong><small>${interfaceText('starterFullLabel')}</small></button>`}
     ${_starterError?`<p class="starter-error" role="alert">${esc(_starterError)}</p>`:''}
     <div class="starter-actions"><button id="starter-confirm" type="button" class="starter-primary" ${_starterBusy||!_starterChoice||(_starterChoice==='custom'&&!_starterText.trim())?'disabled':''} ${ui('click','starterConfirm',false)}>${_starterBusy?interfaceText('starterSaving'):_starterError?interfaceText('starterRetry'):_starterEditId?interfaceText('starterSave'):add?interfaceText('starterAddPlan'):interfaceText('starterConfirm')} →</button><button type="button" class="starter-link" ${_starterBusy?'disabled':''} ${ui('click','starterConfirm',true)}>${add?interfaceText('starterBack'):interfaceText('starterSkip')}</button></div>
     ${add?`<p class="starter-muted starter-small">${interfaceText('starterEffective')}</p>`:`<p class="starter-muted starter-small">${interfaceText('starterNoAutomatic')}</p><button type="button" class="starter-link starter-small" ${_starterBusy?'disabled':''} ${ui('click','signOut',false)}>${interfaceText('starterSignOut')}</button>`}</section>`;
@@ -3551,6 +3565,9 @@ const interfaceMessages = {
   starterStart: ["What would you like to start with?", "¿Con qué quieres empezar?", "במה כדאי להתחיל?"],
   starterIntro: ["Choose one small thing for today. You can change it anytime.", "Elige una cosa pequeña para hoy. Puedes cambiarla cuando quieras.", "אפשר לבחור משהו קטן להיום ולשנות אותו בכל עת."],
   starterCustom: ["Write my own", "Escribir el mío", "כתיבת התחייבות אישית"],
+  starterOr: ["OR, ALL SET UP", "O, TODO LISTO", "או, הכול מוכן"],
+  starterFullName: ["The full SHAAH plan", "El plan completo de SHAAH", "התוכנית המלאה של SHAAH"],
+  starterFullLabel: ["9 habits in 3 levels, 2 timed routines and the Social Combo. Change anything later.", "9 hábitos en 3 niveles, 2 rutinas con temporizador y el Social Combo. Puedes cambiar todo después.", "9 הרגלים ב-3 רמות, 2 שגרות עם טיימר ו-Social Combo. אפשר לשנות הכול אחר כך."],
   starterCommitment: ["My commitment", "Mi compromiso", "ההתחייבות שלי"],
   starterPlaceholder: ["One small thing you want to do today", "Algo pequeño que quieras hacer hoy", "משהו קטן שבא לך לעשות היום"],
   starterSaving: ["Saving…", "Guardando…", "שומרים…"],

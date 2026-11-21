@@ -121,3 +121,14 @@ test('daily max can switch between 118 (default) and 100 from today, keeping pas
  a.run('_starterEditor=true;_starterChoice="rest"');a.run('starterSetMax(100)');await a.run('starterConfirm()');
  assert.equal(a.read('calcScore(todayKey()).max'),100);
 });
+test('the full SHAAH plan starts set up: 3 levels, routines and Social Combo at 118, with no migrations',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run(`_starterChoice="full"`);await a.run("starterConfirm()");
+ const saved=clone(settings(s));
+ assert.equal(saved.starter.view,'full');assert.equal(saved.starter.levels,true);assert.equal(saved.starter.template,'full');
+ assert.deepEqual(Object.keys(saved.routines).sort(),['production','wod']);
+ assert.equal(saved.order.filter(id=>saved.h[id].on!==false).length,9);
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('calcScore("2026-10-15").max'),0);
+ assert.equal(a.read('!!CFG.shaahSocialCoreMigration'),false);assert.equal(a.read('!!CFG.h.cjunk0'),false);
+ await a.run('loadAll()');assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(s.writes.length,1);
+ a.run('starterSetMax(100)');assert.equal(a.read('calcScore(todayKey()).max'),100);
+});

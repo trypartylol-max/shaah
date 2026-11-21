@@ -5248,3 +5248,4 @@ shaah-section[name="tip-card"]{}
 /* La barra inferior se superpone a #scroll: sin este margen, lo último de Today
    (RESET DAY) quedaba debajo de la barra y no había scroll para verlo. */
 @media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today){padding-bottom:84px!important}}
+.starter-or{margin:22px 0 10px}.starter-full{display:block;width:100%;box-sizing:border-box;margin:0 0 12px}

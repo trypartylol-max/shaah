@@ -68,12 +68,31 @@ test('an existing full-view account using routines and with the reminder unavail
  assert.equal(await p.locator('.tip-card').count(),0);
  assert.equal(await p.locator('#nav .nav-btn[data-tab="history"]').isHidden(),false);
 });
-test('desktop full view: the reminder sits in the free left column, Social Combo counts and everything fits without scrolling',async t=>{
+test('desktop full view: no levels, the reminder is a strip under the score, Social Combo counts and everything fits without scrolling',async t=>{
  const p=await openApp(t,undefined,{width:1280,height:720},{emptyAccount:true});
  await startFocus(p);await withPush(p);
  await p.evaluate(()=>{starterView('full');render();});
  const card=p.locator('.tip-card[data-tip="remind"]');await card.waitFor();
- const box=await card.boundingBox();assert.ok(box.width>300,'the reminder is not squeezed into one narrow column');
+ const box=await card.boundingBox(),habits=await p.locator('.t-flat').boundingBox();
+ assert.ok(box.width>1000&&box.height<80,'one-line strip across the page');assert.ok(box.y<habits.y,'above the plan');
+ assert.equal(await p.locator('.t-lvl1,.t-lvl2,.t-lvl3').count(),0,'no levels until asked for');assert.equal(await p.locator('.t-flat-social .sf-compact-combo').count(),1);
  assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
  assert.equal(await p.evaluate(()=>{const s=document.getElementById('scroll');return s.scrollHeight<=s.clientHeight;}),true);
+});
+test('mobile: the reminder comes after the plan, so the habit to mark is seen first',async t=>{
+ for(const view of ['simple','full']){
+  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
+  await startFocus(p);await withPush(p);await p.evaluate(v=>{starterView(v);render();},view);
+  const card=p.locator('.tip-card[data-tip="remind"]');await card.waitFor();
+  const habit=await p.locator(view==='simple'?'[data-starter-habit]':'.t-flat').first().boundingBox(),box=await card.boundingBox();
+  assert.ok(box.y>habit.y+habit.height,view);
+ }
+});
+test('a starter account can switch to levels in Settings and back to a single list',async t=>{
+ const p=await openApp(t,undefined,{width:1280,height:900},{emptyAccount:true});
+ await startFocus(p);await p.evaluate(()=>{starterView('full');settingsOpen=true;render();});
+ await p.getByText('Habits & weights').click();await p.getByRole('button',{name:/Organize into levels/}).click();
+ assert.equal(await p.evaluate(()=>CFG.starter.levels),true);
+ await p.evaluate(()=>{settingsOpen=false;render();});assert.equal(await p.locator('.t-lvl2').count(),1);assert.equal(await p.locator('.t-flat').count(),0);
+ await p.evaluate(()=>starterLevels(false));assert.equal(await p.locator('.t-flat').count(),1);
 });

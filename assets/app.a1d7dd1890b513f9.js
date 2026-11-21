@@ -1063,6 +1063,31 @@ function starterBalanceOnce(){
   const auto=Object.values(CFG.h).filter(x=>x&&!x.combo&&x.on!==false).every(x=>x.starterTemplate&&safePts(x.pWork??x.p)===10);
   return cfgEdit(()=>{if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs,auto);CFG.starter.balanceV=1;});
 }
+// Plan de arranque sin niveles: una sola lista de hábitos y el Social Combo aparte.
+// Los niveles (LVL 1 · 2 · 3) se activan desde Settings si el usuario los quiere.
+function starterFlat(){return starterProfile()&&CFG.starter.levels!==true;}
+function starterLevels(on){if(!starterProfile())return;CFG.starter.levels=!!on;saveCfg();render();}
+function flatHabitsHTML(key,isToday,nested){
+  const C=cfgForDate(key),ch=getChecked(key);
+  const items=[...C.L1,...C.L2,...C.L3].filter(i=>!i.combo&&!(C.inVacation&&i.id==='work'));
+  const earned=items.reduce((n,i)=>n+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0),max=items.reduce((n,i)=>n+safePts(i.pts),0);
+  const combo=C.L3.some(i=>i.combo);
+  return `<div class="t-lvl t-flat" ${uiStyle(`width:100%;max-width:390px`)}>
+    <div class="sec lvl-h t-flat-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><span ${uiStyle(`flex:1`)}>${interfaceCopy("HABITS")}</span><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${earned}/${max}</span></div>
+    <div class="lvl-b">${items.map(item=>{
+      const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
+      return `<div class="row${st?" on":""}${st===0.5?" half":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit',item.id,key)} ${ui('keydown','activate')}>
+        <div ${uiStyle(`display:flex;align-items:center;gap:13px;min-width:0;flex:1`)}>
+          ${(item.routine||half)?chk3(st,'#a78bfa'):chk(!!st,'#a78bfa')}
+          <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis`)}>${esc(item.icon)} ${esc(item.label)}</span>
+        </div>
+        <div ${uiStyle(`display:flex;align-items:center;gap:10px;flex-shrink:0`)}>
+          ${item.routine&&ROUTINES[item.id]&&st!==true&&isToday&&!nested?`<button ${ui('click','startRoutineNested',item.id)} title="${interfaceCopy("Start routine")}" ${uiStyle(`background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:700;flex-shrink:0`)}>▶</button>`:''}
+          <span ${uiStyle(`font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"};min-width:38px;text-align:right`)}><bdi dir="ltr">${pointsLabel(item,st)}</bdi></span>
+        </div>
+      </div>`;}).join('')}</div>
+  </div>${combo?`<div class="t-flat-social" ${uiStyle(`width:100%;max-width:390px`)}>${comboBlock(key)}</div>`:''}`;
+}
 function starterNewId(){let id;do{id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0');}while(CFG.h[id]);return id;}
 function starterBuild(choice,text,token){
   const day=todayKey(),h={},order=[];
@@ -1201,7 +1226,7 @@ function starterContinuityHTML(key,done,total){
 }
 function renderStarterToday(key){
   const {items,done,total}=starterSummary(key),ch=getChecked(key);
-  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,total)}</p>${starterContinuityHTML(key,done,total)}</div>${tipCardHTML(key)}
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,total)}</p>${starterContinuityHTML(key,done,total)}</div>
     ${items.length?items.map(item=>{
       // The simple view must still expose EVERY active item and its real controls.
       if(item.combo)return legacyComboBlock(key,true);
@@ -1211,6 +1236,7 @@ function renderStarterToday(key){
       ${rt?`<div class="starter-routine"><span class="starter-muted">${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',rt.steps.length).replace('{minutes}',rt.steps.reduce((n,s)=>n+s.dur,0))}</span><button class="starter-secondary" type="button" ${ui('click','startRoutine',item.id)}>${sessions[item.id]?interfaceText('routineOpen'):interfaceText('routineStart')}</button><button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,partial?false:0.5)}>${interfaceText('routineLight')}</button></div>`:!full?`<button class="starter-link starter-small" type="button" ${ui('click','starterRoutinePreview',item.id)}>${interfaceText('routineSplit')}</button>`:''}
       ${_starterRoutineId===item.id&&!rt?`<div class="starter-routine-preview"><p>${interfaceText('routineOptional')}</p><ol>${starterRoutineSteps(item.id).map(s=>`<li>${esc(s.label)} <span>${dayLogFmt(s.dur)}</span></li>`).join('')}</ol><p class="starter-muted starter-small">${interfaceText('routineEditHint')}</p><div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterAddRoutine',item.id)}>${interfaceText('routineAdd')}</button><button type="button" class="starter-link" ${ui('click','starterRoutinePreview','')}>${interfaceText('routineLater')}</button></div></div>`:''}</section>`;
     }).join(''):`<section class="starter-habit"><h2>${interfaceText('starterEmpty')}</h2><p class="starter-muted">${interfaceText('starterEmptyHint')}</p><button type="button" class="starter-primary" ${ui('click','starterOpen','')}>${interfaceText('starterFirstHabit')}</button></section>`}
+    ${tipCardHTML(key)}
     <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>${interfaceText('starterAddHabit')}</button>`:''}</div>
     ${dayNoteHTML(key)}<div class="starter-actions starter-view">${starterProfile()?`<button type="button" class="starter-link starter-small" ${ui('click','starterView','full')}>${interfaceText('starterFull')}</button>`:''}<button type="button" class="starter-link starter-small" ${ui('click','startTour')}>${interfaceText('starterTutorial')}</button></div></div>`;
 }
@@ -1332,6 +1358,7 @@ const UI_ACTIONS=Object.freeze({
   starterConfirm:uiRule('click',['boolean'],(n,e,skip)=>starterConfirm(skip)),
   starterOpen:uiRule('click',['string'],(n,e,id)=>starterOpen(id)),
   starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
+  starterLevels:uiRule('click',['boolean'],(n,e,on)=>starterLevels(on)),
   arrivalDismiss:uiRule('click',[],()=>arrivalDismiss()),
   starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
   retryAccountLoad:uiRule('click',[],()=>{if(_offlineBoot)reconnectOfflineAccount();else loadAll();render();}),
@@ -4022,6 +4049,9 @@ const interfaceCopies = {
   "Edit activity": ["Edit activity", "Editar actividad", "עריכת פעילות"],
   "End activity": ["End activity", "Finalizar actividad", "סיום פעילות"],
   "Habit level": ["Habit level", "Nivel del hábito", "רמת ההרגל"],
+  "HABITS": ["HABITS", "HÁBITOS", "הרגלים"],
+  "Organize into levels (LVL 1 · 2 · 3)": ["Organize into levels (LVL 1 · 2 · 3)", "Organizar en niveles (LVL 1 · 2 · 3)", "לארגן ברמות (LVL 1 · 2 · 3)"],
+  "Back to a single list": ["Back to a single list", "Volver a una sola lista", "חזרה לרשימה אחת"],
   "LIGHT": ["LIGHT", "LIGERO", "קל"],
   "Reset day": ["Reset day", "Restablecer día", "איפוס היום"],
   "Save time and end activity": ["Save time and end activity", "Guardar hora y finalizar actividad", "שמירת השעה וסיום הפעילות"],
@@ -4368,14 +4398,14 @@ function renderSettings(){
   const tot=MAX;
   const lvlBlock=(n,title,col)=>`
     <div ${uiStyle(`margin-bottom:20px`)}>
-      <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${buildLevel(n).filter(i=>!i.combo).reduce((a,i)=>a+i.pts,0)}%</div>
+      <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${(n?buildLevel(n):[1,2,3].flatMap(buildLevel)).filter(i=>!i.combo).reduce((a,i)=>a+i.pts,0)}%</div>
       <div class="settings-mode-labels" ${uiStyle(`display:flex;justify-content:flex-end;gap:4px;margin:-7px 10px 5px;font-size:9px;letter-spacing:.06em;color:#66667d`)}><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('work')}</span><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('vacation')}</span></div>
-      ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&!CFG.h[id].combo).map(id=>{const x=CFG.h[id];return `
+      ${CFG.order.filter(id=>CFG.h[id]&&(!n||CFG.h[id].lv===n)&&!CFG.h[id].combo).map(id=>{const x=CFG.h[id];return `
         <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}`)}>
           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
             <button ${ui('click','cfgMove' ,id,-1)} class="ord">▲</button>
             <button ${ui('click','cfgMove' ,id,1)} class="ord">▼</button>
-            <select aria-label="${interfaceCopy("Habit level")}" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>
+            ${n?`<select aria-label="${interfaceCopy("Habit level")}" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>`:''}
           </div>
           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="${interfaceCopy("Icon")}"
             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
@@ -4384,15 +4414,15 @@ function renderSettings(){
           ${x.combo
             ?`<span title="${interfaceCopy("Sum of the active parts below")}" ${uiStyle(`width:96px;flex-shrink:0;color:${col};font-size:12px;text-align:center;line-height:1.25`)}>W ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'work'),0)}% · V ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'vacation'),0)}%</span>`
             :`<div ${uiStyle(`display:flex;gap:4px;flex-shrink:0`)}>
-              <input type="number" min="0" max="60" value="${esc(modePts(x,'work'))}" ${id==='work'&&CFG.shaahSocialCoreMigration?'readonly':ui('change','cfgSet' ,id,'pWork')} title="${interfaceCopy(id==='work'&&CFG.shaahSocialCoreMigration?'Configure in Routines → Work':'Work Mode')}" aria-label="${interfaceCopy("Work Mode points")}"
+              <input type="number" min="0" max="118" value="${esc(modePts(x,'work'))}" ${id==='work'&&CFG.shaahSocialCoreMigration?'readonly':ui('change','cfgSet' ,id,'pWork')} title="${interfaceCopy(id==='work'&&CFG.shaahSocialCoreMigration?'Configure in Routines → Work':'Work Mode')}" aria-label="${interfaceCopy("Work Mode points")}"
                 ${uiStyle(`width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
-              <input type="number" min="0" max="60" value="${esc(modePts(x,'vacation'))}" ${ui('change','cfgVacationPoints' ,id)} title="${interfaceCopy("Vacation Mode")}" aria-label="${interfaceCopy("Vacation Mode points")}"
+              <input type="number" min="0" max="118" value="${esc(modePts(x,'vacation'))}" ${ui('change','cfgVacationPoints' ,id)} title="${interfaceCopy("Vacation Mode")}" aria-label="${interfaceCopy("Vacation Mode points")}"
                 ${uiStyle(`width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
             </div>`}
           <button ${ui('click','cfgToggle' ,id)} title="${interfaceCopy(x.on!==false?'Pause this habit':'Resume this habit')}" ${uiStyle(`background:none;border:1px solid #222;color:${x.on!==false?col:'#555'};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer`)}>${x.on!==false?'✓':'○'}</button>
           ${isCustom(id)?`<button ${ui('click','cfgDel' ,id)} title="${interfaceCopy("Delete habit")}" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
         </div>`}).join("")}
-      <button ${ui('click','cfgAdd' ,n)} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceText('addHabit')}</button>
+      <button ${ui('click','cfgAdd' ,n||2)} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceText('addHabit')}</button>
     </div>`;
   return`<div class="edit-day-screen settings-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
     <div class="settings-header">
@@ -4447,9 +4477,10 @@ function renderSettings(){
         <input type="date" value="${esc(CFG.travel.resumeOn||'')}" ${ui('change','setTravelResume')} aria-label="${interfaceText('autoWork')}" ${uiStyle(`background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px`)}/>
       </div>
       <button ${ui('click','setTravelAuto' ,!CFG.travel.auto)} ${uiStyle(`width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer`)}>${CFG.travel.auto?'✓':'○'} ${interfaceCopy('AUTOMATIC')}${CFG.travel.auto&&CFG.travel.resumeOn?` — ${interfaceCopy('switches to Work on {date}').replace('{date}',esc(CFG.travel.resumeOn))}`:''}</button>`,"st-col-b")}
-            ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
+            ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${starterFlat()?lvlBlock(0,interfaceCopy("HABITS"),"#a78bfa"):`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
       ${lvlBlock(2,interfaceCopy("▪ LVL 2 — HABITS"),"#a78bfa")}
-      ${lvlBlock(3,interfaceCopy("· LVL 3 — BONUS"),"#fbbf24")}
+      ${lvlBlock(3,interfaceCopy("· LVL 3 — BONUS"),"#fbbf24")}`}
+      ${starterProfile()?`<button class="starter-levels-toggle" ${ui('click','starterLevels',starterFlat())} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:14px;padding:10px;border-radius:10px;cursor:pointer`)}>${interfaceCopy(starterFlat()?"Organize into levels (LVL 1 · 2 · 3)":"Back to a single list")}</button>`:''}
 `,"st-col-a")}
             ${stCard("rout",interfaceText('routines'),"#9090aa",`${CFG.shaahSocialCoreMigration?workMilestonesSettings():''}${Object.keys(ROUTINES).filter(rid=>rid!=="work"||!CFG.shaahSocialCoreMigration).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" ${uiStyle(`margin-bottom:10px;padding:14px`)}>
@@ -6047,12 +6078,12 @@ function renderToday(key,nested=false){
   // This keeps historical Vacation days (including routines) consistent with
   // the scoring model and prevents a stale Work item from appearing in L1.
   const L1vis=C.inVacation?C.L1.filter(i=>i.id!=='work'):C.L1;
-  const core=coreLayoutFor(key);
+  const core=coreLayoutFor(key),flat=!core&&starterFlat();
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
   return`<div class="fade-up today${nested?" history-day-editor":""}${core&&!nested&&isToday?" sf-today-v27":""}${(!nested&&isToday&&isNight())?" night":""}" ${uiStyle(`padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px`)}>
-    ${(!nested&&isToday)?tipCardHTML(key):''}
+    ${(!nested&&isToday&&core)?tipCardHTML(key):''}
     ${(!nested&&!isToday)?`<div class="t-head" ${uiStyle(`text-align:center;width:100%`)}>
       <div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4`)}>${interfaceText('dayScore')}</div>
       <div ${uiStyle(`font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px`)}>${keyToDate(key).toLocaleDateString(interfaceLanguage,{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -6094,7 +6125,7 @@ function renderToday(key,nested=false){
     </div>
 
 
-${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
+${(flat||nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec t-rout-toggle today-routines-heading"><button type="button" class="today-routines-label" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${interfaceCopy(core?'▪ CORE ROUTINES':"TODAY'S ROUTINES")}${core?`<span class="sf-core-total">${l1}/${dM1}</span>`:''}</button>${todaySectionsButton()}</div>
       <div class="t-rout-body">${L1vis.filter(i=>core||(i.routine&&ROUTINES[i.id])).map(item=>{
         if(core&&item.id==='work')return workPhaseCard(key,item);
@@ -6120,7 +6151,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       }).join("")}</div>
     </div>`}
 
-    ${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
+    ${flat?flatHabitsHTML(key,isToday,nested):`${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[1]?"":" cl"}">▾</span>${interfaceCopy(core?'CORE HABITS':'⬛ LVL 1 — CORE')}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlShown[1]?"":" cl"}">
       ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
@@ -6171,6 +6202,8 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       }).join("")}
       </div>
     </div>
+`}
+    ${(!nested&&isToday&&!core)?tipCardHTML(key):''}
     ${core?`<div class="t-lvl t-social-independent">${comboBlock(key)}</div>`:""}
     ${isToday?`<div class="t-daylog" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="t-daylog-card ${dayLogActiveId()?"running":""}">

@@ -5219,16 +5219,32 @@ shaah-section[name="tip-card"]{}
 .tip-actions select{font:inherit;font-size:16px;padding:7px 10px;border-radius:9px;background:rgba(var(--skin-rgb-07070f,7,7,15),1);color:inherit;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1)}
 .tip-go{font:inherit;font-size:14px;font-weight:600;min-height:38px;padding:8px 14px;border-radius:10px;border:1px solid rgba(var(--skin-rgb-fbbf24,251,191,36),1);background:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-07070f,7,7,15),1);cursor:pointer}
 .tip-later{font:inherit;font-size:14px;min-height:38px;padding:8px 12px;border-radius:10px;border:1px solid transparent;background:none;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);cursor:pointer;margin-left:auto}
-/* Escritorio: el aviso no se cuela en una columna de 89 px. Por defecto es una
-   franja horizontal bajo los niveles; sin LVL 1 (plan de arranque) ocupa la
-   columna izquierda, que queda libre. Sin LVL 1 ni rutinas, LVL 3 ocupa dos filas
-   y DAY NOTE sube bajo LVL 2, para que todo quepa sin scroll. */
+/* Plan de arranque con niveles pero sin LVL 1 ni rutinas: LVL 3 ocupa dos filas y
+   DAY NOTE sube bajo LVL 2, para que todo quepa sin scroll. */
 @media(min-width:880px){
- #scroll .today>.tip-card{grid-row:5!important;grid-column:1/-1!important;justify-self:center!important;align-self:start!important;width:100%!important;max-width:760px!important;display:flex!important;align-items:center;gap:16px;padding:10px 14px!important}
- #scroll .today>.tip-card p{margin:0!important;flex:1}
- #scroll .today>.tip-card .tip-actions{flex-wrap:nowrap}
- #scroll .today:not(:has(>.t-lvl1))>.tip-card{grid-row:2!important;grid-column:1/span 4!important;max-width:none!important;display:block!important;padding:14px 16px!important}
- #scroll .today:not(:has(>.t-lvl1))>.tip-card p{margin:0 0 12px!important}
  #scroll .today:not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-lvl3{grid-row:2/span 2!important;align-self:start!important}
  #scroll .today:not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-note{grid-row:3!important;grid-column:5/span 4!important}
 }
+/* Plan de arranque sin niveles: una lista de hábitos y el Social Combo aparte. */
+@media(min-width:880px){
+ #scroll .today>.t-flat{grid-row:2!important;grid-column:1/span 8!important;align-self:start!important}
+ #scroll .today>.t-flat-social{grid-row:2/span 2!important;grid-column:9/span 4!important;align-self:start!important;min-width:0!important}
+ #scroll .today:has(>.t-flat)>.t-note{grid-row:3!important;grid-column:1/span 8!important}
+}
+/* Aviso (tip-card). Escritorio: sobra ancho y falta alto → franja de una línea a todo
+   el ancho bajo el marcador; las filas de debajo bajan una. Móvil y vista simple: el
+   aviso va en el DOM después del plan (primero se ve el hábito a marcar). */
+@media(min-width:880px){
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card{grid-row:2!important;grid-column:1/-1!important;justify-self:stretch!important;align-self:center!important;width:auto!important;max-width:none!important;display:flex!important;align-items:center;gap:16px;padding:8px 10px 8px 18px!important;margin:0!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card p{margin:0!important;flex:1;min-width:0}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card .tip-actions{flex-wrap:nowrap;flex-shrink:0}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card .tip-later{margin-left:0}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>:is(.t-lvl1,.t-lvl2,.t-lvl3,.t-flat){grid-row:3!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>.t-flat-social{grid-row:3/span 2!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>:is(.t-rout,.t-note){grid-row:4!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>.t-reset{grid-row:5!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card):not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-lvl3{grid-row:3/span 2!important}
+}
+/* La barra inferior se superpone a #scroll: sin este margen, lo último de Today
+   (RESET DAY) quedaba debajo de la barra y no había scroll para verlo. */
+@media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today){padding-bottom:84px!important}}

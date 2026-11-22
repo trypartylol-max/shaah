@@ -16,12 +16,13 @@ test('verified empty account offers a choice without migrations, settings or act
 });
 test('one chosen generic habit persists, survives loadAll and never grows Work or junk-food',async()=>{
  const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run('_starterChoice="focus"');await a.run('starterConfirm()');
- const saved=clone(settings(s));assert.equal(saved.order.length,1);const id=saved.order[0];
+ const saved=clone(settings(s));assert.deepEqual(saved.order.slice(1),['social']);const id=saved.order[0];
  assert.match(id,/^c[a-z0-9]{5}$/);assert.equal(saved.h[id].starterTemplate,'focus');
  assert.equal(saved.starter.view,'simple');assert.deepEqual(saved.routines,{});assert.deepEqual(saved.people,[]);
- assert.equal(a.read('calcScore(todayKey()).max'),10);assert.equal(a.read('calcScore("2026-10-15").max'),0);
+ assert.equal(saved.h[id].p,100);assert.equal(saved.h.social.combo,true);assert.equal(saved.subs.reduce((n,x)=>n+x.p,0),18);
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('calcScore("2026-10-15").max'),0);
  await a.run('loadAll()');await a.run('flushCfgSaves()');
- assert.equal(a.read('CFG.order.length'),1);assert.equal(a.read('!!CFG.h.work'),false);assert.equal(a.read('!!CFG.h.cjunk0'),false);
+ assert.equal(a.read('CFG.order.length'),2);assert.equal(a.read('!!CFG.h.work'),false);assert.equal(a.read('!!CFG.h.cjunk0'),false);
  assert.deepEqual(a.read('_state'),{});assert.equal(s.writes.length,1);
  const b=device(s);await b.run('loadAll()');assert.equal(b.read('_starterGate'),'ready');assert.equal(b.read('CFG.order[0]'),id);
 });
@@ -35,7 +36,7 @@ test('two simultaneous initializers adopt one CAS winner without merging obligat
  const s=syncBackend(),a=device(s),b=device(s);await Promise.all([a.run('loadAll()'),b.run('loadAll()')]);
  a.run('_starterChoice="move"');b.run('_starterChoice="create"');
  await Promise.all([a.run('starterConfirm()'),b.run('starterConfirm()')]);
- assert.equal(s.writes.length,1);assert.equal(settings(s).order.length,1);
+ assert.equal(s.writes.length,1);assert.equal(settings(s).order.length,2);
  assert.deepEqual(a.read('CFG'),b.read('CFG'));assert.equal(a.read('_cfgDraft'),null);assert.equal(b.read('_cfgDraft'),null);
 });
 test('lost acknowledgement is recovered by rereading; failed write stays retryable without activity',async()=>{
@@ -76,11 +77,11 @@ test('account switching ignores delayed initializer acknowledgement',async()=>{
 });
 test('expansion, routine and deletion use dated custom IDs and preserve previous day score',async()=>{
  const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run('_starterChoice="focus"');await a.run('starterConfirm()');
- a.run('first=CFG.order[0];setHabitState(first,todayKey(),true)');assert.equal(a.read('calcScore(todayKey()).score'),10);
+ a.run('first=CFG.order[0];setHabitState(first,todayKey(),true)');assert.equal(a.read('calcScore(todayKey()).score'),100);
  const before=a.read('calcScore("2026-10-15")');a.run('_starterEditor=true;_starterChoice="move"');await a.run('starterConfirm()');
- assert.equal(a.read('calcScore(todayKey()).max'),20);assert.deepEqual(a.read('calcScore("2026-10-15")'),before);
- a.run('starterAddRoutine(first)');assert.equal(a.read('CFG.routines[first].steps.length'),3);assert.equal(a.read('calcScore(todayKey()).max'),20);
- a.run('cfgDel(first)');assert.equal(a.read('CFG.order.length'),1);assert.deepEqual(a.read('calcScore("2026-10-15")'),before);
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('CFG.h[first].p'),50);assert.deepEqual(a.read('calcScore("2026-10-15")'),before);
+ a.run('starterAddRoutine(first)');assert.equal(a.read('CFG.routines[first].steps.length'),3);assert.equal(a.read('calcScore(todayKey()).max'),118);
+ a.run('cfgDel(first)');assert.equal(a.read('CFG.order.length'),2);assert.equal(a.read('calcScore(todayKey()).max'),118);assert.deepEqual(a.read('calcScore("2026-10-15")'),before);
 });
 test('Starter export/import accepts both its empty baseline and a skipped zero-habit plan',async()=>{
  for(const choice of ['skip','focus']){
@@ -91,4 +92,43 @@ test('Starter export/import accepts both its empty baseline and a skipped zero-h
 test('nonempty grades retain their established thresholds and zero plan is the only added grade',()=>{
  const a=loadApp();for(const [points,grade] of [[0,'F'],[14,'F'],[15,'D'],[30,'C'],[45,'B'],[72,'A'],[85,'S'],[95,'S+']])assert.equal(a.read(`GRADE(${points},100).l`),grade);
  assert.equal(a.read('GRADE(0,0).l'),'—');
+});
+
+test('skipped plan gets the Social Combo with its first habit, and old starter plans rebalance to 118 from today',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');await a.run('starterConfirm(true)');
+ assert.equal(a.read('calcScore(todayKey()).max'),0);
+ a.run('_starterEditor=true;_starterChoice="move"');await a.run('starterConfirm()');
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('!!CFG.h.social'),true);
+ const o=syncBackend(),b=device(o);await b.run('loadAll()');b.run('_starterChoice="focus"');await b.run('starterConfirm()');
+ b.run('id=CFG.order[0];delete CFG.h.social;CFG.order=[id];CFG.subs=[];for(const k of [id])CFG.h[k].p=CFG.h[k].pWork=CFG.h[k].pVacation=10;delete CFG.starter.balanceV;CFG.log=[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:"work"},{from:"2026-10-01",h:cfgCopy(CFG.h),order:[id],subs:[],mode:"work"}];_dayCfgCache={};applyCfg()');
+ assert.equal(b.read('calcScore("2026-10-15").max'),10);
+ assert.equal(b.read('starterBalanceOnce()'),true);
+ assert.equal(b.read('calcScore(todayKey()).max'),118);assert.equal(b.read('calcScore("2026-10-15").max'),10);
+ assert.equal(b.read('starterBalanceOnce()'),false);
+});
+test('daily max can switch between 118 (default) and 100 from today, keeping past days and custom weights in proportion',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run('_starterChoice="focus"');await a.run('starterConfirm()');
+ a.run('_starterEditor=true;_starterChoice="move"');await a.run('starterConfirm()');
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('starterTarget()'),118);
+ a.run('starterSetMax(100)');
+ assert.equal(a.read('calcScore(todayKey()).max'),100);assert.equal(a.read('CFG.subs.reduce((n,x)=>n+x.p,0)'),15);
+ assert.deepEqual(a.read('CFG.order.filter(id=>!CFG.h[id].combo).map(id=>CFG.h[id].p)'),[43,42]);
+ assert.equal(a.read('calcScore("2026-10-15").max'),0);
+ a.run('const [x,y]=CFG.order.filter(id=>!CFG.h[id].combo);cfgSet(x,"pWork",60);cfgSet(y,"pWork",25)');
+ a.run('starterSetMax(118)');assert.equal(a.read('calcScore(todayKey()).max'),118);
+ assert.deepEqual(a.read('CFG.order.filter(id=>!CFG.h[id].combo).map(id=>CFG.h[id].p)'),[71,29]);
+ a.run('starterSetMax(77)');assert.equal(a.read('starterTarget()'),118);
+ a.run('_starterEditor=true;_starterChoice="rest"');a.run('starterSetMax(100)');await a.run('starterConfirm()');
+ assert.equal(a.read('calcScore(todayKey()).max'),100);
+});
+test('the full SHAAH plan starts set up: 3 levels, routines and Social Combo at 118, with no migrations',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run(`_starterChoice="full"`);await a.run("starterConfirm()");
+ const saved=clone(settings(s));
+ assert.equal(saved.starter.view,'full');assert.equal(saved.starter.levels,true);assert.equal(saved.starter.template,'full');
+ assert.deepEqual(Object.keys(saved.routines).sort(),['production','wod']);
+ assert.equal(saved.order.filter(id=>saved.h[id].on!==false).length,9);
+ assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(a.read('calcScore("2026-10-15").max'),0);
+ assert.equal(a.read('!!CFG.shaahSocialCoreMigration'),false);assert.equal(a.read('!!CFG.h.cjunk0'),false);
+ await a.run('loadAll()');assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(s.writes.length,1);
+ a.run('starterSetMax(100)');assert.equal(a.read('calcScore(todayKey()).max'),100);
 });

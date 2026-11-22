@@ -5210,3 +5210,80 @@ html[data-layout] body #app #scroll .today.sf-today-v27.sf-today-v27:not(.histor
   align-self:start!important;height:auto!important;min-height:0!important;
  }
 }
+/* Suggestion card at the top of Today (tipCardHTML). */
+shaah-section[name="tip-card"]{}
+.tip-card{width:100%;max-width:560px;box-sizing:border-box;margin:4px 0 2px;padding:12px 14px;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1);border-radius:14px;background:rgba(var(--skin-rgb-171725,23,23,37),1);color:rgba(var(--skin-rgb-e2e2e2,226,226,226),1)}
+.tip-card p{margin:0 0 10px;font-size:14.5px;line-height:1.5}
+.tip-card .tip-error{display:block;margin-top:6px;font-size:13px;color:rgba(var(--skin-rgb-f87171,248,113,113),1)}
+.tip-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tip-actions select{font:inherit;font-size:16px;padding:7px 10px;border-radius:9px;background:rgba(var(--skin-rgb-07070f,7,7,15),1);color:inherit;border:1px solid rgba(var(--skin-rgb-34344a,52,52,74),1)}
+.tip-go{font:inherit;font-size:14px;font-weight:600;min-height:38px;padding:8px 14px;border-radius:10px;border:1px solid rgba(var(--skin-rgb-fbbf24,251,191,36),1);background:rgba(var(--skin-rgb-fbbf24,251,191,36),1);color:rgba(var(--skin-rgb-07070f,7,7,15),1);cursor:pointer}
+.tip-later{font:inherit;font-size:14px;min-height:38px;padding:8px 12px;border-radius:10px;border:1px solid transparent;background:none;color:rgba(var(--skin-rgb-adadbf,173,173,191),1);cursor:pointer;margin-left:auto}
+/* Plan de arranque con niveles pero sin LVL 1 ni rutinas: LVL 3 ocupa dos filas y
+   DAY NOTE sube bajo LVL 2, para que todo quepa sin scroll. */
+@media(min-width:880px){
+ #scroll .today:not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-lvl3{grid-row:2/span 2!important;align-self:start!important}
+ #scroll .today:not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-note{grid-row:3!important;grid-column:5/span 4!important}
+}
+/* Plan de arranque sin niveles: una lista de hábitos y el Social Combo aparte. */
+@media(min-width:880px){
+ #scroll .today>.t-flat{grid-row:2!important;grid-column:1/span 8!important;align-self:start!important}
+ #scroll .today>.t-flat-social{grid-row:2/span 2!important;grid-column:9/span 4!important;align-self:start!important;min-width:0!important}
+ #scroll .today:has(>.t-flat)>.t-note{grid-row:3!important;grid-column:1/span 8!important}
+}
+/* Aviso (tip-card). Escritorio: sobra ancho y falta alto → franja de una línea a todo
+   el ancho bajo el marcador; las filas de debajo bajan una. Móvil y vista simple: el
+   aviso va en el DOM después del plan (primero se ve el hábito a marcar). */
+@media(min-width:880px){
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card{grid-row:2!important;grid-column:1/-1!important;justify-self:stretch!important;align-self:center!important;width:auto!important;max-width:none!important;display:flex!important;align-items:center;gap:16px;padding:8px 10px 8px 18px!important;margin:0 0 8px!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card p{margin:0!important;flex:1;min-width:0}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card .tip-actions{flex-wrap:nowrap;flex-shrink:0}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor)>.tip-card .tip-later{margin-left:0}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>:is(.t-lvl1,.t-lvl2,.t-lvl3,.t-flat){grid-row:3!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>.t-flat-social{grid-row:3/span 2!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>:is(.t-rout,.t-note){grid-row:4!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card)>.t-reset{grid-row:5!important}
+ #scroll .today:not(.starter-today):not(.sf-today-v27):not(.history-day-editor):has(>.tip-card):not(:has(>.t-lvl1)):not(:has(>.t-rout))>.t-lvl3{grid-row:3/span 2!important}
+}
+/* La barra inferior se superpone a #scroll: sin este margen, lo último de Today
+   (RESET DAY) quedaba debajo de la barra y no había scroll para verlo. */
+@media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today){padding-bottom:76px!important}}
+.starter-or{margin:22px 0 10px}.starter-full{display:block;width:100%;box-sizing:border-box;margin:0 0 12px}
+/* Los niveles se alinean ARRIBA en su fila: alineados abajo, cuando LVL 3 es más alto,
+   LVL 1 y 2 dejaban un hueco encima que parecía espacio reservado. */
+@media(min-width:880px){#scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today)>:is(.t-lvl1,.t-lvl2,.t-lvl3){align-self:start!important}}
+/* Con rutinas, LVL 3 (el más alto por el Social Combo) ocupa también la fila de las
+   rutinas, que suben justo debajo de LVL 1 y 2; DAY NOTE pasa a la fila siguiente. */
+@media(min-width:880px){
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3)>.t-lvl3{grid-row:2/span 2!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3)>.t-note{grid-row:4!important;grid-column:9/span 4!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3)>.t-reset{grid-row:5!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3):has(>.tip-card)>.t-lvl3{grid-row:3/span 2!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3):has(>.tip-card)>.t-note{grid-row:5!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):not(:has(>.t-flat-social)):has(>.t-rout):has(>.t-lvl3):has(>.tip-card)>.t-reset{grid-row:6!important}
+}
+/* Cuentas nuevas con niveles: el Social Combo va en su propia tarjeta bajo LVL 3,
+   no dentro. Columna derecha: LVL 3 y debajo el combo; izquierda: niveles, rutinas, nota. */
+@media(min-width:880px){
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-lvl3{grid-row:2!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-flat-social{grid-row:3/span 2!important;grid-column:9/span 4!important;align-self:start!important;min-width:0!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):not(:has(>.t-lvl3))>.t-flat-social{grid-row:2/span 3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-rout{grid-row:3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-note{grid-row:4!important;grid-column:1/span 8!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):not(:has(>.t-rout))>.t-note{grid-row:3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat))>.t-reset{grid-row:5!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-lvl3{grid-row:3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-flat-social{grid-row:4/span 2!important;grid-column:9/span 4!important;align-self:start!important;min-width:0!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card):not(:has(>.t-lvl3))>.t-flat-social{grid-row:3/span 3!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-rout{grid-row:4!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-note{grid-row:5!important;grid-column:1/span 8!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card):not(:has(>.t-rout))>.t-note{grid-row:4!important}
+ #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-reset{grid-row:6!important}
+}
+/* Vista simple: aire entre bloques. Una regla de escritorio (#scroll .today>*) anula
+   los márgenes de los hijos de Today y las tarjetas quedaban pegadas. */
+#scroll .today.starter-today:not(.history-day-editor)>*+*:not(:empty){margin-top:20px!important}
+#scroll .today.starter-today:not(.history-day-editor)>.starter-heading{margin-bottom:8px!important}
+#scroll .today.starter-today:not(.history-day-editor)>.starter-view{padding-top:18px}
+@media(max-width:879px){#scroll .today.starter-today:not(.history-day-editor)>*+*:not(:empty){margin-top:16px!important}}
+.starter-today .starter-habit>p+button{margin-top:12px}

@@ -7,19 +7,18 @@ test('first session uses a real habit and real Day Log, survives refresh, automa
  fs.mkdirSync('test-results',{recursive:true});await p.screenshot({path:'test-results/starter-choose-mobile.png'});
  await p.getByRole('button',{name:/Focus/}).click();await p.getByRole('button',{name:'Start with this'}).click();await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  await p.getByRole('heading',{name:'Your day, at your own pace.'}).waitFor();assert.equal(await p.locator('[data-starter-habit]').count(),1);
- await p.getByRole('button',{name:'Mark as done',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
+ await p.getByRole('button',{name:'Mark as done',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),100);
  assert.equal(await p.locator('#tb-score').innerText(),'1 of 1 in your plan');
  await p.getByRole('button',{name:'Undo',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),0);
  await p.getByRole('button',{name:'Break into steps · optional'}).click();await p.getByRole('button',{name:'Add this routine'}).click();
- assert.equal(await p.evaluate(()=>Object.keys(CFG.routines).length),1);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),10);
+ assert.equal(await p.evaluate(()=>Object.keys(CFG.routines).length),1);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
  await p.evaluate(()=>flushCfgSaves());await p.reload();await p.getByRole('heading',{name:'Your day, at your own pace.'}).waitFor();
  assert.equal(await p.locator('#tour.on').count(),0);assert.equal(await p.locator('[data-starter-habit]').count(),1);
  await p.getByRole('button',{name:'Add another habit'}).click();await p.getByRole('button',{name:'Movement',exact:false}).click();await p.getByRole('button',{name:'Add to my plan'}).click();
- assert.equal(await p.locator('[data-starter-habit]').count(),2);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),20);
+ assert.equal(await p.locator('[data-starter-habit]').count(),2);assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
  assert.equal(await p.evaluate(()=>!!CFG.h.work||!!CFG.h.cjunk0),false);
- await p.getByRole('button',{name:'Log an activity',exact:true}).click();
- await p.locator('#logPanelName').fill('Paseo de prueba');await p.locator('#logPanelStart').fill('10:00');await p.locator('#logPanelEnd').fill('10:20');
- await p.getByRole('button',{name:'ADD ACTIVITY',exact:true}).click();assert.equal(await p.evaluate(()=>dayLogEvents(todayKey()).some(e=>e.title==='Paseo de prueba')),true);
+ assert.equal(await p.getByRole('button',{name:'Log an activity',exact:true}).count(),0,'Day Log stays in the full view');
+ assert.equal(await p.locator('#nav .nav-btn[data-tab="log"]').isHidden(),true);
 });
 test('skip stays neutral across refresh; custom name is escaped and editable',async t=>{
  const p=await openApp(t,undefined,{width:390,height:844},{emptyAccount:true});
@@ -51,9 +50,9 @@ test('optional generic routine opens the existing runner without duplicate point
  await p.getByRole('button',{name:'Start routine',exact:true}).click();await p.locator('#cr-dialog').waitFor();
  assert.equal(await p.evaluate(()=>ROUTINES[CFG.order[0]].steps.length),3);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),0);
  await p.getByRole('button',{name:'Close routine',exact:true}).click();await p.getByRole('button',{name:'Mark as done'}).click();
- assert.equal(await p.evaluate(()=>Object.keys(sessions).length),0);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
+ assert.equal(await p.evaluate(()=>Object.keys(sessions).length),0);assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),100);
  await p.getByRole('button',{name:'Show tutorial',exact:true}).click();await p.locator('#tour.on').waitFor();
- await p.getByRole('button',{name:'Skip / close',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),10);
+ await p.getByRole('button',{name:'Skip / close',exact:true}).click();assert.equal(await p.evaluate(()=>calcScore(todayKey()).score),100);
 });
 test('new browser for an existing account never starts the old automatic tutorial',async t=>{
  const p=await openApp(t);await p.evaluate(()=>localStorage.removeItem(tourKey()));await p.reload();await p.waitForFunction(()=>_cfgReady);
@@ -67,13 +66,14 @@ test('a new account gets the three-step tour, no Social tab and no contradictory
  await p.locator('#tour-next').click();await p.locator('#tour-next').click();assert.equal(await p.locator('#tour-next').innerText(),'Finish');
  await p.locator('#tour-next').click();assert.equal(await p.locator('#tour.on').count(),0);
  assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),false);
- assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','log','stats','history']);
+ assert.deepEqual(await p.evaluate(()=>tabsOrder()),['today','stats'],'History waits for three days with something marked');
  await p.getByRole('button',{name:'Mark as done',exact:true}).click();
  await p.locator('.nav-btn[data-tab="stats"]').click();
- assert.equal(await p.getByText('MOST CONSISTENT').count(),1);assert.equal(await p.getByText('NEEDS WORK').count(),0);
+ assert.equal(await p.getByText('MOST CONSISTENT').count(),1);// Social Combo counts from day one (118 = 100 + 18), so unmarked it is what needs work.
+ assert.equal(await p.getByText('NEEDS WORK').count(),1);
  // The full tutorial stays one tap away, and the full view brings Social back.
  await p.locator('.nav-btn[data-tab="today"]').click();await p.getByRole('button',{name:'Show tutorial'}).click();
- assert.equal(await p.locator('#tour .tour-dot').count(),9);await p.getByRole('button',{name:'Skip / close',exact:true}).click();
+ assert.equal(await p.locator('#tour .tour-dot').count(),8);await p.getByRole('button',{name:'Skip / close',exact:true}).click();
  await p.getByRole('button',{name:'Show full view'}).click();
  assert.equal(await p.locator('.nav-btn[data-tab="social"]').isVisible(),true);
 });
@@ -94,4 +94,16 @@ test('a returning simple account sees its streak, or a fresh start after a gap; 
  assert.equal(await p.locator('.starter-continuity').innerText(),'🔥 2-day streak. See you tomorrow.');
  await next('2026-10-20T07:30:00Z');
  assert.equal(await p.locator('.starter-continuity').innerText(),'Welcome back. Today is a fresh start.');
+});
+test('the full SHAAH plan gets the full guided tour, Work milestones included',async t=>{
+ const p=await openApp(t,undefined,{width:1280,height:720},{emptyAccount:true});
+ await p.getByRole('button',{name:/The full SHAAH plan/}).click();await p.getByRole('button',{name:'Start with this'}).click();
+ await p.locator('#tour.on').waitFor();assert.equal(await p.locator('#tour .tour-dot').count(),9);
+ assert.equal((await p.evaluate(()=>tourList.map(s=>s.t))).includes('WORK, IN MILESTONES'),true);
+ assert.equal(await p.evaluate(()=>calcScore(todayKey()).max),118);
+ await p.getByRole('button',{name:'Skip / close',exact:true}).click();
+ assert.equal(await p.locator('.t-lvl3 .sf-compact-combo').count(),0,'Social Combo is its own card, not inside LVL 3');
+ assert.equal(await p.locator('.t-flat-social .sf-compact-combo').count(),1);
+ const tops=await p.evaluate(()=>['.t-lvl1','.t-lvl2','.t-lvl3'].map(s=>Math.round(document.querySelector(s).getBoundingClientRect().top)));
+ assert.ok(Math.max(...tops)-Math.min(...tops)<=2,'the three levels start at the same height');
 });

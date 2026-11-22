@@ -1032,18 +1032,117 @@ function starterHabit(choice,text,id){
   if(!label)throw Error(interfaceCopy("Choose a habit or write your own."));
   return {id,h:{l:label,p:10,pWork:10,pVacation:10,i:template?.icon||'○',lv:2,on:true,starterTemplate:choice}};
 }
+// Plan de arranque: el Social Combo vale 18 (6 por grupo) y los hábitos se reparten
+// el resto hasta 118. Con un hábito vale 100; con dos, 50 y 50; etc.
+// Máximo diario elegible en Settings: 118 (por defecto: hábitos 100 + combo 18) o
+// 100, la escala normal (hábitos 85 + combo 15, 5 por grupo).
+const STARTER_TOTAL=118,STARTER_COMBO=18,STARTER_TARGETS=[100,118];
+const starterComboFor=t=>t===100?15:STARTER_COMBO;
+function starterTarget(){return CFG?.starter?.max===100?100:STARTER_TOTAL;}
+function starterComboSubs(total=STARTER_COMBO){const n=SOCIAL_SUBS_BASE.length,p=total/n;return SOCIAL_SUBS_BASE.map(x=>({...x,p,pWork:p,pVacation:p}));}
+// Reparte `budget` entre `weights` en enteros que suman exactamente `budget`
+// (proporcional; con pesos iguales o todos a cero, a partes iguales).
+function starterSplit(weights,budget){
+  const n=weights.length;if(!n)return [];
+  const tot=weights.reduce((a,w)=>a+w,0),raw=weights.map(w=>tot>0?w*budget/tot:budget/n);
+  const out=raw.map(Math.floor);let left=budget-out.reduce((a,v)=>a+v,0);
+  raw.map((v,i)=>[v-Math.floor(v),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).forEach(([,i])=>{if(left>0){out[i]++;left--;}});
+  return out;
+}
+function starterSetMax(t){
+  t=Number(t);if(!starterProfile()||!STARTER_TARGETS.includes(t)||t===starterTarget())return;
+  cfgEdit(()=>{
+    CFG.starter.max=t;
+    if(!Array.isArray(CFG.subs))CFG.subs=[];
+    if(comboIdIn(CFG.h)){
+      const on=subsOn(CFG.subs.length?CFG.subs:(CFG.subs=starterComboSubs(starterComboFor(t)))),pts=starterSplit(on.map(()=>1),starterComboFor(t));
+      on.forEach((x,i)=>{x.p=x.pWork=x.pVacation=pts[i];});
+      const c=CFG.h[comboIdIn(CFG.h)];c.p=c.pWork=c.pVacation=starterComboFor(t);
+    }
+    const ids=CFG.order.filter(id=>CFG.h[id]&&!CFG.h[id].combo&&CFG.h[id].on!==false);
+    const budget=t-(comboIdIn(CFG.h)?starterComboFor(t):0),pts=starterSplit(ids.map(id=>safePts(CFG.h[id].pWork??CFG.h[id].p)),budget);
+    ids.forEach((id,i)=>{const x=CFG.h[id];x.p=x.pWork=x.pVacation=pts[i];});
+  });
+}
+function starterBalanceIn(h,order,subs,habits=true,target=STARTER_TOTAL){
+  if(!h.social||!h.social.combo){
+    if(comboIdIn(h))return;
+    const cp=starterComboFor(target);
+    h.social={l:"Social",p:cp,pWork:cp,pVacation:cp,i:"👥",lv:3,on:true,combo:true};
+    if(!order.includes('social'))order.push('social');
+  }
+  if(Array.isArray(subs)&&!subs.length)subs.push(...starterComboSubs(starterComboFor(target)));
+  if(!habits)return;
+  const combo=Array.isArray(subs)&&subs.length?subsOn(subs).reduce((n,x)=>n+modePts(x,'work'),0):starterComboFor(target);
+  const ids=order.filter(id=>h[id]&&!h[id].combo&&h[id].on!==false),budget=Math.max(0,target-combo),n=ids.length;
+  ids.forEach((id,k)=>{const p=Math.floor(budget/n)+(k<budget%n?1:0);h[id].p=p;h[id].pWork=p;h[id].pVacation=p;});
+}
+// En la vista simple los puntos se rebalancean solos al añadir o quitar un hábito,
+// mientras todos sigan siendo del arranque (en la vista completa manda el usuario).
+function starterRebalanceLive(){
+  if(!starterSimple()||!Object.values(CFG.h).some(x=>x&&!x.combo))return;
+  if(!Object.values(CFG.h).every(x=>!x||x.combo||x.starterTemplate))return;
+  if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs,true,starterTarget());
+}
+// Cuentas creadas con el arranque anterior: hábito a 10 y sin Social Combo. Desde hoy
+// se añade el combo y, si los puntos siguen en el 10 de fábrica, se reparten hasta 118.
+function starterBalanceOnce(){
+  if(!starterProfile()||CFG.starter.balanceV>=1)return false;
+  if(!Object.values(CFG.h).some(x=>x&&!x.combo))return false;   // sin hábitos: el combo llega con el primero
+  const auto=Object.values(CFG.h).filter(x=>x&&!x.combo&&x.on!==false).every(x=>x.starterTemplate&&safePts(x.pWork??x.p)===10);
+  return cfgEdit(()=>{if(!Array.isArray(CFG.subs))CFG.subs=[];starterBalanceIn(CFG.h,CFG.order,CFG.subs,auto);CFG.starter.balanceV=1;});
+}
+// Plan de arranque sin niveles: una sola lista de hábitos y el Social Combo aparte.
+// Los niveles (LVL 1 · 2 · 3) se activan desde Settings si el usuario los quiere.
+function starterFlat(){return starterProfile()&&CFG.starter.levels!==true;}
+function starterLevels(on){if(!starterProfile())return;CFG.starter.levels=!!on;saveCfg();render();}
+function flatHabitsHTML(key,isToday,nested){
+  const C=cfgForDate(key),ch=getChecked(key);
+  const items=[...C.L1,...C.L2,...C.L3].filter(i=>!i.combo&&!(C.inVacation&&i.id==='work'));
+  const earned=items.reduce((n,i)=>n+Math.round(safePts(i.pts)*doneFrac(ch[i.id])),0),max=items.reduce((n,i)=>n+safePts(i.pts),0);
+  const combo=C.L3.some(i=>i.combo);
+  return `<div class="t-lvl t-flat" ${uiStyle(`width:100%;max-width:390px`)}>
+    <div class="sec lvl-h t-flat-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><span ${uiStyle(`flex:1`)}>${interfaceCopy("HABITS")}</span><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${earned}/${max}</span></div>
+    <div class="lvl-b">${items.map(item=>{
+      const st=ch[item.id],half=halfCreditItem(item.id),light=(item.routine||half)&&st===0.5;
+      return `<div class="row${st?" on":""}${st===0.5?" half":""}" role="button" tabindex="0" aria-pressed="${!!st}" ${uiStyle(`margin-bottom:3px`)} ${ui('click','toggleHabit',item.id,key)} ${ui('keydown','activate')}>
+        <div ${uiStyle(`display:flex;align-items:center;gap:13px;min-width:0;flex:1`)}>
+          ${(item.routine||half)?chk3(st,'#a78bfa'):chk(!!st,'#a78bfa')}
+          <span ${uiStyle(`font-size:16.5px;font-weight:${st?600:450};overflow:hidden;text-overflow:ellipsis`)}>${esc(item.icon)} ${esc(item.label)}</span>
+        </div>
+        <div ${uiStyle(`display:flex;align-items:center;gap:10px;flex-shrink:0`)}>
+          ${item.routine&&ROUTINES[item.id]&&st!==true&&isToday&&!nested?`<button ${ui('click','startRoutineNested',item.id)} title="${interfaceCopy("Start routine")}" ${uiStyle(`background:${ROUTINES[item.id].col};color:#080810;border:none;font-family:inherit;font-size:15px;padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:700;flex-shrink:0`)}>▶</button>`:''}
+          <span ${uiStyle(`font-size:15px;color:${st?(light?"#f59e0b":"#a78bfa99"):"#8a8aa0"};min-width:38px;text-align:right`)}><bdi dir="ltr">${pointsLabel(item,st)}</bdi></span>
+        </div>
+      </div>`;}).join('')}</div>
+  </div>${combo?`<div class="t-flat-social" ${uiStyle(`width:100%;max-width:390px`)}>${comboBlock(key)}</div>`:''}`;
+}
 function starterNewId(){let id;do{id='c'+Math.random().toString(36).slice(2,7).padEnd(5,'0');}while(CFG.h[id]);return id;}
+// "Plan completo": la configuración de SHAAH tal cual (3 niveles, rutinas, Social
+// Combo), con los hábitos reescalados en proporción para sumar 100 + combo 18 = 118.
+function starterFullPlan(){
+  const h=cfgCopy(DEFAULT_CFG.h),order=[...DEFAULT_CFG.order],subs=starterComboSubs();
+  const ids=order.filter(id=>h[id]&&!h[id].combo&&h[id].on!==false),pts=starterSplit(ids.map(id=>safePts(h[id].p)),STARTER_TOTAL-STARTER_COMBO);
+  ids.forEach((id,i)=>{h[id].p=pts[i];});
+  for(const x of Object.values(h)){if(x.combo)x.p=STARTER_COMBO;x.pWork=x.pVacation=safePts(x.p);}
+  return {h,order,subs,routines:cfgCopy(DEFAULT_CFG.routines)};
+}
 function starterBuild(choice,text,token){
-  const day=todayKey(),h={},order=[];
-  if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
-  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines:{},people:[],subs:[],locationGroups:[],
+  const day=todayKey(),full=choice==='full';
+  let h={},order=[],subs=[],routines={};
+  if(full)({h,order,subs,routines}=starterFullPlan());
+  else{
+    if(choice!=='skip'){const item=starterHabit(choice,text,starterNewId());h[item.id]=item.h;order.push(item.id);}
+    if(order.length)starterBalanceIn(h,order,subs);
+  }
+  return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines,people:[],subs,locationGroups:[],
     travel:{mode:'work',auto:false,resumeOn:''},v:4,
-    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:'simple',tutorial:{version:1,state:'presented'}},
+    starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:full?'full':'simple',...(full?{levels:true,template:'full'}:{}),balanceV:1,tutorial:{version:1,state:'presented'}},
     log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
-      {from:day,h:cfgCopy(h),order:[...order],subs:[],mode:'work'}]};
+      {from:day,h:cfgCopy(h),order:[...order],subs:cfgCopy(subs),mode:'work'}]};
 }
 function starterPick(choice){
-  if(_starterBusy||!['custom',...STARTER_TEMPLATES.map(t=>t.id)].includes(choice))return;
+  if(_starterBusy||!['custom',...STARTER_TEMPLATES.map(t=>t.id),...(_starterEditor?[]:['full'])].includes(choice))return;
   _starterChoice=choice;_starterError='';render();
   if(choice==='custom')document.getElementById('starter-custom')?.focus();
   else document.querySelector('.starter-option[aria-pressed="true"]')?.focus();
@@ -1079,7 +1178,8 @@ async function starterConfirm(skip=false){
       const id=_starterEditId||starterNewId(),item=starterHabit(choice,_starterText,id);
       const changed=cfgEdit(()=>{
         if(_starterEditId){const old=CFG.h[id];if(!old)throw Error(interfaceCopy("This habit is no longer available."));CFG.h[id]={...old,l:item.h.l,i:item.h.i,starterTemplate:choice};}
-        else {if(CFG.order.length>=40)throw Error(interfaceCopy("You already have 40 habits."));CFG.h[id]=item.h;CFG.order.push(id);}
+        else {if(CFG.order.length>=40)throw Error(interfaceCopy("You already have 40 habits."));CFG.h[id]=item.h;CFG.order.push(id);
+          starterRebalanceLive();}
       });
       if(changed){_starterEditor=false;_starterEditId=null;render();}
     }catch(e){_starterError=e.message;render();}return;
@@ -1128,6 +1228,7 @@ function starterChoicesHTML(){
     <div class="starter-options">${STARTER_TEMPLATES.map(t=>`<button type="button" class="starter-option" aria-pressed="${_starterChoice===t.id}" ${_starterBusy?'disabled':''} ${ui('click','starterPick',t.id)}><span aria-hidden="true">${esc(t.icon)}</span><strong>${esc(interfaceText(t.name))}</strong><small>${esc(interfaceText(t.label))}</small></button>`).join('')}</div>
     <button type="button" class="starter-link" ${_starterBusy?'disabled':''} ${ui('click','starterPick','custom')}>＋ ${interfaceText('starterCustom')}</button>
     ${_starterChoice==='custom'?`<label class="starter-custom-label" for="starter-custom">${interfaceText('starterCommitment')}</label><input id="starter-custom" class="starter-input" maxlength="120" value="${esc(_starterText)}" placeholder="${interfaceText('starterPlaceholder')}" ${_starterBusy?'disabled':''} ${ui('input','starterDraft')}>`:''}
+    ${add?'':`<p class="starter-kicker starter-or">${interfaceText('starterOr')}</p><button type="button" class="starter-option starter-full" aria-pressed="${_starterChoice==='full'}" ${_starterBusy?'disabled':''} ${ui('click','starterPick','full')}><span aria-hidden="true">⚡</span><strong>${interfaceText('starterFullName')}</strong><small>${interfaceText('starterFullLabel')}</small></button>`}
     ${_starterError?`<p class="starter-error" role="alert">${esc(_starterError)}</p>`:''}
     <div class="starter-actions"><button id="starter-confirm" type="button" class="starter-primary" ${_starterBusy||!_starterChoice||(_starterChoice==='custom'&&!_starterText.trim())?'disabled':''} ${ui('click','starterConfirm',false)}>${_starterBusy?interfaceText('starterSaving'):_starterError?interfaceText('starterRetry'):_starterEditId?interfaceText('starterSave'):add?interfaceText('starterAddPlan'):interfaceText('starterConfirm')} →</button><button type="button" class="starter-link" ${_starterBusy?'disabled':''} ${ui('click','starterConfirm',true)}>${add?interfaceText('starterBack'):interfaceText('starterSkip')}</button></div>
     ${add?`<p class="starter-muted starter-small">${interfaceText('starterEffective')}</p>`:`<p class="starter-muted starter-small">${interfaceText('starterNoAutomatic')}</p><button type="button" class="starter-link starter-small" ${_starterBusy?'disabled':''} ${ui('click','signOut',false)}>${interfaceText('starterSignOut')}</button>`}</section>`;
@@ -1137,7 +1238,8 @@ function starterGateHTML(){
   return `<section class="starter-screen" aria-labelledby="starter-title" aria-busy="${_starterGate==='loading'}"><div class="starter-brand">SHAAH</div><h1 id="starter-title">${interfaceText(_starterGate==='error'?'recovery':'preparing')}</h1><p class="starter-muted" role="status">${interfaceText(_starterGate==='error'?'recoveryBody':'loading')}</p>${_starterGate==='error'?`<button class="starter-primary" type="button" ${ui('click','starterRetry')}>${interfaceText('retry')}</button>`:'<div class="loading-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>'}</section>`;
 }
 function starterItems(key){const c=cfgForDate(key);return [...c.L1,...c.L2,...c.L3];}
-function starterSummary(key){const items=starterItems(key),ch=getChecked(key);return {items,done:items.filter(i=>ch[i.id]===true).length};}
+// El Social Combo es bonus: se muestra en el plan pero no cuenta en "X de Y".
+function starterSummary(key){const items=starterItems(key),ch=getChecked(key),plan=items.filter(i=>!i.combo);return {items,total:plan.length,done:plan.filter(i=>ch[i.id]===true).length};}
 function starterRoutineSteps(id){
   const kind=CFG.h[id]?.starterTemplate;
   if(kind==='move')return [{id:'prepare',label:interfaceText('stepPrepare'),dur:1,icon:'○'},{id:'move',label:interfaceText('stepMove'),dur:3,icon:'↗'},{id:'close',label:interfaceText('stepFinish'),dur:1,icon:'✓'}];
@@ -1166,8 +1268,8 @@ function starterContinuityHTML(key,done,total){
   return text?`<p class="starter-continuity">${text}</p>`:'';
 }
 function renderStarterToday(key){
-  const {items,done}=starterSummary(key),ch=getChecked(key);
-  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,items.length)}</p>${starterContinuityHTML(key,done,items.length)}</div>
+  const {items,done,total}=starterSummary(key),ch=getChecked(key);
+  return `<div class="today starter-today"><div class="starter-heading"><p class="starter-kicker">${interfaceText('starterPlanToday')}</p><h1>${interfaceText('starterYourDay')}</h1><p class="starter-muted" role="status">${starterProgressLabel(done,total)}</p>${starterContinuityHTML(key,done,total)}</div>
     ${items.length?items.map(item=>{
       // The simple view must still expose EVERY active item and its real controls.
       if(item.combo)return legacyComboBlock(key,true);
@@ -1177,7 +1279,8 @@ function renderStarterToday(key){
       ${rt?`<div class="starter-routine"><span class="starter-muted">${interfaceCopy('{steps} steps · {minutes} min').replace('{steps}',rt.steps.length).replace('{minutes}',rt.steps.reduce((n,s)=>n+s.dur,0))}</span><button class="starter-secondary" type="button" ${ui('click','startRoutine',item.id)}>${sessions[item.id]?interfaceText('routineOpen'):interfaceText('routineStart')}</button><button class="starter-link" type="button" ${ui('click','setHabitState',item.id,key,partial?false:0.5)}>${interfaceText('routineLight')}</button></div>`:!full?`<button class="starter-link starter-small" type="button" ${ui('click','starterRoutinePreview',item.id)}>${interfaceText('routineSplit')}</button>`:''}
       ${_starterRoutineId===item.id&&!rt?`<div class="starter-routine-preview"><p>${interfaceText('routineOptional')}</p><ol>${starterRoutineSteps(item.id).map(s=>`<li>${esc(s.label)} <span>${dayLogFmt(s.dur)}</span></li>`).join('')}</ol><p class="starter-muted starter-small">${interfaceText('routineEditHint')}</p><div class="starter-actions"><button type="button" class="starter-secondary" ${ui('click','starterAddRoutine',item.id)}>${interfaceText('routineAdd')}</button><button type="button" class="starter-link" ${ui('click','starterRoutinePreview','')}>${interfaceText('routineLater')}</button></div></div>`:''}</section>`;
     }).join(''):`<section class="starter-habit"><h2>${interfaceText('starterEmpty')}</h2><p class="starter-muted">${interfaceText('starterEmptyHint')}</p><button type="button" class="starter-primary" ${ui('click','starterOpen','')}>${interfaceText('starterFirstHabit')}</button></section>`}
-    <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>${interfaceText('starterAddHabit')}</button>`:''}<button type="button" class="starter-secondary" ${ui('click','openDayLogStart')}>${interfaceText('starterLog')}</button></div>
+    ${tipCardHTML(key)}
+    <div class="starter-actions">${items.length?`<button type="button" class="starter-link" ${ui('click','starterOpen','')}>${interfaceText('starterAddHabit')}</button>`:''}</div>
     ${dayNoteHTML(key)}<div class="starter-actions starter-view">${starterProfile()?`<button type="button" class="starter-link starter-small" ${ui('click','starterView','full')}>${interfaceText('starterFull')}</button>`:''}<button type="button" class="starter-link starter-small" ${ui('click','startTour')}>${interfaceText('starterTutorial')}</button></div></div>`;
 }
 const DEFAULT_CFG={
@@ -1298,6 +1401,8 @@ const UI_ACTIONS=Object.freeze({
   starterConfirm:uiRule('click',['boolean'],(n,e,skip)=>starterConfirm(skip)),
   starterOpen:uiRule('click',['string'],(n,e,id)=>starterOpen(id)),
   starterView:uiRule('click',['string'],(n,e,view)=>starterView(view)),
+  starterLevels:uiRule('click',['boolean'],(n,e,on)=>starterLevels(on)),
+  starterSetMax:uiRule('click',['integer'],(n,e,t)=>starterSetMax(t)),
   arrivalDismiss:uiRule('click',[],()=>arrivalDismiss()),
   starterRetry:uiRule('click',[],()=>{_starterGate='loading';render();loadAll();}),
   retryAccountLoad:uiRule('click',[],()=>{if(_offlineBoot)reconnectOfflineAccount();else loadAll();render();}),
@@ -1385,6 +1490,8 @@ const UI_ACTIONS=Object.freeze({
   installHintDismiss:uiRule('click',[],()=>installHintDismiss()),
   setBadge:uiRule('click',['boolean'],(n,e,on)=>setBadge(on)),
   pushToggle:uiRule('click',['boolean'],(n,e,on)=>on?pushEnable(pushPref().time):pushDisable()),
+  tipAccept:uiRule('click',['string'],(n,e,id)=>tipAccept(id)),
+  tipDismiss:uiRule('click',['string'],(n,e,id)=>tipDismiss(id)),
   pushTime:uiRule('change',[],n=>pushSetTime(n.value)),
   exportData:uiRule('click',[],()=>exportData()),
   deleteAccount:uiRule('click',[],()=>deleteAccount()),
@@ -2248,8 +2355,8 @@ function nextMove(key){
 // La tira de 44 px: el marcador vive aqui, no en 168 px de anillo antes de la lista.
 function scoreStripHTML(key){
   if(starterSimple()||calcScore(key).max===0){
-    const {items,done}=starterSummary(key);
-    return `<div id="tb-score" class="starter-score" role="status">${starterProgressLabel(done,items.length)}</div>`;
+    const {done,total}=starterSummary(key);
+    return `<div id="tb-score" class="starter-score" role="status">${starterProgressLabel(done,total)}</div>`;
   }
   const sc=calcScore(key),score=sc.score,dMax=sc.max,gr=GRADE(score,dMax),nm=nextMove(key);
   const pct=dMax>0?Math.min(100,(score/dMax)*100):0;
@@ -3137,7 +3244,7 @@ async function loadAccountRows(owner,epoch){
     checkTravelAuto();
     recoverPeopleFromDays();
     runShaahSocialCoreMigration();
-    }else{applyCfg();hydrateRoutineRows(rows);}
+    }else{starterBalanceOnce();applyCfg();hydrateRoutineRows(rows);}
     saveCache();
     cfgSyncStatus();
     arrivalPlanExisting();
@@ -3393,6 +3500,15 @@ function performanceExport(){
 // UI language is a browser preference, independent of account data.
 const interfaceLanguages = {en:'English', es:'Español', he:'עברית'};
 const interfaceMessages = {
+  tipLabel: ["Suggestion", "Sugerencia", "הצעה"],
+  tipLater: ["Not now", "Ahora no", "לא עכשיו"],
+  tipRemind: ["Want a reminder on days when you haven't marked anything yet? Pick the time.", "¿Te aviso los días en que aún no hayas marcado nada? Elige la hora.", "להזכיר לך בימים שעוד לא סימנת כלום? בחר/י שעה."],
+  tipRemindAgain: ["Yesterday slipped by. Want a reminder next time a day is still empty?", "Ayer se te pasó. ¿Te aviso la próxima vez que un día siga vacío?", "אתמול זה התפספס. להזכיר לך בפעם הבאה שיום עדיין ריק?"],
+  tipRemindGo: ["Remind me", "Avísame", "הזכר לי"],
+  tipRoutine: ["3 days in. Long habits work better as a routine with a timer, step by step.", "Llevas 3 días. Los hábitos largos van mejor como rutina con temporizador, paso a paso.", "3 ימים כבר. הרגלים ארוכים עובדים טוב יותר כשגרה עם טיימר, צעד אחר צעד."],
+  tipRoutineGo: ["Set up a routine", "Crear una rutina", "ליצור שגרה"],
+  tipFull: ["A week of tracking. Want to see everything: levels, history, Social, skins and work/vacation mode?", "Una semana registrando. ¿Quieres ver todo: niveles, historial, Social, pieles y modo trabajo/vacaciones?", "שבוע של מעקב. לראות הכול: רמות, היסטוריה, Social, עיצובים ומצב עבודה/חופשה?"],
+  tipFullGo: ["Show everything", "Ver todo", "להציג הכול"],
   welcome: ['Welcome back', 'Qué bueno verte de nuevo', 'טוב שחזרת'],
   welcomeKicker: ['YOUR NEXT HOUR', 'TU SIGUIENTE HORA', 'השעה הבאה שלך'],
   welcomeBody: ['Pick up at your own pace. One small step counts.', 'Retoma a tu ritmo. Un pequeño paso cuenta.', 'אפשר להמשיך בקצב שלך. גם צעד קטן נחשב.'],
@@ -3449,6 +3565,9 @@ const interfaceMessages = {
   starterStart: ["What would you like to start with?", "¿Con qué quieres empezar?", "במה כדאי להתחיל?"],
   starterIntro: ["Choose one small thing for today. You can change it anytime.", "Elige una cosa pequeña para hoy. Puedes cambiarla cuando quieras.", "אפשר לבחור משהו קטן להיום ולשנות אותו בכל עת."],
   starterCustom: ["Write my own", "Escribir el mío", "כתיבת התחייבות אישית"],
+  starterOr: ["OR, ALL SET UP", "O, TODO LISTO", "או, הכול מוכן"],
+  starterFullName: ["The full SHAAH plan", "El plan completo de SHAAH", "התוכנית המלאה של SHAAH"],
+  starterFullLabel: ["9 habits in 3 levels, 2 timed routines and the Social Combo. Change anything later.", "9 hábitos en 3 niveles, 2 rutinas con temporizador y el Social Combo. Puedes cambiar todo después.", "9 הרגלים ב-3 רמות, 2 שגרות עם טיימר ו-Social Combo. אפשר לשנות הכול אחר כך."],
   starterCommitment: ["My commitment", "Mi compromiso", "ההתחייבות שלי"],
   starterPlaceholder: ["One small thing you want to do today", "Algo pequeño que quieras hacer hoy", "משהו קטן שבא לך לעשות היום"],
   starterSaving: ["Saving…", "Guardando…", "שומרים…"],
@@ -3977,6 +4096,11 @@ const interfaceCopies = {
   "Edit activity": ["Edit activity", "Editar actividad", "עריכת פעילות"],
   "End activity": ["End activity", "Finalizar actividad", "סיום פעילות"],
   "Habit level": ["Habit level", "Nivel del hábito", "רמת ההרגל"],
+  "HABITS": ["HABITS", "HÁBITOS", "הרגלים"],
+  "Daily max": ["Daily max", "Máximo diario", "מקסימום יומי"],
+  "100% is the usual scale. With 118%, your habits make 100% and the Social Combo is extra on top.": ["100% is the usual scale. With 118%, your habits make 100% and the Social Combo is extra on top.", "100 % es la escala normal. Con 118 %, tus hábitos suman 100 % y el Social Combo es un extra por encima.", "100% הוא הסולם הרגיל. ב-118%, ההרגלים שלך מגיעים ל-100% וה-Social Combo הוא תוספת מעל."],
+  "Organize into levels (LVL 1 · 2 · 3)": ["Organize into levels (LVL 1 · 2 · 3)", "Organizar en niveles (LVL 1 · 2 · 3)", "לארגן ברמות (LVL 1 · 2 · 3)"],
+  "Back to a single list": ["Back to a single list", "Volver a una sola lista", "חזרה לרשימה אחת"],
   "LIGHT": ["LIGHT", "LIGERO", "קל"],
   "Reset day": ["Reset day", "Restablecer día", "איפוס היום"],
   "Save time and end activity": ["Save time and end activity", "Guardar hora y finalizar actividad", "שמירת השעה וסיום הפעילות"],
@@ -4059,13 +4183,13 @@ const interfaceCopies = {
   "Example milestones completed": ["Example milestones completed", "Hitos de ejemplo completados", "אבני דרך לדוגמה הושלמו"],
   "STEP {step} OF {total}": ["STEP {step} OF {total}", "PASO {step} DE {total}", "שלב {step} מתוך {total}"],
   "WELCOME TO SHAAH": ["WELCOME TO SHAAH", "BIENVENIDA A SHAAH", "ברוכים הבאים ל־SHAAH"],
-  "Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.": ["Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.", "Construye tu día paso a paso. Puedes omitir, retroceder o repetir esta guía de nueve pasos en Ajustes.", "בנו את היום צעד אחר צעד. אפשר לדלג, לחזור או להפעיל מחדש את המדריך בן תשעת השלבים בהגדרות."],
+  "Build your day one action at a time. Explore the interface and try safe demos in a few short steps. You can skip, go back or replay this guide in Settings.": ["Build your day one action at a time. Explore the interface and try safe demos in a few short steps. You can skip, go back or replay this guide in Settings.", "Construye tu día paso a paso. Puedes omitir, retroceder o repetir esta guía en Ajustes.", "בנו את היום צעד אחר צעד. אפשר לדלג, לחזור או להפעיל מחדש את המדריך בהגדרות."],
   "YOUR DAY SCORE": ["YOUR DAY SCORE", "TU PUNTUACIÓN DIARIA", "הניקוד היומי שלך"],
   "Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.": ["Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.", "Los hábitos completados suman puntos. La calificación compara tus puntos con el máximo de ese día y modo. S+ empieza al 95 %.", "הרגלים שהושלמו מזכים בנקודות. הציון משווה את הניקוד למקסימום של אותו יום ומצב. ציון S+ מתחיל ב־95%."],
   "THREE LEVELS": ["THREE LEVELS", "TRES NIVELES", "שלוש רמות"],
   "CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.": ["CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.", "Núcleo reúne lo esencial, Hábitos fomenta la constancia y Bonus añade metas. Despliega un nivel para ver sus hábitos y puntuaciones.", "הליבה כוללת את העיקר, ההרגלים מעודדים התמדה והבונוס מוסיף יעדים. פתחו רמה כדי לראות את ההרגלים והניקוד."],
-  "WORK & ITS GEOMETRY": ["WORK & ITS GEOMETRY", "TRABAJO Y SU GEOMETRÍA", "עבודה והצורה שלה"],
-  "Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.": ["Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.", "Cada hito de Trabajo ilumina un segmento. Tres hitos forman un triángulo. Completar y reiniciar el ejemplo deja intacto tu progreso.", "כל אבן דרך בעבודה מאירה מקטע. שלוש אבני דרך יוצרות משולש. השלמת הדוגמה ואיפוסה אינם משנים את ההתקדמות שלך."],
+  "WORK, IN MILESTONES": ["WORK, IN MILESTONES", "EL TRABAJO, POR HITOS", "עבודה באבני דרך"],
+  "Work can be split into milestones. Each one you complete lights up one side of the shape: three milestones form a triangle, and the shape changes with how many you set. On the left you see today’s progress; on the right, the week’s total. Try the demo, then reset it — your real Work stays as it is.": ["Work can be split into milestones. Each one you complete lights up one side of the shape: three milestones form a triangle, and the shape changes with how many you set. On the left you see today’s progress; on the right, the week’s total. Try the demo, then reset it — your real Work stays as it is.", "El trabajo se puede dividir en hitos. Cada hito que completas ilumina un lado de la figura: con tres hitos se forma un triángulo, y la figura cambia según cuántos tengas. A la izquierda ves el progreso de hoy y a la derecha el total de la semana. Prueba el ejemplo y luego reinícialo: tu trabajo real no cambia.", "אפשר לחלק את העבודה לאבני דרך. כל אבן דרך שמשלימים מאירה צלע אחת בצורה: שלוש אבני דרך יוצרות משולש, והצורה משתנה לפי המספר שקבעתם. משמאל רואים את ההתקדמות של היום, ומימין את הסיכום השבועי. נסו את הדוגמה ואפסו אותה — העבודה האמיתית שלכם לא משתנה."],
   "TRY A HABIT": ["TRY A HABIT", "PRUEBA UN HÁBITO", "נסו הרגל"],
   "Try checking this example habit, then undo it. This demo never changes your habits or score.": ["Try checking this example habit, then undo it. This demo never changes your habits or score.", "Marca el hábito de ejemplo y luego desmárcalo. Tus hábitos y puntuación se conservan.", "סמנו את ההרגל לדוגמה ואז בטלו את הסימון. ההרגלים והניקוד שלך נשמרים."],
   "TRY A ROUTINE": ["TRY A ROUTINE", "PRUEBA UNA RUTINA", "נסו שגרה"],
@@ -4323,14 +4447,14 @@ function renderSettings(){
   const tot=MAX;
   const lvlBlock=(n,title,col)=>`
     <div ${uiStyle(`margin-bottom:20px`)}>
-      <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${buildLevel(n).filter(i=>!i.combo).reduce((a,i)=>a+i.pts,0)}%</div>
+      <div class="sec" ${uiStyle(`color:${col}`)}>${title} — ${(n?buildLevel(n):[1,2,3].flatMap(buildLevel)).filter(i=>!i.combo).reduce((a,i)=>a+i.pts,0)}%</div>
       <div class="settings-mode-labels" ${uiStyle(`display:flex;justify-content:flex-end;gap:4px;margin:-7px 10px 5px;font-size:9px;letter-spacing:.06em;color:#66667d`)}><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('work')}</span><span ${uiStyle(`width:44px;text-align:center`)}>${interfaceText('vacation')}</span></div>
-      ${CFG.order.filter(id=>CFG.h[id]&&CFG.h[id].lv===n&&!CFG.h[id].combo).map(id=>{const x=CFG.h[id];return `
+      ${CFG.order.filter(id=>CFG.h[id]&&(!n||CFG.h[id].lv===n)&&!CFG.h[id].combo).map(id=>{const x=CFG.h[id];return `
         <div ${uiStyle(`display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:${x.on!==false?"rgba(255,255,255,0.03)":"transparent"};margin-bottom:5px;opacity:${x.on!==false?1:.45}`)}>
           <div ${uiStyle(`display:flex;flex-direction:column;gap:2px;flex-shrink:0`)}>
             <button ${ui('click','cfgMove' ,id,-1)} class="ord">▲</button>
             <button ${ui('click','cfgMove' ,id,1)} class="ord">▼</button>
-            <select aria-label="${interfaceCopy("Habit level")}" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>
+            ${n?`<select aria-label="${interfaceCopy("Habit level")}" ${ui('change','cfgLevel',id)} ${uiStyle(`width:34px;height:26px;background:#111120;border:1px solid #222;border-radius:6px;color:#c0c0cd;font-family:inherit;font-size:11px;padding:0`)}>${[1,2,3].map(lv=>`<option value="${lv}" ${x.lv===lv?'selected':''}>L${lv}</option>`).join('')}</select>`:''}
           </div>
           <input value="${esc(x.i)}" ${ui('change','cfgSet' ,id,'i')} aria-label="${interfaceCopy("Icon")}"
             ${uiStyle(`width:26px;flex-shrink:0;background:none;border:none;color:#e2e2e2;font-family:inherit;font-size:17px;text-align:center;padding:0`)}/>
@@ -4339,21 +4463,21 @@ function renderSettings(){
           ${x.combo
             ?`<span title="${interfaceCopy("Sum of the active parts below")}" ${uiStyle(`width:96px;flex-shrink:0;color:${col};font-size:12px;text-align:center;line-height:1.25`)}>W ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'work'),0)}% · V ${subsOn(subsList()).reduce((a,y)=>a+modePts(y,'vacation'),0)}%</span>`
             :`<div ${uiStyle(`display:flex;gap:4px;flex-shrink:0`)}>
-              <input type="number" min="0" max="60" value="${esc(modePts(x,'work'))}" ${id==='work'&&CFG.shaahSocialCoreMigration?'readonly':ui('change','cfgSet' ,id,'pWork')} title="${interfaceCopy(id==='work'&&CFG.shaahSocialCoreMigration?'Configure in Routines → Work':'Work Mode')}" aria-label="${interfaceCopy("Work Mode points")}"
+              <input type="number" min="0" max="118" value="${esc(modePts(x,'work'))}" ${id==='work'&&CFG.shaahSocialCoreMigration?'readonly':ui('change','cfgSet' ,id,'pWork')} title="${interfaceCopy(id==='work'&&CFG.shaahSocialCoreMigration?'Configure in Routines → Work':'Work Mode')}" aria-label="${interfaceCopy("Work Mode points")}"
                 ${uiStyle(`width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
-              <input type="number" min="0" max="60" value="${esc(modePts(x,'vacation'))}" ${ui('change','cfgVacationPoints' ,id)} title="${interfaceCopy("Vacation Mode")}" aria-label="${interfaceCopy("Vacation Mode points")}"
+              <input type="number" min="0" max="118" value="${esc(modePts(x,'vacation'))}" ${ui('change','cfgVacationPoints' ,id)} title="${interfaceCopy("Vacation Mode")}" aria-label="${interfaceCopy("Vacation Mode points")}"
                 ${uiStyle(`width:44px;background:#111120;border:1px solid #222;border-radius:6px;color:${col};font-family:inherit;font-size:14px;padding:5px 3px;text-align:center`)}/>
             </div>`}
           <button ${ui('click','cfgToggle' ,id)} title="${interfaceCopy(x.on!==false?'Pause this habit':'Resume this habit')}" ${uiStyle(`background:none;border:1px solid #222;color:${x.on!==false?col:'#555'};border-radius:8px;font-size:15px;width:38px;height:36px;cursor:pointer`)}>${x.on!==false?'✓':'○'}</button>
           ${isCustom(id)?`<button ${ui('click','cfgDel' ,id)} title="${interfaceCopy("Delete habit")}" ${uiStyle(`background:none;border:1px solid #222;color:#9a9ab2;border-radius:8px;font-size:13px;width:34px;height:36px;cursor:pointer;flex-shrink:0`)}>✕</button>`:""}
         </div>`}).join("")}
-      <button ${ui('click','cfgAdd' ,n)} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceText('addHabit')}</button>
+      <button ${ui('click','cfgAdd' ,n||2)} ${uiStyle(`width:100%;background:none;border:1px dashed #242436;color:#7e7e97;font-family:inherit;font-size:14px;letter-spacing:0.12em;padding:9px;border-radius:9px;cursor:pointer;margin-top:3px`)}>${interfaceText('addHabit')}</button>
     </div>`;
   return`<div class="edit-day-screen settings-screen" ${uiStyle(`display:flex;flex-direction:column;min-height:100%`)}>
     <div class="settings-header">
       <button class="settings-back" ${ui('click','closeSettings')} aria-label="${interfaceText('back')}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button>
       <h1 class="settings-heading">${interfaceText('settings')}</h1>
-      <div class="settings-max${tot===118?'':' is-custom'}">MAX ${tot}%</div>
+      <div class="settings-max${tot===(starterProfile()?starterTarget():118)?'':' is-custom'}">MAX ${tot}%</div>
     </div>
     <div class="fade-up settings-body">
       ${interfaceLanguagePicker()}
@@ -4402,9 +4526,11 @@ function renderSettings(){
         <input type="date" value="${esc(CFG.travel.resumeOn||'')}" ${ui('change','setTravelResume')} aria-label="${interfaceText('autoWork')}" ${uiStyle(`background:#111120;border:1px solid #222;border-radius:8px;color:#e2e2e2;font-family:inherit;font-size:14px;padding:7px 9px`)}/>
       </div>
       <button ${ui('click','setTravelAuto' ,!CFG.travel.auto)} ${uiStyle(`width:100%;background:${CFG.travel.auto?'rgba(255,255,255,.07)':'transparent'};border:1px solid ${CFG.travel.auto?'#3a3a55':'#222'};color:${CFG.travel.auto?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:14px;letter-spacing:.06em;padding:10px;border-radius:10px;cursor:pointer`)}>${CFG.travel.auto?'✓':'○'} ${interfaceCopy('AUTOMATIC')}${CFG.travel.auto&&CFG.travel.resumeOn?` — ${interfaceCopy('switches to Work on {date}').replace('{date}',esc(CFG.travel.resumeOn))}`:''}</button>`,"st-col-b")}
-            ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
+            ${stCard("hab",interfaceText('habitsWeights'),"#9090aa",`${starterFlat()?lvlBlock(0,interfaceCopy("HABITS"),"#a78bfa"):`${lvlBlock(1,interfaceCopy("⬛ LVL 1 — CORE"),"#e2e2e2")}
       ${lvlBlock(2,interfaceCopy("▪ LVL 2 — HABITS"),"#a78bfa")}
-      ${lvlBlock(3,interfaceCopy("· LVL 3 — BONUS"),"#fbbf24")}
+      ${lvlBlock(3,interfaceCopy("· LVL 3 — BONUS"),"#fbbf24")}`}
+      ${starterProfile()?`<div class="starter-max" role="group" aria-label="${interfaceCopy("Daily max")}" ${uiStyle(`margin:4px 0 14px`)}><div class="sec" ${uiStyle(`color:#9090aa;margin-bottom:8px`)}>${interfaceCopy("Daily max")}</div><div ${uiStyle(`display:flex;gap:8px`)}>${STARTER_TARGETS.map(t=>`<button type="button" aria-pressed="${starterTarget()===t}" ${ui('click','starterSetMax',t)} ${uiStyle(`flex:1;background:${starterTarget()===t?'rgba(167,139,250,.14)':'none'};border:1px solid ${starterTarget()===t?'#a78bfa':'#222'};color:${starterTarget()===t?'#e2e2e2':'#7e7e97'};font-family:inherit;font-size:15px;padding:10px;border-radius:10px;cursor:pointer`)}>${t}%</button>`).join('')}</div><p ${uiStyle(`margin:8px 2px 0;font-size:13px;line-height:1.45;color:#7e7e97`)}>${interfaceCopy("100% is the usual scale. With 118%, your habits make 100% and the Social Combo is extra on top.")}</p></div>`:''}
+      ${starterProfile()?`<button class="starter-levels-toggle" ${ui('click','starterLevels',starterFlat())} ${uiStyle(`width:100%;background:none;border:1px solid #222;color:#adadbf;font-family:inherit;font-size:14px;padding:10px;border-radius:10px;cursor:pointer`)}>${interfaceCopy(starterFlat()?"Organize into levels (LVL 1 · 2 · 3)":"Back to a single list")}</button>`:''}
 `,"st-col-a")}
             ${stCard("rout",interfaceText('routines'),"#9090aa",`${CFG.shaahSocialCoreMigration?workMilestonesSettings():''}${Object.keys(ROUTINES).filter(rid=>rid!=="work"||!CFG.shaahSocialCoreMigration).map(rid=>{const r=ROUTINES[rid];const tm=r.steps.reduce((a,s)=>a+s.dur,0);return`
         <div class="card" ${uiStyle(`margin-bottom:10px;padding:14px`)}>
@@ -4464,7 +4590,7 @@ function cfgDel(id){
   if(!CFG.h[id]||!isCustom(id))return;
   if(!confirm(interfaceCopy("Remove \"{name}\"? Past days keep the score they already had.").replace('{name}', () => CFG.h[id].l)))return;
   haptic(12);
-  cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); });
+  cfgEdit(()=>{ delete CFG.h[id]; CFG.order=CFG.order.filter(x=>x!==id); starterRebalanceLive(); });
 }
 function cfgPill(v){CFG.pill=v;haptic(10);saveCfg();render();}
 function cfgLevel(id,level){
@@ -4488,6 +4614,10 @@ function cfgTz(v){ CFG.tz=v; saveCfg(); render(); }
 function socialOwnTab(){ return true; }
 // A new account in the simple view has no people yet: keep Social out of the dock until it is used or the full view is on.
 function socialTabShown(){ return socialOwnTab()&&!(starterSimple()&&!peopleList().length); }
+// The simple view shows History once there are 3 days with something recorded to look back on.
+function historyTabShown(){ return !starterSimple()||daysLogged()>=3; }
+// Day Log lives in the full view; the simple view keeps it only while an activity is running.
+function logTabShown(){ return !starterSimple()||!!dayLogActiveId(); }
 function subsEnsure(){
   if(!Array.isArray(CFG.subs)||!CFG.subs.length)CFG.subs=SOCIAL_SUBS_BASE.map(x=>({...x,pWork:6,pVacation:6}));
   const cid=comboIdIn(CFG.h);
@@ -5211,11 +5341,11 @@ function initScrollHide(){
 let tourStep=null;
 let tourDemo={},tourReturnTab=null,tourReturnFocus=null,tourScroll=0,tourInert=[],tourReturnSettings=false,tourOwner=null,tourFocusStep=null;
 const TOUR=[
- {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in nine short steps. You can skip, go back or replay this guide in Settings.'},
+ {tab:'today',ico:'👋',t:'WELCOME TO SHAAH',b:'Build your day one action at a time. Explore the interface and try safe demos in a few short steps. You can skip, go back or replay this guide in Settings.'},
  {tab:'today',target:'.t-ring',ico:'◎',t:'YOUR DAY SCORE',b:'Completed habits earn points. Your grade compares earned points with the available maximum for that date and mode. Weights and maximums depend on your configuration; S+ begins at 95% completion.'},
  {tab:'today',target:'.t-lvl1',ico:'⬛',t:'THREE LEVELS',b:'CORE holds your essentials, HABITS supports consistency and BONUS adds extra goals. Each level uses your configured weights. Expand a level to see its habits.'},
- {tab:'today',target:'.wg-card',ico:'△',t:'WORK & ITS GEOMETRY',demo:'work',b:'Each Work milestone lights one segment. Three milestones form a triangle; the shape adapts to your milestone count. Today’s amount appears left, the weekly total right. Complete the demo, then reset it. Your real Work progress stays unchanged.'},
- {tab:'today',target:'.t-lvl2',ico:'👆',t:'TRY A HABIT',demo:'habit',b:'Try checking this example habit, then undo it. This demo never changes your habits or score.'},
+ {tab:'today',target:'.wg-card',ico:'△',t:'WORK, IN MILESTONES',demo:'work',b:'Work can be split into milestones. Each one you complete lights up one side of the shape: three milestones form a triangle, and the shape changes with how many you set. On the left you see today’s progress; on the right, the week’s total. Try the demo, then reset it — your real Work stays as it is.'},
+ {tab:'today',target:'.t-lvl2,.t-flat',ico:'👆',t:'TRY A HABIT',demo:'habit',b:'Try checking this example habit, then undo it. This demo never changes your habits or score.'},
  {tab:'today',target:'.t-rout-toggle',ico:'⚡',t:'TRY A ROUTINE',demo:'routine',b:'Routines guide you through timed steps. Try advancing this two-step example. No real timer or session is started.'},
  {tab:'log',target:'.logdesk-card-title',ico:'◷',t:'TRY DAY LOG',demo:'log',b:'Day Log helps reconstruct your day. Add an example activity below; it stays only inside this tutorial.'},
  {tab:'history',target:'.htab',ico:'◈',t:'HISTORY & STATS',b:'HISTORY lets you review dated entries. STATS shows trends and streaks. Historical scores use the configuration for that date. The navigation below takes you to each area after the guide.'},
@@ -5346,6 +5476,66 @@ async function badgeServerSync(){
     set(badgeKey()+'_server',on?1:0);
   }catch(e){_badgeSyncKey='';}
 }
+// ── Suggestions that unlock features with use (doc "SHAAH: funciones que se desbloquean con el uso").
+// One card at the top of Today, one suggestion at most per day, chosen from what the account does.
+// New and existing accounts alike: a suggestion only appears for something the account does not use yet.
+// CFG.tips[id] = {n: times dismissed, until: 'YYYY-MM-DD' hidden until, done: accepted}; CFG.tips._lastDay = last dismissal.
+const TIP_ORDER=['remind','routine','full'],TIP_DEFAULT_TIME='15:00';
+function tipsState(){if(!CFG.tips||typeof CFG.tips!=='object'||Array.isArray(CFG.tips))CFG.tips={};return CFG.tips;}
+// getHistory scores every day; the helpers below share one result per render.
+let _tipHist=null;
+function tipHistory(){if(!_tipHist){_tipHist=getHistory();queueMicrotask(()=>{_tipHist=null;});}return _tipHist;}
+function dayShift(k,n){const [y,m,d]=k.split('-').map(Number);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10);}
+function daysLogged(){const hh=tipHistory();return Object.keys(hh).filter(k=>DATE_RE.test(k)&&hh[k]&&hh[k].score>0).length;}
+function dayLogged(k){const h=tipHistory()[k];return !!(h&&h.score>0);}
+// Back after a day with nothing marked, having used the app before it.
+function missedYesterday(){const y=dayShift(todayKey(),-1),hh=tipHistory();return !dayLogged(y)&&Object.keys(hh).some(k=>DATE_RE.test(k)&&k<y&&hh[k]&&hh[k].score>0);}
+function tipEligible(id){
+  const t=tipsState()[id]||{},tk=todayKey();
+  if(t.done||(t.n||0)>=2||(t.until&&tk<t.until))return false;
+  // The reminder exists to stop a whole day passing unused: offered from the start, and once more after a missed day.
+  if(id==='remind')return pushSupported()&&!pushPref().on&&(!(t.n>0)||missedYesterday());
+  // The others never interrupt what the person came to do: only after something is marked today.
+  if(!dayLogged(tk))return false;
+  if(id==='routine')return daysLogged()>=3&&!Object.keys(ROUTINES).length;
+  if(id==='full')return daysLogged()>=7&&starterSimple();
+  return false;
+}
+function tipCurrent(){if(!USER||!_cfgReady||tipsState()._lastDay===todayKey())return null;return TIP_ORDER.find(tipEligible)||null;}
+function tipCardHTML(key){
+  if(key!==todayKey())return '';
+  const id=tipCurrent();if(!id)return '';
+  const later=`<button type="button" class="tip-later" ${ui('click','tipDismiss',id)}>${interfaceText('tipLater')}</button>`;
+  let body='',action='';
+  if(id==='remind'){
+    const again=(tipsState().remind?.n||0)>0;
+    body=interfaceText(again?'tipRemindAgain':'tipRemind');
+    action=`<select id="tip-time" aria-label="${interfaceText('pushTime')}" ${_push.busy?'disabled':''}>${pushTimeOptions(TIP_DEFAULT_TIME).map(t=>`<option value="${t}"${t===TIP_DEFAULT_TIME?' selected':''}>${t}</option>`).join('')}</select><button type="button" class="tip-go" ${_push.busy?'disabled':''} ${ui('click','tipAccept',id)}>${interfaceText('tipRemindGo')}</button>`;
+    if(_push.error)body+=`<span class="tip-error" role="status">${interfaceText(_push.error)}</span>`;
+  }else if(id==='routine'){body=interfaceText('tipRoutine');action=`<button type="button" class="tip-go" ${ui('click','tipAccept',id)}>${interfaceText('tipRoutineGo')}</button>`;}
+  else if(id==='full'){body=interfaceText('tipFull');action=`<button type="button" class="tip-go" ${ui('click','tipAccept',id)}>${interfaceText('tipFullGo')}</button>`;}
+  return `<section class="tip-card" data-tip="${id}" aria-label="${interfaceText('tipLabel')}"><p>${body}</p><div class="tip-actions">${action}${later}</div></section>`;
+}
+async function tipAccept(id){
+  if(!USER||!TIP_ORDER.includes(id))return;
+  const t=tipsState();
+  if(id==='remind'){
+    const time=document.getElementById('tip-time')?.value;
+    await pushEnable(PUSH_TIME_RE.test(time||'')?time:TIP_DEFAULT_TIME);
+    if(pushPref().on){t.remind={...(t.remind||{}),done:true};saveCfgPref();}
+    render();return;
+  }
+  t[id]={...(t[id]||{}),done:true};saveCfgPref();
+  if(id==='routine'){settingsOpen=true;secOpen={rout:true};haptic(10);render();return;}
+  if(id==='full')starterView('full');
+}
+// "Not now": the reminder waits for the next missed day, the others for 7 days. A second "Not now" retires it.
+function tipDismiss(id){
+  if(!USER||!TIP_ORDER.includes(id))return;
+  const t=tipsState(),cur=t[id]||{},tk=todayKey();
+  t[id]={...cur,n:(cur.n||0)+1,until:dayShift(tk,id==='remind'?1:7)};t._lastDay=tk;
+  saveCfgPref();render();
+}
 // ── Daily reminder by Web Push. Off unless the person turns it on; one subscription per device, kept server-side
 // (public.push_subscriptions via shaah_push_subscribe). The server sends it only on days with nothing scored yet.
 const PUSH_PUBLIC_KEY='BGqaFh82BQLiYAxPHAlnemx1D5MhGlExN8O7LPVLey4pRCQDmd585wkxzcF3jJYfQ4HT7z69x5SLvgdV43R6IEk';
@@ -5417,7 +5607,8 @@ function deviceSettingsHTML(){const html=badgeSettingHTML()+pushSettingHTML();re
 const tourKey=()=>`shaah_tour_${USER?USER.id:'anon'}`;
 function startTour(short){
  if(!USER||tourStep!==null)return;
- tourList=short===true&&starterSimple()?TOUR_STARTER:TOUR;
+ // En la lista única (sin niveles) no se explican los tres niveles.
+ tourList=short===true&&starterSimple()?TOUR_STARTER:TOUR.filter(s=>s.target!=='.t-lvl1'||!starterFlat());
  arrivalDismiss();
  tourOwner=USER.id;tourReturnSettings=settingsOpen;tourReturnTab=currentTab;tourReturnFocus=document.activeElement;tourScroll=document.getElementById('scroll').scrollTop;
  tourDemo={};tourStep=0;settingsOpen=false;currentTab=tourList[0].tab;haptic(10);render();
@@ -5613,6 +5804,12 @@ function render(){
   const sbtn=nav.querySelector('.nav-btn[data-tab="social"]');
   if(sbtn)sbtn.hidden=!socialTabShown();
   if(currentTab==='social'&&!socialTabShown())currentTab='today';
+  const hbtn=nav.querySelector('.nav-btn[data-tab="history"]');
+  if(hbtn)hbtn.hidden=!historyTabShown();
+  if(currentTab==='history'&&!historyTabShown())currentTab='today';
+  const lbtn=nav.querySelector('.nav-btn[data-tab="log"]');
+  if(lbtn)lbtn.hidden=!logTabShown();
+  if(currentTab==='log'&&!logTabShown())currentTab='today';
   // Editar dia es parte de History: el dock / panel lateral sigue a la vista.
   if(editDayKey){document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));uiHTML(el,renderEditDay());layoutEditDay();tuckNav(false);renderTour();renderResume();return;}
   // Placement hides the navigation tab, but explicit Social shortcuts still open it.
@@ -5932,11 +6129,12 @@ function renderToday(key,nested=false){
   // This keeps historical Vacation days (including routines) consistent with
   // the scoring model and prevents a stale Work item from appearing in L1.
   const L1vis=C.inVacation?C.L1.filter(i=>i.id!=='work'):C.L1;
-  const core=coreLayoutFor(key);
+  const core=coreLayoutFor(key),flat=!core&&starterFlat(),sp=!core&&starterProfile();
   // En movil el anillo comparte fila con la tarjeta de nota: 118 px. En
   // escritorio sigue a 168 (y la hoja le aplica su zoom .95).
   const RSZ=(window.matchMedia&&window.matchMedia("(min-width:880px)").matches)?196:115;
   return`<div class="fade-up today${nested?" history-day-editor":""}${core&&!nested&&isToday?" sf-today-v27":""}${(!nested&&isToday&&isNight())?" night":""}" ${uiStyle(`padding:${nested?"10px":"2px"} 16px ${nested?"24px":`calc(50px + env(safe-area-inset-bottom))`};display:flex;flex-direction:column;align-items:center;gap:10px`)}>
+    ${(!nested&&isToday&&core)?tipCardHTML(key):''}
     ${(!nested&&!isToday)?`<div class="t-head" ${uiStyle(`text-align:center;width:100%`)}>
       <div ${uiStyle(`font-family:'Bebas Neue';font-size:15px;letter-spacing:0.13em;color:#8888a4`)}>${interfaceText('dayScore')}</div>
       <div ${uiStyle(`font-size:14.5px;color:#c0c0cd;letter-spacing:0.12em;margin-top:3px`)}>${keyToDate(key).toLocaleDateString(interfaceLanguage,{weekday:"long",day:"numeric",month:"long"}).toUpperCase()}</div>
@@ -5978,7 +6176,7 @@ function renderToday(key,nested=false){
     </div>
 
 
-${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
+${(flat||nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div class="t-rout${todayRoutinesOpen?"":" collapsed"}" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec t-rout-toggle today-routines-heading"><button type="button" class="today-routines-label" aria-expanded="${todayRoutinesOpen}" ${ui('click','toggleTodayRoutines')}><span class="t-rout-arrow">${todayRoutinesOpen?"▾":"▸"}</span>${interfaceCopy(core?'▪ CORE ROUTINES':"TODAY'S ROUTINES")}${core?`<span class="sf-core-total">${l1}/${dM1}</span>`:''}</button>${todaySectionsButton()}</div>
       <div class="t-rout-body">${L1vis.filter(i=>core||(i.routine&&ROUTINES[i.id])).map(item=>{
         if(core&&item.id==='work')return workPhaseCard(key,item);
@@ -6004,7 +6202,7 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       }).join("")}</div>
     </div>`}
 
-    ${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
+    ${flat?flatHabitsHTML(key,isToday,nested):`${!(core&&isToday&&!nested?[]:L1vis).length?"":`<div class="t-lvl t-lvl1" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[1]}" ${ui('click','toggleLvl' ,1)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[1]?"":" cl"}">▾</span>${interfaceCopy(core?'CORE HABITS':'⬛ LVL 1 — CORE')}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${l1}/${dM1}</span></span></button>${allBtn(1,C.L1)}</div>
       <div class="lvl-b${lvlShown[1]?"":" cl"}">
       ${(core&&isToday&&!nested?[]:L1vis).map(item=>{if(core&&item.id==="work")return nested?workHistoryRow(key,item):workPhaseCard(key,item);
@@ -6038,10 +6236,10 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       </div>`;}).join("")}
       </div>
     </div>
-    <div class="t-lvl t-lvl3" ${uiStyle(`width:100%;max-width:390px`)}>
-      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[3]}" ${ui('click','toggleLvl' ,3)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[3]?"":" cl"}">▾</span>${interfaceCopy("· LVL 3 — BONUS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${core?bonusSummary(key).earned:l3}/${core?bonusSummary(key).max:dM3}</span></span></button>${allBtn(3,core?C.L3.filter(i=>!i.combo):C.L3)}</div>
+    ${(sp&&!C.L3.some(x=>!x.combo))?'':`    <div class="t-lvl t-lvl3" ${uiStyle(`width:100%;max-width:390px`)}>
+      <div class="sec lvl-h" ${uiStyle(`display:flex;align-items:center;gap:8px`)}><button type="button" class="lvl-toggle" aria-expanded="${lvlShown[3]}" ${ui('click','toggleLvl' ,3)} ${uiStyle(`display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer`)}><span class="lvl-ar${lvlShown[3]?"":" cl"}">▾</span>${interfaceCopy("· LVL 3 — BONUS")}<span class="lvl-toggle-count" ${uiStyle(`margin-left:auto;display:flex;align-items:center;gap:9px`)}><span class="lvl-n" ${uiStyle(`font-size:11px;color:#7e7e97`)}>${(core||sp)?bonusSummary(key).earned:l3}/${(core||sp)?bonusSummary(key).max:dM3}</span></span></button>${allBtn(3,(core||sp)?C.L3.filter(i=>!i.combo):C.L3)}</div>
       <div class="lvl-b${lvlShown[3]?"":" cl"}">
-      ${core?"":comboBlock(key)}
+      ${(core||sp)?"":comboBlock(key)}
       ${C.L3.filter(x=>!x.combo).map(item=>{
         const st=ch[item.id];
         return `
@@ -6054,7 +6252,10 @@ ${(nested||!isToday||!L1vis.some(i=>core||(i.routine&&ROUTINES[i.id])))?"":`<div
       </div>`;
       }).join("")}
       </div>
-    </div>
+    </div>`}
+`}
+    ${(sp&&!flat&&C.L3.some(x=>x.combo))?`<div class="t-flat-social" ${uiStyle(`width:100%;max-width:390px`)}>${comboBlock(key)}</div>`:''}
+    ${(!nested&&isToday&&!core)?tipCardHTML(key):''}
     ${core?`<div class="t-lvl t-social-independent">${comboBlock(key)}</div>`:""}
     ${isToday?`<div class="t-daylog" ${uiStyle(`width:100%;max-width:390px`)}>
       <div class="t-daylog-card ${dayLogActiveId()?"running":""}">
@@ -7113,7 +7314,7 @@ function renderRoutineTimer(){
   }
 }
 
-function tabsOrder(){ return socialTabShown()?["today","log","social","stats","history"]:["today","log","stats","history"]; }
+function tabsOrder(){ return ["today","log","social","stats","history"].filter(t=>(t!=="log"||logTabShown())&&(t!=="social"||socialTabShown())&&(t!=="history"||historyTabShown())); }
 let touchStartX=0,touchStartY=0;
 document.addEventListener("touchstart",e=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener("touchend",e=>{

@@ -5280,3 +5280,10 @@ shaah-section[name="tip-card"]{}
  #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card):not(:has(>.t-rout))>.t-note{grid-row:4!important}
  #scroll .today:not(.sf-today-v27):not(.history-day-editor):not(.starter-today):has(>.t-flat-social):not(:has(>.t-flat)):has(>.tip-card)>.t-reset{grid-row:6!important}
 }
+/* Vista simple: aire entre bloques. Una regla de escritorio (#scroll .today>*) anula
+   los márgenes de los hijos de Today y las tarjetas quedaban pegadas. */
+#scroll .today.starter-today:not(.history-day-editor)>*+*:not(:empty){margin-top:20px!important}
+#scroll .today.starter-today:not(.history-day-editor)>.starter-heading{margin-bottom:8px!important}
+#scroll .today.starter-today:not(.history-day-editor)>.starter-view{padding-top:18px}
+@media(max-width:879px){#scroll .today.starter-today:not(.history-day-editor)>*+*:not(:empty){margin-top:16px!important}}
+.starter-today .starter-habit>p+button{margin-top:12px}

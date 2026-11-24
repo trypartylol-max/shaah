@@ -1136,7 +1136,7 @@ function starterBuild(choice,text,token){
     if(order.length)starterBalanceIn(h,order,subs);
   }
   return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines,people:[],subs,locationGroups:[],
-    travel:{mode:'work',auto:false,resumeOn:''},v:4,
+    travel:{mode:'work',auto:false,resumeOn:''},v:4,partnerV:1,
     starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:full?'full':'simple',...(full?{levels:true,template:'full'}:{}),balanceV:1,tutorial:{version:1,state:'presented'}},
     log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
       {from:day,h:cfgCopy(h),order:[...order],subs:cfgCopy(subs),mode:'work'}]};
@@ -1631,7 +1631,7 @@ function routineViews(input){
   }
   return out; // Do not rewrite stored metadata or renumber historical steps.
 }
-const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"👋"},{id:"friends",label:"Friends",icon:"👫"}];
+const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Partner",icon:"💘"},{id:"strangers",label:"Strangers",icon:"👋"},{id:"friends",label:"Friends",icon:"👫"}];
 // The combo divides its points by how many sub-items exist, so the list has to
 // ride the config timeline too — otherwise adding one would turn every past
 // "3 of 3" day into "3 of 4" and quietly dock the score.
@@ -1653,6 +1653,10 @@ function ensureModePts(x){
   if(x.pWork==null)x.pWork=p;
   if(x.pVacation==null)x.pVacation=p;
 }
+// Nombres de fábrica de las categorías del Social Combo: se muestran en el idioma de la
+// interfaz. Un nombre puesto a mano se muestra tal cual. Lo guardado no cambia.
+const SUB_DEFAULT_NAMES=['Partner','Strangers','Friends','Family'];
+function subName(label){return SUB_DEFAULT_NAMES.includes(label)?interfaceCopy(label):label;}
 function resolveSubs(list,comboPts,mode){
   const n=list.length||1;
   return list.map(x=>{
@@ -1662,6 +1666,7 @@ function resolveSubs(list,comboPts,mode){
     if(y.pWork==null)y.pWork=y.p!=null?safePts(y.p):Math.round(comboPts/n);
     if(y.pVacation==null)y.pVacation=y.p!=null?safePts(y.p):Math.round(comboPts/n);
     y.p=modePts(y,mode);
+    y.label=subName(y.label);
     return y;
   });
 }
@@ -1793,6 +1798,15 @@ function addJunkFoodOnce(){
 }
 // subIconV 1 = iconos de grupo con sentido: Strangers 🤝→👋, Family 👪→🏠.
 // Solo cambia el icono si sigue siendo el de fábrica; uno editado a mano se respeta.
+// partnerV 1 = la categoría "Flirting" pasa a llamarse "Partner" (pareja), en la config viva
+// y en todas las épocas. Solo si conserva el nombre de fábrica; uno editado a mano se respeta.
+function partnerLabelOnce(){
+  if(CFG.partnerV>=1)return false;
+  const fix=l=>{for(const x of (Array.isArray(l)?l:[]))if(x&&x.id==='flirt'&&x.label==='Flirting')x.label='Partner';};
+  fix(CFG.subs);for(const e of (Array.isArray(CFG.log)?CFG.log:[]))fix(e&&e.subs);
+  CFG.partnerV=1;_dayCfgCache={};saveCfg();
+  return true;
+}
 function socialIconsOnce(){
   if(CFG.subIconV>=1)return false;
   const swap={strangers:{'🤝':'👋'},family:{'\u{1F46A}':'\u{1F3E0}'}};
@@ -3234,7 +3248,7 @@ async function loadAccountRows(owner,epoch){
     // Historical modes come from the dated configuration timeline.
     // Do not rewrite completed days to Vacation on every load.
     widenBaseline();
-    addFamilyOnce();socialIconsOnce();addJunkFoodOnce();rebalanceOnce();productionVariantsOnce();
+    addFamilyOnce();socialIconsOnce();partnerLabelOnce();addJunkFoodOnce();rebalanceOnce();productionVariantsOnce();
     // Restoring the live preference is separate from the manual historical repair.
     restoreLiveTravelMode();
     // Repair malformed legacy dates before the automatic return check.
@@ -3244,7 +3258,7 @@ async function loadAccountRows(owner,epoch){
     checkTravelAuto();
     recoverPeopleFromDays();
     runShaahSocialCoreMigration();
-    }else{starterBalanceOnce();applyCfg();hydrateRoutineRows(rows);}
+    }else{starterBalanceOnce();partnerLabelOnce();applyCfg();hydrateRoutineRows(rows);}
     saveCache();
     cfgSyncStatus();
     arrivalPlanExisting();
@@ -4308,6 +4322,9 @@ const interfaceCopies = {
   "Who to See": ["Who to See", "A quién ver", "עם מי להיפגש"],
   "Social Combo": ["Social Combo", "Combo social", "שילוב חברתי"],
   "Family": ["Family", "Familia", "משפחה"],
+  "Partner": ["Partner", "Pareja", "בן/בת זוג"],
+  "Strangers": ["Strangers", "Desconocidos", "זרים"],
+  "Friends": ["Friends", "Amigos", "חברים"],
   "No contacts in this focus.": ["No contacts in this focus.", "Sin contactos en este foco.", "אין אנשי קשר במיקוד זה."],
   "Group name": ["Group name", "Nombre del grupo", "שם הקבוצה"],
   "Amount ₪": ["Amount ₪", "Monto ₪", "סכום ₪"],
@@ -4415,6 +4432,7 @@ function interfaceText(key) {
 function applyInterfaceLanguage() {
   if (!document.documentElement) return;
   document.documentElement.lang = interfaceLanguage;
+  _dayCfgCache={};   // las categorías del combo se resuelven con el idioma vigente
   document.documentElement.dir = interfaceLanguage==='he'?'rtl':'ltr';
   document.querySelector('.pro-nav-settings')?.setAttribute('aria-label',interfaceText('settings'));
   document.querySelectorAll('.nav-label[data-interface-text]').forEach(label => {
@@ -7406,7 +7424,7 @@ function socialSave(){
   }
   let p=d.id?personById(d.id):null;
   if(d.id&&!p){socialCancel();return;}
-  if(d.sub==='flirt'&&p?.sub!=='flirt'&&peopleList().filter(x=>x.sub==='flirt').length>=socialRomanticLimit()){socialFormError=interfaceCopy('{category} reached its limit. Change another person’s category or raise the limit in Settings.').replace('{category}',()=>subsList().find(s=>s.id==='flirt')?.label||'Flirting');render();return;}
+  if(d.sub==='flirt'&&p?.sub!=='flirt'&&peopleList().filter(x=>x.sub==='flirt').length>=socialRomanticLimit()){socialFormError=interfaceCopy('{category} reached its limit. Change another person’s category or raise the limit in Settings.').replace('{category}',()=>subsList().find(s=>s.id==='flirt')?.label||'Partner');render();return;}
   const fresh=!p;
   if(fresh){let id;do{id='p'+Math.random().toString(36).slice(2,10);}while(personById(id));p={id};peopleList().push(p);}
   // Keep unknown location references so editing cannot silently lose legacy data.
@@ -7490,7 +7508,7 @@ function socialDenseContact(p,key){
  return `<div class="sd-contact${on?' sd-done':''}"><button class="sd-person" aria-pressed="${on}" aria-label="${esc(interfaceCopy(on?'Undo encounter with {name}':'Log encounter with {name}').replace('{name}',()=>p.name))}" ${ui('click','socialRecord',p.id,key)}><span class="sd-icon" title="${esc(category)}">${on?'✓':esc(sub?.icon||(socialCategory(p)==='family'?'🏠':'◍'))}</span><span class="sd-identity"><span class="w-name">${esc(p.name)}</span><span class="w-when">${when} <span class="sd-category">· ${esc(category)}</span></span></span><span class="sd-time-pill" aria-label="${esc(timing.description)}" ${uiStyle('color:'+timing.color)}><span class="sd-pill-fill" aria-hidden="true" ${uiStyle('width:'+timing.fill+'%;background:'+timing.color)}></span><span class="sd-pill-label" ${uiStyle("color:"+timingTextColor)}>${timing.label}</span></span></button><button class="sd-edit" aria-label="${esc(interfaceCopy('Edit {name}').replace('{name}',()=>p.name))}" title="${interfaceCopy('Edit person')}" ${ui('click','socialEdit',p.id)}>✎</button></div>`;
 }
 
-function socialCategories(){return subsOn(subsList());}
+function socialCategories(){return subsOn(subsList()).map(s=>({...s,label:subName(s.label)}));}
 function socialIsFamily(p){return p.sub==='family'||p.sub==='__family_pending'||p.relationship==='family';}
 function socialCategory(p){return p.sub==='__family_pending'?'family':p.sub;}
 function socialCategoryName(p){const id=socialCategory(p);return socialCategories().find(s=>s.id===id)?.label||id||interfaceCopy('No category');}
@@ -7550,7 +7568,7 @@ function comboBlock(key,alwaysOpen){
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
 function socialRomanticLimitSet(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>1000)return;CFG.socialRules={...(CFG.socialRules||{}),romanticLimit:n};saveCfg();render();}
-function socialRulesHTML(){const label=subsList().find(s=>s.id==='flirt')?.label||'Flirting',count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · ${interfaceCopy('Maximum people assigned')}<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${interfaceCopy('{count} assigned · limit {limit}.').replace('{count}',count).replace('{limit}',socialRomanticLimit())} ${count>socialRomanticLimit()?interfaceCopy('Existing people stay assigned. Free a place or raise the limit to add more.'):''} ${interfaceCopy('Points and suggestions stay the same.')}</p>`;}
+function socialRulesHTML(){const label=subName(subsList().find(s=>s.id==='flirt')?.label||'Partner'),count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · ${interfaceCopy('Maximum people assigned')}<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${interfaceCopy('{count} assigned · limit {limit}.').replace('{count}',count).replace('{limit}',socialRomanticLimit())} ${count>socialRomanticLimit()?interfaceCopy('Existing people stay assigned. Free a place or raise the limit to add more.'):''} ${interfaceCopy('Points and suggestions stay the same.')}</p>`;}
 function settingsPeople(){return peopleList();}
 
 function bonusSummary(key){const C=cfgForDate(key),ch=getChecked(key);return {earned:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+Math.round(i.pts*doneFrac(ch[i.id])),0),max:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+i.pts,0)};}

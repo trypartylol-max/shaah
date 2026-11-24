@@ -41,7 +41,7 @@ function fixture() {
       { id: 'pold03', name: 'Alex Existing', sub: 'flirt', every: 30 }
     ],
     travel: { mode: 'work', auto: false, resumeOn: '', modeUpdatedAt: 1792065600000 },
-    v: 4, subsV: 2, junkV: 1, subIconV: 1, balV: 1, prodV: 1, travelV: 10, socialTab: true,
+    v: 4, subsV: 2, junkV: 1, subIconV: 1, partnerV: 1, balV: 1, prodV: 1, travelV: 10, socialTab: true,
     log: [era('0001-01-01', 'work'), era('2026-09-08', 'vacation'), era('2026-10-08', 'work')]
   };
   const day = () => ({

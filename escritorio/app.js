@@ -11,7 +11,7 @@ const BUILTIN = [
   { s: 'Forms', n: 'Event Scorecard', i: '🎪', c: '#2a2418', u: 'https://trypartylol-max.github.io/shaah/scorecard/' },
   { s: 'Dinero', n: 'Caja', i: '₪', c: '#142a22', u: PRIV + '?p=caja' },
   { s: 'Dinero', n: 'Libro Mayor', i: '📒', c: '#2a2618', u: PRIV + '?p=libro' },
-  { s: 'Apps', n: 'Cocina', i: '🍳', c: '#2a1f14', u: 'https://script.google.com/macros/s/AKfycbxpMXAXEnQxyQ305l_IUNW4RLLXfgL22LJJXfVFBUZUuSi7bDvZ4E6i6f3LWmFkCnSpsA/exec' },
+  { s: 'Apps', n: 'Cocina', i: '🍳', c: '#2a1f14', u: 'https://trypartylol-max.github.io/shaah/cocina/' },
   { s: 'Apps', n: 'WiFi Doctor', i: '📶', c: '#13232e', u: PRIV + '?p=wifi' }
 ];
 

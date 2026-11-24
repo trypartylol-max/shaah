@@ -29,8 +29,11 @@ h1{margin:0;font-size:clamp(28px,2.6vw,40px);font-weight:600;letter-spacing:-.03
 .ibtn{height:38px;border:0;border-radius:12px;background:var(--card2);color:#b7bdc6;padding:0 14px;cursor:pointer;font-size:13px;font-weight:500}
 .ibtn:hover{color:var(--ink)}
 .bellw{position:relative}
+.ibtn.big{height:46px;padding:0 18px;border-radius:14px;font-size:16px;font-weight:600;color:var(--ink);background:#1f2530;border:1px solid #2c3440;display:inline-flex;align-items:center;gap:8px}
+.ibtn.big span{font-size:20px;line-height:1}
+.ibtn.big:hover,.ibtn.big:active{background:#273040}
 .ibtn.ico{width:38px;padding:0;font-size:17px}
-@media (max-width:600px){#status{display:none}}
+@media (max-width:600px){#status{display:none}.hd h1{font-size:24px}.hd>div{gap:6px!important}.ibtn.big{padding:0 14px}}
 .ibtn.bell{min-width:38px;padding:0 10px;font-size:15px;opacity:.5;display:inline-flex;align-items:center;gap:6px}
 .ibtn.bell.on{opacity:1}
 .ibtn.bell small{font-size:12px;color:var(--dim)}
@@ -193,7 +196,7 @@ details.g>summary{user-select:none;-webkit-user-select:none}
     <div style="display:flex;align-items:center;gap:10px">
       <span class="live"><span class="dot off" id="dot"></span><span id="status">cargando…</span></span>
       <span class="bellw"><button class="ibtn bell" id="bell" type="button" title="Aviso diario">🔕</button><div class="bellpop" id="bellPop" hidden><input type="time" id="bellT" step="300" value="12:00"><button class="a" id="bellB" type="button" data-tg="on">Activar</button></div></span>
-      <button class="ibtn ico" id="allTog" type="button" title="Colapsar todo">⊟</button>
+      <button class="ibtn big" id="allTog" type="button" title="Colapsar todo"><span>⊟</span>Colapsar</button>
       <button class="ibtn ico" id="reload" type="button" title="Actualizar">↻</button>
     </div>
   </header>

@@ -4,7 +4,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp
 const LS='cocina_cache_v1';
 const UI=(()=>{try{return JSON.parse(localStorage.getItem('cocina_ui_v1'))||{}}catch(e){return {}}})();UI.open=UI.open||{};UI.min=UI.min||{cRec:1,cDesp:1};UI.shut=UI.shut||{};
 const CARDS=['cUrg','cMenu','cRec','cFlash','cComp','cDesp'];
-const syncAll=()=>{const b=document.getElementById('allTog');if(b){const all=CARDS.every(id=>UI.min[id]);b.textContent=all?'⊞':'⊟';b.title=all?'Expandir todo':'Colapsar todo'}};
+const syncAll=()=>{const b=document.getElementById('allTog');if(b){const all=CARDS.every(id=>UI.min[id]);b.innerHTML=all?'<span>⊞</span>Expandir':'<span>⊟</span>Colapsar';b.title=all?'Expandir todo':'Colapsar todo'}};
 const saveUI=()=>{try{localStorage.setItem('cocina_ui_v1',JSON.stringify(UI))}catch(e){}};
 const ORD=['Congelador','Nevera','Despensa','Encimera'];
 const invKey=i=>UI.inv==='tipo'?(i.cat||'Otro'):(i.ubi||'Otro');
@@ -220,11 +220,11 @@ const ACT={
 };
 document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.dataset&&d.dataset.gs){if(d.open)delete UI.shut[d.dataset.gs];else UI.shut[d.dataset.gs]=1;saveUI();return}if(d&&d.dataset&&d.dataset.g){if(d.open)UI.open[d.dataset.g]=1;else delete UI.open[d.dataset.g];saveUI()}},true);
 document.addEventListener('click',e=>{
-  const md=e.target.closest('#invMode button');if(md){UI.inv=md.dataset.mode;saveUI();render();sheetRender();return}
-  const h=e.target.closest('h2.tog');if(h){const c=h.parentElement;c.classList.toggle('min');if(c.classList.contains('min'))UI.min[c.id]=1;else delete UI.min[c.id];saveUI();syncAll();return}
-  if(e.target.id==='allTog'){const all=CARDS.every(id=>UI.min[id]);CARDS.forEach(id=>{if(all)delete UI.min[id];else UI.min[id]=1;$(id).classList.toggle('min',!all)});saveUI();syncAll();return}
   if(e.target.closest('#bell')){$('bellPop').hidden=!$('bellPop').hidden;return}
   if(!e.target.closest('#bellPop'))$('bellPop').hidden=true;
+  const md=e.target.closest('#invMode button');if(md){UI.inv=md.dataset.mode;saveUI();render();sheetRender();return}
+  const h=e.target.closest('h2.tog');if(h){const c=h.parentElement;c.classList.toggle('min');if(c.classList.contains('min'))UI.min[c.id]=1;else delete UI.min[c.id];saveUI();syncAll();return}
+  if(e.target.closest('#allTog')){const all=CARDS.every(id=>UI.min[id]);CARDS.forEach(id=>{if(all)delete UI.min[id];else UI.min[id]=1;$(id).classList.toggle('min',!all)});saveUI();syncAll();return}
   if(e.target.id==='undoB'){undo();return}
   if(e.target.id==='mGen'){genMenu();return}
   const b=e.target.closest('button,.rec'); if(!b)return;

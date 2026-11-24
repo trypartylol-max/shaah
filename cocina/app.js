@@ -7,6 +7,10 @@ const CARDS=['cUrg','cMenu','cRec','cFlash','cComp','cDesp'];
 const syncAll=()=>{const b=document.getElementById('allTog');if(b){const all=CARDS.every(id=>UI.min[id]);b.innerHTML=all?'<span>⊞</span>Expandir':'<span>⊟</span>Colapsar';b.title=all?'Expandir todo':'Colapsar todo'}};
 const saveUI=()=>{try{localStorage.setItem('cocina_ui_v1',JSON.stringify(UI))}catch(e){}};
 const ORD=['Congelador','Nevera','Despensa','Encimera'];
+// Orden de recorrido del súper para Compras
+const SUPER=['Verduras','Hierbas frescas','Frutas','Panes','Carnes y pescados','Lácteos y huevos','Congelados listos','Granos y pastas','Legumbres','Conservas','Salsas y especias','Semillas y frutos secos','Dulces y snacks','Bebidas','Hogar'];
+const supIdx=k=>{const i=SUPER.indexOf(k);return i<0?99:i};
+const supSort=(a,b)=>supIdx(a)-supIdx(b)||a.localeCompare(b,'es');
 const invKey=i=>UI.inv==='tipo'?(i.cat||'Otro'):(i.ubi||'Otro');
 const invSort=(a,b)=>UI.inv==='tipo'?a.localeCompare(b,'es'):((ORD.indexOf(a)+99)%99)-((ORD.indexOf(b)+99)%99);
 const invMeta=i=>(UI.inv==='tipo'?esc(i.ubi)+' · ':'');
@@ -31,7 +35,7 @@ function derive(){
 }
 function save(){try{localStorage.setItem(LS,JSON.stringify(D))}catch(e){}}
 let LASTMSG='', UNDO=null;
-function apply(msg){derive();save();render();sheetRender();searchRender();menuRender();tgRender();if(msg){LASTMSG=msg;toast(msg)}}
+function apply(msg){derive();save();render();sheetRender();searchRender();menuRender();tgRender();tabsRender();mesRender();if(msg){LASTMSG=msg;toast(msg)}}
 // Deshacer: el guardado espera 5 s; si tocas Deshacer, se cancela y vuelve todo como estaba.
 function commit(){if(!UNDO)return;clearTimeout(UNDO.t);const u=UNDO;UNDO=null;pending--;srv(u.fn,...u.args)}
 function later(snap,fn,...args){commit();pending++;busy();UNDO={snap,fn,args,t:setTimeout(commit,5000)};toast(LASTMSG,true)}
@@ -67,12 +71,12 @@ function render(){
   $('catList').innerHTML=D.cat.map(c=>'<option value="'+esc(c.n)+'">').join('');
   $('urg').innerHTML=urg.length?urg.map(i=>'<div class="item">'+badge(i)+'<div class="it"><div class="n">'+esc(i.n)+(i.tipo==='Sobra'?'<span class="pill sobra">sobra</span>':'')+'</div><div class="m">'+esc(i.ubi)+' · vence '+fdate(i.vence)+(i.nota?' · '+esc(i.nota):'')+'</div></div><div class="acts">'+(i.usar?'<button class="a on" data-usar="'+esc(i.id)+'" title="Quitar de usar primero">⚡</button>':'')+'<button class="a in" data-s="Consumido" data-id="'+esc(i.id)+'" title="Consumido">✓</button><button class="a out" data-s="Desperdiciado" data-id="'+esc(i.id)+'" title="Se perdió / se botó">✕</button></div></div>').join(''):'<div class="empty">Nada por vencer en los próximos 2 días.</div>';
   {const recHTML=(r,k)=>'<div class="rec" data-k="'+k+'"><div class="t"><b>'+esc(r.n)+'</b><span>'+esc(r.tipo||'')+(r.min?' · '+esc(r.min)+' min':'')+'</span></div><div class="chips">'+r.rescata.map(x=>'<span class="chip r">⚡ '+esc(x)+'</span>').join('')+r.tengo.filter(x=>!r.rescata.includes(x)).map(x=>'<span class="chip h">'+esc(x)+'</span>').join('')+r.faltan.map(x=>'<span class="chip f">falta '+esc(x)+'</span>').join('')+'</div><div class="more">'+esc(r.pasos||'')+(r.link?' <a href="'+esc(r.link)+'" target="_blank" style="color:var(--in)">ver ↗</a>':'')+(r.faltan.length?'<div><button class="a" data-falt="'+esc(r.id)+'">Agregar lo que falta a compras</button></div>':'')+'<div><button class="a in" data-cook="'+esc(r.id)+'">Cociné esto</button></div>'+'<div><button class="a out" data-delrec="'+esc(r.id)+'">Quitar receta</button></div>'+'</div></div>';const RO=['Desayuno','Almuerzo','Cena','Snack','Acompañante'],G={};D.rec.forEach(r=>{const k=String(r.tipo||'Otras').split('/')[0].trim()||'Otras';(G[k]=G[k]||[]).push(r)});$('recs').innerHTML=Object.keys(G).sort((a,b)=>(RO.indexOf(a)+99)%99-(RO.indexOf(b)+99)%99).map(k=>{const l=G[k],resc=l.filter(r=>r.rescata.length).length,ok=l.filter(r=>!r.faltan.length).length;return grpBox('rec:'+k,k,l.length,(resc?' <span class="tag y">⚡ '+resc+'</span>':'')+(ok?' <span class="tag h">'+ok+' completas</span>':''),l.map(recHTML).join(''))}).join('')||'<div class="empty">Sin recetas.</div>'}
-  {const fl=D.compras.filter(c=>c.flash),rest=D.compras.filter(c=>!c.flash);
+  {const ckat=c=>(catOf(c.n)||classify(c.n)).cat;const fl=D.compras.filter(c=>c.flash).sort((a,b)=>supSort(ckat(a),ckat(b))),rest=D.compras.filter(c=>!c.flash);
   $('fN').textContent=fl.length?fl.length+' para ya':'';
   $('flash').innerHTML=fl.length?fl.map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+'</div></div><div class="acts"><button class="a rt" data-ret="'+esc(c.n)+'" title="Retirar: no volver a comprarlo">✕</button><button class="a fz on" data-flash="'+esc(c.id)+'" data-on="0" title="Quitar de flash">⚡</button></div></div>').join(''):'<div class="empty">Toca ⚡ en una compra para traerla aquí.</div>';
   $('cN').textContent=rest.length?rest.length+' pendientes':'';
   const cg={};rest.forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;(cg[k]=cg[k]||[]).push(c)});
-  $('compras').innerHTML=rest.length?Object.keys(cg).sort((a,b)=>a.localeCompare(b,'es')).map(k=>grpO('comp:'+k,k,cg[k].length,cg[k].map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+(c.nota?' · '+esc(c.nota):'')+'</div></div><div class="acts"><button class="a rt" data-ret="'+esc(c.n)+'" title="Retirar: no volver a comprarlo">✕</button><button class="a fz" data-flash="'+esc(c.id)+'" data-on="1" title="A compras flash">⚡</button></div></div>').join(''))).join(''):'<div class="empty">Lista vacía.</div>';
+  $('compras').innerHTML=rest.length?Object.keys(cg).sort(supSort).map(k=>grpO('comp:'+k,k,cg[k].length,cg[k].map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+(c.nota?' · '+esc(c.nota):'')+'</div></div><div class="acts"><button class="a rt" data-ret="'+esc(c.n)+'" title="Retirar: no volver a comprarlo">✕</button><button class="a fz" data-flash="'+esc(c.id)+'" data-on="1" title="A compras flash">⚡</button></div></div>').join(''))).join(''):'<div class="empty">Lista vacía.</div>';
   const have=new Set(D.inv.map(i=>i.n)),inList=new Set(D.compras.map(c=>c.n)),H=D.hist||{};
   const sg=Object.keys(H).filter(n=>!have.has(n)&&!inList.has(n)&&!(catOf(n)||{}).ret).sort((a,b)=>H[b]-H[a]).slice(0,8);
   $('sug').innerHTML=sg.length?'<div class="l">Sueles comprar y ya no tienes:</div><div class="chips">'+sg.map(n=>'<button class="chip" data-sug="'+esc(n)+'">+ '+esc(n)+'</button>').join('')+'</div>':'';}
@@ -259,3 +263,29 @@ if(D&&D.inv){apply();busy('actualizando…')}else D=null;
 load();
 
 $('bellT').addEventListener('change',e=>{const v=e.target.value;if(/^\d{2}:\d{2}$/.test(v))tgCall('avisoOn','Aviso a las '+v,v)});
+
+/* ---------- pestañas (móvil) ---------- */
+function setTab(t){UI.tab=t;saveUI();document.body.dataset.tab=t;document.querySelectorAll('#tabs [data-tabgo]').forEach(b=>b.classList.toggle('on',b.dataset.tabgo===t))}
+setTab(UI.tab||'casa');
+function tabsRender(){
+  if(!D)return;
+  const urg=D.inv.filter(i=>i.dias!=null&&i.dias<=0).length,fl=D.compras.filter(c=>c.flash).length;
+  $('tbCasa').textContent=urg||'';const f=$('tbComp');f.textContent=fl||'';f.className='g';$('tbCoc').textContent='';
+}
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tabgo]');if(!b)return;setTab(b.dataset.tabgo);scrollTo({top:0,behavior:'smooth'})});
+/* ---------- agregar: más opciones (móvil) ---------- */
+$('aMore').addEventListener('click',()=>$('addForm').classList.toggle('open'));
+/* ---------- resumen del mes ---------- */
+function mesRender(){
+  const m=D&&D.mes,el=$('mes');if(!m||!(m.comido+m.botado)){el.hidden=true;return}
+  const t=m.comido+m.botado,p=Math.round(m.botado*100/t);
+  el.hidden=false;el.innerHTML='<b>'+esc(capi(m.nombre))+'</b> · '+m.comido+' comidos · <span class="w">'+m.botado+' botados ('+p+'%)</span>'+(m.top&&m.top.length?' · se te pierde: '+m.top.map(x=>esc(x[0])+(x[1]>1?' ×'+x[1]:'')).join(', '):'');
+}
+function capi(s){return String(s||'').replace(/^./,c=>c.toUpperCase())}
+/* ---------- deslizar: derecha = consumido, izquierda = se perdió ---------- */
+(()=>{let it=null,x0=0,y0=0,dx=0,hor=null;
+document.addEventListener('touchstart',e=>{const el=e.target.closest('.item');if(!el||!el.querySelector('[data-s]')||e.target.closest('button,input,select'))return;it=el;x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;hor=null},{passive:true});
+document.addEventListener('touchmove',e=>{if(!it)return;const x=e.touches[0].clientX-x0,y=e.touches[0].clientY-y0;if(hor===null){if(Math.abs(x)<8&&Math.abs(y)<8)return;hor=Math.abs(x)>Math.abs(y)}if(!hor){it=null;return}dx=Math.max(-140,Math.min(140,x));it.classList.add('sw');it.style.transform='translateX('+dx+'px)';it.classList.toggle('swR',dx>70);it.classList.toggle('swL',dx<-70)},{passive:true});
+document.addEventListener('touchend',()=>{if(!it)return;const el=it;it=null;el.classList.remove('sw','swR','swL');el.style.transform='';
+  if(dx>70){const b=el.querySelector('[data-s="Consumido"]');if(b)b.click()}else if(dx<-70){const b=el.querySelector('[data-s="Desperdiciado"]');if(b)b.click()}dx=0});
+})();

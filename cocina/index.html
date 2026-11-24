@@ -187,6 +187,41 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 .a.fz{opacity:.45;min-width:34px}
 .a.fz:hover{opacity:1}
 .a.fz.on{opacity:1;color:var(--gold);border-color:#4a3c1c}
+.more{display:none}
+.k .ls{display:none}
+.tabs{display:none}
+.mes{margin-top:14px;padding:14px 20px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--card);font-size:14px;color:var(--dim)}
+.mes b{color:var(--ink);font-weight:600}.mes .w{color:var(--out)}
+.item{position:relative;transition:transform .18s}
+.item.sw{transition:none}
+.item.swR{box-shadow:inset 4px 0 0 var(--in)}.item.swL{box-shadow:inset -4px 0 0 var(--out)}
+@media (max-width:900px){
+  body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+  .grid{display:flex;flex-direction:column}.col{display:contents}.grid .card{min-width:0;max-width:100%;width:100%}
+  #cUrg{order:1}#cDesp{order:2}#cFlash{order:1}#cComp{order:2}#cRec{order:1}#cMenu{order:2}
+  body[data-tab="casa"] [data-tab]:not([data-tab="casa"]),body[data-tab="compras"] [data-tab]:not([data-tab="compras"]),body[data-tab="cocinar"] [data-tab]:not([data-tab="cocinar"]){display:none!important}
+  .tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:15;background:rgba(14,16,20,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+  .tabs button{flex:1;border:0;background:none;color:var(--faint);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:500;padding:6px 0;position:relative;cursor:pointer}
+  .tabs .ti{font-size:22px;filter:grayscale(1);opacity:.6}
+  .tabs button.on{color:var(--ink)}.tabs button.on .ti{filter:none;opacity:1}
+  .tabs b{position:absolute;top:2px;left:calc(50% + 8px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--out);color:#fff;font-size:11px;line-height:18px;font-weight:600}
+  .tabs b:empty{display:none}
+  .tabs b.g{background:var(--gold);color:#1a1405}
+  .kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+  .k{padding:10px 10px 9px;border-radius:16px}
+  .k .l{font-size:11px;gap:5px;line-height:1.15;white-space:nowrap;overflow:hidden}
+  .k .l i{display:none}
+  .k .v{font-size:24px;margin-top:2px;color:var(--c,var(--ink))}
+  .k .s{display:none}
+  .k .lf{display:none}.k .ls{display:inline}
+  .card .hint{display:none}
+  .addbar{flex-wrap:nowrap;padding:8px;gap:8px}
+  #aIng{flex:1 1 auto}#aTipo,#aCant,#aNota{display:none}
+  .addbar.open{flex-wrap:wrap}.addbar.open #aIng{flex:1 1 100%}.addbar.open #aTipo{display:block;flex:1 1 40%}.addbar.open #aCant{display:block;flex:1 1 25%}.addbar.open #aNota{display:block;flex:1 1 100%}
+  .more{display:grid;place-items:center;flex:0 0 46px;border:1px solid var(--line);border-radius:12px;background:var(--field);color:var(--ink2);font-size:20px;cursor:pointer}
+  .addbar.open .more{color:var(--ink);border-color:#2f3640}
+  .mes{padding:12px 16px}
+}
 </style>
 </head>
 <body>
@@ -202,17 +237,18 @@ details.g>summary{user-select:none;-webkit-user-select:none}
   </header>
 
   <section class="kpis">
-    <div class="k" data-kpi="urg" style="--c:var(--out)"><div class="l"><i></i>Por vencer</div><div class="v" id="kUrg">—</div><div class="s" id="kUrgS"></div></div>
-    <div class="k" data-kpi="rec" style="--c:var(--in)"><div class="l"><i></i>Para cocinar hoy</div><div class="v" id="kRec">—</div><div class="s" id="kRecS"></div></div>
-    <div class="k" data-kpi="poco" style="--c:var(--gold)"><div class="l"><i></i>Queda poco</div><div class="v" id="kPoco">—</div><div class="s" id="kPocoS"></div></div>
-    <div class="k" data-kpi="casa"><div class="l"><i></i>En casa</div><div class="v" id="kCasa">—</div><div class="s" id="kCasaS"></div></div>
+    <div class="k" data-kpi="urg" style="--c:var(--out)"><div class="l"><i></i><span class="lf">Por vencer</span><span class="ls">Vence</span></div><div class="v" id="kUrg">—</div><div class="s" id="kUrgS"></div></div>
+    <div class="k" data-kpi="rec" style="--c:var(--in)"><div class="l"><i></i><span class="lf">Para cocinar hoy</span><span class="ls">Cocinar</span></div><div class="v" id="kRec">—</div><div class="s" id="kRecS"></div></div>
+    <div class="k" data-kpi="poco" style="--c:var(--gold)"><div class="l"><i></i><span class="lf">Queda poco</span><span class="ls">Poco</span></div><div class="v" id="kPoco">—</div><div class="s" id="kPocoS"></div></div>
+    <div class="k" data-kpi="casa"><div class="l"><i></i><span class="lf">En casa</span><span class="ls">En casa</span></div><div class="v" id="kCasa">—</div><div class="s" id="kCasaS"></div></div>
   </section>
 
-  <form class="addbar" id="addForm" autocomplete="off">
+  <form class="addbar" id="addForm" autocomplete="off" data-tab="casa">
     <input id="aIng" list="catList" placeholder="Agregar (varios separados por coma)" required>
     <select id="aTipo"><option value="">Ingrediente</option><option value="2">Sobra · 2 días</option><option value="1">Sobra · 1 día</option></select>
     <select id="aCant"><option>Lleno</option><option>Medio</option><option>Poco</option></select>
     <input id="aNota" placeholder="Nota (opcional)">
+    <button class="more" id="aMore" type="button" aria-label="Más opciones">⋯</button>
     <label class="cam" title="Foto del recibo">📷<input type="file" accept="image/*" id="rcpt" hidden></label>
     <button class="go" aria-label="Agregar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></button>
   </form>
@@ -222,25 +258,27 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 
   <section class="grid">
     <div class="col">
-      <div class="card" id="cUrg"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div></div>
-      <div class="card" id="cMenu"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
-      <div class="card" id="cRec"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div id="recs"></div></div>
+      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div></div>
+      <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
+      <div class="card" id="cRec" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div id="recs"></div></div>
     </div>
     <div class="col">
-      <div class="card" id="cFlash"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
-      <div class="card" id="cComp"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
+      <div class="card" id="cFlash" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
+      <div class="card" id="cComp" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
         <form class="cadd" id="cForm" autocomplete="off"><input id="cIng" list="catList" placeholder="Añadir (varios con coma)"><button class="a" style="height:38px">Añadir</button></form>
       </div>
-      <div class="card" id="cDesp"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div id="desp"></div></div>
+      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div id="desp"></div></div>
     </div>
   </section>
+  <div class="mes" id="mes" data-tab="casa" hidden></div>
 </main>
+<nav class="tabs" id="tabs"><button type="button" data-tabgo="casa"><span class="ti">🏠</span>Casa<b id="tbCasa"></b></button><button type="button" data-tabgo="compras"><span class="ti">🛒</span>Compras<b id="tbComp"></b></button><button type="button" data-tabgo="cocinar"><span class="ti">👨‍🍳</span>Cocinar<b id="tbCoc"></b></button></nav>
 <div class="sheet" id="sheet"><div class="box"><div class="top"><h3 id="shT"></h3><button class="a" id="shX" type="button">Cerrar</button></div><div id="shB"></div></div></div>
 <div class="toast" id="toast"></div>
 
 <div class="login" id="login" hidden><div class="box"><h2>🍳 Cocina</h2><p>Entra con tu cuenta de Google de SHAAH para ver tu inventario.</p><button id="loginBtn" type="button">Entrar con Google</button><div class="err" id="loginErr"></div></div></div>
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="api.js?v=d18fd3b5"></script>
-<script src="app.js?v=47b77ccd"></script>
+<script src="app.js?v=a2233dc3"></script>
 </body>
 </html>

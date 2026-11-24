@@ -28,8 +28,15 @@ h1{margin:0;font-size:clamp(28px,2.6vw,40px);font-weight:600;letter-spacing:-.03
 .live .dot.off{background:var(--gold)}
 .ibtn{height:38px;border:0;border-radius:12px;background:var(--card2);color:#b7bdc6;padding:0 14px;cursor:pointer;font-size:13px;font-weight:500}
 .ibtn:hover{color:var(--ink)}
-.ibtn.bell{width:38px;padding:0;font-size:16px;opacity:.5}
+.bellw{position:relative}
+.ibtn.ico{width:38px;padding:0;font-size:17px}
+@media (max-width:600px){#status{display:none}}
+.ibtn.bell{min-width:38px;padding:0 10px;font-size:15px;opacity:.5;display:inline-flex;align-items:center;gap:6px}
 .ibtn.bell.on{opacity:1}
+.ibtn.bell small{font-size:12px;color:var(--dim)}
+.bellpop{position:absolute;right:0;top:46px;z-index:30;display:flex;gap:8px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:0 10px 30px #0008}
+.bellpop[hidden]{display:none}
+.bellpop input{height:36px;background:var(--field);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:0 10px;font:500 15px Inter,system-ui,sans-serif;color-scheme:dark}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
 .k{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px}
 .k .l{font-size:13px;color:var(--dim);display:flex;align-items:center;gap:8px}
@@ -185,9 +192,9 @@ details.g>summary{user-select:none;-webkit-user-select:none}
     <h1>Cocina</h1>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="live"><span class="dot off" id="dot"></span><span id="status">cargando…</span></span>
-      <button class="ibtn bell" id="bell" type="button" data-tg="on" title="Aviso diario">🔕</button>
-      <button class="ibtn" id="allTog" type="button">Colapsar todo</button>
-      <button class="ibtn" id="reload" type="button">Actualizar</button>
+      <span class="bellw"><button class="ibtn bell" id="bell" type="button" title="Aviso diario">🔕</button><div class="bellpop" id="bellPop" hidden><input type="time" id="bellT" step="300" value="12:00"><button class="a" id="bellB" type="button" data-tg="on">Activar</button></div></span>
+      <button class="ibtn ico" id="allTog" type="button" title="Colapsar todo">⊟</button>
+      <button class="ibtn ico" id="reload" type="button" title="Actualizar">↻</button>
     </div>
   </header>
 

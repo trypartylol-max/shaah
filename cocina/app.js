@@ -4,7 +4,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp
 const LS='cocina_cache_v1';
 const UI=(()=>{try{return JSON.parse(localStorage.getItem('cocina_ui_v1'))||{}}catch(e){return {}}})();UI.open=UI.open||{};UI.min=UI.min||{cRec:1,cDesp:1};UI.shut=UI.shut||{};
 const CARDS=['cUrg','cMenu','cRec','cFlash','cComp','cDesp'];
-const syncAll=()=>{const b=document.getElementById('allTog');if(b)b.textContent=CARDS.every(id=>UI.min[id])?'Expandir todo':'Colapsar todo'};
+const syncAll=()=>{const b=document.getElementById('allTog');if(b){const all=CARDS.every(id=>UI.min[id]);b.textContent=all?'⊞':'⊟';b.title=all?'Expandir todo':'Colapsar todo'}};
 const saveUI=()=>{try{localStorage.setItem('cocina_ui_v1',JSON.stringify(UI))}catch(e){}};
 const ORD=['Congelador','Nevera','Despensa','Encimera'];
 const invKey=i=>UI.inv==='tipo'?(i.cat||'Otro'):(i.ubi||'Otro');
@@ -154,9 +154,10 @@ function searchRender(){
   box.innerHTML=h;box.hidden=false;
 }
 function tgRender(){
-  if(!D)return;const on=!!D.aviso,b=$('bell');b.dataset.tg=on?'off':'on';b.classList.toggle('on',on);b.textContent=on?'🔔':'🔕';b.title=on?'Aviso diario a las 12:00 · activo (toca para apagar)':'Aviso diario a las 12:00 · apagado (toca para activar)';
+  if(!D)return;const on=!!D.aviso,h=D.avisoHora||'12:00',b=$('bell');b.classList.toggle('on',on);b.innerHTML=on?'🔔<small>'+esc(h)+'</small>':'🔕';b.title=on?'Aviso diario a las '+h:'Aviso diario apagado';
+  if(document.activeElement!==$('bellT'))$('bellT').value=h;const t=$('bellB');t.dataset.tg=on?'off':'on';t.textContent=on?'Apagar':'Activar';
 }
-function tgCall(fn,msg){busy('conectando…');GS().withSuccessHandler(v=>{busy();D.aviso=!!v;save();tgRender();toast(msg)}).withFailureHandler(e=>{busy();toast(/autoriz|authoriz|permis/i.test(e.message)?'Falta dar permiso al calendario (te explico en el chat)':e.message)})[fn]()}
+function tgCall(fn,msg,...args){busy('conectando…');GS().withSuccessHandler(v=>{busy();D.aviso=!!v;if(fn==='avisoOn'&&args[0])D.avisoHora=args[0];save();tgRender();toast(msg)}).withFailureHandler(e=>{busy();toast(/autoriz|authoriz|permis/i.test(e.message)?'Falta dar permiso al calendario (te explico en el chat)':e.message)})[fn](...args)}
 function menuRender(){
   if(!D)return;const t=fmt(new Date()),M=D.menu||[],days=[...Array(7)].map((_,k)=>plus(t,k));
   $('mN').textContent=M.length?M.filter(m=>m.elegida&&m.fecha>=t).length+' de 7 elegidos':'';
@@ -222,6 +223,8 @@ document.addEventListener('click',e=>{
   const md=e.target.closest('#invMode button');if(md){UI.inv=md.dataset.mode;saveUI();render();sheetRender();return}
   const h=e.target.closest('h2.tog');if(h){const c=h.parentElement;c.classList.toggle('min');if(c.classList.contains('min'))UI.min[c.id]=1;else delete UI.min[c.id];saveUI();syncAll();return}
   if(e.target.id==='allTog'){const all=CARDS.every(id=>UI.min[id]);CARDS.forEach(id=>{if(all)delete UI.min[id];else UI.min[id]=1;$(id).classList.toggle('min',!all)});saveUI();syncAll();return}
+  if(e.target.closest('#bell')){$('bellPop').hidden=!$('bellPop').hidden;return}
+  if(!e.target.closest('#bellPop'))$('bellPop').hidden=true;
   if(e.target.id==='undoB'){undo();return}
   if(e.target.id==='mGen'){genMenu();return}
   const b=e.target.closest('button,.rec'); if(!b)return;
@@ -236,7 +239,7 @@ document.addEventListener('click',e=>{
   if(d.usar){e.stopPropagation();ACT.usar(d.usar);return}
   if(d.cook){e.stopPropagation();ACT.cook(d.cook);return}
   if(d.cookok){e.stopPropagation();ACT.cookok(d.cookok);return}
-  if(d.tg){const k=d.tg;if(k==='on')tgCall('avisoOn','Aviso activado · revisa tu calendario');else if(k==='off')tgCall('avisoOff','Aviso apagado');else if(k==='ahora')tgCall('avisoAhora','Evento actualizado en tu calendario');return}
+  if(d.tg){const k=d.tg;if(k==='on')tgCall('avisoOn','Aviso activado · '+$('bellT').value,$('bellT').value);else if(k==='off')tgCall('avisoOff','Aviso apagado');else if(k==='ahora')tgCall('avisoAhora','Evento actualizado en tu calendario');return}
   if(d.addq){ACT.addq(d.addq);return}
   if(d.sug){ACT.sug(d.sug);return}
   if(d.mid){ACT.menuPick(d.mid,d.mop);return}
@@ -254,3 +257,5 @@ $('reload').onclick=()=>{commit();load()};
 try{D=JSON.parse(localStorage.getItem(LS)||'null')}catch(e){D=null}
 if(D&&D.inv){apply();busy('actualizando…')}else D=null;
 load();
+
+$('bellT').addEventListener('change',e=>{const v=e.target.value;if(/^\d{2}:\d{2}$/.test(v))tgCall('avisoOn','Aviso a las '+v,v)});

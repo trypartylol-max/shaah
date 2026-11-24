@@ -1136,7 +1136,7 @@ function starterBuild(choice,text,token){
     if(order.length)starterBalanceIn(h,order,subs);
   }
   return {tz:'device',pill:'chips',nightFrom:20.5,nightUntil:7,h,order,routines,people:[],subs,locationGroups:[],
-    travel:{mode:'work',auto:false,resumeOn:''},v:4,
+    travel:{mode:'work',auto:false,resumeOn:''},v:4,partnerV:1,
     starter:{version:1,state:choice==='skip'?'skipped':'completed',startedOn:day,token,view:full?'full':'simple',...(full?{levels:true,template:'full'}:{}),balanceV:1,tutorial:{version:1,state:'presented'}},
     log:[{from:CFG_EPOCH,h:{},order:[],subs:[],mode:'work'},
       {from:day,h:cfgCopy(h),order:[...order],subs:cfgCopy(subs),mode:'work'}]};
@@ -1631,7 +1631,7 @@ function routineViews(input){
   }
   return out; // Do not rewrite stored metadata or renumber historical steps.
 }
-const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Flirting",icon:"💘"},{id:"strangers",label:"Strangers",icon:"👋"},{id:"friends",label:"Friends",icon:"👫"}];
+const SOCIAL_SUBS_BASE=[{id:"flirt",label:"Partner",icon:"💘"},{id:"strangers",label:"Strangers",icon:"👋"},{id:"friends",label:"Friends",icon:"👫"}];
 // The combo divides its points by how many sub-items exist, so the list has to
 // ride the config timeline too — otherwise adding one would turn every past
 // "3 of 3" day into "3 of 4" and quietly dock the score.
@@ -1793,6 +1793,15 @@ function addJunkFoodOnce(){
 }
 // subIconV 1 = iconos de grupo con sentido: Strangers 🤝→👋, Family 👪→🏠.
 // Solo cambia el icono si sigue siendo el de fábrica; uno editado a mano se respeta.
+// partnerV 1 = la categoría "Flirting" pasa a llamarse "Partner" (pareja), en la config viva
+// y en todas las épocas. Solo si conserva el nombre de fábrica; uno editado a mano se respeta.
+function partnerLabelOnce(){
+  if(CFG.partnerV>=1)return false;
+  const fix=l=>{for(const x of (Array.isArray(l)?l:[]))if(x&&x.id==='flirt'&&x.label==='Flirting')x.label='Partner';};
+  fix(CFG.subs);for(const e of (Array.isArray(CFG.log)?CFG.log:[]))fix(e&&e.subs);
+  CFG.partnerV=1;_dayCfgCache={};saveCfg();
+  return true;
+}
 function socialIconsOnce(){
   if(CFG.subIconV>=1)return false;
   const swap={strangers:{'🤝':'👋'},family:{'\u{1F46A}':'\u{1F3E0}'}};
@@ -3234,7 +3243,7 @@ async function loadAccountRows(owner,epoch){
     // Historical modes come from the dated configuration timeline.
     // Do not rewrite completed days to Vacation on every load.
     widenBaseline();
-    addFamilyOnce();socialIconsOnce();addJunkFoodOnce();rebalanceOnce();productionVariantsOnce();
+    addFamilyOnce();socialIconsOnce();partnerLabelOnce();addJunkFoodOnce();rebalanceOnce();productionVariantsOnce();
     // Restoring the live preference is separate from the manual historical repair.
     restoreLiveTravelMode();
     // Repair malformed legacy dates before the automatic return check.
@@ -3244,7 +3253,7 @@ async function loadAccountRows(owner,epoch){
     checkTravelAuto();
     recoverPeopleFromDays();
     runShaahSocialCoreMigration();
-    }else{starterBalanceOnce();applyCfg();hydrateRoutineRows(rows);}
+    }else{starterBalanceOnce();partnerLabelOnce();applyCfg();hydrateRoutineRows(rows);}
     saveCache();
     cfgSyncStatus();
     arrivalPlanExisting();
@@ -7406,7 +7415,7 @@ function socialSave(){
   }
   let p=d.id?personById(d.id):null;
   if(d.id&&!p){socialCancel();return;}
-  if(d.sub==='flirt'&&p?.sub!=='flirt'&&peopleList().filter(x=>x.sub==='flirt').length>=socialRomanticLimit()){socialFormError=interfaceCopy('{category} reached its limit. Change another person’s category or raise the limit in Settings.').replace('{category}',()=>subsList().find(s=>s.id==='flirt')?.label||'Flirting');render();return;}
+  if(d.sub==='flirt'&&p?.sub!=='flirt'&&peopleList().filter(x=>x.sub==='flirt').length>=socialRomanticLimit()){socialFormError=interfaceCopy('{category} reached its limit. Change another person’s category or raise the limit in Settings.').replace('{category}',()=>subsList().find(s=>s.id==='flirt')?.label||'Partner');render();return;}
   const fresh=!p;
   if(fresh){let id;do{id='p'+Math.random().toString(36).slice(2,10);}while(personById(id));p={id};peopleList().push(p);}
   // Keep unknown location references so editing cannot silently lose legacy data.
@@ -7550,7 +7559,7 @@ function comboBlock(key,alwaysOpen){
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
 function socialRomanticLimitSet(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>1000)return;CFG.socialRules={...(CFG.socialRules||{}),romanticLimit:n};saveCfg();render();}
-function socialRulesHTML(){const label=subsList().find(s=>s.id==='flirt')?.label||'Flirting',count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · ${interfaceCopy('Maximum people assigned')}<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${interfaceCopy('{count} assigned · limit {limit}.').replace('{count}',count).replace('{limit}',socialRomanticLimit())} ${count>socialRomanticLimit()?interfaceCopy('Existing people stay assigned. Free a place or raise the limit to add more.'):''} ${interfaceCopy('Points and suggestions stay the same.')}</p>`;}
+function socialRulesHTML(){const label=subsList().find(s=>s.id==='flirt')?.label||'Partner',count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · ${interfaceCopy('Maximum people assigned')}<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${interfaceCopy('{count} assigned · limit {limit}.').replace('{count}',count).replace('{limit}',socialRomanticLimit())} ${count>socialRomanticLimit()?interfaceCopy('Existing people stay assigned. Free a place or raise the limit to add more.'):''} ${interfaceCopy('Points and suggestions stay the same.')}</p>`;}
 function settingsPeople(){return peopleList();}
 
 function bonusSummary(key){const C=cfgForDate(key),ch=getChecked(key);return {earned:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+Math.round(i.pts*doneFrac(ch[i.id])),0),max:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+i.pts,0)};}

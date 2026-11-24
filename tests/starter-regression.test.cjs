@@ -132,3 +132,14 @@ test('the full SHAAH plan starts set up: 3 levels, routines and Social Combo at 
  await a.run('loadAll()');assert.equal(a.read('calcScore(todayKey()).max'),118);assert.equal(s.writes.length,1);
  a.run('starterSetMax(100)');assert.equal(a.read('calcScore(todayKey()).max'),100);
 });
+test('Flirting becomes Partner once, in every era, for existing and new accounts; a renamed category is kept',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run('_starterChoice="focus"');await a.run('starterConfirm()');
+ assert.equal(a.read('CFG.subs.find(x=>x.id==="flirt").label'),'Partner');
+ a.run('CFG.subs.find(x=>x.id==="flirt").label="Flirting";for(const e of CFG.log)for(const x of (e.subs||[]))if(x.id==="flirt")x.label="Flirting";delete CFG.partnerV');
+ assert.equal(a.read('partnerLabelOnce()'),true);
+ assert.equal(a.read('CFG.subs.find(x=>x.id==="flirt").label'),'Partner');
+ assert.equal(a.read('CFG.log.flatMap(e=>e.subs||[]).filter(x=>x.id==="flirt"&&x.label!=="Partner").length'),0);
+ assert.equal(a.read('partnerLabelOnce()'),false);
+ a.run('CFG.subs.find(x=>x.id==="flirt").label="Dates";delete CFG.partnerV;partnerLabelOnce()');
+ assert.equal(a.read('CFG.subs.find(x=>x.id==="flirt").label'),'Dates');
+});

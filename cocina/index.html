@@ -28,6 +28,8 @@ h1{margin:0;font-size:clamp(28px,2.6vw,40px);font-weight:600;letter-spacing:-.03
 .live .dot.off{background:var(--gold)}
 .ibtn{height:38px;border:0;border-radius:12px;background:var(--card2);color:#b7bdc6;padding:0 14px;cursor:pointer;font-size:13px;font-weight:500}
 .ibtn:hover{color:var(--ink)}
+.ibtn.bell{width:38px;padding:0;font-size:16px;opacity:.5}
+.ibtn.bell.on{opacity:1}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
 .k{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px}
 .k .l{font-size:13px;color:var(--dim);display:flex;align-items:center;gap:8px}
@@ -183,6 +185,7 @@ details.g>summary{user-select:none;-webkit-user-select:none}
     <h1>Cocina</h1>
     <div style="display:flex;align-items:center;gap:10px">
       <span class="live"><span class="dot off" id="dot"></span><span id="status">cargando…</span></span>
+      <button class="ibtn bell" id="bell" type="button" data-tg="on" title="Aviso diario">🔕</button>
       <button class="ibtn" id="allTog" type="button">Colapsar todo</button>
       <button class="ibtn" id="reload" type="button">Actualizar</button>
     </div>
@@ -218,7 +221,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
       <div class="card" id="cComp"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
         <form class="cadd" id="cForm" autocomplete="off"><input id="cIng" list="catList" placeholder="Añadir (varios con coma)"><button class="a" style="height:38px">Añadir</button></form>
       </div>
-      <div class="card" id="cTg"><h2 class="tog"><span class="ht"><span class="hi">🔔</span>Aviso diario</span> <small id="tgN"></small></h2><div id="tg"></div></div>
       <div class="card" id="cDesp"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div id="desp"></div></div>
     </div>
   </section>

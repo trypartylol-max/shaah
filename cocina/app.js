@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LS='cocina_cache_v1';
 const UI=(()=>{try{return JSON.parse(localStorage.getItem('cocina_ui_v1'))||{}}catch(e){return {}}})();UI.open=UI.open||{};UI.min=UI.min||{cRec:1,cDesp:1};UI.shut=UI.shut||{};
-const CARDS=['cUrg','cMenu','cRec','cFlash','cComp','cTg','cDesp'];
+const CARDS=['cUrg','cMenu','cRec','cFlash','cComp','cDesp'];
 const syncAll=()=>{const b=document.getElementById('allTog');if(b)b.textContent=CARDS.every(id=>UI.min[id])?'Expandir todo':'Colapsar todo'};
 const saveUI=()=>{try{localStorage.setItem('cocina_ui_v1',JSON.stringify(UI))}catch(e){}};
 const ORD=['Congelador','Nevera','Despensa','Encimera'];
@@ -154,8 +154,7 @@ function searchRender(){
   box.innerHTML=h;box.hidden=false;
 }
 function tgRender(){
-  if(!D)return;const on=!!D.aviso;$('tgN').textContent=on?'activo · 12:00':'apagado';
-  $('tg').innerHTML='<div class="tgs">'+(on?'Todos los días a las <b>12:00</b> te aparece un evento en tu <b>Google Calendar</b> con lo que vence hoy y mañana, y una receta para usarlo. El celular te avisa con la notificación del calendario. Si no vence nada, no se crea.':'Crea cada día un evento a las <b>12:00</b> en tu Google Calendar con lo que vence, y tu celular te avisa.')+'</div><div class="tgrow">'+(on?'<button class="a" data-tg="ahora">Actualizar ahora</button><button class="a out" data-tg="off">Apagar</button>':'<button class="a in" data-tg="on">Activar aviso</button>')+'</div>';
+  if(!D)return;const on=!!D.aviso,b=$('bell');b.dataset.tg=on?'off':'on';b.classList.toggle('on',on);b.textContent=on?'🔔':'🔕';b.title=on?'Aviso diario a las 12:00 · activo (toca para apagar)':'Aviso diario a las 12:00 · apagado (toca para activar)';
 }
 function tgCall(fn,msg){busy('conectando…');GS().withSuccessHandler(v=>{busy();D.aviso=!!v;save();tgRender();toast(msg)}).withFailureHandler(e=>{busy();toast(/autoriz|authoriz|permis/i.test(e.message)?'Falta dar permiso al calendario (te explico en el chat)':e.message)})[fn]()}
 function menuRender(){

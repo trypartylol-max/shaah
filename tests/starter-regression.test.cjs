@@ -143,3 +143,14 @@ test('Flirting becomes Partner once, in every era, for existing and new accounts
  a.run('CFG.subs.find(x=>x.id==="flirt").label="Dates";delete CFG.partnerV;partnerLabelOnce()');
  assert.equal(a.read('CFG.subs.find(x=>x.id==="flirt").label'),'Dates');
 });
+test('factory category names follow the interface language; stored names and custom names are untouched',async()=>{
+ const s=syncBackend(),a=device(s);await a.run('loadAll()');a.run('_starterChoice="focus"');await a.run('starterConfirm()');
+ a.run('interfaceLanguage="es";_dayCfgCache={}');
+ assert.deepEqual(a.read('cfgForDate(todayKey()).subs.map(x=>x.label)'),['Pareja','Desconocidos','Amigos']);
+ assert.deepEqual(a.read('socialCategories().map(x=>x.label)'),['Pareja','Desconocidos','Amigos']);
+ assert.deepEqual(a.read('CFG.subs.map(x=>x.label)'),['Partner','Strangers','Friends']);
+ a.run(`CFG.subs[1].label="Gente nueva";for(const e of CFG.log)if(e.subs&&e.subs[1])e.subs[1].label="Gente nueva";_dayCfgCache={}`);
+ assert.equal(a.read('cfgForDate(todayKey()).subs[1].label'),'Gente nueva');
+ a.run('interfaceLanguage="en";_dayCfgCache={}');
+ assert.equal(a.read('cfgForDate(todayKey()).subs[0].label'),'Partner');
+});

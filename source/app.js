@@ -1653,6 +1653,10 @@ function ensureModePts(x){
   if(x.pWork==null)x.pWork=p;
   if(x.pVacation==null)x.pVacation=p;
 }
+// Nombres de fábrica de las categorías del Social Combo: se muestran en el idioma de la
+// interfaz. Un nombre puesto a mano se muestra tal cual. Lo guardado no cambia.
+const SUB_DEFAULT_NAMES=['Partner','Strangers','Friends','Family'];
+function subName(label){return SUB_DEFAULT_NAMES.includes(label)?interfaceCopy(label):label;}
 function resolveSubs(list,comboPts,mode){
   const n=list.length||1;
   return list.map(x=>{
@@ -1662,6 +1666,7 @@ function resolveSubs(list,comboPts,mode){
     if(y.pWork==null)y.pWork=y.p!=null?safePts(y.p):Math.round(comboPts/n);
     if(y.pVacation==null)y.pVacation=y.p!=null?safePts(y.p):Math.round(comboPts/n);
     y.p=modePts(y,mode);
+    y.label=subName(y.label);
     return y;
   });
 }
@@ -4317,6 +4322,9 @@ const interfaceCopies = {
   "Who to See": ["Who to See", "A quién ver", "עם מי להיפגש"],
   "Social Combo": ["Social Combo", "Combo social", "שילוב חברתי"],
   "Family": ["Family", "Familia", "משפחה"],
+  "Partner": ["Partner", "Pareja", "בן/בת זוג"],
+  "Strangers": ["Strangers", "Desconocidos", "זרים"],
+  "Friends": ["Friends", "Amigos", "חברים"],
   "No contacts in this focus.": ["No contacts in this focus.", "Sin contactos en este foco.", "אין אנשי קשר במיקוד זה."],
   "Group name": ["Group name", "Nombre del grupo", "שם הקבוצה"],
   "Amount ₪": ["Amount ₪", "Monto ₪", "סכום ₪"],
@@ -4424,6 +4432,7 @@ function interfaceText(key) {
 function applyInterfaceLanguage() {
   if (!document.documentElement) return;
   document.documentElement.lang = interfaceLanguage;
+  _dayCfgCache={};   // las categorías del combo se resuelven con el idioma vigente
   document.documentElement.dir = interfaceLanguage==='he'?'rtl':'ltr';
   document.querySelector('.pro-nav-settings')?.setAttribute('aria-label',interfaceText('settings'));
   document.querySelectorAll('.nav-label[data-interface-text]').forEach(label => {
@@ -7499,7 +7508,7 @@ function socialDenseContact(p,key){
  return `<div class="sd-contact${on?' sd-done':''}"><button class="sd-person" aria-pressed="${on}" aria-label="${esc(interfaceCopy(on?'Undo encounter with {name}':'Log encounter with {name}').replace('{name}',()=>p.name))}" ${ui('click','socialRecord',p.id,key)}><span class="sd-icon" title="${esc(category)}">${on?'✓':esc(sub?.icon||(socialCategory(p)==='family'?'🏠':'◍'))}</span><span class="sd-identity"><span class="w-name">${esc(p.name)}</span><span class="w-when">${when} <span class="sd-category">· ${esc(category)}</span></span></span><span class="sd-time-pill" aria-label="${esc(timing.description)}" ${uiStyle('color:'+timing.color)}><span class="sd-pill-fill" aria-hidden="true" ${uiStyle('width:'+timing.fill+'%;background:'+timing.color)}></span><span class="sd-pill-label" ${uiStyle("color:"+timingTextColor)}>${timing.label}</span></span></button><button class="sd-edit" aria-label="${esc(interfaceCopy('Edit {name}').replace('{name}',()=>p.name))}" title="${interfaceCopy('Edit person')}" ${ui('click','socialEdit',p.id)}>✎</button></div>`;
 }
 
-function socialCategories(){return subsOn(subsList());}
+function socialCategories(){return subsOn(subsList()).map(s=>({...s,label:subName(s.label)}));}
 function socialIsFamily(p){return p.sub==='family'||p.sub==='__family_pending'||p.relationship==='family';}
 function socialCategory(p){return p.sub==='__family_pending'?'family':p.sub;}
 function socialCategoryName(p){const id=socialCategory(p);return socialCategories().find(s=>s.id===id)?.label||id||interfaceCopy('No category');}
@@ -7559,7 +7568,7 @@ function comboBlock(key,alwaysOpen){
 }
 function socialRomanticLimit(){const n=CFG.socialRules?.romanticLimit;return Number.isInteger(n)&&n>=1?n:1;}
 function socialRomanticLimitSet(value){const n=Number(value);if(!Number.isInteger(n)||n<1||n>1000)return;CFG.socialRules={...(CFG.socialRules||{}),romanticLimit:n};saveCfg();render();}
-function socialRulesHTML(){const label=subsList().find(s=>s.id==='flirt')?.label||'Partner',count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · ${interfaceCopy('Maximum people assigned')}<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${interfaceCopy('{count} assigned · limit {limit}.').replace('{count}',count).replace('{limit}',socialRomanticLimit())} ${count>socialRomanticLimit()?interfaceCopy('Existing people stay assigned. Free a place or raise the limit to add more.'):''} ${interfaceCopy('Points and suggestions stay the same.')}</p>`;}
+function socialRulesHTML(){const label=subName(subsList().find(s=>s.id==='flirt')?.label||'Partner'),count=peopleList().filter(p=>p.sub==='flirt').length;return `<label class="sf-field">${esc(label)} · ${interfaceCopy('Maximum people assigned')}<input type="number" min="1" max="1000" value="${socialRomanticLimit()}" ${ui('change','socialRomanticLimitSet')}></label><p class="sf-muted">${interfaceCopy('{count} assigned · limit {limit}.').replace('{count}',count).replace('{limit}',socialRomanticLimit())} ${count>socialRomanticLimit()?interfaceCopy('Existing people stay assigned. Free a place or raise the limit to add more.'):''} ${interfaceCopy('Points and suggestions stay the same.')}</p>`;}
 function settingsPeople(){return peopleList();}
 
 function bonusSummary(key){const C=cfgForDate(key),ch=getChecked(key);return {earned:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+Math.round(i.pts*doneFrac(ch[i.id])),0),max:C.L3.filter(i=>!i.combo).reduce((n,i)=>n+i.pts,0)};}

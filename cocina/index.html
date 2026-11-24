@@ -170,6 +170,9 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 .login p{color:var(--dim);margin:0 0 22px;line-height:1.45}
 .login button{height:48px;padding:0 22px;border-radius:14px;border:1px solid var(--line);background:var(--card2);color:var(--ink);font:500 16px Inter,system-ui,sans-serif;cursor:pointer}
 .login .err{color:var(--out);margin-top:14px;min-height:1em;font-size:14px}
+.a.fz{opacity:.45;min-width:34px}
+.a.fz:hover{opacity:1}
+.a.fz.on{opacity:1;color:var(--gold);border-color:#4a3c1c}
 </style>
 </head>
 <body>
@@ -209,6 +212,7 @@ details.g>summary{user-select:none;-webkit-user-select:none}
       <div class="card" id="cRec"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div id="recs"></div></div>
     </div>
     <div class="col">
+      <div class="card" id="cFlash"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
       <div class="card" id="cComp"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Toca el cuadrito cuando lo compres: pasa solo a la casa.</div><div id="compras"></div><div class="sug" id="sug"></div>
         <form class="cadd" id="cForm" autocomplete="off"><input id="cIng" list="catList" placeholder="Añadir (varios con coma)"><button class="a" style="height:38px">Añadir</button></form>
       </div>

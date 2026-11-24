@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const LS='cocina_cache_v1';
 const UI=(()=>{try{return JSON.parse(localStorage.getItem('cocina_ui_v1'))||{}}catch(e){return {}}})();UI.open=UI.open||{};UI.min=UI.min||{cRec:1,cDesp:1};UI.shut=UI.shut||{};
-const CARDS=['cUrg','cMenu','cRec','cComp','cTg','cDesp'];
+const CARDS=['cUrg','cMenu','cRec','cFlash','cComp','cTg','cDesp'];
 const syncAll=()=>{const b=document.getElementById('allTog');if(b)b.textContent=CARDS.every(id=>UI.min[id])?'Expandir todo':'Colapsar todo'};
 const saveUI=()=>{try{localStorage.setItem('cocina_ui_v1',JSON.stringify(UI))}catch(e){}};
 const ORD=['Congelador','Nevera','Despensa','Encimera'];
@@ -67,9 +67,12 @@ function render(){
   $('catList').innerHTML=D.cat.map(c=>'<option value="'+esc(c.n)+'">').join('');
   $('urg').innerHTML=urg.length?urg.map(i=>'<div class="item">'+badge(i)+'<div class="it"><div class="n">'+esc(i.n)+(i.tipo==='Sobra'?'<span class="pill sobra">sobra</span>':'')+'</div><div class="m">'+esc(i.ubi)+' · vence '+fdate(i.vence)+(i.nota?' · '+esc(i.nota):'')+'</div></div><div class="acts">'+(i.usar?'<button class="a on" data-usar="'+esc(i.id)+'" title="Quitar de usar primero">⚡</button>':'')+'<button class="a in" data-s="Consumido" data-id="'+esc(i.id)+'" title="Consumido">✓</button><button class="a out" data-s="Desperdiciado" data-id="'+esc(i.id)+'" title="Se perdió">✕</button></div></div>').join(''):'<div class="empty">Nada por vencer en los próximos 2 días.</div>';
   {const recHTML=(r,k)=>'<div class="rec" data-k="'+k+'"><div class="t"><b>'+esc(r.n)+'</b><span>'+esc(r.tipo||'')+(r.min?' · '+esc(r.min)+' min':'')+'</span></div><div class="chips">'+r.rescata.map(x=>'<span class="chip r">⚡ '+esc(x)+'</span>').join('')+r.tengo.filter(x=>!r.rescata.includes(x)).map(x=>'<span class="chip h">'+esc(x)+'</span>').join('')+r.faltan.map(x=>'<span class="chip f">falta '+esc(x)+'</span>').join('')+'</div><div class="more">'+esc(r.pasos||'')+(r.link?' <a href="'+esc(r.link)+'" target="_blank" style="color:var(--in)">ver ↗</a>':'')+(r.faltan.length?'<div><button class="a" data-falt="'+esc(r.id)+'">Agregar lo que falta a compras</button></div>':'')+'<div><button class="a in" data-cook="'+esc(r.id)+'">Cociné esto</button></div>'+'<div><button class="a out" data-delrec="'+esc(r.id)+'">Quitar receta</button></div>'+'</div></div>';const RO=['Desayuno','Almuerzo','Cena','Snack','Acompañante'],G={};D.rec.forEach(r=>{const k=String(r.tipo||'Otras').split('/')[0].trim()||'Otras';(G[k]=G[k]||[]).push(r)});$('recs').innerHTML=Object.keys(G).sort((a,b)=>(RO.indexOf(a)+99)%99-(RO.indexOf(b)+99)%99).map(k=>{const l=G[k],resc=l.filter(r=>r.rescata.length).length,ok=l.filter(r=>!r.faltan.length).length;return grpBox('rec:'+k,k,l.length,(resc?' <span class="tag y">⚡ '+resc+'</span>':'')+(ok?' <span class="tag h">'+ok+' completas</span>':''),l.map(recHTML).join(''))}).join('')||'<div class="empty">Sin recetas.</div>'}
-  $('cN').textContent=D.compras.length?D.compras.length+' pendientes':'';
-  {const cg={};D.compras.forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;(cg[k]=cg[k]||[]).push(c)});
-  $('compras').innerHTML=D.compras.length?Object.keys(cg).sort((a,b)=>a.localeCompare(b,'es')).map(k=>grpO('comp:'+k,k,cg[k].length,cg[k].map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+(c.nota?' · '+esc(c.nota):'')+'</div></div></div>').join(''))).join(''):'<div class="empty">Lista vacía.</div>';
+  {const fl=D.compras.filter(c=>c.flash),rest=D.compras.filter(c=>!c.flash);
+  $('fN').textContent=fl.length?fl.length+' para ya':'';
+  $('flash').innerHTML=fl.length?fl.map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+'</div></div><div class="acts"><button class="a fz on" data-flash="'+esc(c.id)+'" data-on="0" title="Quitar de flash">⚡</button></div></div>').join(''):'<div class="empty">Toca ⚡ en una compra para traerla aquí.</div>';
+  $('cN').textContent=rest.length?rest.length+' pendientes':'';
+  const cg={};rest.forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;(cg[k]=cg[k]||[]).push(c)});
+  $('compras').innerHTML=rest.length?Object.keys(cg).sort((a,b)=>a.localeCompare(b,'es')).map(k=>grpO('comp:'+k,k,cg[k].length,cg[k].map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+(c.nota?' · '+esc(c.nota):'')+'</div></div><div class="acts"><button class="a fz" data-flash="'+esc(c.id)+'" data-on="1" title="A compras flash">⚡</button></div></div>').join(''))).join(''):'<div class="empty">Lista vacía.</div>';
   const have=new Set(D.inv.map(i=>i.n)),inList=new Set(D.compras.map(c=>c.n)),H=D.hist||{};
   const sg=Object.keys(H).filter(n=>!have.has(n)&&!inList.has(n)).sort((a,b)=>H[b]-H[a]).slice(0,8);
   $('sug').innerHTML=sg.length?'<div class="l">Sueles comprar y ya no tienes:</div><div class="chips">'+sg.map(n=>'<button class="chip" data-sug="'+esc(n)+'">+ '+esc(n)+'</button>').join('')+'</div>':'';}
@@ -185,7 +188,9 @@ async function onRecibo(file){
 }
 const catOf=n=>D.cat.find(c=>c.n===n);
 const rmInv=id=>{D.inv=D.inv.filter(i=>i.id!==id)};
-function compraLocal(n,origen){if(D.compras.some(c=>c.n===n))return null;const id=newId('COM');D.compras.push({id,n,nota:'',origen});return id}
+function compraLocal(n,origen){if(D.compras.some(c=>c.n===n))return null;const id=newId('COM');D.compras.push({id,n,nota:'',origen,flash:false});return id}
+// Lo que sale de casa vuelve a compras (menos las sobras cocinadas).
+const repone=(i,origen)=>i&&i.tipo!=='Sobra'?compraLocal(i.n,origen):null;
 function invLocal(n,cant,nota,sobra){
   const sd=sobra?(Number(sobra)>0&&Number(sobra)<=2?Number(sobra):2):0;const c=sd?{cat:'Cocinado',tipo:'Sobra',dias:sd,ubi:'Nevera'}:(catOf(n)||classify(n));
   const dias=c.tipo==='Sobra'?(sd||2):(c.tipo==='Perecedero'?c.dias:''), t=fmt(new Date());
@@ -195,14 +200,15 @@ function invLocal(n,cant,nota,sobra){
   return id;
 }
 const ACT={
-  salida(id,tipo){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);rmInv(id);apply((i?i.n+': ':'')+(tipo==='Consumido'?'consumido':'se perdió'));later(S,'salida',id,tipo)},
+  salida(id,tipo){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);const cid=repone(i,tipo==='Consumido'?'Consumido':'Se perdió');rmInv(id);apply((i?i.n+': ':'')+(tipo==='Consumido'?'consumido':'se perdió')+(cid?' → compras':''));later(S,'salida',id,tipo,cid)},
+  flash(cid,on){const S=JSON.stringify(D);const c=D.compras.find(x=>x.id===cid);if(!c)return;c.flash=on;apply(c.n+(on?' → flash':' → compras'));later(S,'setFlash',cid,on)},
   cant(id,v){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);if(i)i.cant=v;apply((i?i.n+': ':'')+v.toLowerCase());later(S,'setCantidad',id,v)},
   acabo(id){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);if(!i)return;const cid=compraLocal(i.n,'Se acabó');rmInv(id);apply(i.n+' → compras');later(S,'seAcabo',id,cid)},
   comprado(cid){const S=JSON.stringify(D);const c=D.compras.find(x=>x.id===cid);if(!c)return;D.compras=D.compras.filter(x=>x.id!==cid);const iid=invLocal(c.n,'Lleno','',false);apply(c.n+' → en casa');later(S,'comprado',cid,iid)},
   delrec(rid,b){const S=JSON.stringify(D);if(!b.dataset.arm){b.dataset.arm=1;b.textContent='¿Quitar? toca otra vez';setTimeout(()=>{delete b.dataset.arm;b.textContent='Quitar receta'},3000);return}const r=D.rec.find(x=>x.id===rid);D.rec=D.rec.filter(x=>x.id!==rid);apply((r?r.n:'Receta')+' quitada');later(S,'descartarReceta',rid)},
   usar(id){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);if(!i)return;const on=!i.usar;i.usar=on?plus(fmt(new Date()),1):'';apply(i.n+(on?' → usar primero':' ya no es urgente'));later(S,'usarPronto',id,i.usar)},
   cook(rid){COOK=rid;KPI='cook';delete $('shB').dataset.cook;sheetRender();$('sheet').classList.add('on');document.body.style.overflow='hidden'},
-  cookok(rid){const S=JSON.stringify(D);const r=D.rec.find(x=>x.id===rid);const ids=[...document.querySelectorAll('[data-ckid]')].filter(x=>x.checked).map(x=>x.dataset.ckid);const days=$('ckS').value,name=($('ckN').value||'').trim();ids.forEach(rmInv);let iid=null;if(days&&name)iid=invLocal(name,'Lleno','Sobra de receta',days);closeSheet();apply((r?r.n:'Receta')+': '+ids.length+' usados'+(iid?' · sobra guardada':''));later(S,'cocine',ids,days&&name?name:'',Number(days)||0,iid)},
+  cookok(rid){const S=JSON.stringify(D);const r=D.rec.find(x=>x.id===rid);const ids=[...document.querySelectorAll('[data-ckid]')].filter(x=>x.checked).map(x=>x.dataset.ckid);const days=$('ckS').value,name=($('ckN').value||'').trim();const cids=ids.map(id=>repone(D.inv.find(x=>x.id===id),'Cocinado'));ids.forEach(rmInv);let iid=null;if(days&&name)iid=invLocal(name,'Lleno','Sobra de receta',days);closeSheet();apply((r?r.n:'Receta')+': '+ids.length+' usados'+(iid?' · sobra guardada':''));later(S,'cocine',ids,days&&name?name:'',Number(days)||0,iid,cids)},
   falt(rid){const S=JSON.stringify(D);const r=D.rec.find(x=>x.id===rid);if(!r)return;const l=r.faltan.map(x=>[x,compraLocal(x,'Receta')]).filter(p=>p[1]);apply(l.length?l.length+' a compras':'Ya estaban en la lista');if(l.length)later(S,'addCompras',l)},
   addq(n){const S=JSON.stringify(D);const cid=compraLocal(n,'Manual');if(!cid){toast('Ya está en la lista');return}if(!catOf(n))D.cat.push(Object.assign({n},classify(n)));$('q').value='';apply(n+' a la lista');later(S,'addCompras',[[n,cid]],'Manual')},
   sug(n){const S=JSON.stringify(D);const cid=compraLocal(n,'Habitual');if(!cid)return;apply(n+' a la lista');later(S,'addCompras',[[n,cid]],'Habitual')},
@@ -222,6 +228,7 @@ document.addEventListener('click',e=>{
   const d=b.dataset;
   if(d.s){e.stopPropagation();ACT.salida(d.id,d.s);return}
   if(d.comp){ACT.comprado(d.comp);return}
+  if(d.flash){e.stopPropagation();ACT.flash(d.flash,d.on==='1');return}
   if(d.acabo){ACT.acabo(d.acabo);return}
   if(d.cant){ACT.cant(d.cant,d.v);return}
   if(d.delrec){e.stopPropagation();ACT.delrec(d.delrec,b);return}

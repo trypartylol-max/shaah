@@ -69,12 +69,12 @@ function render(){
   {const recHTML=(r,k)=>'<div class="rec" data-k="'+k+'"><div class="t"><b>'+esc(r.n)+'</b><span>'+esc(r.tipo||'')+(r.min?' · '+esc(r.min)+' min':'')+'</span></div><div class="chips">'+r.rescata.map(x=>'<span class="chip r">⚡ '+esc(x)+'</span>').join('')+r.tengo.filter(x=>!r.rescata.includes(x)).map(x=>'<span class="chip h">'+esc(x)+'</span>').join('')+r.faltan.map(x=>'<span class="chip f">falta '+esc(x)+'</span>').join('')+'</div><div class="more">'+esc(r.pasos||'')+(r.link?' <a href="'+esc(r.link)+'" target="_blank" style="color:var(--in)">ver ↗</a>':'')+(r.faltan.length?'<div><button class="a" data-falt="'+esc(r.id)+'">Agregar lo que falta a compras</button></div>':'')+'<div><button class="a in" data-cook="'+esc(r.id)+'">Cociné esto</button></div>'+'<div><button class="a out" data-delrec="'+esc(r.id)+'">Quitar receta</button></div>'+'</div></div>';const RO=['Desayuno','Almuerzo','Cena','Snack','Acompañante'],G={};D.rec.forEach(r=>{const k=String(r.tipo||'Otras').split('/')[0].trim()||'Otras';(G[k]=G[k]||[]).push(r)});$('recs').innerHTML=Object.keys(G).sort((a,b)=>(RO.indexOf(a)+99)%99-(RO.indexOf(b)+99)%99).map(k=>{const l=G[k],resc=l.filter(r=>r.rescata.length).length,ok=l.filter(r=>!r.faltan.length).length;return grpBox('rec:'+k,k,l.length,(resc?' <span class="tag y">⚡ '+resc+'</span>':'')+(ok?' <span class="tag h">'+ok+' completas</span>':''),l.map(recHTML).join(''))}).join('')||'<div class="empty">Sin recetas.</div>'}
   {const fl=D.compras.filter(c=>c.flash),rest=D.compras.filter(c=>!c.flash);
   $('fN').textContent=fl.length?fl.length+' para ya':'';
-  $('flash').innerHTML=fl.length?fl.map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+'</div></div><div class="acts"><button class="a fz on" data-flash="'+esc(c.id)+'" data-on="0" title="Quitar de flash">⚡</button></div></div>').join(''):'<div class="empty">Toca ⚡ en una compra para traerla aquí.</div>';
+  $('flash').innerHTML=fl.length?fl.map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+'</div></div><div class="acts"><button class="a rt" data-ret="'+esc(c.n)+'" title="Retirar: no volver a comprarlo">✕</button><button class="a fz on" data-flash="'+esc(c.id)+'" data-on="0" title="Quitar de flash">⚡</button></div></div>').join(''):'<div class="empty">Toca ⚡ en una compra para traerla aquí.</div>';
   $('cN').textContent=rest.length?rest.length+' pendientes':'';
   const cg={};rest.forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;(cg[k]=cg[k]||[]).push(c)});
-  $('compras').innerHTML=rest.length?Object.keys(cg).sort((a,b)=>a.localeCompare(b,'es')).map(k=>grpO('comp:'+k,k,cg[k].length,cg[k].map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+(c.nota?' · '+esc(c.nota):'')+'</div></div><div class="acts"><button class="a fz" data-flash="'+esc(c.id)+'" data-on="1" title="A compras flash">⚡</button></div></div>').join(''))).join(''):'<div class="empty">Lista vacía.</div>';
+  $('compras').innerHTML=rest.length?Object.keys(cg).sort((a,b)=>a.localeCompare(b,'es')).map(k=>grpO('comp:'+k,k,cg[k].length,cg[k].map(c=>'<div class="item"><button class="chk" data-comp="'+esc(c.id)+'" title="Comprado"></button><div class="it"><div class="n">'+esc(c.n)+'</div><div class="m">'+esc(c.origen||'')+(c.nota?' · '+esc(c.nota):'')+'</div></div><div class="acts"><button class="a rt" data-ret="'+esc(c.n)+'" title="Retirar: no volver a comprarlo">✕</button><button class="a fz" data-flash="'+esc(c.id)+'" data-on="1" title="A compras flash">⚡</button></div></div>').join(''))).join(''):'<div class="empty">Lista vacía.</div>';
   const have=new Set(D.inv.map(i=>i.n)),inList=new Set(D.compras.map(c=>c.n)),H=D.hist||{};
-  const sg=Object.keys(H).filter(n=>!have.has(n)&&!inList.has(n)).sort((a,b)=>H[b]-H[a]).slice(0,8);
+  const sg=Object.keys(H).filter(n=>!have.has(n)&&!inList.has(n)&&!(catOf(n)||{}).ret).sort((a,b)=>H[b]-H[a]).slice(0,8);
   $('sug').innerHTML=sg.length?'<div class="l">Sueles comprar y ya no tienes:</div><div class="chips">'+sg.map(n=>'<button class="chip" data-sug="'+esc(n)+'">+ '+esc(n)+'</button>').join('')+'</div>':'';}
   const g={};
   inv.forEach(i=>{const k=invKey(i);(g[k]=g[k]||[]).push(i)});
@@ -188,9 +188,9 @@ async function onRecibo(file){
 }
 const catOf=n=>D.cat.find(c=>c.n===n);
 const rmInv=id=>{D.inv=D.inv.filter(i=>i.id!==id)};
-function compraLocal(n,origen){if(D.compras.some(c=>c.n===n))return null;const id=newId('COM');D.compras.push({id,n,nota:'',origen,flash:false});return id}
+function compraLocal(n,origen){if(origen==='Manual'||origen==='Se acabó'){const k=D.cat.find(c=>c.n===n);if(k)k.ret=false}if(D.compras.some(c=>c.n===n))return null;const id=newId('COM');D.compras.push({id,n,nota:'',origen,flash:false});return id}
 // Lo que sale de casa vuelve a compras (menos las sobras cocinadas).
-const repone=(i,origen)=>i&&i.tipo!=='Sobra'?compraLocal(i.n,origen):null;
+const repone=(i,origen)=>i&&i.tipo!=='Sobra'&&!(catOf(i.n)||{}).ret?compraLocal(i.n,origen):null;
 function invLocal(n,cant,nota,sobra){
   const sd=sobra?(Number(sobra)>0&&Number(sobra)<=2?Number(sobra):2):0;const c=sd?{cat:'Cocinado',tipo:'Sobra',dias:sd,ubi:'Nevera'}:(catOf(n)||classify(n));
   const dias=c.tipo==='Sobra'?(sd||2):(c.tipo==='Perecedero'?c.dias:''), t=fmt(new Date());
@@ -201,6 +201,7 @@ function invLocal(n,cant,nota,sobra){
 }
 const ACT={
   salida(id,tipo){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);const cid=repone(i,tipo==='Consumido'?'Consumido':'Se perdió');rmInv(id);apply((i?i.n+': ':'')+(tipo==='Consumido'?'consumido':'se perdió')+(cid?' → compras':''));later(S,'salida',id,tipo,cid)},
+  retirar(n){const S=JSON.stringify(D);D.compras=D.compras.filter(c=>c.n!==n);let k=catOf(n);if(!k){k=Object.assign({n},classify(n));D.cat.push(k)}k.ret=true;apply(n+' retirado: ya no vuelve a compras');later(S,'retirar',n)},
   flash(cid,on){const S=JSON.stringify(D);const c=D.compras.find(x=>x.id===cid);if(!c)return;c.flash=on;apply(c.n+(on?' → flash':' → compras'));later(S,'setFlash',cid,on)},
   cant(id,v){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);if(i)i.cant=v;apply((i?i.n+': ':'')+v.toLowerCase());later(S,'setCantidad',id,v)},
   acabo(id){const S=JSON.stringify(D);const i=D.inv.find(x=>x.id===id);if(!i)return;const cid=compraLocal(i.n,'Se acabó');rmInv(id);apply(i.n+' → compras');later(S,'seAcabo',id,cid)},
@@ -228,6 +229,7 @@ document.addEventListener('click',e=>{
   const d=b.dataset;
   if(d.s){e.stopPropagation();ACT.salida(d.id,d.s);return}
   if(d.comp){ACT.comprado(d.comp);return}
+  if(d.ret){e.stopPropagation();ACT.retirar(d.ret);return}
   if(d.flash){e.stopPropagation();ACT.flash(d.flash,d.on==='1');return}
   if(d.acabo){ACT.acabo(d.acabo);return}
   if(d.cant){ACT.cant(d.cant,d.v);return}

@@ -11,7 +11,7 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 SHAAH es solo SHAAH. Desde el 2026-11-25 estos proyectos viven en sus propios repos (mismo origen `trypartylol-max.github.io`, así que comparten la sesión de Google de Supabase):
 - **Cocina** → `trypartylol-max/cocina` (`/cocina/`). `cocina/` aquí es solo una redirección.
 - **Escritorio** (lanzador que une las apps) → `trypartylol-max/escritorio` (`/escritorio/`). `escritorio/` aquí es solo una redirección y un service worker que se da de baja.
-- **Event Scorecard** → `trypartylol-max/scorecard` (`/scorecard/`). `scorecard/` aquí es solo una redirección (sus datos siguen en la tabla `scorecard_events` de este proyecto Supabase).
+- **Event Scorecard** → `trypartylol-max/scorecard` (`/scorecard/`). `scorecard/` aquí es solo una redirección (desde el 2026-11-25 sus datos viven en su propia hoja de Google; la tabla `scorecard_events` de este Supabase ya no se usa).
 No registres sus cambios en la Bitácora de SHAAH ni los mezcles en PRs de SHAAH.
 
 ## Reglas de trabajo

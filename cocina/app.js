@@ -35,7 +35,7 @@ function derive(){
 }
 function save(){try{localStorage.setItem(LS,JSON.stringify(D))}catch(e){}}
 let LASTMSG='', UNDO=null;
-function apply(msg){derive();save();render();sheetRender();searchRender();menuRender();tgRender();tabsRender();mesRender();peekRender();focusRender();hoyRender();gtop();if(msg){LASTMSG=msg;toast(msg)}}
+function apply(msg){derive();save();render();sheetRender();searchRender();menuRender();tgRender();tabsRender();mesRender();peekRender();gtop();if(msg){LASTMSG=msg;toast(msg)}}
 // Deshacer: el guardado espera 5 s; si tocas Deshacer, se cancela y vuelve todo como estaba.
 function commit(){if(!UNDO)return;clearTimeout(UNDO.t);const u=UNDO;UNDO=null;pending--;srv(u.fn,...u.args)}
 function later(snap,fn,...args){commit();pending++;busy();UNDO={snap,fn,args,t:setTimeout(commit,5000)};toast(LASTMSG,true)}
@@ -241,7 +241,6 @@ document.addEventListener('click',e=>{
   if(e.target.closest('#bell')){$('bellPop').hidden=!$('bellPop').hidden;return}
   if(!e.target.closest('#bellPop'))$('bellPop').hidden=true;
   const md=e.target.closest('#invMode button');if(md){UI.inv=md.dataset.mode;saveUI();render();sheetRender();return}
-  {const h2=e.target.closest('h2.tog');if(h2&&document.body.dataset.dm==='b'&&innerWidth>900&&h2.closest('.grid')){const id=h2.parentElement.id;UI.focus=UI.focus===id?'':id;delete UI.min[id];saveUI();focusRender();render();return}}
   const h=e.target.closest('h2.tog');if(h){const c=h.parentElement;c.classList.toggle('min');if(c.classList.contains('min'))UI.min[c.id]=1;else delete UI.min[c.id];saveUI();syncAll();return}
   if(e.target.closest('#allTog')){const all=CARDS.every(id=>UI.min[id]);CARDS.forEach(id=>{if(all)delete UI.min[id];else UI.min[id]=1;$(id).classList.toggle('min',!all)});saveUI();syncAll();return}
   if(e.target.id==='undoB'){undo();return}
@@ -332,18 +331,6 @@ function peekRender(){
   $('pk_cMenu').innerHTML=m?(m.elegida?pk('Hoy: '+esc(m.elegida),'g'):pk('Hoy: '+m.ops.length+' opciones sin elegir','y')):none;
 }
 
-/* ---------- modos de escritorio (A/B/C) ---------- */
-function setDM(m){UI.dm=m;saveUI();document.body.dataset.dm=m||'';document.querySelectorAll('.dmsw button').forEach(b=>b.classList.toggle('on',b.dataset.dm===m));focusRender();gtop();}
+/* ---------- columnas a pantalla completa (compu) ---------- */
 function gtop(){const g=document.querySelector('.grid');if(g)document.documentElement.style.setProperty('--gtop',Math.round(g.getBoundingClientRect().top+scrollY)+'px')}
 addEventListener('resize',gtop);
-function focusRender(){const f=document.body.dataset.dm==='b'?(UI.focus||''):'';if(f)document.body.dataset.focus=f;else delete document.body.dataset.focus;document.querySelectorAll('.grid .card').forEach(c=>c.classList.toggle('focus',c.id===f));if(f)document.querySelectorAll('.card.focus details').forEach(d=>d.open=true)}
-function hoyRender(){
-  if(!D)return;const t=fmt(new Date()),m=(D.menu||[]).find(x=>x.fecha===t);
-  let r=m&&m.elegida?D.rec.find(x=>x.n===m.elegida):null;const why=r?'Elegida para hoy':'La que mejor usa lo que vence';
-  const best=D.rec.slice().sort((a,b)=>b.rescata.length-a.rescata.length||a.faltan.length-b.faltan.length||b.score-a.score);
-  if(!r)r=(UI.hoyR&&D.rec.find(x=>x.id===UI.hoyR))||best[0];
-  const usa=D.inv.filter(i=>i.dias!=null&&i.dias<=1).sort((a,b)=>a.dias-b.dias);
-  $('hoyC').innerHTML=(r?'<div class="hc"><div class="eb"><span>🍳 Hoy en la cocina · '+esc(why)+'</span>'+faltaTag(r)+'</div><h3>'+esc(r.n)+'</h3><div class="meta">'+esc(r.tipo||'')+(r.min?' · '+esc(r.min)+' min':'')+'</div><div class="chips">'+r.rescata.map(x=>'<span class="chip r">⚡ '+esc(x)+'</span>').join('')+r.tengo.filter(x=>!r.rescata.includes(x)).map(x=>'<span class="chip h">'+esc(x)+'</span>').join('')+r.faltan.map(x=>'<span class="chip f">falta '+esc(x)+'</span>').join('')+'</div><div class="pasos">'+esc(r.pasos||'')+'</div><div class="btns"><button class="a in" data-cook="'+esc(r.id)+'">Cociné esto</button>'+(r.faltan.length?'<button class="a" data-falt="'+esc(r.id)+'">Agregar lo que falta</button>':'')+'</div><div class="alt">'+best.filter(x=>x.id!==r.id).slice(0,4).map(x=>'<button class="chip" data-hoyr="'+esc(x.id)+'">'+esc(x.n)+'</button>').join('')+'</div></div>':'<div class="hc"><div class="empty">Sin recetas.</div></div>')+'<div class="hc"><div class="eb"><span>⏰ Usa sí o sí</span><span>'+usa.length+'</span></div><div class="usa">'+(usa.length?usa.map(i=>invRow(i,i=>A.ok(i)+A.bad(i))).join(''):'<div class="empty">Nada urgente hoy.</div>')+'</div></div>';
-}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-hoyr]');if(b){UI.hoyR=b.dataset.hoyr;saveUI();hoyRender()}});
-setDM(UI.dm||'');

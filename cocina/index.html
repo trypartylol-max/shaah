@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="cocina-v" content="202611250837">
+<meta name="cocina-v" content="202611250846">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cocina</title>
 <meta name="theme-color" content="#0a0b0d">
@@ -265,41 +265,13 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 .peek .pk.r{background:#2b1614;color:#f0a49a}.peek .pk.y{background:#2a2312;color:var(--gold)}.peek .pk.g{background:#132520;color:var(--in)}
 .peek .pk b{font-weight:600;margin-right:4px}
 .peek .pm{font-size:13px;color:var(--faint);padding:5px 2px}
-.hoyc{display:none}
 @media (min-width:901px){
-  /* A: columnas a pantalla completa, scroll propio */
-  body[data-dm=a] .grid{height:calc(100vh - var(--gtop,330px) - 20px);align-items:stretch}
-  body[data-dm=a] .col{overflow-y:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:#2a3038 transparent}
-  body[data-dm=a] .col>.card:not(.min){flex:1 0 auto}
-  body[data-dm=a] .mes{display:none}
-  /* B: modo foco */
-  body[data-dm=b][data-focus] .grid{display:flex;flex-wrap:wrap;gap:14px}
-  body[data-dm=b][data-focus] .col{display:contents}
-  body[data-dm=b][data-focus] .colh{display:none}
-  body[data-dm=b][data-focus] .grid>.col>.card{flex:1 1 280px;order:0}
-  body[data-dm=b][data-focus] .grid>.col>.card:not(.focus)>:not(h2):not(.peek){display:none!important}
-  body[data-dm=b][data-focus] .grid>.col>.card:not(.focus)>.peek{display:flex!important;flex-wrap:wrap;gap:6px;margin-top:12px;max-height:64px;overflow:hidden}
-  body[data-dm=b][data-focus] .grid>.col>.card:not(.focus) h2{margin:0}
-  body[data-dm=b][data-focus] .grid>.col>.card.focus{order:1;flex:1 1 100%;padding:24px 28px}
-  body[data-dm=b] .card.focus>.peek{display:none!important}
-  body[data-dm=b] .card.focus #desp,body[data-dm=b] .card.focus #compras,body[data-dm=b] .card.focus #urg,body[data-dm=b] .card.focus #flash,body[data-dm=b] .card.focus #recs{columns:3 340px;column-gap:28px}
-  body[data-dm=b] .card.focus .item,body[data-dm=b] .card.focus .rec{break-inside:avoid}
-  body[data-dm=b] .card.focus h2{font-size:18px}
-  /* C: hoy en la cocina */
-  body[data-dm=c] .hoyc{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-top:16px}
-  .hc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:26px 30px}
-  .hc .eb{font-size:13px;color:var(--faint);margin-bottom:8px;display:flex;justify-content:space-between}
-  .hc h3{margin:0 0 6px;font-size:clamp(26px,2vw,38px);font-weight:600;letter-spacing:-.02em;line-height:1.1}
-  .hc .meta{color:var(--dim);font-size:14px;margin-bottom:16px}
-  .hc .pasos{font-size:16px;line-height:1.65;color:var(--ink2);max-width:75ch;margin:16px 0 20px}
-  .hc .btns{display:flex;gap:10px;flex-wrap:wrap}.hc .btns .a{height:42px;padding:0 16px;font-size:14px}
-  .hc .alt{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.hc .alt .chip{cursor:pointer}
-  .hc .usa{display:flex;flex-direction:column;gap:2px}
+  /* columnas a pantalla completa, cada una con su scroll */
+  .grid{height:calc(100vh - var(--gtop,330px) - 20px);align-items:stretch}
+  .col{overflow-y:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:#2a3038 transparent}
+  .col>.card:not(.min){flex:1 0 auto}
+  .mes{display:none}
 }
-.dmsw{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;gap:4px;background:#1a1408;border:1px solid #4a3c18;border-radius:14px;padding:5px}
-.dmsw button{border:0;background:none;color:var(--gold);font:600 14px Inter,system-ui,sans-serif;padding:8px 14px;border-radius:10px;cursor:pointer}
-.dmsw button.on{background:var(--gold);color:#1a1408}
-@media (max-width:900px){.dmsw{display:none}}
 </style>
 </head>
 <body>
@@ -352,7 +324,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
       <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div class="peek" id="pk_cMenu"></div><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
     </div>
   </section>
-  <section class="hoyc" id="hoyC"></section>
   <div class="mes" id="mes" data-tab="casa" hidden></div>
 </main>
 <nav class="tabs" id="tabs"><button type="button" data-tabgo="casa"><span class="ti">🏠</span>Casa<b id="tbCasa"></b></button><button type="button" data-tabgo="compras"><span class="ti">🛒</span>Compras<b id="tbComp"></b></button><button type="button" data-tabgo="cocinar"><span class="ti">👨‍🍳</span>Cocinar<b id="tbCoc"></b></button></nav>
@@ -362,6 +333,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 <div class="login" id="login" hidden><div class="box"><h2>🍳 Cocina</h2><p>Entra con tu cuenta de Google de SHAAH para ver tu inventario.</p><button id="loginBtn" type="button">Entrar con Google</button><div class="err" id="loginErr"></div></div></div>
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="api.js?v=d18fd3b5"></script>
-<script src="app.js?v=3ac9280a"></script>
+<script src="app.js?v=b902b6d1"></script>
 </body>
 </html>

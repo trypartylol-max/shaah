@@ -317,18 +317,19 @@ setTimeout(chk,1500);document.addEventListener('visibilitychange',()=>{if(docume
 /* ---------- vista rápida en tarjetas plegadas ---------- */
 function peekRender(){
   if(!D)return;const pk=(t,c)=>'<span class="pk'+(c?' '+c:'')+'">'+t+'</span>',none='<span class="pm">Nada por ahora</span>';
-  const urg=D.inv.filter(i=>i.dias!=null&&i.dias<=2).sort((a,b)=>a.dias-b.dias);
-  $('pk_cUrg').innerHTML=urg.length?urg.slice(0,8).map(i=>pk(esc(i.n),i.dias<=0?'r':'y')).join('')+(urg.length>8?pk('+'+(urg.length-8)):''):none;
+  const hd=(n,l,c)=>'<div class="ph1"><span class="pn"'+(c?' style="color:'+c+'"':'')+'>'+n+'</span><span class="pl">'+l+'</span></div>';
+  const urg=D.inv.filter(i=>i.dias!=null&&i.dias<=2).sort((a,b)=>a.dias-b.dias),venc=urg.filter(i=>i.dias<0).length;
+  $('pk_cUrg').innerHTML=hd(urg.length,venc?venc+' ya vencidos':'por vencer','var(--out)')+'<div class="pcs">'+(urg.length?urg.slice(0,12).map(i=>pk(esc(i.n),i.dias<=0?'r':'y')).join('')+(urg.length>12?pk('+'+(urg.length-12)):''):none)+'</div>';
   const pl={};D.inv.forEach(i=>{pl[i.ubi]=(pl[i.ubi]||0)+1});
-  $('pk_cDesp').innerHTML=Object.keys(pl).sort((a,b)=>((ORD.indexOf(a)+99)%99)-((ORD.indexOf(b)+99)%99)).map(u=>pk('<b>'+pl[u]+'</b>'+esc(u))).join('')||none;
+  $('pk_cDesp').innerHTML='<div class="pgrid">'+Object.keys(pl).sort((a,b)=>((ORD.indexOf(a)+99)%99)-((ORD.indexOf(b)+99)%99)).map(u=>'<div class="pg">'+gi(u)+'<span class="pn">'+pl[u]+'</span><span class="pl">'+esc(u)+'</span></div>').join('')+'</div>';
   const fl=D.compras.filter(c=>c.flash);
-  $('pk_cFlash').innerHTML=fl.length?fl.map(c=>pk(esc(c.n),'y')).join(''):none;
-  const cg={};D.compras.filter(c=>!c.flash).forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;cg[k]=(cg[k]||0)+1});
-  $('pk_cComp').innerHTML=Object.keys(cg).sort(supSort).map(k=>pk('<b>'+cg[k]+'</b>'+esc(k))).join('')||none;
+  $('pk_cFlash').innerHTML=hd(fl.length,'para comprar ya','var(--gold)')+'<div class="pcs">'+(fl.length?fl.slice(0,14).map(c=>pk(esc(c.n),'y')).join('')+(fl.length>14?pk('+'+(fl.length-14)):''):none)+'</div>';
+  const rest=D.compras.filter(c=>!c.flash),cg={};rest.forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;cg[k]=(cg[k]||0)+1});
+  $('pk_cComp').innerHTML=hd(rest.length,'en la lista')+'<div class="pcs">'+(Object.keys(cg).sort(supSort).map(k=>pk('<b>'+cg[k]+'</b>'+esc(k))).join('')||none)+'</div>';
   const top=D.rec.slice().sort((a,b)=>a.faltan.length-b.faltan.length||b.score-a.score).slice(0,3);
-  $('pk_cRec').innerHTML=top.map(r=>pk(esc(r.n)+' · '+(r.faltan.length?'falta '+r.faltan.length:'todo'),r.faltan.length?'':'g')).join('')||none;
+  $('pk_cRec').innerHTML=top.length?'<div class="ptop"><span class="pt">'+esc(top[0].n)+'</span>'+faltaTag(top[0])+'</div><div class="pcs">'+top.slice(1).map(r=>pk(esc(r.n)+' · '+(r.faltan.length?'falta '+r.faltan.length:'todo'),r.faltan.length?'':'g')).join('')+'</div>':none;
   const t=fmt(new Date()),m=(D.menu||[]).find(x=>x.fecha===t);
-  $('pk_cMenu').innerHTML=m?(m.elegida?pk('Hoy: '+esc(m.elegida),'g'):pk('Hoy: '+m.ops.length+' opciones sin elegir','y')):none;
+  $('pk_cMenu').innerHTML=m?(m.elegida?'<div class="ptop"><span class="pl">Hoy</span><span class="pt">'+esc(m.elegida)+'</span></div>':'<div class="ptop"><span class="pl">Hoy</span><span class="pt" style="color:var(--gold)">'+m.ops.length+' opciones sin elegir</span></div><div class="pcs">'+m.ops.map(o=>pk(esc(o))).join('')+'</div>'):'<div class="ptop"><span class="pt" style="color:var(--faint)">Sin plan para hoy</span></div>';
 }
 
 /* ---------- columnas a pantalla completa (compu) ---------- */

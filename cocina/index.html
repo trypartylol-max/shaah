@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="cocina-v" content="202611250846">
+<meta name="cocina-v" content="202611250848">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cocina</title>
 <meta name="theme-color" content="#0a0b0d">
@@ -260,8 +260,19 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 }
 @media (max-width:900px){.tools{display:contents}}
 .peek{display:none}
-.card.min>.peek{display:flex!important;flex-wrap:wrap;gap:6px;margin-top:12px}
-.peek .pk{font-size:13px;padding:5px 10px;border-radius:999px;background:var(--card2);color:var(--ink2);white-space:nowrap}
+.card.min>.peek{display:flex!important;flex-direction:column;gap:12px;margin-top:14px}
+.card.min{padding:20px 22px}
+.card.min h2{font-size:16px}
+.pcs{display:flex;flex-wrap:wrap;gap:7px}
+.ph1{display:flex;align-items:baseline;gap:10px}
+.ph1 .pn{font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.ph1 .pl,.ptop .pl{font-size:14px;color:var(--dim)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
+.pg{background:var(--card2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.pg .gi{font-size:18px}.pg .pn{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.1}.pg .pl{font-size:13px;color:var(--dim)}
+.ptop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ptop .pt{font-size:22px;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.peek .pk{font-size:14px;padding:7px 12px;border-radius:999px;background:var(--card2);color:var(--ink2);white-space:nowrap}
 .peek .pk.r{background:#2b1614;color:#f0a49a}.peek .pk.y{background:#2a2312;color:var(--gold)}.peek .pk.g{background:#132520;color:var(--in)}
 .peek .pk b{font-weight:600;margin-right:4px}
 .peek .pm{font-size:13px;color:var(--faint);padding:5px 2px}
@@ -270,6 +281,14 @@ details.g>summary{user-select:none;-webkit-user-select:none}
   .grid{height:calc(100vh - var(--gtop,330px) - 20px);align-items:stretch}
   .col{overflow-y:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:#2a3038 transparent}
   .col>.card:not(.min){flex:1 0 auto}
+  .col:not(:has(>.card:not(.min)))>.card.min{flex:1 1 0;display:flex;flex-direction:column}
+  .col:not(:has(>.card:not(.min)))>.card.min>.peek{flex:1;justify-content:center;gap:18px}
+  .card.min{padding:24px 28px}
+  .card.min h2{font-size:17px}
+  .ph1 .pn{font-size:64px}.ph1 .pl{font-size:16px}
+  .ptop .pt{font-size:30px}.ptop .pl{font-size:16px}
+  .pg{padding:18px 20px}.pg .pn{font-size:48px}.pg .gi{font-size:22px}.pg .pl{font-size:15px}
+  .peek .pk{font-size:15px;padding:8px 14px}
   .mes{display:none}
 }
 </style>
@@ -333,6 +352,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 <div class="login" id="login" hidden><div class="box"><h2>🍳 Cocina</h2><p>Entra con tu cuenta de Google de SHAAH para ver tu inventario.</p><button id="loginBtn" type="button">Entrar con Google</button><div class="err" id="loginErr"></div></div></div>
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="api.js?v=d18fd3b5"></script>
-<script src="app.js?v=b902b6d1"></script>
+<script src="app.js?v=7cc92911"></script>
 </body>
 </html>

@@ -222,6 +222,28 @@ details.g>summary{user-select:none;-webkit-user-select:none}
   .addbar.open .more{color:var(--ink);border-color:#2f3640}
   .mes{padding:12px 16px}
 }
+.rto{color:var(--gold)}
+.badge{font-size:12px}
+.clr{margin-top:12px;height:40px;width:100%;color:var(--out);border-color:#3a1f1c}
+.st{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--card2);color:var(--dim);white-space:nowrap}
+.st.ok{background:#132520;color:var(--in)}.st.y{background:#2a2312;color:var(--gold)}
+.rec .rm{font-size:12px;color:var(--faint);margin-top:2px}
+.vm{margin-top:10px;height:40px;width:100%}
+.chk{width:28px;height:28px;flex:0 0 28px;border-radius:9px}
+.item.done{opacity:.45;transition:opacity .35s}.item.done .n{text-decoration:line-through}.item.done .chk{background:var(--in);border-color:var(--in)}
+.allf{display:block;margin:6px 0 2px;height:30px;font-size:12px;color:var(--gold);border-color:#3a3018;background:transparent}
+.invf{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px;scrollbar-width:none}
+.invf::-webkit-scrollbar{display:none}
+.fc{flex:none;border:1px solid var(--line);background:var(--card2);color:var(--dim);border-radius:999px;height:34px;padding:0 12px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.fc span{color:var(--faint);font-size:12px}.fc .gi{font-size:13px}
+.fc.on{background:#1f2530;color:var(--ink);border-color:#2f3640}
+.a.dots{letter-spacing:1px;font-size:11px;min-width:46px}
+.a.dots.cPoco{color:var(--out)}.a.dots.cMedio{color:var(--gold)}.a.dots.cLleno{color:var(--in)}
+[data-irow]{cursor:pointer}.uz{font-size:12px}
+.isel{display:flex;gap:8px;margin-bottom:12px}.isel .a{flex:1;height:42px}.isel .a.on{color:var(--ink);border-color:#2f3640;background:#1f2530}
+.iacts{display:grid;gap:8px}.iacts .a{height:46px;font-size:15px;text-align:left;padding:0 14px}
+.day.empt{color:var(--faint);font-size:13px}
+#invMode{display:none}
 </style>
 </head>
 <body>
@@ -238,9 +260,9 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 
   <section class="kpis">
     <div class="k" data-kpi="urg" style="--c:var(--out)"><div class="l"><i></i><span class="lf">Por vencer</span><span class="ls">Vence</span></div><div class="v" id="kUrg">—</div><div class="s" id="kUrgS"></div></div>
-    <div class="k" data-kpi="rec" style="--c:var(--in)"><div class="l"><i></i><span class="lf">Para cocinar hoy</span><span class="ls">Cocinar</span></div><div class="v" id="kRec">—</div><div class="s" id="kRecS"></div></div>
+    <div class="k" data-kpi="rec" style="--c:var(--in)"><div class="l"><i></i><span class="lf">Puedes cocinar ya</span><span class="ls">Cocinar</span></div><div class="v" id="kRec">—</div><div class="s" id="kRecS"></div></div>
     <div class="k" data-kpi="poco" style="--c:var(--gold)"><div class="l"><i></i><span class="lf">Queda poco</span><span class="ls">Poco</span></div><div class="v" id="kPoco">—</div><div class="s" id="kPocoS"></div></div>
-    <div class="k" data-kpi="casa"><div class="l"><i></i><span class="lf">En casa</span><span class="ls">En casa</span></div><div class="v" id="kCasa">—</div><div class="s" id="kCasaS"></div></div>
+    <div class="k" data-kpi="flash" style="--c:var(--gold)"><div class="l"><i></i><span class="lf">Flash</span><span class="ls">Flash</span></div><div class="v" id="kCasa">—</div><div class="s" id="kCasaS"></div></div>
   </section>
 
   <form class="addbar" id="addForm" autocomplete="off" data-tab="casa">
@@ -258,7 +280,7 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 
   <section class="grid">
     <div class="col">
-      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div></div>
+      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div><button class="a clr" id="urgClr" type="button" hidden></button></div>
       <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
       <div class="card" id="cRec" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div id="recs"></div></div>
     </div>
@@ -267,7 +289,7 @@ details.g>summary{user-select:none;-webkit-user-select:none}
       <div class="card" id="cComp" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
         <form class="cadd" id="cForm" autocomplete="off"><input id="cIng" list="catList" placeholder="Añadir (varios con coma)"><button class="a" style="height:38px">Añadir</button></form>
       </div>
-      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div id="desp"></div></div>
+      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div class="invf" id="invF"></div><div id="desp"></div></div>
     </div>
   </section>
   <div class="mes" id="mes" data-tab="casa" hidden></div>
@@ -279,6 +301,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 <div class="login" id="login" hidden><div class="box"><h2>🍳 Cocina</h2><p>Entra con tu cuenta de Google de SHAAH para ver tu inventario.</p><button id="loginBtn" type="button">Entrar con Google</button><div class="err" id="loginErr"></div></div></div>
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="api.js?v=d18fd3b5"></script>
-<script src="app.js?v=a2233dc3"></script>
+<script src="app.js?v=3ddaacac"></script>
 </body>
 </html>

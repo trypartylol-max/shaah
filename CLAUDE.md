@@ -11,7 +11,7 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 SHAAH es solo SHAAH. Desde el 2026-11-25 estos proyectos viven en sus propios repos (mismo origen `trypartylol-max.github.io`, así que comparten la sesión de Google de Supabase):
 - **Cocina** → `trypartylol-max/cocina` (`/cocina/`). `cocina/` aquí es solo una redirección.
 - **Escritorio** (lanzador que une las apps) → `trypartylol-max/escritorio` (`/escritorio/`). `escritorio/` aquí es solo una redirección y un service worker que se da de baja.
-- **Event Scorecard** → `trypartylol-max/scorecard` (`/scorecard/`). `scorecard/` aquí es solo una redirección (desde el 2026-11-25 sus datos viven en su propia hoja de Google; la tabla `scorecard_events` de este Supabase ya no se usa).
+- **Event Scorecard** → `trypartylol-max/scorecard` (`/scorecard/`). `scorecard/` aquí es solo una redirección (desde el 2026-11-25 sus datos viven en su propia hoja de Google; la tabla `scorecard_events` se borró ese día).
 No registres sus cambios en la Bitácora de SHAAH ni los mezcles en PRs de SHAAH.
 
 ## Reglas de trabajo
@@ -118,7 +118,7 @@ Panel privado del propietario, página independiente (`control/index.html`, 75 K
 - Bitácora: tras una entrega significativa y autorizada, `AGENTS.md` y `docs/bitacora.md` piden registrar una entrada en `public.shaah_control_journal` con el conector Supabase (`source_key = github:<owner/repo>:<SHA completo>`, `state='published'` solo tras verificar el despliegue). Si no hay conector, se informa que el registro quedó pendiente; nunca afirmar que se guardó.
 
 ## Entornos de prueba
-- **SHAAH-TEST** (`kpnwiwaiwnndpvtxkvva`): proyecto Supabase aparte, con usuarios sintéticos A/B. Lo usan los scripts de `qa/supabase` y la preview privada de `qa/preview`. No ejecutes `reset-synthetic.cjs` ni `seed-demo.cjs` contra A/B publicados, ni el bootstrap SQL.
+- **SHAAH-TEST** (`kpnwiwaiwnndpvtxkvva`): **pausado desde el 2026-11-25** (libera el hueco del plan gratis; el modo `localhost:8081` no funciona mientras esté pausado; se reactiva desde el panel de Supabase o con `restore_project`). Proyecto Supabase aparte, con usuarios sintéticos A/B. Lo usan los scripts de `qa/supabase` y la preview privada de `qa/preview`. No ejecutes `reset-synthetic.cjs` ni `seed-demo.cjs` contra A/B publicados, ni el bootstrap SQL.
 - Desde el shell de Claude Code esos hosts están bloqueados y las credenciales no están en el repo.
 - Flujo recomendado para un cambio: rama + PR, tests unitarios, build, merge, verificar hashes publicados y registrar en Bitácora. `main` se publica tal cual.
 

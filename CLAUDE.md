@@ -11,7 +11,8 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 SHAAH es solo SHAAH. Desde el 2026-11-25 estos proyectos viven en sus propios repos (mismo origen `trypartylol-max.github.io`, así que comparten la sesión de Google de Supabase):
 - **Cocina** → `trypartylol-max/cocina` (`/cocina/`). `cocina/` aquí es solo una redirección.
 - **Escritorio** (lanzador que une las apps) → `trypartylol-max/escritorio` (`/escritorio/`). `escritorio/` aquí es solo una redirección y un service worker que se da de baja.
-No registres sus cambios en la Bitácora de SHAAH ni los mezcles en PRs de SHAAH. `scorecard/` (Event Scorecard) sigue aquí pero también es candidato a repo propio.
+- **Event Scorecard** → `trypartylol-max/scorecard` (`/scorecard/`). `scorecard/` aquí es solo una redirección (sus datos siguen en la tabla `scorecard_events` de este proyecto Supabase).
+No registres sus cambios en la Bitácora de SHAAH ni los mezcles en PRs de SHAAH.
 
 ## Reglas de trabajo
 - **Nunca cargues `source/app.js` entero** (6.900 líneas, 530 KB, ~150k tokens). Localiza con `grep -n 'function nombre' source/app.js` y lee con `sed -n 'A,Bp'`. Edita con la herramienta Edit.

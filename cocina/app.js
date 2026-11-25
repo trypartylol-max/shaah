@@ -55,7 +55,7 @@ function load(){
 function badge(i){
   if(i.dias==null) return '<div class="badge">—</div>';
   const cls=i.dias<=0?'red':i.dias<=2?'amb':'ok';
-  const t=i.dias<0?'hace<br>'+(-i.dias)+' d':i.dias===0?'hoy':i.dias===1?'1 día':i.dias+' días';
+  const t=i.dias<0?'vencido':i.dias===0?'hoy':i.dias===1?'mañana':'en<br>'+i.dias+' días';
   return '<div class="badge '+cls+'">'+t+'</div>';
 }
 function fdate(s){if(!s)return'';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'})}
@@ -89,7 +89,7 @@ function render(){
   const places=ORD.filter(u=>inv.some(i=>i.ubi===u)).concat([...new Set(inv.map(i=>i.ubi))].filter(u=>!ORD.includes(u)));
   if(UI.invF&&!places.includes(UI.invF))UI.invF='';
   $('invF').innerHTML=['',...places].map(u=>'<button type="button" class="fc'+((UI.invF||'')===u?' on':'')+'" data-invf="'+esc(u)+'">'+(u?gi(u)+esc(u)+' <span>'+inv.filter(i=>i.ubi===u).length+'</span>':'Todo')+'</button>').join('');
-  const invRow2=i=>'<div class="item" data-irow="'+esc(i.id)+'"><div class="it"><div class="n">'+esc(i.n)+(i.tipo==='Sobra'?'<span class="pill sobra">sobra</span>':'')+(i.usar?' <span class="uz">⚡</span>':'')+'</div><div class="m">'+(i.vence?'vence '+fdate(i.vence):'sin caducidad')+(i.nota?' · '+esc(i.nota):'')+'</div></div><div class="acts"><button class="a dots c'+(i.cant||'Lleno')+'" data-cant="'+esc(i.id)+'" data-v="'+({Lleno:'Medio',Medio:'Poco',Poco:'Lleno'}[i.cant]||'Poco')+'" title="Cantidad: '+esc((i.cant||'Lleno').toLowerCase())+'">'+cantDots(i.cant)+'</button><button class="a in" data-s="Consumido" data-id="'+esc(i.id)+'" title="Consumido">✓</button><button class="a out" data-s="Desperdiciado" data-id="'+esc(i.id)+'" title="Se perdió / se botó">✕</button></div></div>';
+  const invRow2=i=>'<div class="item" data-irow="'+esc(i.id)+'"><div class="it"><div class="n">'+esc(i.n)+(i.tipo==='Sobra'?'<span class="pill sobra">sobra</span>':'')+(i.usar?' <span class="uz">⚡</span>':'')+'</div><div class="m">'+(i.vence?'vence '+fdate(i.vence):'sin caducidad')+(i.nota?' · '+esc(i.nota):'')+'</div></div><div class="acts"><button class="a dots c'+(i.cant||'Lleno')+'" data-cant="'+esc(i.id)+'" data-v="'+({Lleno:'Medio',Medio:'Poco',Poco:'Lleno'}[i.cant]||'Poco')+'" title="Cantidad en casa: '+esc((i.cant||'Lleno').toLowerCase())+'">'+cantDots(i.cant)+'</button><button class="a in" data-s="Consumido" data-id="'+esc(i.id)+'" title="Consumido">✓</button><button class="a out" data-s="Desperdiciado" data-id="'+esc(i.id)+'" title="Se perdió / se botó">✕</button></div></div>';
   const g={};
   inv.filter(i=>!UI.invF||i.ubi===UI.invF).forEach(i=>{const k=UI.invF?(i.cat||'Otro'):(i.ubi||'Otro');(g[k]=g[k]||[]).push(i)});
   document.querySelectorAll('#invMode button').forEach(b=>b.classList.toggle('on',b.dataset.mode===(UI.inv||'lugar')));

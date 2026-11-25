@@ -308,3 +308,8 @@ document.addEventListener('touchmove',e=>{if(!it)return;const x=e.touches[0].cli
 document.addEventListener('touchend',()=>{if(!it)return;const el=it;it=null;el.classList.remove('sw','swR','swL');el.style.transform='';
   if(dx>70){const b=el.querySelector('[data-s="Consumido"]');if(b)b.click()}else if(dx<-70){const b=el.querySelector('[data-s="Desperdiciado"]');if(b)b.click()}dx=0});
 })();
+
+/* ---------- auto-actualización: si hay versión nueva publicada, recarga sin caché ---------- */
+(()=>{const cur=(document.querySelector('meta[name="cocina-v"]')||{}).content||'';
+const chk=()=>fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j&&j.v&&cur&&j.v!==cur&&!pending&&!location.search.includes('v='+j.v))location.replace(location.pathname+'?v='+j.v)}).catch(()=>{});
+setTimeout(chk,1500);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()});})();

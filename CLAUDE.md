@@ -7,6 +7,12 @@ PWA de seguimiento de hábitos, en JavaScript puro y sin framework. Cada día pu
 
 **El repositorio es público.** No escribas en el código ni en `docs/` emails, nombres de personas, tokens ni datos personales. (El email fijo de `source/app.js` ya se retiró y los builds antiguos de `assets/` se borraron; solo sigue en el historial de git, y el UUID del propietario sigue en `control/index.html`. Ver `docs/ESTADO_ACTUAL_2026-11-09.md`.)
 
+## Qué NO es SHAAH (proyectos aparte)
+SHAAH es solo SHAAH. Desde el 2026-11-25 estos proyectos viven en sus propios repos (mismo origen `trypartylol-max.github.io`, así que comparten la sesión de Google de Supabase):
+- **Cocina** → `trypartylol-max/cocina` (`/cocina/`). `cocina/` aquí es solo una redirección.
+- **Escritorio** (lanzador que une las apps) → `trypartylol-max/escritorio` (`/escritorio/`). `escritorio/` aquí es solo una redirección y un service worker que se da de baja.
+No registres sus cambios en la Bitácora de SHAAH ni los mezcles en PRs de SHAAH. `scorecard/` (Event Scorecard) sigue aquí pero también es candidato a repo propio.
+
 ## Reglas de trabajo
 - **Nunca cargues `source/app.js` entero** (6.900 líneas, 530 KB, ~150k tokens). Localiza con `grep -n 'function nombre' source/app.js` y lee con `sed -n 'A,Bp'`. Edita con la herramienta Edit.
 - Se edita **solo `source/`** (`app.js`, `app.css`, `index.html`, `performance.js`, `sw-template.js`). Después hay que reconstruir.

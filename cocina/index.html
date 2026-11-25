@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="cocina-v" content="202611250401">
+<meta name="cocina-v" content="202611250911">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cocina</title>
 <meta name="theme-color" content="#0a0b0d">
@@ -243,6 +243,8 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 .a.dots.cPoco{color:var(--out)}.a.dots.cMedio{color:var(--gold)}.a.dots.cLleno{color:var(--in)}
 [data-irow]{cursor:pointer}.uz{font-size:12px}
 .isel{display:flex;gap:8px;margin-bottom:12px}.isel .a{flex:1;height:42px}.isel .a.on{color:var(--ink);border-color:#2f3640;background:#1f2530}
+.il{font-size:13px;color:var(--faint);margin:2px 0 8px}
+.a.ext{opacity:.7}.a.ext:hover{opacity:1;color:var(--in)}
 .iacts{display:grid;gap:8px}.iacts .a{height:46px;font-size:15px;text-align:left;padding:0 14px}
 .day.empt{color:var(--faint);font-size:13px}
 #invMode{display:none}
@@ -259,6 +261,36 @@ details.g>summary{user-select:none;-webkit-user-select:none}
   .kpis{gap:16px}
 }
 @media (max-width:900px){.tools{display:contents}}
+.peek{display:none}
+.card.min>.peek{display:flex!important;flex-direction:column;gap:12px;margin-top:14px}
+.card.min{padding:20px 22px}
+.card.min h2{font-size:16px}
+.pcs{display:flex;flex-wrap:wrap;gap:7px}
+.ph1{display:flex;align-items:baseline;gap:10px}
+.ph1 .pn{font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.ph1 .pl,.ptop .pl{font-size:14px;color:var(--dim)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
+.pg{background:var(--card2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.pg .gi{font-size:18px}.pg .pn{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.1}.pg .pl{font-size:13px;color:var(--dim)}
+.ptop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ptop .pt{font-size:22px;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.peek .pk{font-size:14px;padding:7px 12px;border-radius:999px;background:var(--card2);color:var(--ink2);white-space:nowrap}
+.peek .pk.r{background:#2b1614;color:#f0a49a}.peek .pk.y{background:#2a2312;color:var(--gold)}.peek .pk.g{background:#132520;color:var(--in)}
+.peek .pk b{font-weight:600;margin-right:4px}
+.peek .pm{font-size:13px;color:var(--faint);padding:5px 2px}
+@media (min-width:901px){
+  /* columnas a pantalla completa, cada una con su scroll */
+  .grid{height:calc(100vh - var(--gtop,330px) - 20px);align-items:stretch}
+  .col{overflow-y:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:#2a3038 transparent}
+  .col>.card:not(.min){flex:1 0 auto}
+  .card.min{padding:24px 28px}
+  .card.min h2{font-size:17px}
+  .ph1 .pn{font-size:64px}.ph1 .pl{font-size:16px}
+  .ptop .pt{font-size:30px}.ptop .pl{font-size:16px}
+  .pg{padding:18px 20px}.pg .pn{font-size:48px}.pg .gi{font-size:22px}.pg .pl{font-size:15px}
+  .peek .pk{font-size:15px;padding:8px 14px}
+  .mes{display:none}
+}
 </style>
 </head>
 <body>
@@ -297,18 +329,18 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 
   <section class="grid">
     <div class="col" data-col="casa"><div class="colh">🏠 Casa</div>
-      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div><button class="a clr" id="urgClr" type="button" hidden></button></div>
-      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div class="invf" id="invF"></div><div id="desp"></div></div>
+      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="peek" id="pk_cUrg"></div><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div><button class="a clr" id="urgClr" type="button" hidden></button></div>
+      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="peek" id="pk_cDesp"></div><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div class="invf" id="invF"></div><div id="desp"></div></div>
     </div>
     <div class="col" data-col="compras"><div class="colh">🛒 Compras</div>
-      <div class="card" id="cFlash" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
-      <div class="card" id="cComp" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
+      <div class="card" id="cFlash" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="peek" id="pk_cFlash"></div><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
+      <div class="card" id="cComp" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="peek" id="pk_cComp"></div><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
         <form class="cadd" id="cForm" autocomplete="off"><input id="cIng" list="catList" placeholder="Añadir (varios con coma)"><button class="a" style="height:38px">Añadir</button></form>
       </div>
     </div>
     <div class="col" data-col="cocinar"><div class="colh">👨‍🍳 Cocinar</div>
-      <div class="card" id="cRec" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div id="recs"></div></div>
-      <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
+      <div class="card" id="cRec" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div class="peek" id="pk_cRec"></div><div id="recs"></div></div>
+      <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div class="peek" id="pk_cMenu"></div><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
     </div>
   </section>
   <div class="mes" id="mes" data-tab="casa" hidden></div>
@@ -320,6 +352,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 <div class="login" id="login" hidden><div class="box"><h2>🍳 Cocina</h2><p>Entra con tu cuenta de Google de SHAAH para ver tu inventario.</p><button id="loginBtn" type="button">Entrar con Google</button><div class="err" id="loginErr"></div></div></div>
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="api.js?v=d18fd3b5"></script>
-<script src="app.js?v=14f876c8"></script>
+<script src="app.js?v=9341a951"></script>
 </body>
 </html>

@@ -35,7 +35,7 @@ function derive(){
 }
 function save(){try{localStorage.setItem(LS,JSON.stringify(D))}catch(e){}}
 let LASTMSG='', UNDO=null;
-function apply(msg){derive();save();render();sheetRender();searchRender();menuRender();tgRender();tabsRender();mesRender();if(msg){LASTMSG=msg;toast(msg)}}
+function apply(msg){derive();save();render();sheetRender();searchRender();menuRender();tgRender();tabsRender();mesRender();peekRender();panoRender();if(msg){LASTMSG=msg;toast(msg)}}
 // Deshacer: el guardado espera 5 s; si tocas Deshacer, se cancela y vuelve todo como estaba.
 function commit(){if(!UNDO)return;clearTimeout(UNDO.t);const u=UNDO;UNDO=null;pending--;srv(u.fn,...u.args)}
 function later(snap,fn,...args){commit();pending++;busy();UNDO={snap,fn,args,t:setTimeout(commit,5000)};toast(LASTMSG,true)}
@@ -313,3 +313,39 @@ document.addEventListener('touchend',()=>{if(!it)return;const el=it;it=null;el.c
 (()=>{const cur=(document.querySelector('meta[name="cocina-v"]')||{}).content||'';
 const chk=()=>fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j&&j.v&&cur&&j.v!==cur&&!pending&&!location.search.includes('v='+j.v))location.replace(location.pathname+'?v='+j.v)}).catch(()=>{});
 setTimeout(chk,1500);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()});})();
+
+/* ---------- vista rápida en tarjetas plegadas ---------- */
+function peekRender(){
+  if(!D)return;const pk=(t,c)=>'<span class="pk'+(c?' '+c:'')+'">'+t+'</span>',none='<span class="pm">Nada por ahora</span>';
+  const urg=D.inv.filter(i=>i.dias!=null&&i.dias<=2).sort((a,b)=>a.dias-b.dias);
+  $('pk_cUrg').innerHTML=urg.length?urg.slice(0,8).map(i=>pk(esc(i.n),i.dias<=0?'r':'y')).join('')+(urg.length>8?pk('+'+(urg.length-8)):''):none;
+  const pl={};D.inv.forEach(i=>{pl[i.ubi]=(pl[i.ubi]||0)+1});
+  $('pk_cDesp').innerHTML=Object.keys(pl).sort((a,b)=>((ORD.indexOf(a)+99)%99)-((ORD.indexOf(b)+99)%99)).map(u=>pk('<b>'+pl[u]+'</b>'+esc(u))).join('')||none;
+  const fl=D.compras.filter(c=>c.flash);
+  $('pk_cFlash').innerHTML=fl.length?fl.map(c=>pk(esc(c.n),'y')).join(''):none;
+  const cg={};D.compras.filter(c=>!c.flash).forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;cg[k]=(cg[k]||0)+1});
+  $('pk_cComp').innerHTML=Object.keys(cg).sort(supSort).map(k=>pk('<b>'+cg[k]+'</b>'+esc(k))).join('')||none;
+  const top=D.rec.slice().sort((a,b)=>a.faltan.length-b.faltan.length||b.score-a.score).slice(0,3);
+  $('pk_cRec').innerHTML=top.map(r=>pk(esc(r.n)+' · '+(r.faltan.length?'falta '+r.faltan.length:'todo'),r.faltan.length?'':'g')).join('')||none;
+  const t=fmt(new Date()),m=(D.menu||[]).find(x=>x.fecha===t);
+  $('pk_cMenu').innerHTML=m?(m.elegida?pk('Hoy: '+esc(m.elegida),'g'):pk('Hoy: '+m.ops.length+' opciones sin elegir','y')):none;
+}
+/* ---------- panorama (compu) ---------- */
+function panoRender(){
+  if(!D)return;const t=fmt(new Date());
+  // próximos 7 días
+  const buckets=[{l:'Vencido',f:i=>i.dias<0,c:'r'}].concat([...Array(6)].map((_,k)=>({l:k===0?'Hoy':k===1?'Mañana':new Date(plus(t,k)+'T00:00:00').toLocaleDateString('es',{weekday:'short'}),f:i=>i.dias===k,c:k===0?'r':k<=2?'y':'g'})));
+  const cols=buckets.map(b=>({b,l:D.inv.filter(i=>i.dias!=null&&b.f(i))})),mx=Math.max(1,...cols.map(c=>c.l.length));
+  $('pvN').textContent=cols.reduce((s,c)=>s+c.l.length,0)+' cosas';
+  $('pWeek').innerHTML=cols.map(({b,l})=>'<div class="wd '+(l.length?b.c:'')+'"><div class="nm" title="'+esc(l.map(i=>i.n).join(', '))+'">'+esc(l.slice(0,2).map(i=>i.n).join(', '))+'</div><div class="bar'+(l.length?'':' z')+'" style="height:'+(l.length?Math.round(40+150*l.length/mx):6)+'px">'+(l.length||'')+'</div><div class="dl">'+esc(b.l)+'</div></div>').join('');
+  // pasillos
+  const A={};D.compras.forEach(c=>{const k=(catOf(c.n)||classify(c.n)).cat;(A[k]=A[k]||{f:0,o:0});A[k][c.flash?'f':'o']++});
+  const ks=Object.keys(A).sort(supSort),am=Math.max(1,...ks.map(k=>A[k].f+A[k].o));
+  $('paN').textContent=D.compras.length+' en total';
+  $('pAisle').innerHTML=(ks.map(k=>'<div class="ar">'+gi(k)+'<span class="nm2">'+esc(k)+'</span><span class="tr"><i class="f" style="width:'+(A[k].f*100/am)+'%"></i><i class="o" style="width:'+(A[k].o*100/am)+'%"></i></span><span class="c">'+(A[k].f+A[k].o)+'</span></div>').join('')||'<div class="empty">Lista vacía.</div>')+'<div class="lg2"><span><i style="background:var(--gold)"></i>Flash</span><span><i style="background:#3a4352"></i>Compras</span></div>';
+  // mes
+  const m=D.mes;if(!m){$('pMes').innerHTML='<div class="empty">Sin datos todavía.</div>';return}
+  const tot=m.comido+m.botado,p=tot?m.botado/tot:0,R=62,C=2*Math.PI*R;
+  $('pMesT').textContent=capi(m.nombre);
+  $('pMes').innerHTML='<svg width="210" height="210" viewBox="0 0 160 160"><circle cx="80" cy="80" r="'+R+'" fill="none" stroke="#132520" stroke-width="18"/><circle cx="80" cy="80" r="'+R+'" fill="none" stroke="var(--in)" stroke-width="18" stroke-linecap="round" stroke-dasharray="'+(C*(1-p)).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 80 80)"/>'+(p?'<circle cx="80" cy="80" r="'+R+'" fill="none" stroke="var(--out)" stroke-width="18" stroke-dasharray="'+(C*p).toFixed(1)+' '+C.toFixed(1)+'" stroke-dashoffset="'+(-C*(1-p)).toFixed(1)+'" transform="rotate(-90 80 80)"/>':'')+'<text x="80" y="78" text-anchor="middle" fill="var(--ink)" font-size="30" font-weight="600" font-family="Inter,system-ui">'+(tot?Math.round((1-p)*100):0)+'%</text><text x="80" y="100" text-anchor="middle" fill="var(--faint)" font-size="12" font-family="Inter,system-ui">aprovechado</text></svg><div class="nums"><div><div class="big" style="color:var(--in)">'+m.comido+'</div><div class="lb">comidos</div></div><div><div class="big" style="color:var(--out)">'+m.botado+'</div><div class="lb">botados</div></div>'+(m.top&&m.top.length?'<div class="top">Se te pierde: '+m.top.map(x=>'<b>'+esc(x[0])+'</b>'+(x[1]>1?' ×'+x[1]:'')).join(', ')+'</div>':'')+'</div>';
+}

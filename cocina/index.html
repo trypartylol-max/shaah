@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="cocina-v" content="202611250401">
+<meta name="cocina-v" content="202611250834">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cocina</title>
 <meta name="theme-color" content="#0a0b0d">
@@ -259,6 +259,40 @@ details.g>summary{user-select:none;-webkit-user-select:none}
   .kpis{gap:16px}
 }
 @media (max-width:900px){.tools{display:contents}}
+.peek{display:none}
+.card.min>.peek{display:flex!important;flex-wrap:wrap;gap:6px;margin-top:12px}
+.peek .pk{font-size:13px;padding:5px 10px;border-radius:999px;background:var(--card2);color:var(--ink2);white-space:nowrap}
+.peek .pk.r{background:#2b1614;color:#f0a49a}.peek .pk.y{background:#2a2312;color:var(--gold)}.peek .pk.g{background:#132520;color:var(--in)}
+.peek .pk b{font-weight:600;margin-right:4px}
+.peek .pm{font-size:13px;color:var(--faint);padding:5px 2px}
+.pano{display:none}
+@media (min-width:901px){
+  .pano{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+  .mes{display:none!important}
+  .pc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;min-height:300px;display:flex;flex-direction:column}
+  .ph{font-size:15px;font-weight:500;color:var(--ink2);display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+  .ph small{font-size:13px;color:var(--faint);font-weight:400}
+  .wk{flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:end}
+  .wd{display:flex;flex-direction:column;gap:6px;min-width:0;height:100%;justify-content:flex-end}
+  .wd .bar{border-radius:10px;background:var(--card2);min-height:6px;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:18px;font-weight:600;color:var(--ink)}
+  .wd.r .bar{background:linear-gradient(180deg,#5a2620,#2b1614);color:#f6b3aa}.wd.y .bar{background:linear-gradient(180deg,#4a3c18,#2a2312);color:var(--gold)}.wd.g .bar{background:linear-gradient(180deg,#1d3a2e,#132520);color:var(--in)}
+  .wd .bar.z{color:transparent}
+  .wd .dl{font-size:12px;color:var(--faint);text-align:center;white-space:nowrap}
+  .wd .nm{font-size:11px;color:var(--dim);text-align:center;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:15px}
+  .ai{display:flex;flex-direction:column;gap:9px}
+  .ar{display:grid;grid-template-columns:24px minmax(0,140px) minmax(0,1fr) 28px;align-items:center;gap:10px;font-size:13px;color:var(--ink2)}
+  .ar .tr{height:12px;border-radius:6px;background:var(--card2);overflow:hidden;display:flex}
+  .ar .tr i{display:block;height:100%}.ar .tr .f{background:var(--gold)}.ar .tr .o{background:#3a4352}
+  .ar .c{text-align:right;color:var(--dim);font-variant-numeric:tabular-nums}
+  .ar .nm2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lg2{display:flex;gap:14px;font-size:12px;color:var(--faint);margin-top:auto;padding-top:12px}.lg2 i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .mo{flex:1;display:flex;align-items:center;justify-content:center;gap:40px}
+  .mo svg{flex:none}
+  .mo .nums{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .mo .big{font-size:56px;font-weight:600;letter-spacing:-.03em;line-height:1}
+  .mo .lb{font-size:13px;color:var(--faint)}
+  .mo .top{font-size:13px;color:var(--dim);line-height:1.5}.mo .top b{color:#f0a49a;font-weight:500}
+}
 </style>
 </head>
 <body>
@@ -297,19 +331,24 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 
   <section class="grid">
     <div class="col" data-col="casa"><div class="colh">🏠 Casa</div>
-      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div><button class="a clr" id="urgClr" type="button" hidden></button></div>
-      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div class="invf" id="invF"></div><div id="desp"></div></div>
+      <div class="card" id="cUrg" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">⏰</span>Usar primero</span> <small id="hoyFecha"></small></h2><div class="peek" id="pk_cUrg"></div><div class="hint">Lo que vence pronto. <b class="lg r">rojo</b> = hoy o vencido · <b class="lg y">ámbar</b> = 1–2 días · ✓ lo usaste · ✕ se perdió</div><div id="urg"></div><button class="a clr" id="urgClr" type="button" hidden></button></div>
+      <div class="card" id="cDesp" data-tab="casa"><h2 class="tog"><span class="ht"><span class="hi">📦</span>Inventario</span> <small id="dN"></small></h2><div class="peek" id="pk_cDesp"></div><div class="hint">Todo lo que tienes. ⚡ = usar primero · el botón de cantidad cambia lleno → medio → poco.</div><div class="seg" id="invMode"><button type="button" data-mode="lugar">Por lugar</button><button type="button" data-mode="tipo">Por tipo</button></div><div class="invf" id="invF"></div><div id="desp"></div></div>
     </div>
     <div class="col" data-col="compras"><div class="colh">🛒 Compras</div>
-      <div class="card" id="cFlash" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
-      <div class="card" id="cComp" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
+      <div class="card" id="cFlash" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">⚡</span>Compras flash</span> <small id="fN"></small></h2><div class="peek" id="pk_cFlash"></div><div class="hint">Lo que necesitas pronto. Se eligen desde Compras con ⚡.</div><div id="flash"></div></div>
+      <div class="card" id="cComp" data-tab="compras"><h2 class="tog"><span class="ht"><span class="hi">🛒</span>Compras</span> <small id="cN"></small></h2><div class="peek" id="pk_cComp"></div><div class="hint">Cuadrito = comprado (pasa a casa) · ⚡ = flash · ✕ = retirar, no vuelve sola.</div><div id="compras"></div><div class="sug" id="sug"></div>
         <form class="cadd" id="cForm" autocomplete="off"><input id="cIng" list="catList" placeholder="Añadir (varios con coma)"><button class="a" style="height:38px">Añadir</button></form>
       </div>
     </div>
     <div class="col" data-col="cocinar"><div class="colh">👨‍🍳 Cocinar</div>
-      <div class="card" id="cRec" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div id="recs"></div></div>
-      <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
+      <div class="card" id="cRec" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">👨‍🍳</span>Qué cocinar</span> <small>primero lo que rescata</small></h2><div class="peek" id="pk_cRec"></div><div id="recs"></div></div>
+      <div class="card" id="cMenu" data-tab="cocinar"><h2 class="tog"><span class="ht"><span class="hi">📅</span>Menú de la semana</span> <small id="mN"></small></h2><div class="peek" id="pk_cMenu"></div><div id="menu"></div><button class="a" id="mGen" type="button" style="margin-top:12px;height:38px">Armar semana</button></div>
     </div>
+  </section>
+  <section class="pano" id="pano">
+    <div class="pc"><div class="ph">Próximos 7 días<small id="pvN"></small></div><div class="wk" id="pWeek"></div></div>
+    <div class="pc"><div class="ph">Compras por pasillo<small id="paN"></small></div><div class="ai" id="pAisle"></div></div>
+    <div class="pc"><div class="ph" id="pMesT">Este mes</div><div class="mo" id="pMes"></div></div>
   </section>
   <div class="mes" id="mes" data-tab="casa" hidden></div>
 </main>
@@ -320,6 +359,6 @@ details.g>summary{user-select:none;-webkit-user-select:none}
 <div class="login" id="login" hidden><div class="box"><h2>🍳 Cocina</h2><p>Entra con tu cuenta de Google de SHAAH para ver tu inventario.</p><button id="loginBtn" type="button">Entrar con Google</button><div class="err" id="loginErr"></div></div></div>
 <script src="../assets/supabase-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
 <script src="api.js?v=d18fd3b5"></script>
-<script src="app.js?v=14f876c8"></script>
+<script src="app.js?v=e5f93e51"></script>
 </body>
 </html>
